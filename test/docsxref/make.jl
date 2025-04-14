@@ -52,23 +52,66 @@ end
     captured = IOCapture.capture() do
         makedocs(; kwargs...)
     end
+
+    output = replace(captured.output,
+                     "\\src\\index" => "/src/index",
+                     "\\src\\page" => "/src/page")
+
     @test isnothing(captured.value)
-    @test contains(
-        replace(captured.output, "\\src\\index" => "/src/index"),
+    @test contains(output,
         """
         ┌ Warning: Cannot resolve @ref for md"[`AbstractSelector`](@ref)" in docsxref/src/index.md.
         │ - No docstring found in doc for binding `Main.DocsReferencingMain.AbstractSelector`.
         │ - Fallback resolution in Main for `AbstractSelector` -> `Documenter.Selectors.AbstractSelector` is only allowed for fully qualified names
         """
     )
-    @test contains(
-        replace(captured.output, "\\src\\page" => "/src/page"),
+    @test contains(output,
         """
         ┌ Warning: Cannot resolve @ref for md"[`DocsReferencingMain.f`](@ref)" in docsxref/src/page.md.
         │ - Exception trying to find docref for `DocsReferencingMain.f`: unable to get the binding for `DocsReferencingMain.f` in module Documenter.Selectors
         │ - Fallback resolution in Main for `DocsReferencingMain.f` -> `Main.DocsReferencingMain.f` is only allowed for fully qualified names
         """
     )
+
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[header](@ref)" in docsxref/src/index.md.
+        │ - Header with slug 'header' in docsxref/src/index.md does not exist.
+        """
+    )
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[header link](@ref \\\"header\\\")" in docsxref/src/index.md.
+        │ - Header with slug 'header' in docsxref/src/index.md does not exist.
+        """
+    )
+
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[Multiple words](@ref)" in docsxref/src/index.md.
+        │ - Header with slug 'Multiple-words' in docsxref/src/index.md does not exist.
+        """
+    )
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[header link](@ref \\\"Multiple words\\\")" in docsxref/src/index.md.
+        │ - Header with slug 'Multiple-words' in docsxref/src/index.md does not exist.
+        """
+    )
+
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[`foobar`](@ref)" in docsxref/src/index.md.
+        │ - No docstring found in doc for binding `Main.foobar`.
+        """
+    )
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[docstring link](@ref Main.foobar)" in docsxref/src/index.md.
+        │ - No docstring found in doc for binding `Main.foobar`.
+        """
+    )
+
     index_html = joinpath(dirname(@__FILE__), "build", "index.html")
     @test isfile(index_html)
     if isfile(index_html)
@@ -77,6 +120,15 @@ end
         @test contains(html, "<a href=\"index.html#Documenter.Selectors.AbstractSelector\"><code>Documenter.Selectors.AbstractSelector</code></a>")
         @test contains(html, "<a href=\"index.html#Documenter.Selectors.AbstractSelector\"><code>Main.AbstractSelector</code></a>")
         @test contains(html, "<a href=\"@ref\"><code>AbstractSelector</code></a>")
+
+        @test contains(html, "<a href=\"index.html#API\">API</a>")
+        @test contains(html, "<a href=\"index.html#API\">header link</a>")
+        @test contains(html, "<a href=\"index.html#Two-words\">Two words</a>")
+        @test contains(html, "<a href=\"index.html#Two-words\">header link</a>")
+        @test contains(html, "<a href=\"https://github.com/JuliaDocs/Documenter.jl/issues/12345\">#12345</a>")
+        @test contains(html, "<a href=\"https://github.com/JuliaDocs/Documenter.jl/issues/12345\">issue link</a>")
+        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\"><code>DocsReferencingMain.g</code></a>")
+        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\">docstring link</a>")
     end
     page_html = joinpath(dirname(@__FILE__), "build", "page.html")
     @test isfile(page_html)
@@ -87,6 +139,7 @@ end
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.f\"><code>Main.DocsReferencingMain.f</code></a>")
         @test contains(html, "<a href=\"index.html#Documenter.hide\"><code>Documenter.hide</code></a>")
     end
+
 
 end
 
