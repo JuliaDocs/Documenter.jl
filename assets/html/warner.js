@@ -38,19 +38,24 @@ function maybeAddWarning() {
     document.body.removeChild(div);
   });
   const href = window.documenterBaseURL + "/../" + window.DOCUMENTER_STABLE;
-  
+
   // Determine if this is a development version or an older release
-  let warningMessage = '';
+  let warningMessage = "";
   if (window.DOCUMENTER_IS_DEV_VERSION === true) {
     div.classList.add("dev-warning-overlay");
-    warningMessage = 'This documentation is for the <strong>development version</strong> and may contain unstable or unreleased features.<br>';
+    warningMessage =
+      "This documentation is for the <strong>development version</strong> and may contain unstable or unreleased features.<br>";
   } else {
     div.classList.add("outdated-warning-overlay");
-    warningMessage = 'This documentation is for an <strong>older version</strong> that may be missing recent changes.<br>';
+    warningMessage =
+      "This documentation is for an <strong>older version</strong> that may be missing recent changes.<br>";
   }
-  
-  warningMessage += '<a href="' + href + '">Click here to go to the documentation for the latest stable release.</a>';
-  
+
+  warningMessage +=
+    '<a href="' +
+    href +
+    '">Click here to go to the documentation for the latest stable release.</a>';
+
   div.innerHTML = warningMessage;
   div.appendChild(closer);
   document.body.appendChild(div);
