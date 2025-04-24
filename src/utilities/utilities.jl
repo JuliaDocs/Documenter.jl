@@ -619,7 +619,7 @@ function get_sandbox_module!(meta, prefix, name = nothing; share_default_module 
     # or initialize a new clean one, which gets stored in meta for future re-use.
     return get!(meta, sym) do
         # If the module does not exist already, we need to construct a new one.
-        m = Core.eval(Main, :(
+        m = Main.eval(:(
                     module $sym
                     end
                 )
