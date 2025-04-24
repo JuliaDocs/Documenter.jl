@@ -1648,10 +1648,12 @@ function generate_redirect_file(redirectfile::AbstractString, entries)
     return
 end
 
-function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing})
+function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing}, is_dev_version::Bool = false)
     open(joinpath(dir, "siteinfo.js"), "w") do buf
         if version !== nothing
             println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+            # Add the development version flag
+            println(buf, "var DOCUMENTER_IS_DEV_VERSION = $(is_dev_version ? "true" : "false");")
         else
             println(buf, "var DOCUMENTER_VERSION_SELECTOR_DISABLED = true;")
         end
