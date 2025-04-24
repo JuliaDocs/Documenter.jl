@@ -10,9 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676])
 * Added different banners for dev and unreleased docs ([#2382], [#2682])
 
-## Fixed
+### Fixed
 
 * `@meta`, `@setup`, and `@docs` blocks no longer generate spurious entries in the search index. ([#1929], [#2675])
+* Fixed a performance regression introduced in v1.10.0 as part of the code clearing out the sandbox modules to save memory and caused by calling `GC.gc()` too often.
 
 ## Version [v1.10.1] - 2025-03-31
 
