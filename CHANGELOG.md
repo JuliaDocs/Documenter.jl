@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676])
 * Added different banners for dev and unreleased docs ([#2382], [#2682])
 
+## Version [v1.10.2] - 2025-04-25
+
 ### Fixed
 
 * `@meta`, `@setup`, and `@docs` blocks no longer generate spurious entries in the search index. ([#1929], [#2675])
-* Fixed a performance regression introduced in v1.10.0 as part of the code clearing out the sandbox modules to save memory and caused by calling `GC.gc()` too often.
+* Fixed a performance regression introduced in v1.10.0 as part of the code clearing out the sandbox modules to save memory and caused by calling `GC.gc()` too often. ([#2685])
 
 ## Version [v1.10.1] - 2025-03-31
 
@@ -1474,6 +1476,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.8.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.8.1
 [v1.9.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.9.0
 [v1.10.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.0
+[v1.10.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.1
+[v1.10.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.2
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1843,6 +1847,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1912]: https://github.com/JuliaDocs/Documenter.jl/issues/1912
 [#1919]: https://github.com/JuliaDocs/Documenter.jl/issues/1919
 [#1924]: https://github.com/JuliaDocs/Documenter.jl/issues/1924
+[#1929]: https://github.com/JuliaDocs/Documenter.jl/issues/1929
 [#1930]: https://github.com/JuliaDocs/Documenter.jl/issues/1930
 [#1931]: https://github.com/JuliaDocs/Documenter.jl/issues/1931
 [#1932]: https://github.com/JuliaDocs/Documenter.jl/issues/1932
@@ -1956,6 +1961,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2374]: https://github.com/JuliaDocs/Documenter.jl/issues/2374
 [#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
 [#2378]: https://github.com/JuliaDocs/Documenter.jl/issues/2378
+[#2382]: https://github.com/JuliaDocs/Documenter.jl/issues/2382
 [#2394]: https://github.com/JuliaDocs/Documenter.jl/issues/2394
 [#2399]: https://github.com/JuliaDocs/Documenter.jl/issues/2399
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
@@ -1980,6 +1986,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2496]: https://github.com/JuliaDocs/Documenter.jl/issues/2496
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
+[#2505]: https://github.com/JuliaDocs/Documenter.jl/issues/2505
 [#2511]: https://github.com/JuliaDocs/Documenter.jl/issues/2511
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
@@ -2018,6 +2025,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2659]: https://github.com/JuliaDocs/Documenter.jl/issues/2659
 [#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
 [#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
+[#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
+[#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
+[#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
+[#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
