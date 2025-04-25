@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.10.2] - 2025-04-25
 
 ### Fixed
 
@@ -1469,6 +1469,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.8.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.8.1
 [v1.9.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.9.0
 [v1.10.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.0
+[v1.10.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.1
+[v1.10.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.2
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1838,6 +1840,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1912]: https://github.com/JuliaDocs/Documenter.jl/issues/1912
 [#1919]: https://github.com/JuliaDocs/Documenter.jl/issues/1919
 [#1924]: https://github.com/JuliaDocs/Documenter.jl/issues/1924
+[#1929]: https://github.com/JuliaDocs/Documenter.jl/issues/1929
 [#1930]: https://github.com/JuliaDocs/Documenter.jl/issues/1930
 [#1931]: https://github.com/JuliaDocs/Documenter.jl/issues/1931
 [#1932]: https://github.com/JuliaDocs/Documenter.jl/issues/1932
@@ -2013,6 +2016,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2659]: https://github.com/JuliaDocs/Documenter.jl/issues/2659
 [#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
 [#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
+[#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
+[#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
