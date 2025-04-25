@@ -5,9 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## Fixed
+### Fixed
 
 * `@meta`, `@setup`, and `@docs` blocks no longer generate spurious entries in the search index. ([#1929], [#2675])
+* Fixed a performance regression introduced in v1.10.0 as part of the code clearing out the sandbox modules to save memory and caused by calling `GC.gc()` too often. ([#2685])
 
 ## Version [v1.10.1] - 2025-03-31
 
