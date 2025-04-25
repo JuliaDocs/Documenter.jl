@@ -2396,7 +2396,7 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
     node_repr = sprint(io -> show(io, node))
-    content_hash = bytes2hex(SHA.sha1(node_repr))[1:8]
+    content_hash = string(hash(node), base=16)[1:8]
     admonition_id = if !isempty(a.title)
         base_id = Documenter.slugify(a.title)
         "$(base_id)-$(content_hash)"
