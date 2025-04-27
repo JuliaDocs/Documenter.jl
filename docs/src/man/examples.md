@@ -44,6 +44,7 @@ Packages that have tagged versions available in the general Registry:
 - [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/stable/)
 - [Mimi.jl](https://www.mimiframework.org/Mimi.jl/stable/)
+- [NeuralEstimators.jl](https://github.com/msainsburydale/NeuralEstimators.jl)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/stable/)
 - [NLOptControl.jl](https://huckl3b3rry87.github.io/MPCDocs.jl/stable/)
 - [Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/)
