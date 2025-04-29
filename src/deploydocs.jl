@@ -16,7 +16,8 @@
         forcepush = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview = false,
-        repo_previews = repo,
+        repo_previews = nothing,
+        deploy_repo = nothing,
         branch_previews = branch,
         tag_prefix = "",
     )
@@ -141,6 +142,8 @@ It defaults to the value of `branch`.
 **`repo_previews`** is the remote repository to which pull request previews are
 deployed. It defaults to the value of `repo`.
 
+** `deploy_repo`** is the remote repository to deploy to.
+
 !!! note
     Pull requests made from forks will not have previews.
     Hosting previews requires access to the deploy key.
@@ -190,8 +193,9 @@ function deploydocs(;
 
         repo = error("no 'repo' keyword provided."),
         branch = "gh-pages",
+        deploy_repo = nothing,
 
-        repo_previews = repo,
+        repo_previews = nothing,
         branch_previews = branch,
 
         deps = nothing,
@@ -230,6 +234,7 @@ function deploydocs(;
         push_preview = push_preview,
         repo = repo,
         repo_previews = repo_previews,
+        deploy_repo = deploy_repo,
         tag_prefix
     )
     if deploy_decision.all_ok

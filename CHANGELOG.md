@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676], [#2688])
 * Added different banners for dev and unreleased docs ([#2382], [#2682])
+* Introduced the `deploy_repo` keyword argument for `deploydocs` to better support out-of-repo documentation deployments ([#2692])
 
 ## Version [v1.10.2] - 2025-04-25
 
@@ -2029,6 +2030,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
 [#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
 [#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
+[#2692]: https://github.com/JuliaDocs/Documenter.jl/pull/2692
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

@@ -602,15 +602,10 @@ repository on a "target" repo:
 4. Adapt `docs/make.jl` to deploy on "target" repository:
 
 ```julia
-# url of target repo
-repo = "github.com/TargetRepoOrg/TargetRepo.git"
-
-# You have to override the corresponding environment variable that
-# deplodocs uses to determine if it is deploying to the correct repository.
-# For GitHub, it's the GITHUB_REPOSITORY variable:
-withenv("GITHUB_REPOSITORY" => repo) do
-  deploydocs(repo=repo)
-end
+deploydocs(
+  repo="github.com/SourceRepoOrg/SourceRepo",
+  deploy_repo="github.com/TargetRepoOrg/TargetRepo"
+)
 ```
 
 ## Deploying from a monorepo
