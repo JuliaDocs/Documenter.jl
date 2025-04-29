@@ -2,7 +2,12 @@
 
 function clear_global!(M::Module, name::Symbol)
     isconst(M, name) && return
-    VERSION >= v"1.9" ? setglobal!(M, name, nothing) : Core.eval(M, :($name = $nothing))
+    if VERSION >= v"1.9"
+        Nothing <: Core.get_binding_type(M, name) || return
+        setglobal!(M, name, nothing)
+    else
+        Core.eval(M, :($name = $nothing))
+    end
     return nothing
 end
 
