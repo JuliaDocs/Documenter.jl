@@ -15,7 +15,7 @@ function clear_module!(M::Module)
         # it is not possible to set `nothing` to variables, which are strongly typed
         # still attempt to set it, but ignore any errors
         try
-            invokelatest(clear_global!, M, name::Symbol)
+            Base.invokelatest(clear_global!, M, name::Symbol)
         catch err
             @debug "Could not clear variable `$name` by assigning `nothing`" err
         end
