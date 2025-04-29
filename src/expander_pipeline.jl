@@ -3,7 +3,7 @@
 function clear_global!(M::Module, name::Symbol)
     isconst(M, name) && return
     VERSION >= v"1.9" ? setglobal!(M, name, nothing) : Core.eval(M, :($name = $nothing))
-    nothing
+    return nothing
 end
 
 # helper for "cleaning up" content of modules to enable garbage collection.
