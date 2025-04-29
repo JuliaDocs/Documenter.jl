@@ -10,7 +10,7 @@ end
 # See also <https://github.com/JuliaDocs/Documenter.jl/issues/2640>.
 function clear_module!(M::Module)
     # we need `invokelatest` here for Julia >= 1.12 (or 1.13?)
-    for name in Base.invokelatest(names, M, all = true)::Vector{Any}
+    for name in Base.invokelatest(names, M, all = true)::Vector{Symbol}
         # see, e.g https://github.com/JuliaDocs/Documenter.jl/issues/2673
         # it is not possible to set `nothing` to variables, which are strongly typed
         # still attempt to set it, but ignore any errors
