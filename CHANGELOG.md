@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676])
+* Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676], [#2688])
 * Added different banners for dev and unreleased docs ([#2382], [#2682])
 
 ## Version [v1.10.2] - 2025-04-25
