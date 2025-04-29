@@ -618,12 +618,14 @@ function get_sandbox_module!(meta, prefix, name = nothing; share_default_module 
     # Either fetch and return an existing sandbox from the meta dictionary (based on the generated name),
     # or initialize a new clean one, which gets stored in meta for future re-use.
     return get!(meta, sym) do
-        # If the module does not exists already, we need to construct a new one.
-        m = Module(sym)
-        # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-        Core.eval(m, :(eval(x) = Core.eval($m, x)))
-        # modules created with Module() does not have include defined
-        Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
+        # If the module does not exist already, we need to construct a new one.
+        m = Core.eval(Main, :(
+                    module $sym
+                    end
+                )
+            )
+        # Because this was eval'ed in using module creation syntax, `eval`, `include` and `Base`
+        # already exist in the scope of this module.
         return m
     end
 end
