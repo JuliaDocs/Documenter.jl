@@ -1648,10 +1648,12 @@ function generate_redirect_file(redirectfile::AbstractString, entries)
     return
 end
 
-function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing})
+function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing}, is_dev_version::Bool = false)
     open(joinpath(dir, "siteinfo.js"), "w") do buf
         if version !== nothing
             println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+            # Add the development version flag
+            println(buf, "var DOCUMENTER_IS_DEV_VERSION = $(is_dev_version ? "true" : "false");")
         else
             println(buf, "var DOCUMENTER_VERSION_SELECTOR_DISABLED = true;")
         end
@@ -2394,7 +2396,7 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
     node_repr = sprint(io -> show(io, node))
-    content_hash = bytes2hex(SHA.sha1(node_repr))[1:8]
+    content_hash = string(hash(node_repr), base = 16)
     admonition_id = if !isempty(a.title)
         base_id = Documenter.slugify(a.title)
         "$(base_id)-$(content_hash)"

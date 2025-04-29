@@ -24,7 +24,6 @@ function clear_modules!(d::Dict{Symbol, Any})
         startswith(String(k), "__atexample__") || continue
         v isa Module && clear_module!(v)
     end
-    GC.gc()
     return
 end
 

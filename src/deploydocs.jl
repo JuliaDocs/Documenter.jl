@@ -424,7 +424,9 @@ function git_push(
             HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
         else
             # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
-            HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
+            # Determine if this is a development version (e.g., "dev" or "latest")
+            is_dev_version = (subfolder == devurl || subfolder == "latest")
+            HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder, is_dev_version)
 
             # Expand the users `versions` vector
             entries, symlinks = HTMLWriter.expand_versions(dirname, versions)

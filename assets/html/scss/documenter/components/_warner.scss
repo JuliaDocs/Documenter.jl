@@ -1,14 +1,11 @@
-// outdated-docs warning overlay
-.outdated-warning-overlay {
+// Base warning overlay styles
+.warning-overlay-base {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   box-shadow: 0 0 10px rgba(0,0,0,0.3);
   z-index: 999;
-  background-color: map-get($admonition-background, 'danger');
-  color: map-get($admonition-body-color, 'danger');
-  border-bottom: 3px solid map-get($admonition-header-background, 'danger');
   padding: 10px 35px;
   text-align: center;
   font-size: 15px;
@@ -27,4 +24,20 @@
       color: $link-hover;
     }
   }
+}
+
+// outdated-docs warning overlay (for older versions)
+.outdated-warning-overlay {
+  @extend .warning-overlay-base;
+  background-color: map-get($admonition-background, 'danger');
+  color: map-get($admonition-body-color, 'danger');
+  border-bottom: 3px solid map-get($admonition-header-background, 'danger');
+}
+
+// dev-docs warning overlay (for development versions)
+.dev-warning-overlay {
+  @extend .warning-overlay-base;
+  background-color: map-get($admonition-background, 'warning');
+  color: map-get($admonition-body-color, 'warning');
+  border-bottom: 3px solid map-get($admonition-header-background, 'warning');
 }
