@@ -30,26 +30,45 @@ module UnitTests
     const pi = 3.0
 
     const TA = Vector{UInt128}
-    const TB = Array{T, 8} where T
+    const TB = Array{T, 8} where {T}
     const TC = Union{Int64, Float64, String}
 end
 
 module OuterModule
-module InnerModule
-import ..OuterModule
-export OuterModule
-end
+    module InnerModule
+        import ..OuterModule
+        export OuterModule
+    end
 end
 
 module ExternalModule end
 module ModuleWithAliases
-using ..ExternalModule
-Y = ExternalModule
-module A
-    module B
-    const X = Main
+    using ..ExternalModule
+    Y = ExternalModule
+    module A
+        module B
+            const X = Main
+        end
     end
 end
+
+function git_config(path = pwd())
+    return trun(`$(git()) -C $path config user.email "tester@example.com"`) &&
+        trun(`$(git()) -C $path config user.name "Test Committer"`) &&
+        trun(`$(git()) -C $path config commit.gpgsign false`)
+end
+
+# Between the JuliaSyntax merge and https://github.com/JuliaLang/julia/pull/57280
+# there were some differences in the AST.
+function bad_juliasyntax_version()
+    return any(
+        (
+            # JuliaSyntax merge and the #57280 backport
+            v"1.10.0-DEV.1520" <= VERSION <= v"1.12.0-DEV.1985",
+            # 1.13-DEV until #57280
+            v"1.13-" <= VERSION <= v"1.13.0-DEV.13",
+        )
+    )
 end
 
 @testset "utilities" begin
@@ -147,8 +166,7 @@ end
             cd(path) do
                 @test_throws Documenter.RepoCommitError Documenter.repo_commit(path)
                 @test trun(`$(git()) init`)
-                @test trun(`$(git()) config user.email "tester@example.com"`)
-                @test trun(`$(git()) config user.name "Test Committer"`)
+                @test git_config()
                 @test_throws Documenter.RepoCommitError Documenter.repo_commit(path)
                 touch("foo")
                 @test trun(`$(git()) add -A`)
@@ -167,8 +185,7 @@ end
         cd(path_repo) do
             # Create a simple mock repo in a temporary directory with a single file.
             @test trun(`$(git()) init`)
-            @test trun(`$(git()) config user.email "tester@example.com"`)
-            @test trun(`$(git()) config user.name "Test Committer"`)
+            @test git_config()
             @test trun(`$(git()) remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
@@ -178,9 +195,9 @@ end
 
             # Run tests
             commit = Documenter.repo_commit(path_repo)
-            doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
+            doc = Documenter.Document(root = pwd(), remotes = Dict(pwd() => remote))
 
-            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.edit_url(doc, filepath; rev = nothing) == "//blob/$(commit)/src/SourceFile.jl#"
             # The '//blob/..' remote conflicts with the github.com origin.url of the repository and source_url()
             # picks the wrong remote currently ()
             @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
@@ -206,9 +223,9 @@ end
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             # Run tests
             commit = Documenter.repo_commit(path_worktree)
-            doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
+            doc = Documenter.Document(root = pwd(), remotes = Dict(pwd() => remote))
 
-            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.edit_url(doc, filepath; rev = nothing) == "//blob/$(commit)/src/SourceFile.jl#"
             @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
@@ -228,8 +245,7 @@ end
         mkpath(path_submodule)
         cd(path_submodule) do
             @test trun(`$(git()) init`)
-            @test trun(`$(git()) config user.email "tester@example.com"`)
-            @test trun(`$(git()) config user.name "Test Committer"`)
+            @test git_config()
             # NOTE: the target path in the `git submodule add` command is necessary for
             # Windows builds, since otherwise Git claims that the path is in a .gitignore
             # file.
@@ -247,11 +263,11 @@ end
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             # Run tests
             commit = Documenter.repo_commit(path_submodule_repo)
-            doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
+            doc = Documenter.Document(root = pwd(), remotes = Dict(pwd() => remote))
 
             @test isfile(filepath)
 
-            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.edit_url(doc, filepath; rev = nothing) == "//blob/$(commit)/src/SourceFile.jl#"
             @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
@@ -273,8 +289,7 @@ end
         cd(path_repo_github) do
             # Create a simple mock repo in a temporary directory with a single file.
             @test trun(`$(git()) init`)
-            @test trun(`$(git()) config user.email "tester@example.com"`)
-            @test trun(`$(git()) config user.name "Test Committer"`)
+            @test git_config()
             @test trun(`$(git()) remote add origin git@this-is-not-github.com:JuliaDocs/Documenter.jl.git`)
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
@@ -284,8 +299,8 @@ end
 
             # Run tests
             commit = Documenter.repo_commit(path_repo_github)
-            doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
-            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
+            doc = Documenter.Document(root = pwd(), remotes = Dict(pwd() => remote))
+            @test Documenter.edit_url(doc, filepath; rev = nothing) == "//blob/$(commit)/src/SourceFile.jl#"
             @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
         end
     end
@@ -309,7 +324,7 @@ end
         @test exprs[2][2] == "γγγ_γγγ\n"
 
         @test exprs[3][1] === :γγγ
-        if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+        if bad_juliasyntax_version()
             @test exprs[3][2] == "γγγ\n\n"
         else
             @test exprs[3][2] == "γγγ\n"
@@ -333,7 +348,7 @@ end
                 l1, l2 = parse("x = Int[]$(LE)$(LE)push!(x, 1)$(LE)")
                 @test l1[1] == :(x = Int[])
                 @test l2[1] == :(push!(x, 1))
-                if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+                if bad_juliasyntax_version()
                     @test l1[2] == "x = Int[]$(LE)$(LE)"
                     @test l2[2] == "push!(x, 1)$(LE)\n"
                 else
@@ -345,9 +360,10 @@ end
     end
 
     @testset "PR #1634, issue #1655" begin
-        let parse(x) = Documenter.parseblock(x, nothing, nothing;
-                           linenumbernode=LineNumberNode(123, "testfile.jl")
-                       )
+        let parse(x) = Documenter.parseblock(
+                x, nothing, nothing;
+                linenumbernode = LineNumberNode(123, "testfile.jl")
+            )
             code = """
             1 + 1
             2 + 2
@@ -358,7 +374,7 @@ end
             @test exs[1][1].head == :toplevel
             @test exs[1][1].args[1] == LineNumberNode(124, "testfile.jl")
             @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
-            if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+            if bad_juliasyntax_version()
                 @test exs[2][2] == "2 + 2\n\n"
             else
                 @test exs[2][2] == "2 + 2\n"
@@ -380,7 +396,7 @@ end
             for code in (code1, code2)
                 exs = parse(code)
                 @test length(exs) == 1
-                if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+                if bad_juliasyntax_version()
                     if code == code1
                         @test exs[1][2] == "1 + 1\n\n\n"
                     else
@@ -399,7 +415,7 @@ end
     @testset "mdparse" begin
         mdparse = Documenter.mdparse
 
-        @test_throws ArgumentError mdparse("", mode=:foo)
+        @test_throws ArgumentError mdparse("", mode = :foo)
 
         @test mdparse("") == [
             MarkdownAST.@ast MarkdownAST.Paragraph() do
@@ -411,29 +427,37 @@ end
                 "foo bar"
             end
         ]
-        @test mdparse("", mode=:span) == [
-            MarkdownAST.@ast(MarkdownAST.Text(""))
+        @test mdparse("", mode = :span) == [
+            MarkdownAST.@ast(MarkdownAST.Text("")),
         ]
-        @test mdparse("", mode=:blocks) == []
+        @test mdparse("", mode = :blocks) == []
 
         # Note: Markdown.parse() does not put any child nodes into adminition.contents
         # unless there is something non-empty there, which in turn means that the
         # MarkdownAST Admonition node has no children.
-        @test mdparse("!!! adm"; mode=:single) == [
+        @test mdparse("!!! adm"; mode = :single) == [
             MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
         ]
-        @test mdparse("!!! adm"; mode=:blocks) == [
+        @test mdparse("!!! adm"; mode = :blocks) == [
             MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
         ]
-        @test mdparse("x\n\ny", mode=:blocks) == [
-            MarkdownAST.@ast(MarkdownAST.Paragraph() do; "x"; end),
-            MarkdownAST.@ast(MarkdownAST.Paragraph() do; "y"; end),
+        @test mdparse("x\n\ny", mode = :blocks) == [
+            MarkdownAST.@ast(
+                MarkdownAST.Paragraph() do;
+                    "x"
+                end
+            ),
+            MarkdownAST.@ast(
+                MarkdownAST.Paragraph() do;
+                    "y"
+                end
+            ),
         ]
 
         @quietly begin
-            @test_throws ArgumentError mdparse("!!! adm", mode=:span)
+            @test_throws ArgumentError mdparse("!!! adm", mode = :span)
             @test_throws ArgumentError mdparse("x\n\ny")
-            @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
+            @test_throws ArgumentError mdparse("x\n\ny", mode = :span)
         end
     end
 
@@ -485,10 +509,12 @@ end
             @test occursin(r"require\([\S\s]+\)", output)
         end
         # Error conditions: missing dependency
-        let r = RequireJS([
-                RemoteLibrary("foo", "example.com/foo"),
-                RemoteLibrary("bar", "example.com/bar"; deps = ["foo", "baz"]),
-            ])
+        let r = RequireJS(
+                [
+                    RemoteLibrary("foo", "example.com/foo"),
+                    RemoteLibrary("bar", "example.com/bar"; deps = ["foo", "baz"]),
+                ]
+            )
             @test !verify(r)
             push!(r, RemoteLibrary("baz", "example.com/baz"))
             @test verify(r)
@@ -498,11 +524,13 @@ end
             @test verify(r)
         end
 
-        let io = IOBuffer(raw"""
-            // libraries: foo, bar
-            // arguments: $
-            script
-            """)
+        let io = IOBuffer(
+                raw"""
+                // libraries: foo, bar
+                // arguments: $
+                script
+                """
+            )
             snippet = parse_snippet(io)
             @test snippet.deps == ["foo", "bar"]
             @test snippet.args == ["\$"]
@@ -537,9 +565,11 @@ end
         end
 
         # Proper escaping of generated JS
-        let r = RequireJS([
-                RemoteLibrary("fo\'o", "example.com\n/foo"),
-            ])
+        let r = RequireJS(
+                [
+                    RemoteLibrary("fo\'o", "example.com\n/foo"),
+                ]
+            )
             @test verify(r)
             push!(r, Snippet(["fo\'o"], ["Foo"], "f(x)"))
             output = let io = IOBuffer()
@@ -628,17 +658,18 @@ end
             @test trun(`$(git()) -C $(path) init --bare`)
             @test isfile(joinpath(path, "HEAD"))
             if head !== nothing
-                write(joinpath(path, "HEAD"), """
-                ref: refs/heads/$(head)
-                """)
+                write(
+                    joinpath(path, "HEAD"), """
+                    ref: refs/heads/$(head)
+                    """
+                )
             end
             mktempdir() do subdir_path
                 # We need to commit something to the non-standard branch to actually
                 # "activate" the non-standard HEAD:
                 head = (head === nothing) ? "master" : head
                 @test trun(`$(git()) clone $(path) $(subdir_path)`)
-                @test trun(`$(git()) -C $(subdir_path) config user.email "tester@example.com"`)
-                @test trun(`$(git()) -C $(subdir_path) config user.name "Test Committer"`)
+                @test git_config(subdir_path)
                 @test trun(`$(git()) -C $(subdir_path) checkout -b $(head)`)
                 @test trun(`$(git()) -C $(subdir_path) commit --allow-empty -m"initial empty commit"`)
                 @test trun(`$(git()) -C $(subdir_path) push --set-upstream origin $(head)`)
@@ -650,8 +681,8 @@ end
                 # Note: running @test_logs with match_mode=:any here so that the tests would
                 # also pass when e.g. JULIA_DEBUG=Documenter when the tests are being run.
                 # If there is no parent remote repository, we should get a warning and the fallback value:
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); fallback = "fallback")) == "fallback"
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd())) == "master"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); fallback = "fallback")) == "fallback"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd())) == "master"
                 # We'll set up two "remote" bare repositories with non-standard HEADs:
                 git_create_bare_repo("barerepo", head = "maindevbranch")
                 git_create_bare_repo("barerepo_other", head = "main")
@@ -664,8 +695,8 @@ end
                 @test Documenter.git_remote_head_branch(".", "local") == "maindevbranch"
                 @test Documenter.git_remote_head_branch(".", "local"; remotename = "other") == "main"
                 # Asking for a nonsense remote should also warn and drop back to fallback:
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense", fallback = "fallback")) == "fallback"
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense")) == "master"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense", fallback = "fallback")) == "fallback"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense")) == "master"
             end
         end
     end
@@ -674,43 +705,43 @@ end
     @testset "remove_common_backtrace" begin
         @test remove_common_backtrace([], []) == []
         @test remove_common_backtrace([1], []) == [1]
-        @test remove_common_backtrace([1,2], []) == [1,2]
-        @test remove_common_backtrace([1,2,3], [1]) == [1,2,3]
-        @test remove_common_backtrace([1,2,3], [2]) == [1,2,3]
-        @test remove_common_backtrace([1,2,3], [3]) == [1,2]
-        @test remove_common_backtrace([1,2,3], [2,3]) == [1]
-        @test remove_common_backtrace([1,2,3], [1,3]) == [1,2]
-        @test remove_common_backtrace([1,2,3], [1,2,3]) == []
-        @test remove_common_backtrace([1,2,3], [0,1,2,3]) == []
+        @test remove_common_backtrace([1, 2], []) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [1]) == [1, 2, 3]
+        @test remove_common_backtrace([1, 2, 3], [2]) == [1, 2, 3]
+        @test remove_common_backtrace([1, 2, 3], [3]) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [2, 3]) == [1]
+        @test remove_common_backtrace([1, 2, 3], [1, 3]) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [1, 2, 3]) == []
+        @test remove_common_backtrace([1, 2, 3], [0, 1, 2, 3]) == []
     end
 
     @testset "slugify" begin
         for (test, answer) in [
-            # Nonstrings get converted to strings
-            1 => "1",
-            # Good strings stay good
-            "a" => "a",
-            "my-heading" => "my-heading",
-            "documenter.jl/abc" => "documenter.jl/abc",
-            "https://documenter.jl/abc" => "https://documenter.jl/abc",
-            "2nd" => "2nd",
-            "2nd-2" => "2nd-2",
-            "123" => "123",
-            "123a" => "123a",
-            # Spaces get replaced by -
-            "2nd feature" => "2nd-feature",
-            # & gets replaced by -and-
-            "a & b" => "a-and-b",
-            # Multiple -- are reduced
-            "a---b" => "a-b",
-            # Leading and trailing - are stripped
-            "-a---b-" => "a-b",
-            # A combination of things
-            "   a & b" => "a-and-b",
-            "--a & b" => "a-and-b",
-            # Non letter, punctuation, digit, or `-` characters are removed
-            "a\0a" => "aa"
-        ]
+                # Nonstrings get converted to strings
+                1 => "1",
+                # Good strings stay good
+                "a" => "a",
+                "my-heading" => "my-heading",
+                "documenter.jl/abc" => "documenter.jl/abc",
+                "https://documenter.jl/abc" => "https://documenter.jl/abc",
+                "2nd" => "2nd",
+                "2nd-2" => "2nd-2",
+                "123" => "123",
+                "123a" => "123a",
+                # Spaces get replaced by -
+                "2nd feature" => "2nd-feature",
+                # & gets replaced by -and-
+                "a & b" => "a-and-b",
+                # Multiple -- are reduced
+                "a---b" => "a-b",
+                # Leading and trailing - are stripped
+                "-a---b-" => "a-b",
+                # A combination of things
+                "   a & b" => "a-and-b",
+                "--a & b" => "a-and-b",
+                # Non letter, punctuation, digit, or `-` characters are removed
+                "a\0a" => "aa",
+            ]
             @test Documenter.slugify(test) == answer
         end
     end

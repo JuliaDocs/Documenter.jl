@@ -15,7 +15,6 @@ $blue: #3c5dcd !default;
 $purple: #9558b2 !default;
 
 $link: #2e63b8 !default;
-$compat: $turquoise !default;
 $text: #222222 !default;
 $text-strong: $text !default;
 $code: #000000 !default;
@@ -26,6 +25,17 @@ $code-background: rgba(0, 0, 0, 0.05) !default;
 $code-padding: 0.1em;
 
 $documenter-docstring-background: transparent !default;
+
+// Shared configuration for docstrings/code snippets/admonitions etc.
+$documenter-element-border-width: 2px;
+$documenter-element-border-radius: 4px;
+
+$documenter-docstring-border-width: $documenter-element-border-width;
+$documenter-docstring-border-radius: $documenter-element-border-radius;
+$documenter-codeblock-border-width: $documenter-element-border-width;
+$documenter-codeblock-border-radius: $documenter-element-border-radius;
+$documenter-admonition-border-width: $documenter-element-border-width;
+$documenter-admonition-border-radius: $documenter-element-border-radius;
 
 $documenter-is-dark-theme: false !default;
 

@@ -1,6 +1,10 @@
-name: regression-tests
+name: 'Regression Tests'
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/regression-tests.yml'
+      - 'Project.toml'
 jobs:
   test-dependent-packages:
     name: run-tests-${{ matrix.package }}
@@ -15,9 +19,11 @@ jobs:
           - package: 'DocumenterInterLinks'
           - package: 'DocumenterMermaid'
           - package: 'Asciicast'
+          - package: 'DocumenterPages'
+          - package: 'DocumenterDescriptions'
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: actions/cache@v4
@@ -50,7 +56,7 @@ jobs:
           - package: 'MathOptInterface'
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: actions/cache@v4

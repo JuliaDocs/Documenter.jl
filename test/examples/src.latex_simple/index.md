@@ -131,3 +131,14 @@ lines**.
 ## Issue 2300
 
 You Shall Not Break! You Shall Not Break! You Shall Not Break!
+
+## PR 2056
+
+Issues: `#1521`, `#2054`, `#2399`
+
+```@repl
+x = 1 # hide
+x = 2 # hide
+println(x)
+x
+```

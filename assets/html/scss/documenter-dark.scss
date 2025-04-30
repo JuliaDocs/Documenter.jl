@@ -26,22 +26,26 @@ $cyan: #3489da;
 $blue: #3c5dcd;
 $purple: #9558b2;
 
-$info: #024c7d;
-$success: #008438;
-$warning: #ad8100;
-$danger: #9e1b0d;
-$compat: #137886;
+// Admonition colors
+$info: $blue;
+$success: $green;
+$warning: $yellow;
+$danger: $red;
+$compat: $cyan;
+$todo: $purple;
+$admonition-default: $grey-lighter;
 
 $admonition-background: (
   'default': $background, 'info': $background, 'success': $background, 'warning': $background,
   'danger': $background, 'compat': $background
 );
-$admonition-header-background: ('default': $grey);
 // These would normally get initialized in _admonition.scss. However, since we are not
 // loading it on the top level, we need to set them here too to avoid deprecation warnings.
 // https://github.com/JuliaDocs/Documenter.jl/issues/1766
+$admonition-header-background: ();
 $admonition-header-color: ();
 $admonition-body-color: ();
+$admonition-border-color: ();
 
 $body-size: 16px;
 $documenter-sidebar-background: $grey-darker;

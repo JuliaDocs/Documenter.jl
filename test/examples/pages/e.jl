@@ -1,6 +1,17 @@
 module E
 
-export f_1, f_2, f_3
+# https://discourse.julialang.org/t/is-compat-jl-worth-it-for-the-public-keyword/119041/
+macro public_or_export(ex)
+    args = ex isa Symbol ? (ex,) : Base.isexpr(ex, :tuple) ? ex.args : error()
+    return if Base.isdefined(Base, :ispublic)
+        esc(Expr(:public, args...))
+    else
+        esc(Expr(:export, args...))
+    end
+end
+
+export f_1, f_2
+@public_or_export f_3
 
 "f_1"
 f_1(x) = x

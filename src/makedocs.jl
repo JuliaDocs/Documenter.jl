@@ -122,7 +122,7 @@ is enabled by default.
 
 **`sitename`** is displayed in the title bar and/or the navigation menu when applicable.
 
-**`pages`** can be use to specify a hierarchical page structure, and the order in which
+**`pages`** can be used to specify a hierarchical page structure, and the order in which
 the pages appear in the navigation of the rendered output. If omitted, Documenter will
 automatically generate a flat list of pages based on the files present in the source
 directory.
@@ -174,11 +174,20 @@ by setting `Draft = true` in an `@meta` block.
 **`checkdocs`** instructs [`makedocs`](@ref) to check whether all names within the modules
 defined in the `modules` keyword that have a docstring attached have the docstring also
 listed in the manual (e.g. there's a `@docs` block with that docstring). Possible values
-are `:all` (check all names; the default), `:exports` (check only exported names) and
-`:none` (no checks are performed).
+are `:all` (check all names; the default), `:exports` (check only exported names),
+`:public` (check exported names and those marked with the `public` keyword in Julia ≥ 1.11),
+and `:none` (no checks are performed).
 
 By default, if the document check detect any errors, it will fail the documentation build.
-This behavior can be relaxed with the `warnonly` keyword.
+This behavior can be relaxed with the `warnonly` or `checkdocs_ignored_modules` keywords.
+
+**`checkdocs_ignored_modules`** prevents `checkdocs` from checking modules supplied as a list
+of module objects. It will also cause all submodules of these module to be ignored. It can be
+useful for completely private modules including modules which have been vendored from
+elsewhere.
+
+Note that `checkdocs_ignored_modules` does not conversely verify that these docstrings are *not*
+included in the documentation.
 
 **`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
 of external-pointing links, to make sure that they are up-to-date. The links and their
@@ -191,6 +200,22 @@ ignored.
 
 **`linkcheck_timeout`** configures how long `curl` waits (in seconds) for a link request to
 return a response before giving up. The default is 10 seconds.
+
+**`linkcheck_useragent`** can be used to override the user agent string used by the HTTP and
+HTTPS requests made when checking for broken links. If set to `nothing`, it uses the default
+user agent string of the library/tool used to actually perform the requests (currently, the
+system's `curl` binary).
+
+If unset, Documenter uses the following user agent string:
+
+```
+$(_LINKCHECK_DEFAULT_USERAGENT)
+```
+
+This is set to mimic a realistic web browser. However, the exact user agent string is subject
+to change. As such, it is possible that breakages can occur when Documenter's version changes,
+but the goal is to set the user agent such that it would be accepted by as many web servers as
+possible.
 
 **`warnonly`** can be used to control whether the `makedocs` build fails with an error, or
 simply prints a warning if it detects any issues with the document. Additionally, a `Symbol`
@@ -239,15 +264,18 @@ A guide detailing how to document a package using Documenter's [`makedocs`](@ref
 in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(; debug = false, format = HTML(), kwargs...)
-    document = Documenter.Document(; format=format, kwargs...)
+    document = Documenter.Document(; format = format, kwargs...)
     # Before starting the build pipeline, we empty out the subtype cache used by
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
     empty!(Selectors.selector_subtypes)
-    cd(document.user.root) do; withenv(NO_KEY_ENV...) do
-        Selectors.dispatch(Builder.DocumentPipeline, document)
-    end end
-    debug ? document : nothing
+    original_pwd[] = pwd()
+    cd(document.user.root) do
+        withenv(NO_KEY_ENV...) do
+            Selectors.dispatch(Builder.DocumentPipeline, document)
+        end
+    end
+    return debug ? document : nothing
 end
 
 """
@@ -272,11 +300,15 @@ $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
 """
 function except(errors::Symbol...)
     invalid_errors = setdiff(errors, ERROR_NAMES)
-    isempty(invalid_errors) || throw(DomainError(
-        tuple(invalid_errors...),
-        "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
-    ))
-    setdiff(ERROR_NAMES, errors)
+    if !isempty(invalid_errors)
+        throw(
+            DomainError(
+                tuple(invalid_errors...),
+                "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
+            )
+        )
+    end
+    return setdiff(ERROR_NAMES, errors)
 end
 
 """
@@ -335,7 +367,7 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
 This error is thrown by [`makedocs`](@ref) when it is unable to determine the remote repository link
 for a Markdown file or a docstring.
 
-See the [Remote repository links](@ref) section in the manualfor more information.
+See the [Remote repository links](@ref) section in the manual for more information.
 """
 struct MissingRemoteError <: Exception
     path::String
@@ -343,11 +375,11 @@ struct MissingRemoteError <: Exception
     mod::Union{Module, Nothing}
 
     function MissingRemoteError(;
-        path::AbstractString,
-        linerange=nothing,
-        mod::Union{Module, Nothing}=nothing
-    )
-        new(path, linerange, mod)
+            path::AbstractString,
+            linerange = nothing,
+            mod::Union{Module, Nothing} = nothing
+        )
+        return new(path, linerange, mod)
     end
 end
 
@@ -356,10 +388,12 @@ function Base.showerror(io::IO, e::MissingRemoteError)
     isnothing(e.linerange) || print(io, ':', e.linerange)
     println(io)
     isnothing(e.mod) || println(io, "  module: ", e.mod)
-    print(io, """
-    Documenter was unable to automatically determine the remote repository for this file.
-    This can happen if you are including docstrings or pages from secondary packages. Those packages
-    must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
-    must be configured appropriately. See the 'Remote repository links' section in the manual for
-    more information.""")
+    return print(
+        io, """
+        Documenter was unable to automatically determine the remote repository for this file.
+        This can happen if you are including docstrings or pages from secondary packages. Those packages
+        must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
+        must be configured appropriately. See the 'Remote repository links' section in the manual for
+        more information."""
+    )
 end

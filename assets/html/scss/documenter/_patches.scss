@@ -1,7 +1,8 @@
 // We need to override some .content behavior
 .content {
   pre {
-    border: 1px solid $border;
+    border: $documenter-codeblock-border-width solid $border;
+    border-radius: $documenter-codeblock-border-radius;
   }
   // Bold code spans
   code {
@@ -9,6 +10,9 @@
   }
   a code {
     color: $link;
+  }
+  a:hover code {
+    color: $link-hover;
   }
   h1, h2, h3, h4, h5, h6 {
     code {
@@ -60,7 +64,7 @@ pre, code {
 // accessibility span. This breaks the dashboard layout of the equation is somewhere far
 // down in the container.
 //
-// Moving all of these accessbility "pixels" to the top-right seems to take care of the
+// Moving all of these accessibility "pixels" to the top-right seems to take care of the
 // issue. An alternative is also to use `position: fixed`, which does not cause the outer
 // container to scroll.
 .katex .katex-mathml {

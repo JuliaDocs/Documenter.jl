@@ -69,13 +69,6 @@ module TestModule
 end
 
 @testset "doc checks" begin
-    if haskey(ENV, "DOCUMENTER_TEST_ONLINE_LINKCHECK")
-        include("online_linkcheck.jl")
-        include("online_githubcheck.jl")
-    else
-        @info "Online linkchecks skipped (DOCUMENTER_TEST_ONLINE_LINKCHECK not set)"
-    end
-
     @testset "allbindings" begin
         # dep1_private has not been imported into TestModule, so the binding does not
         # resolve to the Deps1 binding.

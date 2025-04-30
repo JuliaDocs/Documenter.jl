@@ -2,17 +2,20 @@ JULIA:=julia
 
 default: help
 
-docs-instantiate:
-	${JULIA} docs/instantiate.jl
+docs/Manifest.toml: docs/Project.toml
+	${JULIA} --project=docs -e 'using Pkg; Pkg.instantiate()'
 
-docs: docs-instantiate
+docs-instantiate:
+	${JULIA} --project=docs -e 'using Pkg; Pkg.instantiate()'
+
+docs: docs/Manifest.toml
 	${JULIA} --project=docs docs/make.jl
 
-changelog:
+changelog: docs/Manifest.toml
 	${JULIA} --project=docs docs/changelog.jl
 
-themes: docs-instantiate
-	${JULIA} --project=docs -e 'using DocumenterTools; DocumenterTools.Themes.compile_native_themes()'
+themes:
+	$(MAKE) -C assets/html all
 
 test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'

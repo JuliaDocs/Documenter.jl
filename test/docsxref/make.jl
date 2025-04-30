@@ -44,8 +44,8 @@ end
         sitename = "DocsXRef",
         warnonly = true,
         format = Documenter.HTML(
-            prettyurls=false,
-            inventory_version="",
+            prettyurls = false,
+            inventory_version = "",
         ),
     )
 
@@ -54,17 +54,17 @@ end
     end
     @test isnothing(captured.value)
     @test contains(
-        replace(captured.output, "src\\index" => "src/index"),
+        replace(captured.output, "\\src\\index" => "/src/index"),
         """
-        ┌ Warning: Cannot resolve @ref for md"[`AbstractSelector`](@ref)" in src/index.md.
+        ┌ Warning: Cannot resolve @ref for md"[`AbstractSelector`](@ref)" in docsxref/src/index.md.
         │ - No docstring found in doc for binding `Main.DocsReferencingMain.AbstractSelector`.
         │ - Fallback resolution in Main for `AbstractSelector` -> `Documenter.Selectors.AbstractSelector` is only allowed for fully qualified names
         """
     )
     @test contains(
-        replace(captured.output, "src\\page" => "src/page"),
+        replace(captured.output, "\\src\\page" => "/src/page"),
         """
-        ┌ Warning: Cannot resolve @ref for md"[`DocsReferencingMain.f`](@ref)" in src/page.md.
+        ┌ Warning: Cannot resolve @ref for md"[`DocsReferencingMain.f`](@ref)" in docsxref/src/page.md.
         │ - Exception trying to find docref for `DocsReferencingMain.f`: unable to get the binding for `DocsReferencingMain.f` in module Documenter.Selectors
         │ - Fallback resolution in Main for `DocsReferencingMain.f` -> `Main.DocsReferencingMain.f` is only allowed for fully qualified names
         """

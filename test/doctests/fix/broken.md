@@ -78,3 +78,45 @@ julia> 1 + 2
 
 julia> 3 + 4
 ```
+```jldoctest
+julia> a = (1,2)
+
+julia> a
+```
+```jldoctest
+# Leading comment
+julia> a
+ERROR: UndefVarError: `a` not defined
+
+julia> a = Int64[1,2]
+2-element Vector{Int64}:
+ 1
+ 2
+
+julia> b
+
+julia> a
+2-element Vector{Int64}:
+ 2
+
+julia> a;
+1
+
+julia> b;
+
+julia> a = Int64[3,4];
+
+julia> a
+ 3
+ 4
+```
+```jldoctest
+julia> a = ("a", "b", "c");
+
+julia> a
+```
+```jldoctest
+julia> :a / :b
+ERROR: MethodError: no method matching /(::Symbol, ::Symbol)
+[...]
+```

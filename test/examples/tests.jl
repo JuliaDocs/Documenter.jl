@@ -43,7 +43,7 @@ function printdiff(s1, s2)
     # We fall back: colordiff -> diff -> Documenter's TextDiff
     diff_cmd = Sys.which("colordiff")
     isnothing(diff_cmd) && (diff_cmd = Sys.which("diff"))
-    if isnothing(diff_cmd)
+    return if isnothing(diff_cmd)
         show(Diff{Lines}(s1, s2))
     else
         mktempdir() do path
@@ -56,7 +56,7 @@ end
 function compare_files(a, b)
     if haskey(ENV, "DOCUMENTER_FIXTESTS")
         @info "Updating reference file: $(b)"
-        cp(a, b, force=true)
+        cp(a, b, force = true)
     end
     a_str, b_str = read(a, String), read(b, String)
     a_str_normalized, b_str_normalized = onormalize_tex(a_str), onormalize_tex(b_str)
@@ -78,16 +78,16 @@ all_md_files_in_src = let srcdir = joinpath(@__DIR__, "src"), mdfiles = String[]
     end
     mdfiles
 end
-@test length(all_md_files_in_src) == 28
+@test length(all_md_files_in_src) == 29
 
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
-        (Main.examples_html_doc, "html"),
-        (Main.examples_html_meta_custom_doc, "html-meta-custom"),
-        (Main.examples_html_mathjax2_custom_doc, "html-mathjax2-custom"),
-        (Main.examples_html_mathjax3_doc, "html-mathjax3"),
-        (Main.examples_html_mathjax3_custom_doc, "html-mathjax3-custom")
-    ]
+            (Main.examples_html_doc, "html"),
+            (Main.examples_html_meta_custom_doc, "html-meta-custom"),
+            (Main.examples_html_mathjax2_custom_doc, "html-mathjax2-custom"),
+            (Main.examples_html_mathjax3_doc, "html-mathjax3"),
+            (Main.examples_html_mathjax3_custom_doc, "html-mathjax3-custom"),
+        ]
         @test isa(doc, Documenter.Documenter.Document)
 
         let build_dir = joinpath(examples_root, "builds", name)
@@ -201,7 +201,7 @@ end
                 objects_inv = joinpath(build_dir, "objects.inv")
                 @test isfile(objects_inv)
                 if isfile(objects_inv)
-                    inv = Inventory(objects_inv; root_url="")
+                    inv = Inventory(objects_inv; root_url = "")
                     @test inv.project == "Documenter example"
                     if name == "html"
                         @test inv.version == "$(Documenter.DOCUMENTER_VERSION)+test"
@@ -251,15 +251,17 @@ end
                             @test DocInventories.uri(item) == "man/page%20with%20space/"
                         end
                         jl_roles = Set(item.role for item in inv if item.domain == "jl")
-                        @test jl_roles == Set([
-                            "constant",
-                            "keyword",
-                            "function",
-                            "method",
-                            "macro",
-                            "module",
-                            "type"
-                        ])
+                        @test jl_roles == Set(
+                            [
+                                "constant",
+                                "keyword",
+                                "function",
+                                "method",
+                                "macro",
+                                "module",
+                                "type",
+                            ]
+                        )
                         @test length(inv(":jl:constant:`Main.AutoDocs.K`")) == 1
                         if length(inv(":jl:constant:`Main.AutoDocs.K`")) == 1
                             item = inv[":jl:constant:`Main.AutoDocs.K`"]
@@ -286,7 +288,7 @@ end
                             @test item.domain == "jl"
                             @test item.role == "function"
                             @test item.name == "Documenter.hide"
-                            @test item.uri ==  "hidden/#\$"
+                            @test item.uri == "hidden/#\$"
                             @test item.priority == 1
                             @test DocInventories.uri(item) == "hidden/#Documenter.hide"
                         end
@@ -363,6 +365,9 @@ end
             # .. but, crucially, Main.SVG_HTML did _not_ get written out.
             @test !isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-002.svg"))
         end
+
+        # Testing linkcheck_useragent default
+        @test doc.user.linkcheck_useragent == Documenter._LINKCHECK_DEFAULT_USERAGENT
     end
 
     @testset "HTML: local" begin
@@ -421,6 +426,10 @@ end
             # .. but, crucially, Main.SVG_HTML did _not_ get written out.
             @test !isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-002.svg"))
         end
+
+        # It doesn't actually test that the user agent was used correctly, but at least it tests that
+        # the option go set.
+        @test doc.user.linkcheck_useragent == "Documenter/1"
     end
 
     @testset "HTML: pagesonly" begin

@@ -87,3 +87,54 @@ julia> 1 + 2
 julia> 3 + 4
 7
 ```
+```jldoctest
+julia> a = (1,2)
+(1, 2)
+
+julia> a
+(1, 2)
+```
+```jldoctest
+# Leading comment
+julia> a
+ERROR: UndefVarError: `a` not defined in `Main`
+Suggestion: check for spelling errors or missing imports.
+
+julia> a = Int64[1,2]
+2-element Vector{Int64}:
+ 1
+ 2
+
+julia> b
+ERROR: UndefVarError: `b` not defined in `Main`
+Suggestion: check for spelling errors or missing imports.
+
+julia> a
+2-element Vector{Int64}:
+ 1
+ 2
+
+julia> a;
+
+julia> b;
+ERROR: UndefVarError: `b` not defined in `Main`
+Suggestion: check for spelling errors or missing imports.
+
+julia> a = Int64[3,4];
+
+julia> a
+2-element Vector{Int64}:
+ 3
+ 4
+```
+```jldoctest
+julia> a = ("a", "b", "c");
+
+julia> a
+("a", "b", "c")
+```
+```jldoctest
+julia> :a / :b
+ERROR: MethodError: no method matching /(::Symbol, ::Symbol)
+[...]
+```

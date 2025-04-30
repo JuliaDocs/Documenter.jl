@@ -84,7 +84,7 @@ export HTML
 const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 
 "List of Documenter native themes."
-const THEMES = ["documenter-light", "documenter-dark"]
+const THEMES = ["documenter-light", "documenter-dark", "catppuccin-latte", "catppuccin-frappe", "catppuccin-macchiato", "catppuccin-mocha"]
 "The root directory of the HTML assets."
 const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
 "The directory where all the Sass/SCSS files needed for theme building are."
@@ -93,12 +93,12 @@ const ASSETS_SASS = joinpath(ASSETS, "scss")
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
 struct HTMLAsset
-    class :: Symbol
-    uri :: String
-    islocal :: Bool
+    class::Symbol
+    uri::String
+    islocal::Bool
     attributes::Dict{Symbol, String}
 
-    function HTMLAsset(class::Symbol, uri::String, islocal::Bool, attributes::Dict{Symbol, String}=Dict{Symbol,String}())
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool, attributes::Dict{Symbol, String} = Dict{Symbol, String}())
         if !islocal && match(r"^https?://", uri) === nothing
             error("Remote asset URL must start with http:// or https://")
         end
@@ -106,7 +106,7 @@ struct HTMLAsset
             @error("Local asset should not have an absolute URI: $uri")
         end
         class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
-        new(class, uri, islocal, attributes)
+        return new(class, uri, islocal, attributes)
     end
 end
 
@@ -145,23 +145,27 @@ Documenter.HTML(assets = [
 ])
 ```
 """
-function asset(uri; class = nothing, islocal=false, attributes=Dict{Symbol,String}())
+function asset(uri; class = nothing, islocal = false, attributes = Dict{Symbol, String}())
     if class === nothing
         class = assetclass(uri)
-        (class === nothing) && error("""
-        Unable to determine asset class for: $(uri)
-        It can be set explicitly with the `class` keyword argument.
-        """)
+        if class === nothing
+            error(
+                """
+                Unable to determine asset class for: $(uri)
+                It can be set explicitly with the `class` keyword argument.
+                """
+            )
+        end
     end
-    HTMLAsset(class, uri, islocal, attributes)
+    return HTMLAsset(class, uri, islocal, attributes)
 end
 
 function assetclass(uri)
     # TODO: support actual proper URIs
     ext = splitext(uri)[end]
-    ext == ".ico" ? :ico :
-    ext == ".css" ? :css :
-    ext == ".js"  ? :js  : :unknown
+    return ext == ".ico" ? :ico :
+        ext == ".css" ? :css :
+        ext == ".js" ? :js : :unknown
 end
 
 abstract type MathEngine end
@@ -184,16 +188,16 @@ setting `override` to `true`, in which case the default values are ignored and o
 user-provided dictionary is used.
 """
 struct KaTeX <: MathEngine
-    config :: Dict{Symbol,Any}
-    function KaTeX(config::Union{Dict,Nothing} = nothing, override=false)
+    config::Dict{Symbol, Any}
+    function KaTeX(config::Union{Dict, Nothing} = nothing, override = false)
         default = Dict(
             :delimiters => [
-                Dict(:left => raw"$",   :right => raw"$",   display => false),
-                Dict(:left => raw"$$",  :right => raw"$$",  display => true),
-                Dict(:left => raw"\[",  :right => raw"\]",  display => true),
+                Dict(:left => raw"$", :right => raw"$", display => false),
+                Dict(:left => raw"$$", :right => raw"$$", display => true),
+                Dict(:left => raw"\[", :right => raw"\]", display => true),
             ]
         )
-        new((config === nothing) ? default : override ? config : merge(default, config))
+        return new((config === nothing) ? default : override ? config : merge(default, config))
     end
 end
 
@@ -219,19 +223,19 @@ The URL of the MathJax JS file can be overridden using the `url` keyword argumen
 use a particular minor version).
 """
 struct MathJax2 <: MathEngine
-    config :: Dict{Symbol,Any}
-    url :: String
-    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false; url = "")
+    config::Dict{Symbol, Any}
+    url::String
+    function MathJax2(config::Union{Dict, Nothing} = nothing, override = false; url = "")
         default = Dict(
             :tex2jax => Dict(
-                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
                 "processEscapes" => true
             ),
             :config => ["MMLorHTML.js"],
             :jax => [
                 "input/TeX",
                 "output/HTML-CSS",
-                "output/NativeMML"
+                "output/NativeMML",
             ],
             :extensions => [
                 "MathMenu.js",
@@ -239,15 +243,15 @@ struct MathJax2 <: MathEngine
                 "TeX/AMSmath.js",
                 "TeX/AMSsymbols.js",
                 "TeX/autobold.js",
-                "TeX/autoload-all.js"
+                "TeX/autoload-all.js",
             ],
             :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
         )
-        new((config === nothing) ? default : override ? config : merge(default, config), url)
+        return new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
-@deprecate MathJax(config::Union{Dict,Nothing} = nothing, override=false) MathJax2(config, override) false
+@deprecate MathJax(config::Union{Dict, Nothing} = nothing, override = false) MathJax2(config, override) false
 @doc "deprecated – Use [`MathJax2`](@ref) instead" MathJax
 
 """
@@ -274,21 +278,21 @@ The URL of the MathJax JS file can be overridden using the `url` keyword argumen
 use a particular minor version).
 """
 struct MathJax3 <: MathEngine
-    config :: Dict{Symbol,Any}
-    url :: String
-    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false; url = "")
+    config::Dict{Symbol, Any}
+    url::String
+    function MathJax3(config::Union{Dict, Nothing} = nothing, override = false; url = "")
         default = Dict(
             :tex => Dict(
-                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
                 "tags" => "ams",
-                "packages" => ["base", "ams", "autoload"],
+                "packages" => ["base", "ams", "autoload", "mhchem"],
             ),
             :options => Dict(
                 "ignoreHtmlClass" => "tex2jax_ignore",
                 "processHtmlClass" => "tex2jax_process",
             )
         )
-        new((config === nothing) ? default : override ? config : merge(default, config), url)
+        return new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
@@ -307,7 +311,7 @@ becomes `src/foo/index.html`, but can be accessed via `src/foo/` in the browser)
 structure is preferred when publishing the generated HTML files as a website (e.g., on
 GitHub Pages), which is Documenter's primary use case. However, when building locally,
 viewing the resulting pages requires a running webserver. It is recommended to use the
-[`LiveServer` package](https://github.com/tlienart/LiveServer.jl) for this.
+[`LiveServer` package](https://github.com/JuliaDocs/LiveServer.jl) for this.
 
 If `prettyurls = false`, then Documenter generates `src/foo.html` instead.
 
@@ -362,8 +366,8 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
 **`description`** is the site-wide description that displays in page previews and search
-engines. Defaults to `"Documentation for \$sitename"``, where `sitename` is defined as
-an argument to [`makedocs`](@ref).
+engines. Defaults to `"Documentation for \$sitename"`, where `sitename` is defined as
+an argument to [`makedocs`](@ref Documenter.makedocs).
 
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
@@ -460,62 +464,62 @@ their absolute URLs, can be included with the [`asset`](@ref) function.
 [^1]: Adding an ICO asset is primarily useful for setting a custom `favicon`.
 """
 struct HTML <: Documenter.Writer
-    prettyurls    :: Bool
-    disable_git   :: Bool
-    edit_link     :: Union{String, Symbol, Nothing}
-    repolink      :: Union{String, Nothing, Default{Nothing}}
-    canonical     :: Union{String, Nothing}
-    assets        :: Vector{HTMLAsset}
-    analytics     :: String
-    collapselevel :: Int
-    sidebar_sitename :: Bool
-    highlights    :: Vector{String}
-    mathengine    :: Union{MathEngine,Nothing}
-    description   :: Union{String,Nothing}
-    footer        :: Union{MarkdownAST.Node, Nothing}
-    ansicolor     :: Bool
-    lang          :: String
-    warn_outdated :: Bool
-    prerender     :: Bool
-    node          :: Union{Cmd,String,Nothing}
-    highlightjs   :: Union{String,Nothing}
-    size_threshold :: Int
-    size_threshold_warn :: Int
-    size_threshold_ignore :: Vector{String}
-    example_size_threshold :: Int
-    inventory_version ::  Union{String,Nothing}
+    prettyurls::Bool
+    disable_git::Bool
+    edit_link::Union{String, Symbol, Nothing}
+    repolink::Union{String, Nothing, Default{Nothing}}
+    canonical::Union{String, Nothing}
+    assets::Vector{HTMLAsset}
+    analytics::String
+    collapselevel::Int
+    sidebar_sitename::Bool
+    highlights::Vector{String}
+    mathengine::Union{MathEngine, Nothing}
+    description::Union{String, Nothing}
+    footer::Union{MarkdownAST.Node, Nothing}
+    ansicolor::Bool
+    lang::String
+    warn_outdated::Bool
+    prerender::Bool
+    node::Union{Cmd, String, Nothing}
+    highlightjs::Union{String, Nothing}
+    size_threshold::Int
+    size_threshold_warn::Int
+    size_threshold_ignore::Vector{String}
+    example_size_threshold::Int
+    inventory_version::Union{String, Nothing}
 
     function HTML(;
-            prettyurls    :: Bool = true,
-            disable_git   :: Bool = false,
-            repolink      :: Union{String, Nothing, Default} = Default(nothing),
-            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
-            canonical     :: Union{String, Nothing} = nothing,
-            assets        :: Vector = String[],
-            analytics     :: String = "",
-            collapselevel :: Integer = 2,
-            sidebar_sitename :: Bool = true,
-            highlights    :: Vector{String} = String[],
-            mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
-            description   :: Union{String, Nothing} = nothing,
-            footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
-            ansicolor     :: Bool = true,
-            lang          :: String = "en",
-            warn_outdated :: Bool = true,
-            prerender     :: Bool = false,
-            node          :: Union{Cmd,String,Nothing} = nothing,
-            highlightjs   :: Union{String,Nothing} = nothing,
-            size_threshold :: Union{Integer, Nothing} = 200 * 2^10, # 200 KiB
-            size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10, # 100 KiB
-            size_threshold_ignore :: Vector = String[],
+            prettyurls::Bool = true,
+            disable_git::Bool = false,
+            repolink::Union{String, Nothing, Default} = Default(nothing),
+            edit_link::Union{String, Symbol, Nothing, Default} = Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
+            canonical::Union{String, Nothing} = nothing,
+            assets::Vector = String[],
+            analytics::String = "",
+            collapselevel::Integer = 2,
+            sidebar_sitename::Bool = true,
+            highlights::Vector{String} = String[],
+            mathengine::Union{MathEngine, Nothing} = KaTeX(),
+            description::Union{String, Nothing} = nothing,
+            footer::Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
+            ansicolor::Bool = true,
+            lang::String = "en",
+            warn_outdated::Bool = true,
+            prerender::Bool = false,
+            node::Union{Cmd, String, Nothing} = nothing,
+            highlightjs::Union{String, Nothing} = nothing,
+            size_threshold::Union{Integer, Nothing} = 200 * 2^10, # 200 KiB
+            size_threshold_warn::Union{Integer, Nothing} = 100 * 2^10, # 100 KiB
+            size_threshold_ignore::Vector = String[],
             # The choice of the default here is that having ~10 figures on a page
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
-            example_size_threshold :: Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
+            example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
             inventory_version = nothing,
 
             # deprecated keywords
-            edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
+            edit_branch::Union{String, Nothing, Default} = Default(nothing),
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         if prerender
@@ -564,7 +568,11 @@ struct HTML <: Documenter.Writer
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
-        new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
+        # We use normpath() when we construct the .page value for NavNodes, so we also need to normpath()
+        # these values. This also ensures cross-platform compatibility of the values.
+        size_threshold_ignore = normpath.(size_threshold_ignore)
+        return new(
+            prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
@@ -574,7 +582,7 @@ struct HTML <: Documenter.Writer
 end
 
 # Cache of downloaded highlight.js bundles
-const HLJSFILES = Dict{String,String}()
+const HLJSFILES = Dict{String, String}()
 # Look for node and highlight.js
 function prepare_prerendering(prerender, node, highlightjs, highlights)
     node = node === nothing ? Sys.which("node") : node
@@ -591,7 +599,7 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
         curl = Sys.which("curl")
         if curl === nothing
             @error "HTMLWriter: no highlight.js file given and no curl executable found " *
-                   "on the system. Setting `prerender=false`."
+                "on the system. Setting `prerender=false`."
             return false, node, highlightjs
         end
         @debug "HTMLWriter: downloading highlightjs"
@@ -601,9 +609,12 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
         key = join((x.first for x in libs), ',')
         highlightjs = get!(HLJSFILES, key) do
             path, io = mktemp()
+            # The path will be used as module path to be loaded by Node.js,
+            # so we always need `/`. But on Windows, `mktemp` will give `\`.
+            path = replace(path, '\\' => '/')
             for lib in libs
                 println(io, "// $(lib.first)")
-                run(pipeline(`$(curl) -fsSL $(lib.second.url)`; stdout=io))
+                run(pipeline(`$(curl) -fsSL $(lib.second.url)`; stdout = io))
                 println(io)
             end
             close(io)
@@ -617,19 +628,19 @@ include("RD.jl")
 include("write_inventory.jl")
 
 struct SearchRecord
-    src :: String
-    page :: Documenter.Page
-    fragment :: String
-    category :: String
-    title :: String
-    page_title :: String
-    text :: String
+    src::String
+    page::Documenter.Page
+    fragment::String
+    category::String
+    title::String
+    page_title::String
+    text::String
 end
 
 Base.@kwdef struct AtExampleFallbackWarning
     page::String
     size_bytes::Int
-    fallback::Union{String,Nothing}
+    fallback::Union{String, Nothing}
 end
 
 """
@@ -637,18 +648,18 @@ end
 other recursive functions.
 """
 mutable struct HTMLContext
-    doc :: Documenter.Document
-    settings :: Union{HTML, Nothing}
-    scripts :: Vector{String}
-    documenter_js :: String
-    themeswap_js :: String
-    warner_js :: String
-    search_index :: Vector{SearchRecord}
-    search_index_js :: String
-    search_navnode :: Documenter.NavNode
+    doc::Documenter.Document
+    settings::Union{HTML, Nothing}
+    scripts::Vector{String}
+    documenter_js::String
+    themeswap_js::String
+    warner_js::String
+    search_index::Vector{SearchRecord}
+    search_index_js::String
+    search_navnode::Documenter.NavNode
     atexample_warnings::Vector{AtExampleFallbackWarning}
 
-    HTMLContext(doc, settings=nothing) = new(
+    HTMLContext(doc, settings = nothing) = new(
         doc, settings, [], "", "", "", [], "",
         Documenter.NavNode("search", "Search", nothing),
         AtExampleFallbackWarning[],
@@ -657,13 +668,13 @@ end
 
 struct DCtx
     # ctx and navnode were recursively passed to all domify() methods
-    ctx :: HTMLContext
-    navnode :: Documenter.NavNode
+    ctx::HTMLContext
+    navnode::Documenter.NavNode
     # The following fields were keyword arguments to mdconvert()
-    droplinks :: Bool
-    footnotes :: Union{Vector{Node{Nothing}},Nothing}
+    droplinks::Bool
+    footnotes::Union{Vector{Node{Nothing}}, Nothing}
 
-    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, [])
+    DCtx(ctx, navnode, droplinks = false) = new(ctx, navnode, droplinks, [])
     DCtx(
         dctx::DCtx;
         navnode = dctx.navnode,
@@ -672,12 +683,12 @@ struct DCtx
     ) = new(dctx.ctx, navnode, droplinks, footnotes)
 end
 
-function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
+function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing, category = "page", text = "")
     page_title = mdflatten_pagetitle(DCtx(ctx, navnode))
     if title === nothing
         title = page_title
     end
-    SearchRecord(
+    return SearchRecord(
         pretty_url(ctx, get_url(ctx, navnode.page)),
         getpage(ctx, navnode),
         fragment,
@@ -690,21 +701,37 @@ end
 
 function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader)
     a = element.anchor
-    SearchRecord(ctx, navnode;
-        fragment=Documenter.anchor_fragment(a),
-        title=mdflatten(node), # AnchoredHeader has Heading as single child
-        category="section")
+    return SearchRecord(
+        ctx, navnode;
+        fragment = Documenter.anchor_fragment(a),
+        title = mdflatten(node), # AnchoredHeader has Heading as single child
+        category = "section"
+    )
 end
 
 function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
-    SearchRecord(ctx, navnode; text=mdflatten(node))
+    return SearchRecord(ctx, navnode; text = mdflatten(node))
+end
+
+# Returns nothing for nodes that shouldn't be indexed in search
+const _SEARCHRECORD_IGNORED_BLOCK_TYPES = Union{
+    Documenter.MetaNode,
+    Documenter.DocsNodesBlock,
+    Documenter.SetupNode,
+}
+function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Node)
+    # Skip indexing special at-blocks
+    if node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES
+        return nothing
+    end
+    return SearchRecord(ctx, navnode, node, node.element)
 end
 
 function JSON.lower(rec::SearchRecord)
     # Replace any backslashes in links, if building the docs on Windows
     src = replace(rec.src, '\\' => '/')
     ref = string(src, rec.fragment)
-    Dict{String, String}(
+    return Dict{String, String}(
         "location" => ref,
         "page" => rec.page_title,
         "title" => rec.title,
@@ -719,7 +746,7 @@ Returns a page (as a [`Documenter.Page`](@ref) object) using the [`HTMLContext`]
 getpage(ctx::HTMLContext, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx::HTMLContext, navnode::Documenter.NavNode) = getpage(ctx, navnode.page)
 
-function render(doc::Documenter.Document, settings::HTML=HTML())
+function render(doc::Documenter.Document, settings::HTML = HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
     if isempty(doc.blueprint.pages)
@@ -749,9 +776,9 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     if isfile(joinpath(doc.user.source, "assets", "documenter.js"))
         @warn "not creating 'documenter.js', provided by the user."
     else
-        r = JSDependencies.RequireJS([
-            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
-        ])
+        r = JSDependencies.RequireJS(
+            [RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery]
+        )
         RD.mathengine!(r, settings.mathengine)
         if !settings.prerender
             RD.highlightjs!(r, settings.highlights)
@@ -761,7 +788,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
             endswith(filename, ".js") && isfile(path) || continue
             push!(r, JSDependencies.parse_snippet(path))
         end
-        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
+        JSDependencies.verify(r; verbose = true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
     end
 
@@ -814,14 +841,16 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
 
     write_inventory(doc, ctx)
 
-    generate_siteinfo_json(doc.user.build)
+    return generate_siteinfo_json(doc.user.build)
 end
 
 struct HTMLSizeThresholdError <: Exception end
 function Base.showerror(io::IO, ::HTMLSizeThresholdError)
-    print(io, """
-    HTMLSizeThresholdError: Some generated HTML files are above size_threshold.
-    See logged errors for details.""")
+    return print(
+        io, """
+        HTMLSizeThresholdError: Some generated HTML files are above size_threshold.
+        See logged errors for details."""
+    )
 end
 
 """
@@ -869,7 +898,7 @@ function render_page(ctx, navnode)
     footer = render_footer(ctx, navnode)
     extras = render_extras(ctx, navnode)
     htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras)
-    write_html(ctx, navnode, htmldoc)
+    return write_html(ctx, navnode, htmldoc)
 end
 
 ## Rendering HTML elements
@@ -880,8 +909,8 @@ Renders the main `<html>` tag.
 """
 function render_html(ctx, head, sidebar, navbar, article, footer, extras)
     @tags html body div
-    DOM.HTMLDocument(
-        html[:lang=>ctx.settings.lang](
+    return DOM.HTMLDocument(
+        html[:lang => ctx.settings.lang](
             head,
             body(
                 div["#documenter"](
@@ -905,8 +934,8 @@ function render_settings()
         label[".label"]("Theme"),
         div[".select"](
             select["#documenter-themepicker"](
-                option[:value=>"auto"]("Automatic (OS)"),
-                (option[:value=>theme](theme) for theme in THEMES)...,
+                option[:value => "auto"]("Automatic (OS)"),
+                (option[:value => theme](theme) for theme in THEMES)...,
             )
         )
     )
@@ -923,7 +952,7 @@ function render_settings()
         "Using Julia version $(Base.VERSION)."
     )
 
-    div["#documenter-settings.modal"](
+    return div["#documenter-settings.modal"](
         div[".modal-background"],
         div[".modal-card"](
             header[".modal-card-head"](
@@ -959,8 +988,8 @@ function render_head(ctx, navnode)
         RD.katex_css,
     ]
 
-    head(
-        meta[:charset=>"UTF-8"],
+    return head(
+        meta[:charset => "UTF-8"],
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
 
         # Title tag and meta tags
@@ -992,7 +1021,7 @@ function render_head(ctx, navnode)
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
         script[
             :src => RD.requirejs_cdn,
-            Symbol("data-main") => relhref(src, ctx.documenter_js)
+            Symbol("data-main") => relhref(src, ctx.documenter_js),
         ],
         script[:src => relhref(src, ctx.search_index_js)],
 
@@ -1001,7 +1030,8 @@ function render_head(ctx, navnode)
         # Themes. Note: we reverse the list to make sure that the default theme (first in
         # the array) comes as the last <link> tag.
         map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
-            e = link[".docs-theme-link",
+            e = link[
+                ".docs-theme-link",
                 :rel => "stylesheet", :type => "text/css",
                 :href => relhref(src, "assets/themes/$(theme).css"),
                 Symbol("data-theme-name") => theme,
@@ -1025,7 +1055,7 @@ function canonical_url_tags(ctx, navnode)
         tags = DOM.Node[
             meta[:property => "og:url", :content => canonical],
             meta[:property => "twitter:url", :content => canonical],
-            link[:rel => "canonical", :href => canonical]
+            link[:rel => "canonical", :href => canonical],
         ]
         return tags
     end
@@ -1045,7 +1075,7 @@ function preview_image_meta_tags(ctx)
         tags = DOM.Node[
             meta[:property => "og:image", :content => preview_url],
             meta[:property => "twitter:image", :content => preview_url],
-            meta[:property => "twitter:card", :content => "summary_large_image"]
+            meta[:property => "twitter:card", :content => "summary_large_image"],
         ]
         return tags
     end
@@ -1075,9 +1105,9 @@ function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
         class = asset.class
         url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
-            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon", pairs(asset.attributes)...] :
-            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css", pairs(asset.attributes)...] :
-            class == :js  ? script[:src => url, pairs(asset.attributes)...] : continue # Skip non-js/css files.
+            class == :ico ? link[:href => url, :rel => "icon", :type => "image/x-icon", pairs(asset.attributes)...] :
+            class == :css ? link[:href => url, :rel => "stylesheet", :type => "text/css", pairs(asset.attributes)...] :
+            class == :js ? script[:src => url, pairs(asset.attributes)...] : continue # Skip non-js/css files.
         push!(links, node)
     end
     return links
@@ -1085,15 +1115,21 @@ end
 
 function analytics_script(tracking_id::AbstractString)
     @tags script
-    isempty(tracking_id) ? DOM.VOID : [
-        script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
-        script("""
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '$(tracking_id)', {'page_path': location.pathname + location.search + location.hash});
-        """)
-    ]
+    if isempty(tracking_id)
+        return DOM.VOID
+    else
+        return [
+            script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
+            script(
+                """
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '$(tracking_id)', {'page_path': location.pathname + location.search + location.hash});
+                """
+            ),
+        ]
+    end
 end
 
 function warning_script(src, ctx)
@@ -1107,9 +1143,9 @@ end
 # ------------------------------------------------------------------------------
 
 struct NavMenuContext
-    htmlctx :: HTMLContext
-    current :: Documenter.NavNode
-    idstack :: Vector{Int}
+    htmlctx::HTMLContext
+    current::Documenter.NavNode
+    idstack::Vector{Int}
 end
 NavMenuContext(ctx::HTMLContext, current::Documenter.NavNode) = NavMenuContext(ctx, current, [])
 
@@ -1137,13 +1173,16 @@ function render_sidebar(ctx, navnode)
     end
     # Sitename
     if ctx.settings.sidebar_sitename
-        push!(navmenu.nodes, div[".docs-package-name"](
-            span[".docs-autofit"](a[:href => href](ctx.doc.user.sitename))
-        ))
+        push!(
+            navmenu.nodes, div[".docs-package-name"](
+                span[".docs-autofit"](a[:href => href](ctx.doc.user.sitename))
+            )
+        )
     end
 
     # Search box
-    push!(navmenu.nodes,
+    push!(
+        navmenu.nodes,
         button["#documenter-search-query.docs-search-query.input.is-rounded.is-small.is-clickable.my-2.mx-auto.py-1.px-2"]("Search docs (Ctrl + /)")
     )
 
@@ -1160,14 +1199,14 @@ function render_sidebar(ctx, navnode)
         vs_select = select["#documenter-version-selector"]
         if !isempty(ctx.doc.user.version)
             vs_class = "$(vs_class).visible"
-            opt = option[:value => "#", :selected => "selected", ](ctx.doc.user.version)
+            opt = option[:value => "#", :selected => "selected"](ctx.doc.user.version)
             vs_select = vs_select(opt)
         end
         vs_select = div[".select.is-fullwidth.is-size-7"](vs_select)
         vs_select = div[".docs-selector.control.is-expanded"](vs_select)
         push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
     end
-    navmenu
+    return navmenu
 end
 
 function find_image_asset(ctx, name)
@@ -1195,7 +1234,7 @@ function navitem(nctx, nns::Vector)
     pop!(nctx.idstack)
     filter!(node -> node.name !== DOM.TEXT, nodes) # FIXME: why?
     ulclass = (length(nctx.idstack) >= nctx.htmlctx.settings.collapselevel) ? ".collapsed" : ""
-    isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)[ulclass](nodes)
+    return isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)[ulclass](nodes)
 end
 function navitem(nctx, nn::Documenter.NavNode)
     @tags ul li span a input label i
@@ -1241,7 +1280,7 @@ function navitem(nctx, nn::Documenter.NavNode)
     # add the visible subsections, if any, as a single list
     (children.name === DOM.TEXT) || push!(item.nodes, children)
 
-    item
+    return item
 end
 
 function render_navbar(ctx, navnode, edit_page_link::Bool)
@@ -1284,7 +1323,8 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         # repourl() can sometimes return a nothing (Remotes.URL)
         if !isnothing(url)
             repo_title = "View the repository" * (isempty(host) ? "" : " on $host")
-            push!(navbar_right.nodes,
+            push!(
+                navbar_right.nodes,
                 a[".docs-navbar-link", :href => url, :title => repo_title](
                     span[".docs-icon.fa-brands"](logo),
                     span[".docs-label.is-hidden-touch"](isempty(host) ? "Repository" : host)
@@ -1295,7 +1335,8 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     # Add an edit link, with just an icon, but only on pages where edit_page_link is true.
     # Some pages, like search, are special and do not have a source file to link to.
     edit_page_link && edit_link(ctx, navnode) do logo, title, url
-        push!(navbar_right.nodes,
+        push!(
+            navbar_right.nodes,
             a[".docs-navbar-link", :href => url, :title => title](
                 span[".docs-icon.fa-solid"](logo)
             )
@@ -1303,19 +1344,25 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     end
 
     # Settings cog
-    push!(navbar_right.nodes, a[
-        "#documenter-settings-button.docs-settings-button.docs-navbar-link.fa-solid.fa-gear",
-        :href => "#", :title => "Settings",
-    ])
+    push!(
+        navbar_right.nodes,
+        a[
+            "#documenter-settings-button.docs-settings-button.docs-navbar-link.fa-solid.fa-gear",
+            :href => "#", :title => "Settings",
+        ]
+    )
 
     # Collapse/Expand All articles toggle
-    push!(navbar_right.nodes, a[
-        "#documenter-article-toggle-button.docs-article-toggle-button.fa-solid.fa-chevron-up",
-        :href=>"javascript:;", :title=>"Collapse all docstrings",
-    ])
+    push!(
+        navbar_right.nodes,
+        a[
+            "#documenter-article-toggle-button.docs-article-toggle-button.fa-solid.fa-chevron-up",
+            :href => "javascript:;", :title => "Collapse all docstrings",
+        ]
+    )
 
     # Construct the main <header> node that should be the first element in div.docs-main
-    header[".docs-navbar"](navbar_left, breadcrumb, navbar_right)
+    return header[".docs-navbar"](navbar_left, breadcrumb, navbar_right)
 end
 
 """
@@ -1363,7 +1410,7 @@ function edit_link(f, ctx, navnode)
         "Edit", edit_logo, ctx.settings.edit_link
     end
     host, _ = host_logo(ctx.doc.user.remote)
-    editurl = Documenter.edit_url(ctx.doc, editpath, rev=commit)
+    editurl = Documenter.edit_url(ctx.doc, editpath, rev = commit)
     # It is possible for editurl() to return a nothing, if something goes wrong
     isnothing(editurl) && return
     # Create the edit link
@@ -1372,20 +1419,20 @@ function edit_link(f, ctx, navnode)
 end
 
 # All these logos are from the .fa-brands (brands) class
-const host_logo_github    = (host = "GitHub",       logo = "\uf09b") # fa-github
-const host_logo_bitbucket = (host = "BitBucket",    logo = "\uf171") # fa-bitbucket
-const host_logo_gitlab    = (host = "GitLab",       logo = "\uf296") # fa-gitlab
-const host_logo_azure     = (host = "Azure DevOps", logo = "\uf3ca") # fa-microsoft; TODO: change to ADO logo when added to FontAwesome
-const host_logo_fallback  = (host = "",             logo = "\uf841") # fa-git-alt
+const host_logo_github = (host = "GitHub", logo = "\uf09b") # fa-github
+const host_logo_bitbucket = (host = "BitBucket", logo = "\uf171") # fa-bitbucket
+const host_logo_gitlab = (host = "GitLab", logo = "\uf296") # fa-gitlab
+const host_logo_azure = (host = "Azure DevOps", logo = "\uf3ca") # fa-microsoft; TODO: change to ADO logo when added to FontAwesome
+const host_logo_fallback = (host = "", logo = "\uf841") # fa-git-alt
 host_logo(remote::Remotes.GitHub) = host_logo_github
 host_logo(remote::Remotes.URL) = host_logo(remote.urltemplate)
-host_logo(remote::Union{Remotes.Remote,Nothing}) = host_logo_fallback
+host_logo(remote::Union{Remotes.Remote, Nothing}) = host_logo_fallback
 function host_logo(remoteurl::String)
-    occursin("github", remoteurl)    ? host_logo_github    :
-    occursin("gitlab", remoteurl)    ? host_logo_gitlab    :
-    occursin("bitbucket", remoteurl) ? host_logo_bitbucket :
-    occursin("azure", remoteurl)     ? host_logo_azure     :
-    host_logo_fallback
+    return occursin("github", remoteurl) ? host_logo_github :
+        occursin("gitlab", remoteurl) ? host_logo_gitlab :
+        occursin("bitbucket", remoteurl) ? host_logo_bitbucket :
+        occursin("azure", remoteurl) ? host_logo_azure :
+        host_logo_fallback
 end
 
 function render_footer(ctx, navnode)
@@ -1430,7 +1477,7 @@ function render_extras(ctx, navnode)
         # collapse button after that page has loaded.
         push!(meta_divs, div[Symbol("data-docstringscollapsed") => "true"]())
     end
-    meta_divs
+    return meta_divs
 end
 
 # Article (page contents)
@@ -1473,7 +1520,7 @@ end
 function expand_versions(dir, versions)
     # output: entries and symlinks
     entries = String[]
-    symlinks = Pair{String,String}[]
+    symlinks = Pair{String, String}[]
 
     # read folders and filter out symlinks
     available_folders = readdir(dir)
@@ -1485,10 +1532,14 @@ function expand_versions(dir, versions)
     sort!(version_folders, lt = (x, y) -> vnum(x) < vnum(y), rev = true)
     release_folders = filter(x -> (v = vnum(x); v.prerelease == () && v.build == ()), version_folders)
     # pre_release_folders = filter(x -> (v = vnum(x); v.prerelease != () || v.build != ()), version_folders)
-    major_folders = filter!(x -> (v = vnum(x); v.major != 0),
-                            unique(x -> (v = vnum(x); v.major), release_folders))
-    minor_folders = filter!(x -> (v = vnum(x); !(v.major == 0 && v.minor == 0)),
-                            unique(x -> (v = vnum(x); (v.major, v.minor)), release_folders))
+    major_folders = filter!(
+        x -> (v = vnum(x); v.major != 0),
+        unique(x -> (v = vnum(x); v.major), release_folders)
+    )
+    minor_folders = filter!(
+        x -> (v = vnum(x); !(v.major == 0 && v.minor == 0)),
+        unique(x -> (v = vnum(x); (v.major, v.minor)), release_folders)
+    )
     patch_folders = unique(x -> (v = vnum(x); (v.major, v.minor, v.patch)), release_folders)
 
     filter!(x -> vnum(x) !== 0, major_folders)
@@ -1578,6 +1629,7 @@ function generate_version_file(versionfile::AbstractString, entries, symlinks = 
         println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
         println(buf, "var DOCUMENTER_STABLE = \"$(first(entries))\";")
     end
+    return
 end
 
 # write redirect file
@@ -1593,16 +1645,20 @@ function generate_redirect_file(redirectfile::AbstractString, entries)
         println(buf, comment)
         println(buf, "<meta http-equiv=\"refresh\" content=\"0; url=./$(first(entries))/\"/>")
     end
+    return
 end
 
-function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString,Nothing})
+function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing}, is_dev_version::Bool = false)
     open(joinpath(dir, "siteinfo.js"), "w") do buf
         if version !== nothing
             println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+            # Add the development version flag
+            println(buf, "var DOCUMENTER_IS_DEV_VERSION = $(is_dev_version ? "true" : "false");")
         else
             println(buf, "var DOCUMENTER_VERSION_SELECTOR_DISABLED = true;")
         end
     end
+    return
 end
 
 # The .documenter-siteinfo.json can contain various metadata (such as the Documenter version
@@ -1639,16 +1695,18 @@ end
 
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    map(getpage(ctx, navnode).mdast.children) do node
-        rec = SearchRecord(ctx, navnode, node, node.element)
-        push!(ctx.search_index, rec)
+    return map(getpage(ctx, navnode).mdast.children) do node
+        rec = searchrecord(ctx, navnode, node)
+        if !isnothing(rec)
+            push!(ctx.search_index, rec)
+        end
         domify(dctx, node, node.element)
     end
 end
 domify(dctx::DCtx, node::Node) = domify(dctx, node, node.element)
 function domify(dctx::DCtx, children)
     @assert eltype(children) <: Node
-    map(child -> domify(dctx, child), children)
+    return map(child -> domify(dctx, child), children)
 end
 
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Document) = domify(dctx, node.children)
@@ -1658,9 +1716,9 @@ function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     anchor = ah.anchor
     @tags a
     frag = Documenter.anchor_fragment(anchor)
-    legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
+    legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#') * "-1"],) : ()
     h = first(node.children)
-    DOM.Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
+    return DOM.Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
         a[".docs-heading-anchor", :href => frag](domify(dctx, h.children)),
         legacy...,
         a[".docs-heading-anchor-permalink", :href => frag, :title => "Permalink"]
@@ -1680,13 +1738,14 @@ function Base.push!(lb::ListBuilder, level, node)
         if isempty(lb.es) || typeof(last(lb.es)) !== ListBuilder
             push!(lb.es, ListBuilder())
         end
-        push!(last(lb.es), level-1, node)
+        push!(last(lb.es), level - 1, node)
     end
+    return
 end
 
 function domify(lb::ListBuilder)
     @tags ul li
-    ul(map(e -> isa(e, ListBuilder) ? li[".no-marker"](domify(e)) : li(e), lb.es))
+    return ul(map(e -> isa(e, ListBuilder) ? li[".no-marker"](domify(e)) : li(e), lb.es))
 end
 
 function domify(dctx::DCtx, ::Node, contentsnode::Documenter.ContentsNode)
@@ -1704,10 +1763,10 @@ function domify(dctx::DCtx, ::Node, contentsnode::Documenter.ContentsNode)
         path = joinpath(navnode_dir, path) # links in ContentsNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
         url = string(path, Documenter.anchor_fragment(anchor))
-        node = a[:href=>url](domify(DCtx(dctx, droplinks=true), header.children))
+        node = a[:href => url](domify(DCtx(dctx, droplinks = true), header.children))
         push!(lb, level, node)
     end
-    domify(lb)
+    return domify(lb)
 end
 
 function domify(dctx::DCtx, ::Node, indexnode::Documenter.IndexNode)
@@ -1720,9 +1779,9 @@ function domify(dctx::DCtx, ::Node, indexnode::Documenter.IndexNode)
         path = joinpath(navnode_dir, path) # links in IndexNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
         url = string(path, "#", Documenter.slugify(object))
-        li(a[:href=>url](code("$(object.binding)")))
+        li(a[:href => url](code("$(object.binding)")))
     end
-    ul(lis)
+    return ul(lis)
 end
 
 domify(dctx::DCtx, node::Node, ::Documenter.DocsNodesBlock) = domify(dctx, node.children)
@@ -1732,19 +1791,22 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
     @tags a code article header span
 
     # push to search index
-    rec = SearchRecord(ctx, navnode;
-        fragment=Documenter.anchor_fragment(docsnode.anchor),
-        title=string(docsnode.object.binding),
-        category=Documenter.doccat(docsnode.object),
-        text = mdflatten(mdast_node))
+    rec = SearchRecord(
+        ctx, navnode;
+        fragment = Documenter.anchor_fragment(docsnode.anchor),
+        title = string(docsnode.object.binding),
+        category = Documenter.doccat(docsnode.object),
+        text = mdflatten(mdast_node)
+    )
     push!(ctx.search_index, rec)
 
-    article[".docstring"](
+    return article[".docstring"](
         header(
-            a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href=>"javascript:;", :title=>"Collapse docstring"],
-            a[".docstring-binding", :id=>docsnode.anchor.id, :href=>"#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
+            a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href => "javascript:;", :title => "Collapse docstring"],
+            a[".docstring-binding", :id => docsnode.anchor.id, :href => "#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Documenter.doccat(docsnode.object))")
+            span[".docstring-category"]("$(Documenter.doccat(docsnode.object))"),
+            span[".is-flex-grow-1.docstring-article-toggle-button", :title => "Collapse docstring"]("")
         ),
         domify_doc(dctx, mdast_node)
     )
@@ -1757,13 +1819,13 @@ function domify_doc(dctx::DCtx, node::Node)
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
-    map(zip(node.element.mdasts, node.element.results)) do (markdown, result)
+    return map(zip(node.element.mdasts, node.element.results)) do (markdown, result)
         ret = section(div(domify(dctx, markdown)))
         # When a source link is available then print the link.
         if !ctx.settings.disable_git
             url = Documenter.source_url(ctx.doc, result)
             if url !== nothing
-                push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
+                push!(ret.nodes, a[".docs-sourcelink", :target => "_blank", :href => url]("source"))
             end
         end
         return ret
@@ -1771,7 +1833,7 @@ function domify_doc(dctx::DCtx, node::Node)
 end
 
 function domify(dctx::DCtx, ::Node, evalnode::Documenter.EvalNode)
-    isnothing(evalnode.result) ? DOM.Node[] : domify(dctx, evalnode.result.children)
+    return isnothing(evalnode.result) ? DOM.Node[] : domify(dctx, evalnode.result.children)
 end
 
 # nothing to show for MetaNodes, so we just return an empty list
@@ -1779,7 +1841,7 @@ domify(::DCtx, ::Node, ::Documenter.MetaNode) = DOM.Node[]
 domify(::DCtx, ::Node, ::Documenter.SetupNode) = DOM.Node[]
 
 function domify(::DCtx, ::Node, rawnode::Documenter.RawNode)
-    rawnode.name === :html ? DOM.Tag(Symbol("#RAW#"))(rawnode.text) : DOM.Node[]
+    return rawnode.name === :html ? DOM.Tag(Symbol("#RAW#"))(rawnode.text) : DOM.Node[]
 end
 
 
@@ -1792,13 +1854,13 @@ Prints a warning/error if the page goes over the `size_threshold` or `size_thres
 limits, and in the former case also returns `false`, to report back to the caller that the
 size threshold check failed.
 """
-function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DOM.HTMLDocument) :: Bool
+function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DOM.HTMLDocument)::Bool
     page_path = get_url(ctx, navnode)
     buf = IOBuffer()
     print(buf, page_html)
     path = joinpath(ctx.doc.user.build, page_path)
     isdir(dirname(path)) || mkpath(dirname(path))
-    file_size = open(io -> write(io, take!(buf)), path; write=true)
+    file_size = open(io -> write(io, take!(buf)), path; write = true)
 
     file_size_format_results = format_units(file_size)
     size_threshold_format_results = format_units(ctx.settings.size_threshold)
@@ -1861,7 +1923,7 @@ function relhref(from, to)
     pagedir = dirname(from)
     # The regex separator replacement is necessary since otherwise building the docs on
     # Windows will result in paths that have `//` separators which break asset inclusion.
-    replace(relpath(to, isempty(pagedir) ? "." : pagedir), r"[/\\]+" => "/")
+    return replace(relpath(to, isempty(pagedir) ? "." : pagedir), r"[/\\]+" => "/")
 end
 
 """
@@ -1875,10 +1937,10 @@ function get_url(ctx, path::AbstractString)
         else
             first(splitext(path))
         end
-        isempty(d) ? "index.html" : "$d/index.html"
+        return isempty(d) ? "index.html" : "$d/index.html"
     else
         # change extension to .html
-        string(splitext(path)[1], ".html")
+        return string(splitext(path)[1], ".html")
     end
 end
 
@@ -1888,7 +1950,7 @@ size threshold, and returns the filename (that should be in the same directory a
 corresponding HTML file). If the data is under the threshold, no file is created, and the
 function returns `nothing`.
 """
-function write_data_file(dctx::DCtx, data::Union{Vector{UInt8},AbstractString}; suffix::AbstractString)
+function write_data_file(dctx::DCtx, data::Union{Vector{UInt8}, AbstractString}; suffix::AbstractString)
     # If we're under the threshold, we return `nothing`, indicating to the caller that
     # they should inline the file instead.
     if length(data) < dctx.ctx.settings.example_size_threshold
@@ -1953,17 +2015,19 @@ function find_valid_data_file(directory::AbstractString, prefix::AbstractString,
         end
         ispath(joinpath(directory, filename)) || return filename
     end
-    error("""
-    Unable to find valid file name for an at-example output:
-      directory = $(directory)
-      prefix = $(prefix)
-      suffix = $(suffix)""")
+    error(
+        """
+        Unable to find valid file name for an at-example output:
+          directory = $(directory)
+          prefix = $(prefix)
+          suffix = $(suffix)"""
+    )
 end
 
 """
 Returns the first `limit` characters of the hex SHA1 of the data `bytes`.
 """
-function dataslug(bytes::Union{Vector{UInt8},AbstractString}; limit=8)::String
+function dataslug(bytes::Union{Vector{UInt8}, AbstractString}; limit = 8)::String
     full_sha = bytes2hex(SHA.sha1(bytes))
     return first(full_sha, limit)
 end
@@ -2020,7 +2084,7 @@ function pagetitle(page::Node)
             break
         end
     end
-    title
+    return title
 end
 
 function pagetitle(dctx::DCtx)
@@ -2041,7 +2105,7 @@ function pagetitle(dctx::DCtx)
         title === nothing || return title
     end
 
-    [MarkdownAST.@ast("-")]
+    return [MarkdownAST.@ast("-")]
 end
 
 mdflatten_pagetitle(dctx::DCtx) = sprint((io, ns) -> foreach(n -> mdflatten(io, n), ns), pagetitle(dctx))
@@ -2092,8 +2156,10 @@ function domify_ansicoloredtext(text::AbstractString, class = "")
         return true
     end
     ansiclass = isempty(class) ? "ansi" : class * " ansi"
-    printer = ANSIColoredPrinters.HTMLPrinter(IOBuffer(text), callback = cb,
-                                              root_tag = "code", root_class = ansiclass)
+    printer = ANSIColoredPrinters.HTMLPrinter(
+        IOBuffer(text), callback = cb,
+        root_tag = "code", root_class = ansiclass
+    )
     show(IOBuffer(), MIME"text/html"(), printer)
     return stack[1].nodes
 end
@@ -2125,7 +2191,7 @@ function domify(dctx::DCtx, ::Node, c::MarkdownAST.CodeBlock)
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
         return pre(domify_ansicoloredtext(c.code, "nohighlight hljs"))
     elseif settings !== nothing && settings.prerender &&
-           !(isempty(language) || language == "nohighlight")
+            !(isempty(language) || language == "nohighlight")
         r = hljs_prerender(c, settings)
         r !== nothing && return r
     end
@@ -2144,7 +2210,7 @@ function domify(dctx::DCtx, node::Node, mcb::Documenter.MultiCodeBlock)
         push!(p.nodes, code)
         # insert a <br> between output and the next input
         if i != length(node.children) &&
-            findnext(x -> x.element.info == mcb.language, collect(node.children), i + 1) == i + 1
+                findnext(x -> x.element.info == mcb.language, collect(node.children), i + 1) == i + 1
             push!(p.nodes, br())
         end
     end
@@ -2164,20 +2230,20 @@ function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
     """
     out, err = IOBuffer(), IOBuffer()
     try
-        run(pipeline(`$(settings.node) -e "$(js)"`; stdout=out, stderr=err))
+        run(pipeline(`$(settings.node) -e "$(js)"`; stdout = out, stderr = err))
         str = String(take!(out))
         # prepend nohighlight to stop runtime highlighting
         # return pre(code[".nohighlight $(lang) .hljs"](DOM.Tag(Symbol("#RAW#"))(str)))
         return pre(code[".language-$(lang) .hljs"](DOM.Tag(Symbol("#RAW#"))(str)))
     catch e
-        @error "HTMLWriter: prerendering failed" exception=e stderr=String(take!(err))
+        @error "HTMLWriter: prerendering failed" exception = e stderr = String(take!(err))
     end
     return nothing
 end
 
 function domify(dctx::DCtx, node::Node, h::MarkdownAST.Heading)
     N = h.level
-    DOM.Tag(Symbol("h$N"))(domify(dctx, node.children))
+    return DOM.Tag(Symbol("h$N"))(domify(dctx, node.children))
 end
 
 domify(::DCtx, ::Node, ::MarkdownAST.ThematicBreak) = DOM.Tag(:hr)()
@@ -2190,11 +2256,11 @@ function domify(dctx::DCtx, node::Node, i::ImageElements)
     @tags video img a
 
     if occursin(r"\.(webm|mp4|ogg|ogm|ogv|avi)$", url)
-        video[:src => url, :controls => "true", :title => alt](
+        return video[:src => url, :controls => "true", :title => alt](
             a[:href => url](alt)
         )
     else
-        img[:src => url, :alt => alt]
+        return img[:src => url, :alt => alt]
     end
 end
 
@@ -2212,12 +2278,12 @@ function domify(dctx::DCtx, node::Node, link::LinkElements)
     droplinks = dctx.droplinks
     url = filehref(dctx, node, link)
     link_text = domify(dctx, node.children)
-    droplinks ? link_text : DOM.Tag(:a)[:href => url](link_text)
+    return droplinks ? link_text : DOM.Tag(:a)[:href => url](link_text)
 end
 
 function domify(dctx::DCtx, node::Node, list::MarkdownAST.List)
     isordered = (list.type === :ordered)
-    (isordered ? DOM.Tag(:ol) : DOM.Tag(:ul))(map(DOM.Tag(:li), domify(dctx, node.children)))
+    return (isordered ? DOM.Tag(:ol) : DOM.Tag(:ul))(map(DOM.Tag(:li), domify(dctx, node.children)))
 end
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Item) = domify(dctx, node.children)
 
@@ -2226,7 +2292,7 @@ function domify(dctx::DCtx, node::Node, ::MarkdownAST.Paragraph)
     # This 'if' here is to render tight/loose lists properly, as they all have Markdown.Paragraph as a child
     # node, but we should not render it for tight lists.
     # See also: https://github.com/JuliaLang/julia/pull/26598
-    is_in_tight_list(node) ? content : DOM.Tag(:p)(content)
+    return is_in_tight_list(node) ? content : DOM.Tag(:p)(content)
 end
 is_in_tight_list(node::Node) = !isnothing(node.parent) && isa(node.parent.element, MarkdownAST.Item) &&
     !isnothing(node.parent.parent) && isa(node.parent.parent.element, MarkdownAST.List) &&
@@ -2244,35 +2310,41 @@ function domify(dctx::DCtx, node::Node, t::MarkdownAST.Table)
             "text-align: left"
         end
     end
-    table(
-        tr(map(enumerate(th_row.children)) do (i, x)
-            th[:style => alignment_style[i]](domify(dctx, x.children))
-        end),
+    return table(
+        tr(
+            map(enumerate(th_row.children)) do (i, x)
+                th[:style => alignment_style[i]](domify(dctx, x.children))
+            end
+        ),
         map(tbody_rows) do x
-            tr(map(enumerate(x.children)) do (i, y) # each cell in a row
-                td[:style => alignment_style[i]](domify(dctx, y.children))
-            end)
+            tr(
+                map(enumerate(x.children)) do (i, y) # each cell in a row
+                    td[:style => alignment_style[i]](domify(dctx, y.children))
+                end
+            )
         end
     )
 end
 
 function domify(::DCtx, ::Node, e::MarkdownAST.JuliaValue)
-    @warn("""
-    Unexpected Julia interpolation in the Markdown. This probably means that you
-    have an unbalanced or un-escaped \$ in the text.
+    @warn(
+        """
+        Unexpected Julia interpolation in the Markdown. This probably means that you
+        have an unbalanced or un-escaped \$ in the text.
 
-    To write the dollar sign, escape it with `\\\$`
+        To write the dollar sign, escape it with `\\\$`
 
-    We don't have the file or line number available, but we got given the value:
+        We don't have the file or line number available, but we got given the value:
 
-    `$(e.ref)` which is of type `$(typeof(e.ref))`
-    """)
+        `$(e.ref)` which is of type `$(typeof(e.ref))`
+        """
+    )
     return string(e.ref)
 end
 
 function domify(::DCtx, ::Node, f::MarkdownAST.FootnoteLink)
     @tags sup a
-    sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
+    return sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
 end
 function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     # As we run through the document to generate the document, we won't render the footnote
@@ -2296,12 +2368,13 @@ end
 function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
     @tags header div details summary
     colorclass =
-        (a.category == "danger")  ? ".is-danger"  :
+        (a.category == "danger") ? ".is-danger" :
         (a.category == "warning") ? ".is-warning" :
-        (a.category == "note")    ? ".is-info"    :
-        (a.category == "info")    ? ".is-info"    :
-        (a.category == "tip")     ? ".is-success" :
-        (a.category == "compat")  ? ".is-compat"  : begin
+        (a.category == "note") ? ".is-info" :
+        (a.category == "info") ? ".is-info" :
+        (a.category == "tip") ? ".is-success" :
+        (a.category == "todo") ? ".is-todo" :
+        (a.category == "compat") ? ".is-compat" : begin
             # If the admonition category is not one of the standard ones, we tag the
             # admonition div element with a `is-category-$(category)` class. However, we
             # first carefully sanitize the category name. Strictly speaking, this is not
@@ -2322,16 +2395,24 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             # apply a class
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-
+    node_repr = sprint(io -> show(io, node))
+    content_hash = string(hash(node_repr), base = 16)
+    admonition_id = if !isempty(a.title)
+        base_id = Documenter.slugify(a.title)
+        "$(base_id)-$(content_hash)"
+    else
+        "$(a.category)-$(content_hash)"
+    end
+    anchor_link = DOM.Tag(:a)[".admonition-anchor", :href => "#$(admonition_id)", :title => "Permalink"]()
     inner_div = div[".admonition-body"](domify(dctx, node.children))
     if a.category == "details"
         # details admonitions are rendered as <details><summary> blocks
-        details[".admonition.is-details"](
-            summary[".admonition-header"](a.title), inner_div
+        return details[".admonition.is-details", :id => admonition_id](
+            summary[".admonition-header"](a.title, anchor_link), inner_div
         )
     else
-        div[".admonition$(colorclass)"](
-            header[".admonition-header"](a.title), inner_div
+        return div[".admonition$(colorclass)", :id => admonition_id](
+            header[".admonition-header"](a.title, anchor_link), inner_div
         )
     end
 end
@@ -2340,7 +2421,7 @@ end
 domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.children)
 domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
 
-function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
+function domify(dctx::DCtx, node::Node, d::Dict{MIME, Any})
     rawhtml(code) = DOM.Tag(Symbol("#RAW#"))(code)
     # Our first preference for the MIME type is 'text/html', which we can natively include
     # in the HTML. But it might happen that it's too large (above example_size_threshold),
@@ -2361,7 +2442,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         svg = d[MIME"image/svg+xml"()]
         svg_tag_match = match(r"<svg[^>]*>", svg)
         dom = if length(svg) >= dctx.ctx.settings.example_size_threshold
-            filename = write_data_file(dctx, svg; suffix=".svg")
+            filename = write_data_file(dctx, svg; suffix = ".svg")
             @assert !isnothing(filename)
             img[:src => filename, :alt => "Example block output"]
         elseif svg_tag_match === nothing
@@ -2421,20 +2502,26 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     if has_text_html && isnothing(image)
         # The 'text/html' representation of an @example block is above the threshold, but no
         # supported image representation is present as an alternative.
-        push!(dctx.ctx.atexample_warnings, AtExampleFallbackWarning(
-            page = dctx.navnode.page,
-            size_bytes = length(d[MIME"text/html"()]),
-            fallback = nothing,
-        ))
+        push!(
+            dctx.ctx.atexample_warnings,
+            AtExampleFallbackWarning(
+                page = dctx.navnode.page,
+                size_bytes = length(d[MIME"text/html"()]),
+                fallback = nothing,
+            )
+        )
         return rawhtml(d[MIME"text/html"()])
     elseif has_text_html && !isnothing(image)
         # The 'text/html' representation of an @example block is above the threshold,
         # falling back to '$(image.mime)' representation.
-        push!(dctx.ctx.atexample_warnings, AtExampleFallbackWarning(
-            page = dctx.navnode.page,
-            size_bytes = length(d[MIME"text/html"()]),
-            fallback = image.mime,
-        ))
+        push!(
+            dctx.ctx.atexample_warnings,
+            AtExampleFallbackWarning(
+                page = dctx.navnode.page,
+                size_bytes = length(d[MIME"text/html"()]),
+                fallback = image.mime,
+            )
+        )
         return image.dom
     elseif !has_text_html && !isnothing(image)
         return image.dom
@@ -2480,7 +2567,7 @@ function _strip_latex_math_delimiters(latex::AbstractString)
     return false, latex
 end
 
-function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{MIME,Any})
+function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{MIME, Any})
     @tags img
     mime_name = "image/$filetype"
     mime = MIME{Symbol(mime_name)}()
@@ -2488,7 +2575,7 @@ function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{
     # base64-encodes the bytes, so the values in the dictionary are base64-encoded.
     # So if we do write it to a file, we need to decode it first.
     data_base64 = d[mime]
-    filename = write_data_file(dctx, Base64.base64decode(data_base64); suffix=".$filetype")
+    filename = write_data_file(dctx, Base64.base64decode(data_base64); suffix = ".$filetype")
     alt = (:alt => "Example block output")
     dom = if isnothing(filename)
         src = string("data:$(mime_name);base64,", data_base64)
@@ -2496,7 +2583,7 @@ function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{
     else
         img[:src => filename, alt]
     end
-    (; dom, mime = mime_name)
+    return (; dom, mime = mime_name)
 end
 
 # filehrefs

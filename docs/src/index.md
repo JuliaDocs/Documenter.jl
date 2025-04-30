@@ -20,7 +20,7 @@ A package for building documentation from docstrings and markdown files.
 - [``\LaTeX`` syntax](@ref latex_syntax) support.
 - Checks for missing docstrings and incorrect cross references.
 - Generates tables of contents and docstring indexes.
-- Automatically builds and deploys docs from Travis to GitHub Pages.
+- Automatically builds and deploys docs from GitHub Actions to GitHub Pages, and also supports several other CI providers.
 
 The [Package Guide](@ref) provides a tutorial explaining how to get started using Documenter.
 

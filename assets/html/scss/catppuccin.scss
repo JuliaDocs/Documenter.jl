@@ -1,0 +1,254 @@
+// This file needs to be templated with CATPPUCCIN_FLAVOR and IS_DARK_THEME
+
+@charset "UTF-8";
+
+$themename: "catppuccin-${CATPPUCCIN_FLAVOR}";
+
+// Darkly wants to @import the Lato font by default, but we don't need it.
+$bulmaswatch-import-font: false;
+
+@import "catppuccin/${CATPPUCCIN_FLAVOR}";
+@import "catppuccin/variables";
+$body-size: 16px;
+$size-6: 1rem;
+$size-7: 0.75rem;
+
+$documenter-is-dark-theme: ${IS_DARK_THEME};
+
+// Darkly sets the font variables, so we need to override them here
+$family-sans-serif: 'Lato Medium', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+$family-monospace: 'JuliaMono', 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono', 'DejaVu Sans Mono', monospace;
+
+// $white-ter: red;// #ecf0f1;
+$primary: #375a7f !default;
+// $yellow-invert: #fff;
+
+$red: $catppuccin-red;
+$orange: $catppuccin-peach;
+$yellow: $catppuccin-yellow;
+$green: $catppuccin-green;
+$turquoise: $catppuccin-teal;
+$cyan: $catppuccin-sapphire;
+$blue: $catppuccin-blue;
+$purple: $catppuccin-mauve;
+
+// Admonitions
+$admonition-default: $catppuccin-subtext1;
+$info: $catppuccin-teal;
+$success: $catppuccin-green;
+$warning: $catppuccin-yellow;
+$danger: $catppuccin-red;
+$compat: $catppuccin-sky;
+$todo: $catppuccin-mauve;
+// Override `default: $grey-darker` in components/_admonition.scss
+$admonition-colors: (
+  'default': $admonition-default,
+  'info': $info,
+  'success': $success,
+  'warning': $warning,
+  'danger': $danger,
+  'compat': $compat,
+  'todo': $todo,
+);
+$admonition-body-color: (
+  'default': $catppuccin-text,
+  'info': $catppuccin-text,
+  'success': $catppuccin-text,
+  'warning': $catppuccin-text,
+  'danger': $catppuccin-text,
+  'compat': $catppuccin-text,
+  'todo': $catppuccin-text,
+);
+
+// These would normally get initialized in _admonition.scss. However, since we are not
+// loading it on the top level, we need to set them here too to avoid deprecation warnings.
+// https://github.com/JuliaDocs/Documenter.jl/issues/1766
+$admonition-header-color: ();
+$admonition-border-color: ();
+$admonition-header-background: ();
+$admonition-background: ();
+
+$body-size: 16px;
+$documenter-sidebar-background: $catppuccin-mantle;
+$shadow: #171717;
+$documenter-sidebar-color: $text;
+$lightness-unit: -8%;
+
+// $docstring-pre-background: adjust-color($background, $lightness: 5);
+$border-width: 1px;
+
+@import "documenter/utilities";
+@import "documenter/variables";
+
+$code: $catppuccin-text;
+$code-background: $catppuccin-mantle;
+
+$documenter-docstring-shadow: none;
+
+@import "bulma/utilities/all";
+@import "bulma/base/minireset.sass";
+@import "bulma/helpers/all";
+
+// Search box, version selector etc.
+$input-color: $grey-lighter;
+$input-background-color: $body-background-color;
+$input-border-color: $border;
+$input-placeholder-color: #868c98;
+
+$search-result-link-text-color: #333;
+$search-result-link-text-background-color: #f1f5f9;
+$search-result-title-text-color: whitesmoke;
+$search-modal-kbd-color: rgba(245, 245, 245, 0.6);
+
+$button-static-color: $grey-lighter;
+$button-static-background-color: $background;
+$button-static-border-color: $border;
+
+// $modal-background-background-color: $catppuccin-sapphire;
+$modal-card-body-background-color: $catppuccin-base;
+$modal-card-title-color: $catppuccin-text;
+
+// Search
+$search-modal-selected-filter-color: $catppuccin-surface0;
+$search-modal-selected-filter-background-color: $catppuccin-lavender;
+
+// Sidebar
+$documenter-sidebar-menu-active-background: $catppuccin-crust;
+
+// Headings (TODO: Subheadings should have slightly different color)
+$content-heading-color: $catppuccin-text;
+
+// All secondary themes have to be nested in a theme--$(themename) class. When Documenter
+// switches themes, it applies this class to <html> and then disables the primary
+// stylesheet.
+html.theme--#{$themename} {
+  @import "bulma/base/generic.sass";
+
+  @import "documenter/overrides";
+
+  @import "bulma/elements/all";
+  @import "bulma/form/all";
+  @import "bulma/components/all";
+  @import "bulma/grid/all";
+  @import "bulma/layout/all";
+
+
+  @import "documenter/elements";
+  @import "documenter/components/all";
+  @import "documenter/patches";
+  @import "documenter/layout/all";
+
+  @import "documenter/theme_overrides";
+
+  @import "catppuccin/overrides";
+
+  // .docstring {
+  //   border: $border-width solid $border;
+  //   box-shadow: none;
+  //
+  //   header {
+  //     box-shadow: none;
+  //     background-color: rgba($black-bis, 0.2);
+  //     border-radius: $radius $radius 0 0;
+  //   }
+  // }
+
+  // Source link in docstrings
+  // .docstring > section > a.docs-sourcelink:not(body) {
+  .docstring > section > a.docs-sourcelink:not(body) {
+      color: $catppuccin-surface0;
+  }
+  // Footnote backlink
+  .tag.is-link:not(body) {
+      color: $catppuccin-surface0;
+  }
+
+  // Terminal colors guidelines:
+  // https://github.com/catppuccin/catppuccin/blob/main/docs/style-guide.md#terminals
+  $ansi-black: $catppuccin-surface1;
+  @if $themename == "catppuccin-latte" {
+    $ansi-black: $catppuccin-subtext1;
+  }
+  $ansi-red: $catppuccin-red;
+  $ansi-green: $catppuccin-green;
+  $ansi-yellow: $catppuccin-yellow;
+  $ansi-blue: $catppuccin-blue;
+  $ansi-magenta: $catppuccin-pink;
+  $ansi-cyan: $catppuccin-teal;
+  $ansi-white: $catppuccin-subtext1;
+  @if $themename == "catppuccin-latte" {
+    $ansi-white: $catppuccin-surface2;
+  }
+
+  $ansi-light-black: $catppuccin-surface2;
+  @if $themename == "catppuccin-latte" {
+    $ansi-light-black: $catppuccin-subtext0;
+  }
+  $ansi-light-red: $catppuccin-red;
+  $ansi-light-green: $catppuccin-green;
+  $ansi-light-yellow: $catppuccin-yellow;
+  $ansi-light-blue: $catppuccin-blue;
+  $ansi-light-magenta: $catppuccin-pink;
+  $ansi-light-cyan: $catppuccin-teal;
+  $ansi-light-white: $catppuccin-subtext0;
+  @if $themename == "catppuccin-latte" {
+    $ansi-light-white: $catppuccin-surface1;
+  }
+  @import "documenter/ansicolors";
+
+  // highlight.js color scheme override for the julia> prompt
+  code.language-julia-repl > span.hljs-meta {
+    color: $ansi-green;
+    font-weight: bolder;
+  }
+
+  // // FIXME: Hack to get a proper theme for highlight.js in the Darkly theme
+  @import "highlightjs/catppuccin";
+  // // Also, a11y-dark does not highlight string interpolation properly.
+  // .hljs-subst {
+  //   color: #f8f8f2;
+  // }
+
+  .search-result-link {
+    border-radius: 0.7em;
+    transition: all 300ms;
+  }
+
+  .search-result-link:hover, .search-result-link:focus {
+    background-color: $catppuccin-surface0;
+  }
+
+  .search-result-link .property-search-result-badge {
+    transition: all 300ms;
+  }
+
+  .search-result-link:hover .property-search-result-badge, .search-result-link:focus .property-search-result-badge {
+    color: $catppuccin-surface0 !important;
+    background-color: $catppuccin-lavender !important;
+  }
+
+  .search-result-title {
+    color: $catppuccin-text;
+  }
+
+  .search-result-highlight {
+    background-color: $catppuccin-red;
+    color: $catppuccin-mantle;
+  }
+
+  .search-divider {
+    border-bottom: 1px solid #5e6d6f50
+  }
+
+  .w-100 {
+    width: 100%;
+  }
+
+  .gap-2 {
+    gap: 0.5rem;
+  }
+
+  .gap-4 {
+    gap: 1rem;
+  }
+}
