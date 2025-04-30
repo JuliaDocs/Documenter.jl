@@ -776,15 +776,22 @@ end
 
 # Find if there is any format with color output.
 function _any_color_fmt(doc)
-    idx = findfirst(_is_color_fmt, doc.user.format)
+    idx = findfirst(writer_supports_ansicolor, doc.user.format)
     idx === nothing && return false
     return doc.user.format[idx].ansicolor
 end
 
 # General fallback.
-_is_color_fmt(::Documenter.Writer) = false
+""'
+	writer_supports_ansicolor(::Documenter.Writer)::Bool
+	
+Returns whether the writer supports ANSI-colored output (`true`) or not (`false`).
+
+This is usually relevant in Documenter blocks that execute code, like `@example` or `@repl`.
+"""
+writer_supports_ansicolor(::Documenter.Writer) = false
 # HTML accepts ANSI, so this is `true`.
-_is_color_fmt(::Documenter.HTMLWriter.HTML) = true
+writer_supports_ansicolor(::Documenter.HTMLWriter.HTML) = true
 
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
