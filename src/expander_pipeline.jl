@@ -788,6 +788,8 @@ end
 Returns whether the writer supports ANSI-colored output (`true`) or not (`false`).
 
 This is usually relevant in Documenter blocks that execute code, like `@example` or `@repl`.
+
+If `true`, these blocks will call `show` on the returned Julia object with `color = true`.  If `false`, then show is called with `color=false`.  
 """
 writer_supports_ansicolor(::Documenter.Writer) = false
 # HTML accepts ANSI, so this is `true`.
