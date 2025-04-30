@@ -793,7 +793,7 @@ If `true`, these blocks will call `show` on the returned Julia object with `colo
 """
 writer_supports_ansicolor(::Writer) = false
 # HTML accepts ANSI, so this is `true`.
-writer_supports_ansicolor(::HTMLWriter.HTML) = true
+writer_supports_ansicolor(::HTML) = true
 
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
