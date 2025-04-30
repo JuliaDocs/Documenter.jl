@@ -783,7 +783,7 @@ end
 
 # General fallback.
 """
-	writer_supports_ansicolor(::Documenter.Writer)::Bool
+    writer_supports_ansicolor(::Documenter.Writer)::Bool
 	
 Returns whether the writer supports ANSI-colored output (`true`) or not (`false`).
 
