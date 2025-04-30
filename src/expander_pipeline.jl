@@ -791,9 +791,9 @@ This is usually relevant in Documenter blocks that execute code, like `@example`
 
 If `true`, these blocks will call `show` on the returned Julia object with `color = true`.  If `false`, then show is called with `color=false`.  
 """
-writer_supports_ansicolor(::Documenter.Writer) = false
+writer_supports_ansicolor(::Writer) = false
 # HTML accepts ANSI, so this is `true`.
-writer_supports_ansicolor(::Documenter.HTML) = true
+writer_supports_ansicolor(::HTMLWriter.HTML) = true
 
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
