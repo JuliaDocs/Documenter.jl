@@ -235,13 +235,8 @@ function deploydocs(;
     if deploy_decision.all_ok
         deploy_branch = deploy_decision.branch
         deploy_repo = deploy_decision.repo
-        deploy_subfolder = deploy_decision.subfolder
+        deploy_subfolder = determine_deploy_subfolder(deploy_decision, versions)
         deploy_is_preview = deploy_decision.is_preview
-
-        # Non-versioned docs: deploy to root
-        if versions === nothing && !deploy_is_preview
-            deploy_subfolder = nothing
-        end
 
         # Install dependencies when applicable.
         if deps !== nothing
@@ -307,6 +302,20 @@ function deploydocs(;
     return
 end
 
+"""
+    determine_deploy_subfolder(deploy_decision, versions)
+
+Determine the subfolder to deploy to given the `deploy_decision` and the `versions`.
+Either return a `String` or `nothing` to deploy to the root folder.
+"""
+function determine_deploy_subfolder(deploy_decision, versions::Nothing)
+    # Non-versioned docs: deploy to root unless it's a preview
+    deploy_decision.is_preview ? deploy_decision.subfolder : nothing
+end
+
+function determine_deploy_subfolder(deploy_decision, versions::AbstractVector)
+    deploy_decision.subfolder
+end
 
 function _get_inventory_version(objects_inv)
     return open(objects_inv) do input
@@ -418,46 +427,7 @@ function git_push(
             write(joinpath(dirname, "CNAME"), cname)
         end
 
-        if versions === nothing
-            # If the documentation is unversioned and deployed to root, we generate a
-            # siteinfo.js file that would disable the version selector in the docs
-            HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
-        else
-            # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
-            # Determine if this is a development version (e.g., "dev" or "latest")
-            is_dev_version = (subfolder == devurl || subfolder == "latest")
-            HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder, is_dev_version)
-
-            # Expand the users `versions` vector
-            entries, symlinks = HTMLWriter.expand_versions(dirname, versions)
-
-            # Create the versions.js file containing a list of `entries`.
-            # This must always happen after the folder copying.
-            HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
-
-            # Create the index.html file to redirect ./stable or ./dev.
-            # This must always happen after the folder copying.
-            HTMLWriter.generate_redirect_file(joinpath(dirname, "index.html"), entries)
-
-            # generate the symlinks, make sure we don't overwrite devurl
-            cd(dirname) do
-                for kv in symlinks
-                    i = findfirst(x -> x.first == devurl, symlinks)
-                    if i === nothing
-                        rm_and_add_symlink(kv.second, kv.first)
-                    else
-                        throw(
-                            ArgumentError(
-                                string(
-                                    "link `$(kv)` cannot overwrite ",
-                                    "`devurl = $(devurl)` with the same name."
-                                )
-                            )
-                        )
-                    end
-                end
-            end
-        end
+        postprocess_before_push(versions; subfolder, devurl, deploy_dir, dirname)
 
         # Add, commit, and push the docs to the remote.
         run(`$(git()) add -A -- ':!.documenter-identity-file.tmp' ':!**/.documenter-identity-file.tmp'`)
@@ -547,6 +517,57 @@ function git_push(
         end
     end
     return
+end
+
+"""
+    postprocess_before_push(versions; subfolder, devurl, deploy_dir, dirname)
+
+Run arbitrary logic (for example, creating siteinfo and version files)
+on the documentation with the new additions before the changes are pushed to the remote.
+The logic depends on the versioning scheme defined via `versions`.
+"""
+function postprocess_before_push(versions::Nothing; subfolder, devurl, deploy_dir, dirname)
+    # If the documentation is unversioned and deployed to root, we generate a
+    # siteinfo.js file that would disable the version selector in the docs
+    HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
+    return
+end
+
+function postprocess_before_push(versions::AbstractVector; subfolder, devurl, deploy_dir, dirname)
+    # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
+    # Determine if this is a development version (e.g., "dev" or "latest")
+    is_dev_version = (subfolder == devurl || subfolder == "latest")
+    HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder, is_dev_version)
+
+    # Expand the users `versions` vector
+    entries, symlinks = HTMLWriter.expand_versions(dirname, versions)
+
+    # Create the versions.js file containing a list of `entries`.
+    # This must always happen after the folder copying.
+    HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
+
+    # Create the index.html file to redirect ./stable or ./dev.
+    # This must always happen after the folder copying.
+    HTMLWriter.generate_redirect_file(joinpath(dirname, "index.html"), entries)
+
+    # generate the symlinks, make sure we don't overwrite devurl
+    cd(dirname) do
+        for kv in symlinks
+            i = findfirst(x -> x.first == devurl, symlinks)
+            if i === nothing
+                rm_and_add_symlink(kv.second, kv.first)
+            else
+                throw(
+                    ArgumentError(
+                        string(
+                            "link `$(kv)` cannot overwrite ",
+                            "`devurl = $(devurl)` with the same name."
+                        )
+                    )
+                )
+            end
+        end
+    end
 end
 
 function rm_and_add_symlink(target, link)
