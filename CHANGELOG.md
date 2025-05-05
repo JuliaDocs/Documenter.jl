@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added different banners for dev and unreleased docs ([#2382], [#2682])
 * Introduced the `deploy_repo` keyword argument for `deploydocs` to better support out-of-repo documentation deployments ([#2692])
 
+### Fixed
+
+* In Julia v1.12, the queries used by `clear_module!` will now be versioned by world, allowing the deleting of bindings to work correctly. ([#2693])
+
 ## Version [v1.10.2] - 2025-04-25
 
 ### Fixed
@@ -2031,6 +2035,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
 [#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
 [#2692]: https://github.com/JuliaDocs/Documenter.jl/pull/2692
+[#2693]: https://github.com/JuliaDocs/Documenter.jl/issues/2693
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
