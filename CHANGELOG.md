@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Refactored `deploydocs` internals to allow dispatch on the `versions` keyword, intended as a non-public API for DocumenterVitepress which cannot use the default versioning mechanism during deployment ([#2695]).
 * Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676], [#2688])
 * Added different banners for dev and unreleased docs ([#2382], [#2682])
 
@@ -2029,6 +2030,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
 [#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
 [#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
+[#2695]: https://github.com/JuliaDocs/Documenter.jl/issues/2695
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
