@@ -236,7 +236,7 @@ function deploydocs(;
         deploy_branch = deploy_decision.branch
         deploy_repo = deploy_decision.repo
         deploy_is_preview = deploy_decision.is_preview
-        
+
         # this dispatches on `versions` for a non-public API for DocumenterVitepress
         deploy_subfolder = determine_deploy_subfolder(deploy_decision, versions)
 
@@ -537,7 +537,7 @@ function postprocess_before_push(versions::AbstractVector; subfolder, devurl, de
     HTMLWriter.generate_redirect_file(joinpath(dirname, "index.html"), entries)
 
     # generate the symlinks, make sure we don't overwrite devurl
-    cd(dirname) do
+    return cd(dirname) do
         for kv in symlinks
             i = findfirst(x -> x.first == devurl, symlinks)
             if i === nothing
@@ -562,11 +562,11 @@ end
 # to `deploydocs`, for use in DocumenterVitepress because it cannot use the default versioning.
 function determine_deploy_subfolder(deploy_decision, versions::Nothing)
     # Non-versioned docs: deploy to root unless it's a preview
-    deploy_decision.is_preview ? deploy_decision.subfolder : nothing
+    return deploy_decision.is_preview ? deploy_decision.subfolder : nothing
 end
 
 function determine_deploy_subfolder(deploy_decision, versions::AbstractVector)
-    deploy_decision.subfolder
+    return deploy_decision.subfolder
 end
 
 function rm_and_add_symlink(target, link)
