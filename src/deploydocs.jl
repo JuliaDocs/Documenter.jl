@@ -129,6 +129,12 @@ If `versions = nothing` documentation will be deployed directly to the "root", i
 not to a versioned subfolder. See the manual section on
 [Deploying without the versioning scheme](@ref) for more details.
 
+**`deploy_repo`** can be used to override the remote repository to deploy to, which
+normally will be the same as `repo` (if this is unset or set to `nothing`). This is mostly
+used when the documentation is deployed to a dedicated "docs hosting repository", usually
+to avoid issues with the main repository's `gh-pages` branch getting too large. The
+expected format of the argument is the same as for `repo`.
+
 **`push_preview`** a boolean that specifies if preview documentation should be
 deployed from pull requests or not. If your published documentation is hosted
 at `"https://USER.github.io/PACKAGE.jl/stable`, by default the preview will be
@@ -140,9 +146,8 @@ forks.
 It defaults to the value of `branch`.
 
 **`repo_previews`** is the remote repository to which pull request previews are
-deployed. It defaults to the value of `repo`.
-
-** `deploy_repo`** is the remote repository to deploy to.
+deployed. It defaults to the value of `repo`, and when specified manually, must
+follow its formatting scheme.
 
 !!! note
     Pull requests made from forks will not have previews.
