@@ -581,6 +581,10 @@ struct HTML <: Documenter.Writer
     end
 end
 
+# HTML accepts ANSI, so this is `true`.
+Documenter.writer_supports_ansicolor(::HTML) = true
+
+
 # Cache of downloaded highlight.js bundles
 const HLJSFILES = Dict{String, String}()
 # Look for node and highlight.js
