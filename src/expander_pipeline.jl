@@ -784,12 +784,24 @@ end
 # @example
 # --------
 
-# Find if there is any format with color output
+# Find if there is any format with color output.
 function _any_color_fmt(doc)
-    idx = findfirst(x -> x isa Documenter.HTML, doc.user.format)
+    idx = findfirst(writer_supports_ansicolor, doc.user.format)
     idx === nothing && return false
     return doc.user.format[idx].ansicolor
 end
+
+# General fallback.
+"""
+    writer_supports_ansicolor(::Documenter.Writer)::Bool
+
+Returns whether the writer supports ANSI-colored output (`true`) or not (`false`).
+
+This is usually relevant in Documenter blocks that execute code, like `@example` or `@repl`.
+
+If `true`, these blocks will call `show` on the returned Julia object with `color = true`.  If `false`, then show is called with `color=false`.
+"""
+writer_supports_ansicolor(::Writer) = false
 
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
