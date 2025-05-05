@@ -302,21 +302,6 @@ function deploydocs(;
     return
 end
 
-"""
-    determine_deploy_subfolder(deploy_decision, versions)
-
-Determine the subfolder to deploy to given the `deploy_decision` and the `versions`.
-Either return a `String` or `nothing` to deploy to the root folder.
-"""
-function determine_deploy_subfolder(deploy_decision, versions::Nothing)
-    # Non-versioned docs: deploy to root unless it's a preview
-    deploy_decision.is_preview ? deploy_decision.subfolder : nothing
-end
-
-function determine_deploy_subfolder(deploy_decision, versions::AbstractVector)
-    deploy_decision.subfolder
-end
-
 function _get_inventory_version(objects_inv)
     return open(objects_inv) do input
         for line in eachline(input)
@@ -519,13 +504,11 @@ function git_push(
     return
 end
 
-"""
-    postprocess_before_push(versions; subfolder, devurl, deploy_dir, dirname)
-
-Run arbitrary logic (for example, creating siteinfo and version files)
-on the documentation with the new additions before the changes are pushed to the remote.
-The logic depends on the versioning scheme defined via `versions`.
-"""
+# Run arbitrary logic (for example, creating siteinfo and version files)
+# on the documentation with the new additions before the changes are pushed to the remote.
+# The logic depends on the versioning scheme defined via `versions`.
+# This function was factored out as part of a "shadow API" via dispatch on the `versions` keyword arg
+# to `deploydocs`, for use in DocumenterVitepress because it cannot use the default versioning.
 function postprocess_before_push(versions::Nothing; subfolder, devurl, deploy_dir, dirname)
     # If the documentation is unversioned and deployed to root, we generate a
     # siteinfo.js file that would disable the version selector in the docs
@@ -568,6 +551,19 @@ function postprocess_before_push(versions::AbstractVector; subfolder, devurl, de
             end
         end
     end
+end
+
+# Determine the subfolder to deploy to given the `deploy_decision` and the `versions`.
+# Either return a `String` or `nothing` to deploy to the root folder.
+# This function was factored out as part of a "shadow API" via dispatch on the `versions` keyword arg
+# to `deploydocs`, for use in DocumenterVitepress because it cannot use the default versioning.
+function determine_deploy_subfolder(deploy_decision, versions::Nothing)
+    # Non-versioned docs: deploy to root unless it's a preview
+    deploy_decision.is_preview ? deploy_decision.subfolder : nothing
+end
+
+function determine_deploy_subfolder(deploy_decision, versions::AbstractVector)
+    deploy_decision.subfolder
 end
 
 function rm_and_add_symlink(target, link)
