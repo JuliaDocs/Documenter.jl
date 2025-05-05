@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Refactored `deploydocs` internals to allow dispatch on the `versions` keyword, intended as a non-public API for DocumenterVitepress which cannot use the default versioning mechanism during deployment ([#2695]).
 * Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676], [#2688])
 * Added different banners for dev and unreleased docs ([#2382], [#2682])
+* Added an API function `writer_supports_ansicolor` for a Documenter writer to indicate that it supports rendering ANSI-colored strings.  This is useful for new backends that may be implemented. ([#2490])
+
+### Fixed
+
+* In Julia v1.12, the queries used by `clear_module!` will now be versioned by world, allowing the deleting of bindings to work correctly. ([#2693])
 
 ## Version [v1.10.2] - 2025-04-25
 
@@ -1380,7 +1385,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The at-blocks now support `MIME"text/html"` rendering of objects (e.g. for interactive plots). I.e. if a type has `show(io, ::MIME"text/html", x)` defined, Documenter now uses that when rendering the objects in the document. ([#764])
 
-* Addeds to the sidebar. When loading a page, the sidebar will jump to the current page now. Also, the scrollbar in WebKit-based browsers look less intrusive now. ([#792], [#854], [#863])
+* Added to the sidebar. When loading a page, the sidebar will jump to the current page now. Also, the scrollbar in WebKit-based browsers look less intrusive now. ([#792], [#854], [#863])
 
 * Minor style enhancements to admonitions. ([#841])
 
@@ -1984,6 +1989,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2480]: https://github.com/JuliaDocs/Documenter.jl/issues/2480
 [#2482]: https://github.com/JuliaDocs/Documenter.jl/issues/2482
 [#2485]: https://github.com/JuliaDocs/Documenter.jl/issues/2485
+[#2490]: https://github.com/JuliaDocs/Documenter.jl/pull/2490
 [#2496]: https://github.com/JuliaDocs/Documenter.jl/issues/2496
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
@@ -2030,6 +2036,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
 [#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
 [#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
+[#2693]: https://github.com/JuliaDocs/Documenter.jl/issues/2693
 [#2695]: https://github.com/JuliaDocs/Documenter.jl/issues/2695
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
