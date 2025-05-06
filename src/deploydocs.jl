@@ -16,7 +16,8 @@
         forcepush = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview = false,
-        repo_previews = repo,
+        repo_previews = nothing,
+        deploy_repo = nothing,
         branch_previews = branch,
         tag_prefix = "",
     )
@@ -128,6 +129,12 @@ If `versions = nothing` documentation will be deployed directly to the "root", i
 not to a versioned subfolder. See the manual section on
 [Deploying without the versioning scheme](@ref) for more details.
 
+**`deploy_repo`** can be used to override the remote repository to deploy to, which
+normally will be the same as `repo` (if this is unset or set to `nothing`). This is mostly
+used when the documentation is deployed to a dedicated "docs hosting repository", usually
+to avoid issues with the main repository's `gh-pages` branch getting too large. The
+expected format of the argument is the same as for `repo`.
+
 **`push_preview`** a boolean that specifies if preview documentation should be
 deployed from pull requests or not. If your published documentation is hosted
 at `"https://USER.github.io/PACKAGE.jl/stable`, by default the preview will be
@@ -139,7 +146,8 @@ forks.
 It defaults to the value of `branch`.
 
 **`repo_previews`** is the remote repository to which pull request previews are
-deployed. It defaults to the value of `repo`.
+deployed. It defaults to the value of `repo`, and when specified manually, must
+follow its formatting scheme.
 
 !!! note
     Pull requests made from forks will not have previews.
@@ -190,8 +198,9 @@ function deploydocs(;
 
         repo = error("no 'repo' keyword provided."),
         branch = "gh-pages",
+        deploy_repo = nothing,
 
-        repo_previews = repo,
+        repo_previews = nothing,
         branch_previews = branch,
 
         deps = nothing,
@@ -230,6 +239,7 @@ function deploydocs(;
         push_preview = push_preview,
         repo = repo,
         repo_previews = repo_previews,
+        deploy_repo = deploy_repo,
         tag_prefix
     )
     if deploy_decision.all_ok
