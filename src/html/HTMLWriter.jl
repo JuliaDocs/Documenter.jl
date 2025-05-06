@@ -1045,7 +1045,7 @@ function render_head(ctx, navnode)
             :src => RD.requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js),
         ],
-        script[:src => relhref(src, ctx.search_index_js), :async],
+        script[:src => relhref(src, ctx.search_index_js), :async, :id => "documenter-search-index-script"],
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],

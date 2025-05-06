@@ -610,7 +610,8 @@ function waitUntilSearchIndexAvailable() {
     runSearchMainCode();
   } else {
     console.warn("Search Index not available, waiting");
-    setTimeout(waitUntilSearchIndexAvailable, 1000);
+    document.getElementById("documenter-search-index-script")
+      .addEventListener("load", waitUntilSearchIndexAvailable);
   }
 }
 
