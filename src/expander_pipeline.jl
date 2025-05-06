@@ -52,7 +52,7 @@ function expand(doc::Documenter.Document)
     for src in Iterators.flatten([priority_pages, normal_pages])
         page = doc.blueprint.pages[src]
         @debug "Running ExpanderPipeline on $src"
-        empty!(page.globals.meta)
+        copy!(page.globals.meta, doc.user.meta)
         # We need to collect the child nodes here because we will end up changing the structure
         # of the tree in some cases.
         for node in collect(page.mdast.children)
