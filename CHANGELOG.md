@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * In Julia v1.12, the queries used by `clear_module!` will now be versioned by world, allowing the deleting of bindings to work correctly. ([#2693])
 
+### Other
+
+* Documenter no longer depends on the LibGit2 standard library. ([#2363], [#2701])
+
 ## Version [v1.10.2] - 2025-04-25
 
 ### Fixed
@@ -1960,6 +1964,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2344]: https://github.com/JuliaDocs/Documenter.jl/issues/2344
 [#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
 [#2360]: https://github.com/JuliaDocs/Documenter.jl/issues/2360
+[#2363]: https://github.com/JuliaDocs/Documenter.jl/issues/2363
 [#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
 [#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
 [#2366]: https://github.com/JuliaDocs/Documenter.jl/issues/2366
@@ -1989,7 +1994,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2480]: https://github.com/JuliaDocs/Documenter.jl/issues/2480
 [#2482]: https://github.com/JuliaDocs/Documenter.jl/issues/2482
 [#2485]: https://github.com/JuliaDocs/Documenter.jl/issues/2485
-[#2490]: https://github.com/JuliaDocs/Documenter.jl/pull/2490
+[#2490]: https://github.com/JuliaDocs/Documenter.jl/issues/2490
 [#2496]: https://github.com/JuliaDocs/Documenter.jl/issues/2496
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
@@ -2036,8 +2041,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
 [#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
 [#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
-[#2692]: https://github.com/JuliaDocs/Documenter.jl/pull/2692
+[#2688]: https://github.com/JuliaDocs/Documenter.jl/issues/2688
+[#2692]: https://github.com/JuliaDocs/Documenter.jl/issues/2692
 [#2693]: https://github.com/JuliaDocs/Documenter.jl/issues/2693
+[#2701]: https://github.com/JuliaDocs/Documenter.jl/issues/2701
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
