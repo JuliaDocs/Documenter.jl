@@ -98,6 +98,10 @@ end
     @info "Building clear_module/tests.jl"
     @quietly include("clear_module/tests.jl")
 
+    # A simple build verifying that default meta data for pages works
+    @info "Building default_meta/tests.jl"
+    @quietly include("default_meta/tests.jl")
+
     # Passing a writer positionally (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
     @test_throws MethodError makedocs(sitename = "", HTML())
 

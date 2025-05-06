@@ -14,7 +14,7 @@ struct DocTestContext
     file::String
     doc::Documenter.Document
     meta::Dict{Symbol, Any}
-    DocTestContext(file::String, doc::Documenter.Document) = new(file, doc, Dict())
+    DocTestContext(file::String, doc::Documenter.Document) = new(file, doc, copy(doc.user.meta))
 end
 
 """
