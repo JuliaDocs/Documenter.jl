@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676], [#2688])
 * Added an API function `writer_supports_ansicolor` for a Documenter writer to indicate that it supports rendering ANSI-colored strings.  This is useful for new backends that may be implemented. ([#2490])
 * Introduced the `deploy_repo` keyword argument for `deploydocs` to better support out-of-repo documentation deployments ([#2692])
+* Added `default_meta` option to `makedocs` which allows to specify default values for `@meta` blocks. This can be used to alter the default values for anything that can be configured via a `@meta` block for all pages of the documentation. E.g. this can be used to set `CollapsedDocStrings = true` on all pages. ([#2512], [#2697])
 
 ### Changed
 
@@ -2004,6 +2005,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [#2505]: https://github.com/JuliaDocs/Documenter.jl/issues/2505
 [#2511]: https://github.com/JuliaDocs/Documenter.jl/issues/2511
+[#2512]: https://github.com/JuliaDocs/Documenter.jl/issues/2512
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
 [#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
@@ -2049,6 +2051,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2692]: https://github.com/JuliaDocs/Documenter.jl/issues/2692
 [#2693]: https://github.com/JuliaDocs/Documenter.jl/issues/2693
 [#2695]: https://github.com/JuliaDocs/Documenter.jl/issues/2695
+[#2697]: https://github.com/JuliaDocs/Documenter.jl/issues/2697
 [#2701]: https://github.com/JuliaDocs/Documenter.jl/issues/2701
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
