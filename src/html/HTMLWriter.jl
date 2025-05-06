@@ -802,7 +802,7 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     function page_navnode(page)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
         nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
-        nn, idx
+        return nn, idx
     end
 
     foreach(keys(doc.blueprint.pages)) do page
@@ -1863,7 +1863,7 @@ function domify(::DCtx, ::Node, rawnode::Documenter.RawNode)
 end
 
 function generate_index!(ctx::HTMLContext, navnode::Documenter.NavNode)
-    map(getpage(ctx, navnode).mdast.children) do node
+    foreach(getpage(ctx, navnode).mdast.children) do node
         rec = searchrecord(ctx, navnode, node)
         if !isnothing(rec)
             push!(ctx.search_index, rec)
