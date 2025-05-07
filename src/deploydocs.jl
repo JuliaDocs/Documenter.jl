@@ -146,7 +146,7 @@ forks.
 It defaults to the value of `branch`.
 
 **`repo_previews`** can be used to override the remote repository to which pull request previews are
-deployed. If this is unset, it will be the same as `deploy_repo` (if that is set) or `repo` otherwise.
+deployed. If this is not set, it will be the same as `deploy_repo` (if that is set) or `repo` otherwise.
 The expected format of the argument is the same as for `repo`.
 
 !!! note
