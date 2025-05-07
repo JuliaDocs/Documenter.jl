@@ -812,7 +812,7 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     end
 
     # Make an attempt at avoiding spurious changes to the search index hash.
-    sort!(ctx.search_index; by=r -> (r.src, r.fragment, r.text))
+    sort!(ctx.search_index; by = r -> (r.src, r.fragment, r.text))
     search_index_buf = let io = IOBuffer()
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
@@ -1863,7 +1863,7 @@ function domify(::DCtx, ::Node, rawnode::Documenter.RawNode)
 end
 
 function generate_index!(ctx::HTMLContext, navnode::Documenter.NavNode)
-    foreach(getpage(ctx, navnode).mdast.children) do node
+    return foreach(getpage(ctx, navnode).mdast.children) do node
         rec = searchrecord(ctx, navnode, node)
         if !isnothing(rec)
             push!(ctx.search_index, rec)
