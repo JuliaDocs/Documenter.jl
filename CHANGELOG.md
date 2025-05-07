@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676], [#2688])
 * Added different banners for dev and unreleased docs ([#2382], [#2682])
 * Added an API function `writer_supports_ansicolor` for a Documenter writer to indicate that it supports rendering ANSI-colored strings.  This is useful for new backends that may be implemented. ([#2490])
-* The search index now loads asynchronously, and can be cached indefninitely. ([#2700])
+* The search index now loads asynchronously, and can be cached indefinitely. ([#2702], [#2700])
 
 ### Fixed
 
