@@ -61,8 +61,14 @@ jobs:
           path-to-lcov: lcov.info
 
   latex:
-    name: "PDF/LaTeX backend"
-    runs-on: ubuntu-latest
+    name: "PDF/LaTeX backend - ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
