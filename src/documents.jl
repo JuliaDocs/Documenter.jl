@@ -664,7 +664,16 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         end
         err *= '\n'
         err *= "  repo: $(repo_normalized)"
-        throw(ArgumentError(err))
+        # xref https://github.com/JuliaDocs/Documenter.jl/issues/2699
+        # if we are running in CI, presumably we are deploying the docs,
+        # so at this point we should throw an error.
+        if haskey(ENV, "CI")
+            throw(ArgumentError(err))
+        else # we are running locally, don't throw an error!
+            # this enables local doc builds so Documenter can 
+            # be used as a local source, even if not in a git repo.
+            @warn "Documenter.jl: " * err
+        end
     end
 
     return (makedocs_root_remote, remotes_checked)
