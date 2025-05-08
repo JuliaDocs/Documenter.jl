@@ -670,7 +670,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         if haskey(ENV, "CI")
             throw(ArgumentError(err))
         else # we are running locally, don't throw an error!
-            # this enables local doc builds so Documenter can 
+            # this enables local doc builds so Documenter can
             # be used as a local source, even if not in a git repo.
             @warn "Documenter.jl: " * err
         end
