@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Refactored `deploydocs` internals to allow dispatch on the `versions` keyword, intended as a non-public API for DocumenterVitepress which cannot use the default versioning mechanism during deployment ([#2695]).
 * Use different banners for dev and unreleased docs ([#2382], [#2682])
+* Warn instead of throwing an error in `makedocs` if Documenter is running locally (not in CI) but not in a git repository, and `remotes` and `repo` are both not set ([#2699], [#2709])
 
 ### Fixed
 
@@ -2049,7 +2050,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2692]: https://github.com/JuliaDocs/Documenter.jl/issues/2692
 [#2693]: https://github.com/JuliaDocs/Documenter.jl/issues/2693
 [#2695]: https://github.com/JuliaDocs/Documenter.jl/issues/2695
+[#2699]: https://github.com/JuliaDocs/Documenter.jl/issues/2699
 [#2701]: https://github.com/JuliaDocs/Documenter.jl/issues/2701
+[#2709]: https://github.com/JuliaDocs/Documenter.jl/pull/2709
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
