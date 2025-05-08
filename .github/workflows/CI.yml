@@ -71,6 +71,10 @@ jobs:
           - windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: fontist/setup-fontist@v2
+        if: matrix.os == 'windows-latest'
+      - run: fontist install "DejaVu"
+        if: matrix.os == 'windows-latest'
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
