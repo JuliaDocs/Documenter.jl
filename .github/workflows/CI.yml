@@ -85,6 +85,9 @@ jobs:
         with:
           python-version: "3.13"
         if: matrix.os == 'windows-latest'
+      - name: "install pygments for tectonic"
+        run: pip install pygments
+        if: matrix.os == 'windows-latest'
       - uses: teatimeguest/setup-texlive-action@v3
         with:
           packages: |
