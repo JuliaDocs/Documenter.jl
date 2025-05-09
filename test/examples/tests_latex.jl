@@ -3,10 +3,10 @@ using Test
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl, and we need to set it to the relevant LaTeX builds.
 if Sys.iswindows() && get(ENV, "GITHUB_ACTIONS", nothing) == "true"
-    ENV["DOCUMENTER_TEST_EXAMPLES"] = "latex_simple_tectonic"
+    ENV["DOCUMENTER_TEST_EXAMPLES"] = "latex_simple_nondocker latex_simple_tectonic"
 else
     ENV["DOCUMENTER_TEST_EXAMPLES"] =
-        "latex latex_simple latex_cover_page latex_toc_style latex_simple_tectonic " *
+        "latex latex_simple latex_cover_page latex_toc_style latex_simple_nondocker latex_simple_tectonic " *
         "latex_showcase"
 end
 # When the file is run separately we need to include make.jl which actually builds
@@ -77,6 +77,14 @@ end
         @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple_tectonic")
             @test joinpath(build_dir, "DocumenterLaTeXSimpleTectonic-1.2.3.pdf") |> isfile
+        end
+    end
+
+    @testset "PDF/LaTeX: native" begin
+        doc = Main.examples_latex_simple_nondocker_doc
+        @test isa(doc, Documenter.Documenter.Document)
+        let build_dir = joinpath(examples_root, "builds", "latex_simple_nondocker")
+            @test joinpath(build_dir, "DocumenterLaTeXSimpleNon-Docker-1.2.3.pdf") |> isfile
         end
     end
 end
