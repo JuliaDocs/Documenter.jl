@@ -81,6 +81,21 @@ jobs:
             $fonts.CopyHere($file.fullname)
           }
         if: matrix.os == 'windows-latest'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+        if: matrix.os == 'windows-latest'
+      - uses: teatimeguest/setup-texlive-action@v3
+        with:
+          packages: |
+            scheme-medium
+            hyperref
+            minted
+            newunicodechar
+            transparent
+            upquote
+            tabulary
+            tcolorbox
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
