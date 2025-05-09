@@ -127,7 +127,7 @@ jobs:
           path-to-lcov: lcov.info
       - uses: actions/upload-artifact@v4
         with:
-          name: PDFs
+          name: "PDFs-${{ matrix.os }}"
           path: test/examples/builds/*/*.pdf
 
   themes:
