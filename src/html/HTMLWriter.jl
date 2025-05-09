@@ -2369,6 +2369,26 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     return DOM.Node[]
 end
 
+# This function provided by Michael Goerz in https://github.com/JuliaDocs/MarkdownAST.jl/issues/18
+function _markdownast_to_str(node::MarkdownAST.Node)
+    if node.element isa MarkdownAST.Document
+        document = node
+    elseif node.element isa MarkdownAST.AbstractBlock
+        document = MarkdownAST.@ast MarkdownAST.Document() do
+            MarkdownAST.copy_tree(node)
+        end
+    else
+        @assert node.element isa MarkdownAST.AbstractInline
+        document = MarkdownAST.@ast MarkdownAST.Document() do
+            MarkdownAST.Paragraph() do
+                MarkdownAST.copy_tree(node)
+            end
+        end
+    end
+    text = Markdown.plain(convert(Markdown.MD, document))
+    return strip(text)
+end
+
 function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
     @tags header div details summary
     colorclass =
@@ -2399,7 +2419,7 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             # apply a class
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-    node_repr = sprint(io -> show(io, node))
+    node_repr = _markdownast_to_str(node)
     content_hash = string(hash(node_repr), base = 16)
     admonition_id = if !isempty(a.title)
         base_id = Documenter.slugify(a.title)
