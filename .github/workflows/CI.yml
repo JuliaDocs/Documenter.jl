@@ -71,6 +71,10 @@ jobs:
           - windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0.0"
+        if: matrix.os == 'windows-latest'
       - uses: fontist/setup-fontist@v2
         if: matrix.os == 'windows-latest'
       - run: fontist install "DejaVu"
