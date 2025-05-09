@@ -110,7 +110,7 @@ function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
     if isempty(doc.user.sitename) # otherwise, the latex compiler will terminate with a cryptic "There's no line here to end" error
         error(
             """
-            LaTeXWriter needs a non-empty `sitename` passed to `makedocs`, otherwise the LaTeX build will error!  
+            LaTeXWriter needs a non-empty `sitename` passed to `makedocs`, otherwise the LaTeX build will error!
             Please pass e.g. `sitename = "Some Site Name"` as a keyword argument to `makedocs`.
             """
         )
@@ -735,7 +735,7 @@ function latex(io::Context, node::Node, image::Documenter.LocalImage)
     wrapblock(io, "figure") do
         _println(io, "\\centering")
         wrapinline(io, "includegraphics[max width=\\linewidth]") do
-            _print(io, image.path)
+            _print(io, replace(image.path, "\\" => "/"))
         end
         _println(io)
         wrapinline(io, "caption") do

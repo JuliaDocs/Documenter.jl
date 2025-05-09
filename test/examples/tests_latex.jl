@@ -2,10 +2,13 @@ using Test
 
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl, and we need to set it to the relevant LaTeX builds.
-ENV["DOCUMENTER_TEST_EXAMPLES"] =
-    "latex latex_simple latex_cover_page latex_toc_style latex_simple_tectonic " *
-    "latex_showcase"
-
+if Sys.iswindows() && get(ENV, "GITHUB_ACTIONS", nothing) == "true"
+    ENV["DOCUMENTER_TEST_EXAMPLES"] = "latex_simple_nondocker latex_simple_tectonic"
+else
+    ENV["DOCUMENTER_TEST_EXAMPLES"] =
+        "latex latex_simple latex_cover_page latex_toc_style latex_simple_nondocker latex_simple_tectonic " *
+        "latex_showcase"
+end
 # When the file is run separately we need to include make.jl which actually builds
 # the docs and defines a few modules that are referred to in the docs. The make.jl
 # has to be expected in the context of the Main module.
@@ -27,35 +30,45 @@ else
 end
 
 @testset "Examples/LaTeX" begin
-    @testset "PDF/LaTeX: simple" begin
-        doc = Main.examples_latex_simple_doc
-        @test isa(doc, Documenter.Documenter.Document)
-        let build_dir = joinpath(examples_root, "builds", "latex_simple")
-            @test joinpath(build_dir, "DocumenterLaTeXSimple-1.2.3.pdf") |> isfile
+    if !(Sys.iswindows() && get(ENV, "GITHUB_ACTIONS", nothing) == "true")
+        @testset "PDF/LaTeX: simple" begin
+            doc = Main.examples_latex_simple_doc
+            @test isa(doc, Documenter.Documenter.Document)
+            let build_dir = joinpath(examples_root, "builds", "latex_simple")
+                @test joinpath(build_dir, "DocumenterLaTeXSimple-1.2.3.pdf") |> isfile
+            end
         end
-    end
 
-    @testset "PDF/LaTeX" begin
-        doc = Main.examples_latex_doc
-        @test isa(doc, Documenter.Documenter.Document)
-        let build_dir = joinpath(examples_root, "builds", "latex")
-            @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
+        @testset "PDF/LaTeX" begin
+            doc = Main.examples_latex_doc
+            @test isa(doc, Documenter.Documenter.Document)
+            let build_dir = joinpath(examples_root, "builds", "latex")
+                @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
+            end
         end
-    end
 
-    @testset "PDF/LaTeX: Custom Cover Page" begin
-        doc = Main.examples_latex_cover_page
-        @test isa(doc, Documenter.Documenter.Document)
-        let build_dir = joinpath(examples_root, "builds", "latex_cover_page")
-            @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
+        @testset "PDF/LaTeX: Custom Cover Page" begin
+            doc = Main.examples_latex_cover_page
+            @test isa(doc, Documenter.Documenter.Document)
+            let build_dir = joinpath(examples_root, "builds", "latex_cover_page")
+                @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
+            end
         end
-    end
 
-    @testset "PDF/LaTeX: Custom TOC Style" begin
-        doc = Main.examples_latex_toc_style
-        @test isa(doc, Documenter.Documenter.Document)
-        let build_dir = joinpath(examples_root, "builds", "latex_toc_style")
-            @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
+        @testset "PDF/LaTeX: Custom TOC Style" begin
+            doc = Main.examples_latex_toc_style
+            @test isa(doc, Documenter.Documenter.Document)
+            let build_dir = joinpath(examples_root, "builds", "latex_toc_style")
+                @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
+            end
+        end
+
+        @testset "PDF/LaTeX: showcase" begin
+            doc = Main.examples_latex_showcase_doc
+            @test isa(doc, Documenter.Documenter.Document)
+            let build_dir = joinpath(examples_root, "builds", "latex_showcase")
+                @test joinpath(build_dir, "DocumenterLaTeXShowcase-1.2.3.pdf") |> isfile
+            end
         end
     end
 
@@ -67,11 +80,11 @@ end
         end
     end
 
-    @testset "PDF/LaTeX: showcase" begin
-        doc = Main.examples_latex_showcase_doc
+    @testset "PDF/LaTeX: native" begin
+        doc = Main.examples_latex_simple_nondocker_doc
         @test isa(doc, Documenter.Documenter.Document)
-        let build_dir = joinpath(examples_root, "builds", "latex_showcase")
-            @test joinpath(build_dir, "DocumenterLaTeXShowcase-1.2.3.pdf") |> isfile
+        let build_dir = joinpath(examples_root, "builds", "latex_simple_nondocker")
+            @test joinpath(build_dir, "DocumenterLaTeXSimpleNon-Docker-1.2.3.pdf") |> isfile
         end
     end
 end
