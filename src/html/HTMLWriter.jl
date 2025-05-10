@@ -2371,21 +2371,7 @@ end
 
 # This function provided by Michael Goerz in https://github.com/JuliaDocs/MarkdownAST.jl/issues/18
 function _markdownast_to_str(node::MarkdownAST.Node)
-    if node.element isa MarkdownAST.Document
-        document = node
-    elseif node.element isa MarkdownAST.AbstractBlock
-        document = MarkdownAST.@ast MarkdownAST.Document() do
-            MarkdownAST.copy_tree(node)
-        end
-    else
-        @assert node.element isa MarkdownAST.AbstractInline
-        document = MarkdownAST.@ast MarkdownAST.Document() do
-            MarkdownAST.Paragraph() do
-                MarkdownAST.copy_tree(node)
-            end
-        end
-    end
-    text = Markdown.plain(convert(Markdown.MD, document))
+    text = Documenter.MDFlatten.mdflatten(node)
     return strip(text)
 end
 
