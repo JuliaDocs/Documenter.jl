@@ -62,7 +62,7 @@ the at-docs block.
 ### [`@docs; canonical=false` block](@id noncanonical-block)
 
 You can pass the `canonical` keyword argument as `false` to `@docs` to indicate
-that the `@docs` should be be considered as non-canonical like so:
+that the `@docs` should be considered as non-canonical like so:
 
 ````markdown
 ```@docs; canonical=false
@@ -119,7 +119,7 @@ Pages   = ["a.jl", "b.jl"]
 ````
 
 In the above example docstrings from module `Foo` found in source files whose file path ends
-with `a.jl`and `b.jl` are included. The page order provided by `Pages` is also used to sort the
+with `a.jl` and `b.jl` are included. The page order provided by `Pages` is also used to sort the
 docstrings. Note that page matching is done using the end of the provided strings and so
 `a.jl` will be matched by *any* source file whose file path ends with `a.jl`, i.e. `src/a.jl`,
 `src/foo/a.jl` or `src/bar_a.jl`.
@@ -292,7 +292,7 @@ for more details.
 ## `@meta` block
 
 This block type is used to define metadata key/value pairs that can be used elsewhere in the
-page. Currently recognised keys:
+page. Currently recognized keys:
 - `CurrentModule`: module where Documenter evaluates, for example, [`@docs`-block](@ref)
   and [`@ref`-link](@ref at-ref-at-id-links)s.
 - `DocTestSetup`: code to be evaluated before a doctest, see the [Setup and Teardown Code](@ref)
@@ -620,7 +620,7 @@ second block. A block with `continued = true` does not have any output.
 
 ## `@repl` block
 
-These are similar to `@example` blocks, but add a `julia> ` prompt before each toplevel
+These are similar to `@example` blocks, but add a `julia>` prompt before each toplevel
 expression and do not fail upon encountering an error.
 The `# hide` syntax may be used in `@repl` blocks in the same way
 as in `@example` blocks. Furthermore, a semicolon `;` at the end of a line will
