@@ -17,6 +17,33 @@ struct DocTestContext
     DocTestContext(file::String, doc::Documenter.Document) = new(file, doc, Dict())
 end
 
+struct Hunk
+    line::Int
+    old::String
+    new::String
+end
+
+const hunks = Dict{String, Vector{Hunk}}()
+
+function writehunks(hunkfile)
+    @info "Doctest: writing patch file."
+    open(hunkfile, "w") do io
+        for file in sort(collect(keys(hunks)))
+            println(io, "--- a", file)
+            println(io, "+++ b", file)
+            delta = 0
+            for hunk in sort!(hunks[file], by = hunk -> hunk.line)
+                nold = countlines(IOBuffer(hunk.old))
+                nnew = countlines(IOBuffer(hunk.new))
+                println(io, "@@ -$(hunk.line),$nold +$(hunk.line+delta),$nnew @@")
+                println(io, replace(hunk.old, r"^"m => "-"))
+                println(io, replace(hunk.new, r"^"m => "+"))
+                delta += nnew - nold
+            end
+        end
+    end
+end
+
 """
 $(SIGNATURES)
 
@@ -28,6 +55,8 @@ keyword in [`Documenter.makedocs`](@ref) to disable doctesting.
 """
 function _doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Document)
     @debug "Running doctests."
+    empty!(hunks)
+
     # find all the doctest blocks in the pages
     for (src, page) in blueprint.pages
         if Documenter.is_draft(doc, page)
@@ -50,6 +79,8 @@ function _doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Docum
             end
         end
     end
+
+    isempty(hunks) || isempty(doc.user.patchfile) || writehunks(doc.user.patchfile)
     return
 end
 
@@ -488,6 +519,15 @@ function report(result::Result, str, doc::Documenter.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Documenter.find_block_in_file(result.block.code, result.file)
     line = lines === nothing ? nothing : first(lines)
+
+    codelines = split(result.block.code, '\n')
+    ii = findall(==(result.raw_input), codelines)
+    if !isempty(doc.user.patchfile) && lines != nothing && length(ii) == 1
+        hunk = Hunk(first(lines) + only(ii) + 1, result.output, rstrip(str))
+        hunkvec = get!(() -> Hunk[], hunks, abspath(result.file))
+        push!(hunkvec, hunk)
+    end
+
     @error(
         """
         doctest failure in $(Documenter.locrepr(result.file, lines))

@@ -315,6 +315,7 @@ struct User
     checkdocs::Symbol # Check objects missing from `@docs` blocks. `:none`, `:exports`, `:public` or `:all`.
     checkdocs_ignored_modules::Vector{Module} # ..and then ignore (some of) them.
     doctestfilters::Vector{<:Any} # Filtering for doctests
+    patchfile::AbstractString # Save patch from documented to true output here
     warnonly::Vector{Symbol} # List of docerror groups that should only warn, rather than cause a build failure
     pages::Vector{Any} # Ordering of document pages specified by the user.
     pagesonly::Bool # Discard any .md pages from processing that are not in .pages
@@ -390,6 +391,7 @@ function Document(;
         checkdocs::Symbol = :all,
         checkdocs_ignored_modules::Vector{Module} = Module[],
         doctestfilters::Vector{<:Any} = Regex[],
+        patchfile::AbstractString = "",
         warnonly::Union{Bool, Symbol, Vector{Symbol}} = Symbol[],
         modules::Union{Module, Vector{Module}} = Module[],
         pages::Vector = Any[],
@@ -457,6 +459,7 @@ function Document(;
         checkdocs,
         checkdocs_ignored_modules,
         doctestfilters,
+        patchfile,
         warnonly,
         pages,
         pagesonly,
