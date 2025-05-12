@@ -512,7 +512,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = not
         else
             error("unsupported type: $type")
         end
-        push!(cmd.exec, "-d", sprint(JSON.print, json))
+        push!(cmd.exec, "-d", JSON.json(json))
         push!(cmd.exec, "https://api.github.com/repos/$(owner)/$(repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()

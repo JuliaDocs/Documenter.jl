@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+* Add preemptive support for JSON.jl 1.0. ([#2717])
+
 ### Fixed
 
 * Fixed an issue when building PDFs with local images on Windows. ([#2434])
