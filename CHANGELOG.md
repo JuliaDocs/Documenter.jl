@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* Fixed an issue when building PDFs with local images on Windows. ([#2434])
+
 ## Version [v1.11.0] - 2025-05-09
 
 ### Added
@@ -19,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * In Julia v1.12, the queries used by `clear_module!` will now be versioned by world, allowing the deleting of bindings to work correctly. ([#2693])
-* Fixed an issue when building PDFs with local images on Windows ([#2434])
 
 ### Other
 
