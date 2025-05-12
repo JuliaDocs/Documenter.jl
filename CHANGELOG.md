@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed an issue when building PDFs with local images on Windows. ([#2434])
+* Fixed a bug where Documenter builds would hang or use a lot of memory due to the admonition `id` hashing. ([#2714], [#2710])
 
 ## Version [v1.11.0] - 2025-05-09
 
@@ -1997,6 +1998,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
 [#2424]: https://github.com/JuliaDocs/Documenter.jl/issues/2424
 [#2430]: https://github.com/JuliaDocs/Documenter.jl/issues/2430
+[#2434]: https://github.com/JuliaDocs/Documenter.jl/issues/2434
 [#2438]: https://github.com/JuliaDocs/Documenter.jl/issues/2438
 [#2441]: https://github.com/JuliaDocs/Documenter.jl/issues/2441
 [#2449]: https://github.com/JuliaDocs/Documenter.jl/issues/2449
@@ -2061,6 +2063,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2693]: https://github.com/JuliaDocs/Documenter.jl/issues/2693
 [#2695]: https://github.com/JuliaDocs/Documenter.jl/issues/2695
 [#2701]: https://github.com/JuliaDocs/Documenter.jl/issues/2701
+[#2710]: https://github.com/JuliaDocs/Documenter.jl/issues/2710
+[#2714]: https://github.com/JuliaDocs/Documenter.jl/issues/2714
+[#2717]: https://github.com/JuliaDocs/Documenter.jl/issues/2717
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
