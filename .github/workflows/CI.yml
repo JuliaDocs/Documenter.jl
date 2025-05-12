@@ -59,12 +59,48 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
+          flag-name: test-${{ join(matrix.*, '-') }}
+          parallel: true
 
   latex:
-    name: "PDF/LaTeX backend"
-    runs-on: ubuntu-latest
+    name: "PDF/LaTeX backend - ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: "Download and install DejaVu fonts"
+        run: |
+          Invoke-WebRequest "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip" -OutFile "DejaVu.zip"
+          Expand-Archive -Path "DejaVu.zip" -DestinationPath "."
+          $fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
+          foreach ($file in gci -Path ".\dejavu-fonts-ttf-2.37\ttf" "*.ttf")
+          {
+            $fonts.CopyHere($file.fullname)
+          }
+        if: matrix.os == 'windows-latest'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+        if: matrix.os == 'windows-latest'
+      - name: "install pygments for tectonic"
+        run: pip install pygments
+        if: matrix.os == 'windows-latest'
+      - uses: teatimeguest/setup-texlive-action@v3
+        with:
+          packages: |
+            scheme-medium
+            hyperref
+            minted
+            newunicodechar
+            transparent
+            upquote
+            tabulary
+            tcolorbox
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -74,14 +110,12 @@ jobs:
         run: |
           using Pkg
           Pkg.instantiate()
-          Pkg.develop(PackageSpec(path=pwd()))
-          Pkg.add(["IOCapture", "tectonic_jll"])
       - name: Run test/examples/tests_latex.jl
         run: julia --color=yes --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
-          file: lcov.info
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           plugins: noop
           disable_search: true
@@ -91,9 +125,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
+          flag-name: latex-${{ join(matrix.*, '-') }}
+          parallel: true
       - uses: actions/upload-artifact@v4
         with:
-          name: PDFs
+          name: "PDFs-${{ matrix.os }}"
           path: test/examples/builds/*/*.pdf
 
   themes:
@@ -134,7 +170,7 @@ jobs:
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
-          file: lcov.info
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           plugins: noop
           disable_search: true
@@ -144,6 +180,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
+          flag-name: prerender-${{ join(matrix.*, '-') }}
+          parallel: true
 
   docs:
     name: 'Documentation: ${{ matrix.format }}'
@@ -189,7 +227,7 @@ jobs:
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
-          file: lcov.info
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           plugins: noop
           disable_search: true
@@ -199,7 +237,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
-
+          flag-name: linkcheck-${{ join(matrix.*, '-') }}
+          parallel: true
+          
   linkcheck-manual:
     name: "Linkcheck: Documenter manual"
     runs-on: ubuntu-latest
@@ -243,3 +283,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Check spelling
         uses: crate-ci/typos@master
+
+  finish:
+    needs: [test, latex, prerender, linkcheck]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true
