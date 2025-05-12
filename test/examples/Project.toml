@@ -2,3 +2,6 @@
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 tectonic_jll = "d7dd28d6-a5e6-559c-9131-7eb760cdacc5"
+
+[sources]
+Documenter = {path = "../.."}
