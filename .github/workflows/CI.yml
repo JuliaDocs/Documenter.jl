@@ -99,6 +99,7 @@ jobs:
             upquote
             tabulary
             tcolorbox
+        if: matrix.os == 'windows-latest'
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
