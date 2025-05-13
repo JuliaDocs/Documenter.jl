@@ -192,9 +192,9 @@ struct KaTeX <: MathEngine
     function KaTeX(config::Union{Dict, Nothing} = nothing, override = false)
         default = Dict(
             :delimiters => [
-                Dict(:left => raw"$", :right => raw"$", display => false),
-                Dict(:left => raw"$$", :right => raw"$$", display => true),
-                Dict(:left => raw"\[", :right => raw"\]", display => true),
+                Dict(:left => raw"$", :right => raw"$", :display => false),
+                Dict(:left => raw"$$", :right => raw"$$", :display => true),
+                Dict(:left => raw"\[", :right => raw"\]", :display => true),
             ]
         )
         return new((config === nothing) ? default : override ? config : merge(default, config))
