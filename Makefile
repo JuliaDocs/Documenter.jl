@@ -11,6 +11,11 @@ docs-instantiate:
 docs: docs/Manifest.toml
 	${JULIA} --project=docs docs/make.jl
 
+# Same as `make docs`, but meant to be used when testing things
+# while developing etc., while you want to avoid builds erroring.
+docs-warn-only: docs/Manifest.toml
+	${JULIA} --project=docs docs/make.jl strict=false
+
 changelog: docs/Manifest.toml
 	${JULIA} --project=docs docs/changelog.jl
 
