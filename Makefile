@@ -48,6 +48,8 @@ help:
 	@echo "The following make commands are available:"
 	@echo " - make changelog: update all links in CHANGELOG.md's footer"
 	@echo " - make docs: build the documentation"
+	@echo " - make docs-warn-only: build the documentation, but do not error on failures"
+	@echo " - make docs-instantiate: instantiate the docs/ Julia environment"
 	@echo " - make test: run the tests"
 	@echo " - make themes: compile Documenter's native CSS themes"
 	@echo " - make clean: remove generated files"
