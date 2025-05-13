@@ -3,16 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
-### Changed
-
-* Add preemptive support for JSON.jl 1.0. ([#2717])
+## Version [v1.11.1] - 2025-05-13
 
 ### Fixed
 
 * Fixed an issue when building PDFs with local images on Windows. ([#2434])
 * Fixed a bug where Documenter builds would hang or use a lot of memory due to the admonition `id` hashing. ([#2714], [#2710])
+
+### Other
+
+* Add preemptive support for JSON.jl 1.0. ([#2717])
 
 ## Version [v1.11.0] - 2025-05-09
 
@@ -1504,6 +1504,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.10.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.1
 [v1.10.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.2
 [v1.11.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.11.0
+[v1.11.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.11.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
