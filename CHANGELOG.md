@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.11.2] - 2025-05-14
 
 ### Fixed
 
@@ -1511,6 +1511,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.10.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.10.2
 [v1.11.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.11.0
 [v1.11.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.11.1
+[v1.11.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.11.2
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -2073,6 +2074,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2710]: https://github.com/JuliaDocs/Documenter.jl/issues/2710
 [#2714]: https://github.com/JuliaDocs/Documenter.jl/issues/2714
 [#2717]: https://github.com/JuliaDocs/Documenter.jl/issues/2717
+[#2721]: https://github.com/JuliaDocs/Documenter.jl/issues/2721
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
