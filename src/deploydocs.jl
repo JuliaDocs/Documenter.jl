@@ -574,8 +574,15 @@ function determine_deploy_subfolder(deploy_decision, versions::Nothing)
     # Non-versioned docs: deploy to root unless it's a preview
     return deploy_decision.is_preview ? deploy_decision.subfolder : nothing
 end
-
+# Method to handle the standard versions = [...] argument.
 function determine_deploy_subfolder(deploy_decision, versions::AbstractVector)
+    return deploy_decision.subfolder
+end
+# Fallback determine_deploy_subfolder for any non-standard `versions` arguments.
+function determine_deploy_subfolder(deploy_decision, versions::Any)
+    @warn """
+    Using a non-standard versions= argument, but determine_deploy_subfolder() is not implemented.
+    """ typeof(versions) versions
     return deploy_decision.subfolder
 end
 
