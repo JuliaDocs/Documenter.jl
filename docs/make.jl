@@ -88,6 +88,7 @@ makedocs(
     doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 
+struct Versions end
 if "pdf" in ARGS
     # hack to only deploy the actual pdf-file
     mkpath(joinpath(@__DIR__, "build-pdf", "commit"))
@@ -112,5 +113,6 @@ else
         repo = "github.com/JuliaDocs/Documenter.jl.git",
         target = "build",
         push_preview = true,
+        versions = Versions
     )
 end
