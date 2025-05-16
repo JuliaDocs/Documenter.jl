@@ -166,6 +166,8 @@ For example, if you have `foo.md` and `bar.md`, `bar.md` would normally be evalu
 Evaluation order among the `expandfirst` pages is according to the order they appear in the
 argument.
 
+**`default_meta`** can be set to TODO. TODO default `@meta` block. TODO
+
 **`draft`** can be set to `true` to build a draft version of the document. In draft mode
 some potentially time-consuming steps are skipped (e.g. running `@example` blocks), which is
 useful when iterating on the documentation. This setting can also be configured per-page

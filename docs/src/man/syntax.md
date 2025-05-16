@@ -312,6 +312,8 @@ page. Currently recognized keys:
   When `false` (default), unnamed blocks will each have a separate sandbox module where the code gets evaluated.
   In either case, named blocks always have their own sandbox module, shared by the blocks with the same name.
 
+TODO: mention `default_meta`
+
 Example:
 
 ````markdown

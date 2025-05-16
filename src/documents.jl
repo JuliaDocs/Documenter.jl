@@ -362,6 +362,7 @@ struct User
     version::String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
     draft::Bool
+    default_meta::Dict{Symbol, Any} # default @meta block data for pages
 end
 
 """
@@ -424,6 +425,7 @@ function Document(;
         version::AbstractString = "",
         highlightsig::Bool = true,
         draft::Bool = false,
+        default_meta::Dict{Symbol} = Dict{Symbol, Any}(),
         others...
     )
 
@@ -489,6 +491,7 @@ function Document(;
         version,
         highlightsig,
         draft,
+        default_meta,
     )
     internal = Internal(
         assetsdir(),
