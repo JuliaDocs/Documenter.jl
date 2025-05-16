@@ -502,7 +502,7 @@ struct HTML <: Documenter.Writer
             highlights::Vector{String} = String[],
             mathengine::Union{MathEngine, Nothing} = KaTeX(),
             description::Union{String, Nothing} = nothing,
-            footer::Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
+            footer::Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) v$(pkgversion(Documenter)) and the [Julia Programming Language](https://julialang.org/).",
             ansicolor::Bool = true,
             lang::String = "en",
             warn_outdated::Bool = true,
