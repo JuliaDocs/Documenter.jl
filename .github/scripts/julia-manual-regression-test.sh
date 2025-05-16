@@ -10,23 +10,22 @@ set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 DOCUMENTER_SRC=$(dirname $(dirname "$SCRIPT_DIR"))
 
-# We'll download the Julia nightly release etc into a temp directory
+# Figure out the Julia binary we use. This can be passed on the command line, but
+# should always be a recent master build. Otherwise, we'll likely fail to check out
+# the right commit in the shallow clone.
+JULIA=${1:-$(which julia)}
+echo "JULIA=$JULIA"
+echo "julia --version:"
+$JULIA --version
+echo "julia> versioninfo()"
+$JULIA -e 'using InteractiveUtils; versioninfo()'
+
+# We'll clone the Julia nightly release etc into a temp directory
 TMP=$(mktemp -d)
 cd "$TMP"
 echo "Running in: $PWD"
 # .. which we also want to clean up when the script exits
 trap "rm -r $TMP" EXIT
-
-# Pull down the latest Julia binary
-wget https://julialangnightlies-s3.julialang.org/bin/linux/x86_64/julia-latest-linux-x86_64.tar.gz
-tar -xzf julia-latest-linux-x86_64.tar.gz
-# Find the Julia directory, since it has a hash in the name (julia-{commit})
-JULIA_DIR=$(find . -maxdepth 1 -type d -name "julia-*")
-JULIA=$(realpath "${JULIA_DIR}/bin/julia")
-echo "julia --version:"
-$JULIA --version
-echo "julia> versioninfo()"
-$JULIA -e 'using InteractiveUtils; versioninfo()'
 
 # Get the date one week ago, which we'll use for shallow-cloning the Git repo
 one_week_ago=$($JULIA -e 'using Dates; print(Dates.format(now() - Week(1), dateformat"yyyy-mm-dd"))')
