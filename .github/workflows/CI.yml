@@ -239,7 +239,7 @@ jobs:
           path-to-lcov: lcov.info
           flag-name: linkcheck-${{ join(matrix.*, '-') }}
           parallel: true
-          
+
   linkcheck-manual:
     name: "Linkcheck: Documenter manual"
     runs-on: ubuntu-latest
@@ -284,7 +284,8 @@ jobs:
       - name: Check spelling
         uses: crate-ci/typos@master
 
-  finish:
+  close-coveralls:
+    name: "Close Coveralls Submission"
     needs: [test, latex, prerender, linkcheck]
     if: ${{ always() }}
     runs-on: ubuntu-latest
