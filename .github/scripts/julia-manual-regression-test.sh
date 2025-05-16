@@ -1,4 +1,4 @@
-#!/usb/bin/env bash
+#!/usr/bin/env bash
 #
 # This builds the Julia manual for the latest Julia nightly build with
 # the current Documenter, acting as a regression test.
@@ -32,13 +32,13 @@ one_week_ago=$($JULIA -e 'using Dates; print(Dates.format(now() - Week(1), datef
 julia_commit=$($JULIA -e 'print(Base.GIT_VERSION_INFO.commit)')
 
 # Clone the repo
-echo "Cloning JuliaLang/julia.git (--shallow-since=$(one_week_ago)), checkout $(julia_commit)"
-git clone --branch master --shallow-since="$one_week_ago" https://github.com/JuliaLang/julia.git
+echo "Cloning JuliaLang/julia.git (--shallow-since=${one_week_ago}), checkout ${julia_commit}"
+git clone --branch master --shallow-since="${one_week_ago}" https://github.com/JuliaLang/julia.git
 JULIA_SRC=$(realpath "julia")
-git -C "$(JULIA_SRC)" checkout "$(julia_commit)"
+git -C "${JULIA_SRC}" checkout "${julia_commit}"
 
 # Use the local checkout of Documenter
-$JULIA --project="$(JULIA_SRC)/doc" -e 'using Pkg; Pkg.develop(path=ARGS[1])' -- "$DOCUMENTER_SRC"
+$JULIA --project="${JULIA_SRC}/doc" -e 'using Pkg; Pkg.develop(path=ARGS[1])' -- "$DOCUMENTER_SRC"
 
 # Build the docs
-make -C julia/doc html JULIA_EXECUTABLE="$(JULIA)"
+make -C julia/doc html JULIA_EXECUTABLE="${JULIA}"
