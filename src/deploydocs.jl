@@ -529,7 +529,9 @@ function postprocess_before_push(versions::Nothing; subfolder, devurl, deploy_di
     return
 end
 
-function postprocess_before_push(versions::AbstractVector; subfolder, devurl, deploy_dir, dirname)
+# The default fallback method which we will use unless the user is passing a custom versions
+# object and has overridden this method.
+function postprocess_before_push(versions::Any; subfolder, devurl, deploy_dir, dirname)
     # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
     # Determine if this is a development version (e.g., "dev" or "latest")
     is_dev_version = (subfolder == devurl || subfolder == "latest")
