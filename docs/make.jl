@@ -132,6 +132,6 @@ else
         repo = "github.com/JuliaDocs/Documenter.jl.git",
         target = "build",
         push_preview = true,
-        versions = Versions
+        versions = Versions(),
     )
 end
