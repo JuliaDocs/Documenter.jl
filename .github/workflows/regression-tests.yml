@@ -52,6 +52,7 @@ jobs:
           Pkg.develop(Pkg.PackageSpec(; path = pwd()))
           Pkg.develop(ENV["PACKAGE"])
           Pkg.test(ENV["PACKAGE"])
+
   test-documentation-build:
     name: doc-build-${{ matrix.package }}
     runs-on: ubuntu-latest
@@ -94,3 +95,24 @@ jobs:
           Pkg.instantiate()
           # Build the docs
           include(joinpath(doc_path, "make.jl"))
+
+  test-julia-manual-build:
+    name: "Julia Manual"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # - uses: julia-actions/setup-julia@v2
+      #   with:
+      #     version: '1'
+      - uses: actions/cache@v4
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
+      - name: "Regressions test"
+        run: bash ./github/scripts/julia-manual-regression-test.sh
