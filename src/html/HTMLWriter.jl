@@ -1119,7 +1119,7 @@ function asset_links(src::AbstractString, assets::Vector{<:HTMLHeadContent})
     links = DOM.Node[]
     for asset in assets
         if isa(asset, RawHTMLHeadContent)
-            push!(links, Tag(Symbol("#RAW#"))(asset.content))
+            push!(links, DOM.Tag(Symbol("#RAW#"))(asset.content))
             continue
         end
         class = asset.class
