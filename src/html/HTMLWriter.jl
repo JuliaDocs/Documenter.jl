@@ -683,6 +683,21 @@ struct DCtx
     ) = new(dctx.ctx, navnode, droplinks, footnotes)
 end
 
+function searchrecord(ctx, navnode, node::Node, element) 
+    # default behavior
+    return SearchRecord(ctx, navnode, node, element)
+end
+
+function searchrecord(ctx, navnode, node::Node, element::Documenter.MultiOutputElement)
+    # special case for at-blocks
+    if element.element isa Dict && haskey(element.element, :source)
+        return nothing
+    else
+        return SearchRecord(ctx, navnode, node, element)
+    end
+end
+
+
 function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing, category = "page", text = "")
     page_title = mdflatten_pagetitle(DCtx(ctx, navnode))
     if title === nothing
@@ -765,38 +780,10 @@ function SearchRecord(ctx, navnode, node::Node, element::Documenter.EvalNode)
     end
 end
 
-function SearchRecord(ctx, navnode, node::Node, element::Documenter.MultiOutputElement)
-    if element.element isa Dict && haskey(element.element, :source)
-        return SearchRecord(ctx, navnode; text = "")
-    end
-    
-    return SearchRecord(ctx, navnode, node, element.element)
-end
+# This SearchRecord method was removed to eliminate duplicate index entries
+# The functionality is now handled by the should_index_for_search method
+# and the searchrecord method above.
 
-"""
-Filter function to prevent duplicate search entries.
-"""
-function should_index_for_search(navnode, node, element)
-    if element isa Documenter.MultiOutputElement && 
-       element.element isa Dict && 
-       haskey(element.element, :source)
-        return false
-    end
-    
-    if element isa Documenter.MultiCodeBlock && 
-       node.parent !== nothing &&
-       iseven(findfirst(child -> child === node, collect(node.parent.children)))
-        return false
-    end
-    
-    if element isa Documenter.EvalNode && 
-       node.parent !== nothing &&
-       node === first(node.parent.children)
-        return false
-    end
-    
-    return true
-end
 
 function JSON.lower(rec::SearchRecord)
     # Replace any backslashes in links, if building the docs on Windows
@@ -1762,12 +1749,26 @@ function domify(::DCtx, ::Node, element::MarkdownAST.AbstractElement)
     error("Unimplemented element: $(typeof(element))")
 end
 
+# Return true if this node should be included in the search index
+should_index_for_search(navnode, node, element) = true
+
+# Filter out source nodes in at-blocks to prevent duplicate search index entries
+function should_index_for_search(navnode, node, element::Documenter.MultiOutputElement)
+    # Skip source nodes in at-blocks
+    if element.element isa Dict && haskey(element.element, :source)
+        return false
+    end
+    return true
+end
+
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     return map(getpage(ctx, navnode).mdast.children) do node
         if should_index_for_search(navnode, node, node.element)
-            rec = SearchRecord(ctx, navnode, node, node.element)
-            push!(ctx.search_index, rec)
+            rec = searchrecord(ctx, navnode, node, node.element)
+            if rec !== nothing
+                push!(ctx.search_index, rec)
+            end
         end
         domify(dctx, node, node.element)
     end
@@ -1860,16 +1861,15 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
     @tags a code article header span
 
     # push to search index
-    if should_index_for_search(navnode, docsnode, docsnode.object) 
-        rec = SearchRecord(
-            ctx, navnode,
-            fragment = Documenter.anchor_fragment(docsnode.anchor),
-            title = string(docsnode.object.binding),
-            category = Documenter.doccat(docsnode.object),
-            text = mdflatten(mdast_node)
-        )
-        push!(ctx.search_index, rec)
-    end
+    rec = SearchRecord(
+        ctx, navnode,
+        fragment = Documenter.anchor_fragment(docsnode.anchor),
+        title = string(docsnode.object.binding),
+        category = Documenter.doccat(docsnode.object),
+        text = mdflatten(mdast_node)
+    )
+    push!(ctx.search_index, rec)
+    
     return article[".docstring"](
         header(
             a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href => "javascript:;", :title => "Collapse docstring"],
