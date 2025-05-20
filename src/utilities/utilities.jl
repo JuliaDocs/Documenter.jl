@@ -1,7 +1,7 @@
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions: SIGNATURES, TYPEDSIGNATURES
-import Markdown, MarkdownAST, LibGit2
+import Markdown, MarkdownAST
 import Base64: stringmime
 
 
@@ -431,11 +431,16 @@ Stores the memoized results of [`getremote`](@ref).
 """
 const GIT_REMOTE_CACHE = Dict{String, Union{Remotes.Remote, Nothing}}()
 
+# Borrowed from LibGit2 in JuliaLang/julia (MIT)
+# https://github.com/JuliaLang/julia/blob/f033630cf08fe20818ee2be7fce2839fce12ec43/stdlib/LibGit2/src/LibGit2.jl#L18-L19
+const GITHUB_REGEX =
+    r"^(?:(?:ssh://)?git@|git://|https://(?:[\w\.\+\-]+@)?)github.com[:/](([^/].+)/(.+?))(?:\.git)?$"i
+
 function parse_remote_url(remote::AbstractString)
     # TODO: we only match for GitHub repositories automatically. Could we engineer a
     # system where, if there is a user-created Remote, the user could also define a
     # matching function here that tries to interpret other URLs?
-    m = match(LibGit2.GITHUB_REGEX, remote)
+    m = match(GITHUB_REGEX, remote)
     isnothing(m) && return nothing
     return Remotes.GitHub(m[2], m[3])
 end

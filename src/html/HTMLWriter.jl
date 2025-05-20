@@ -192,9 +192,9 @@ struct KaTeX <: MathEngine
     function KaTeX(config::Union{Dict, Nothing} = nothing, override = false)
         default = Dict(
             :delimiters => [
-                Dict(:left => raw"$", :right => raw"$", display => false),
-                Dict(:left => raw"$$", :right => raw"$$", display => true),
-                Dict(:left => raw"\[", :right => raw"\]", display => true),
+                Dict(:left => raw"$", :right => raw"$", :display => false),
+                Dict(:left => raw"$$", :right => raw"$$", :display => true),
+                Dict(:left => raw"\[", :right => raw"\]", :display => true),
             ]
         )
         return new((config === nothing) ? default : override ? config : merge(default, config))
@@ -581,6 +581,10 @@ struct HTML <: Documenter.Writer
     end
 end
 
+# HTML accepts ANSI, so this is `true`.
+Documenter.writer_supports_ansicolor(::HTML) = true
+
+
 # Cache of downloaded highlight.js bundles
 const HLJSFILES = Dict{String, String}()
 # Look for node and highlight.js
@@ -726,6 +730,20 @@ end
 
 function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
     return SearchRecord(ctx, navnode; text = mdflatten(node))
+end
+
+# Returns nothing for nodes that shouldn't be indexed in search
+const _SEARCHRECORD_IGNORED_BLOCK_TYPES = Union{
+    Documenter.MetaNode,
+    Documenter.DocsNodesBlock,
+    Documenter.SetupNode,
+}
+function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Node)
+    # Skip indexing special at-blocks
+    if node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES
+        return nothing
+    end
+    return SearchRecord(ctx, navnode, node, node.element)
 end
 
 
@@ -1706,10 +1724,12 @@ function generate_redirect_file(redirectfile::AbstractString, entries)
     return
 end
 
-function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing})
+function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing}, is_dev_version::Bool = false)
     open(joinpath(dir, "siteinfo.js"), "w") do buf
         if version !== nothing
             println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+            # Add the development version flag
+            println(buf, "var DOCUMENTER_IS_DEV_VERSION = $(is_dev_version ? "true" : "false");")
         else
             println(buf, "var DOCUMENTER_VERSION_SELECTOR_DISABLED = true;")
         end
@@ -1764,6 +1784,10 @@ end
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     return map(getpage(ctx, navnode).mdast.children) do node
+        rec = searchrecord(ctx, navnode, node)
+        if !isnothing(rec)
+            push!(ctx.search_index, rec)
+        end
         if should_index_for_search(navnode, node, node.element)
             rec = searchrecord(ctx, navnode, node, node.element)
             if rec !== nothing
@@ -2465,16 +2489,24 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             # apply a class
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-
+    node_repr = sprint(io -> show(io, node))
+    content_hash = string(hash(node_repr), base = 16)
+    admonition_id = if !isempty(a.title)
+        base_id = Documenter.slugify(a.title)
+        "$(base_id)-$(content_hash)"
+    else
+        "$(a.category)-$(content_hash)"
+    end
+    anchor_link = DOM.Tag(:a)[".admonition-anchor", :href => "#$(admonition_id)", :title => "Permalink"]()
     inner_div = div[".admonition-body"](domify(dctx, node.children))
     if a.category == "details"
         # details admonitions are rendered as <details><summary> blocks
-        return details[".admonition.is-details"](
-            summary[".admonition-header"](a.title), inner_div
+        return details[".admonition.is-details", :id => admonition_id](
+            summary[".admonition-header"](a.title, anchor_link), inner_div
         )
     else
-        return div[".admonition$(colorclass)"](
-            header[".admonition-header"](a.title), inner_div
+        return div[".admonition$(colorclass)", :id => admonition_id](
+            header[".admonition-header"](a.title, anchor_link), inner_div
         )
     end
 end

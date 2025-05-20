@@ -1,13 +1,30 @@
 # Defines node "expanders" that transform nodes from the parsed markdown files.
 
+function clear_global!(M::Module, name::Symbol)
+    isconst(M, name) && return
+    if VERSION >= v"1.9"
+        Nothing <: Core.get_binding_type(M, name) || return
+        setglobal!(M, name, nothing)
+    else
+        Core.eval(M, :($name = $nothing))
+    end
+    return nothing
+end
+
 # helper for "cleaning up" content of modules to enable garbage collection.
 # See also <https://github.com/JuliaDocs/Documenter.jl/issues/2640>.
 function clear_module!(M::Module)
     # we need `invokelatest` here for Julia >= 1.12 (or 1.13?)
-    for name in Base.invokelatest(names, M, all = true)
-        if !isconst(M, name)
-            @eval M $name = $nothing
+    for name in Base.invokelatest(names, M, all = true)::Vector{Symbol}
+        # see, e.g https://github.com/JuliaDocs/Documenter.jl/issues/2673
+        # it is not possible to set `nothing` to variables, which are strongly typed
+        # still attempt to set it, but ignore any errors
+        try
+            Base.invokelatest(clear_global!, M, name::Symbol)
+        catch err
+            @debug "Could not clear variable `$name` by assigning `nothing`" err
         end
+        VERSION >= v"1.12" && Base.delete_binding(M, name)
     end
     return
 end
@@ -17,7 +34,6 @@ function clear_modules!(d::Dict{Symbol, Any})
         startswith(String(k), "__atexample__") || continue
         v isa Module && clear_module!(v)
     end
-    GC.gc()
     return
 end
 
@@ -768,12 +784,24 @@ end
 # @example
 # --------
 
-# Find if there is any format with color output
+# Find if there is any format with color output.
 function _any_color_fmt(doc)
-    idx = findfirst(x -> x isa Documenter.HTML, doc.user.format)
+    idx = findfirst(writer_supports_ansicolor, doc.user.format)
     idx === nothing && return false
     return doc.user.format[idx].ansicolor
 end
+
+# General fallback.
+"""
+    writer_supports_ansicolor(::Documenter.Writer)::Bool
+
+Returns whether the writer supports ANSI-colored output (`true`) or not (`false`).
+
+This is usually relevant in Documenter blocks that execute code, like `@example` or `@repl`.
+
+If `true`, these blocks will call `show` on the returned Julia object with `color = true`.  If `false`, then show is called with `color=false`.
+"""
+writer_supports_ansicolor(::Writer) = false
 
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
