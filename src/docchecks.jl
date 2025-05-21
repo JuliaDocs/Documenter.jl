@@ -304,6 +304,8 @@ function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, use
     if haskey(ENV, "GITHUB_TOKEN") && _is_github_domain(url)
         push!(headers, "-H")
         push!(headers, "Authorization: token $(ENV["GITHUB_TOKEN"])")
+        @show url
+        @show headers
     end
     return `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(headers) $(url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 end
