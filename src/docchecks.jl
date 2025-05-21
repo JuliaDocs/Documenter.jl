@@ -278,8 +278,14 @@ linkcheck_ismatch(r::Regex, url) = occursin(r, url)
 
 const _LINKCHECK_DEFAULT_USERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
 
+function _is_github_domain(url::AbstractString)
+    domains = ["github.com", "githubusercontent.com"]
+    return any(domain -> occursin(domain, url), domains)
+end
+
 function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, useragent::Union{AbstractString, Nothing})
     null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
+    headers = String[]
     # In some cases, web servers (e.g. docs.github.com as of 2022) will reject requests
     # that declare a non-browser user agent (curl specifically passes 'curl/X.Y'). In
     # case of docs.github.com, the server returns a 403 with a page saying "The request
@@ -288,19 +294,18 @@ function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, use
     # Mozilla developer docs, but only is it's a HTTP(S) request.
     #
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
-    fakebrowser = if startswith(uppercase(url), "HTTP")
-        headers = [
-            "-H",
-            "accept-encoding: gzip, deflate, br",
-        ]
+    if startswith(uppercase(url), "HTTP")
+        push!(headers, "-H")
+        push!(headers, "accept-encoding: gzip, deflate, br")
         if !isnothing(useragent)
             push!(headers, "--user-agent", useragent)
         end
-        headers
-    else
-        String[]
     end
-    return `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+    if haskey(ENV, "GITHUB_TOKEN") && _is_github_domain(url)
+        push!(headers, "-H")
+        push!(headers, "Authorization: token $(ENV["GITHUB_TOKEN"])")
+    end
+    return `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(headers) $(url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 end
 
 # Automatic Pkg.add() GitHub remote check
