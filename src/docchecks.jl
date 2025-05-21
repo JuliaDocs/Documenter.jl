@@ -255,6 +255,8 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
                 # when a server doesn't support HEAD requests, fallback to GET
                 @debug "linkcheck '$(link.destination)' status: $(status), retrying without `-I`"
                 return linkcheck(node, link, doc; method = :GET)
+            elseif problem == :HTTP && status == 500
+                @warn "linkcheck '$(link.destination)' status: $(status)."
             else
                 @docerror(doc, :linkcheck, "linkcheck '$(link.destination)' status: $(status).")
             end
@@ -304,8 +306,6 @@ function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, use
     if haskey(ENV, "GITHUB_TOKEN") && _is_github_domain(url)
         push!(headers, "-H")
         push!(headers, "Authorization: token $(ENV["GITHUB_TOKEN"])")
-        @show url
-        @show headers
     end
     return `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(headers) $(url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 end
