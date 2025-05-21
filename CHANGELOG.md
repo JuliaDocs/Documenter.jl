@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* Fixed GitHub rate limiting of link checks by passing `GITHUB_TOKEN` when applicable. ([#2729])
+
 ## Version [v1.11.4] - 2025-05-16
 
 ### Fixed
@@ -2091,6 +2097,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2721]: https://github.com/JuliaDocs/Documenter.jl/issues/2721
 [#2722]: https://github.com/JuliaDocs/Documenter.jl/issues/2722
 [#2723]: https://github.com/JuliaDocs/Documenter.jl/issues/2723
+[#2729]: https://github.com/JuliaDocs/Documenter.jl/issues/2729
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
