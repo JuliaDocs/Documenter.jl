@@ -727,6 +727,8 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
             nothing
         elseif isa(result, Markdown.MD)
             convert(Node, result)
+        elseif isa(result, Documenter.RawNode)
+            Node(result) # wrap directly in a Node
         else
             # TODO: we could handle the cases where the user provides some of the Markdown library
             # objects, like Paragraph.
