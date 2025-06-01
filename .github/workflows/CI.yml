@@ -49,6 +49,8 @@ jobs:
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
@@ -224,6 +226,8 @@ jobs:
         run: julia --color=yes --project=test/online -e'using Pkg; Pkg.instantiate()'
       - name: Run online linkcheck tests
         run: julia --color=yes --project=test/online --code-coverage test/online/runtests.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
@@ -252,6 +256,8 @@ jobs:
         run: make docs/Manifest.toml
       - name: Build and check documentation
         run: julia --color=yes --project=docs/ docs/make.jl linkcheck
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   prettier:
     name: Prettier (JS code formatting)
