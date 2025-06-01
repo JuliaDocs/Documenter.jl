@@ -5,9 +5,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-### Fixed
+### Changed
 
-* Fixed GitHub rate limiting of link checks by passing `GITHUB_TOKEN` when applicable. ([#2729])
+* Work around GitHub rate limiting of link checks by passing `GITHUB_TOKEN` when applicable and available. ([#2729])
 
 ## Version [v1.11.4] - 2025-05-16
 
