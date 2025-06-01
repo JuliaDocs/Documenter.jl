@@ -290,7 +290,9 @@ function _url_requires_github_token(url::AbstractString)
         return true
     end
     # See https://github.com/JuliaDocs/Documenter.jl/pull/2729 for details. Most
-    # GitHub urls support authenticating with the token, but /pulls
+    # GitHub urls support authenticating with the token, but /pulls returns
+    # 500 when you do a HEAD request.
+    # TODO: try full GET request when HEAD fails
     if match(r"http(s?)://github.com/.+?/pulls", url) !== nothing
         return false
     end
