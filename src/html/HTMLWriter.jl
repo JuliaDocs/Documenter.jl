@@ -115,8 +115,8 @@ end
 """
     RawHTMLHeadContent(content::String)
 
-A type that can be used to pass raw HTML to [`HTML`](@ref), for use in the `<head>` section of
-the HTML document. 
+Raw HTML content to be inserted into the `<head>` section of the HTML document. This type can
+be used in the `assets` keyword of [`HTML`](@ref), just like [`asset`](@ref).
 """
 struct RawHTMLHeadContent <: HTMLHeadContent
     content::String
