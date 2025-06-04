@@ -459,7 +459,7 @@ function git_push(
             else
                 keycontent = documenter_key(deploy_config)
             end
-            write(keyfile, base64decode(keycontent))
+            write(keyfile, _decode_key_content(keycontent))
             chmod(keyfile, 0o600) # user-only rw permissions
         catch e
             @error """
