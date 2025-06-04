@@ -398,7 +398,7 @@ function git_push(
             Make sure that the environment variable is properly set up as a Base64-encoded string
             of the SSH private key. You may need to re-generate the keys with DocumenterTools.
             """
-            rethrow(e)
+            rethrow()
         end
 
         try
