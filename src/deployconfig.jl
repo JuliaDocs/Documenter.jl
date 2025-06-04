@@ -1,7 +1,5 @@
 import JSON
 
-using Base64: base64decode
-
 """
     DeployConfig
 
