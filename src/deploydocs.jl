@@ -391,7 +391,7 @@ function git_push(
         run(`$(git()) remote add upstream $upstream`)
         try
             run(`$(git()) fetch upstream`)
-        catch e
+        catch
             @error """
             Git failed to fetch $upstream
             This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
