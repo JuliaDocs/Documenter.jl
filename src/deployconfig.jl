@@ -61,11 +61,10 @@ function _decode_key_content(keycontent)
     #
     # Otherwise, we conclude that it must be a Base64-encoded private key, and we try to
     # Base64-decode it.
-    keycontent_stripped = strip(keycontent)
-    is_plaintext_key = occursin("-----BEGIN", keycontent_stripped) && occursin("-----END", keycontent_stripped)
+    is_plaintext_key = occursin("-----BEGIN", keycontent) && occursin("-----END", keycontent)
     if is_plaintext_key
         @debug "This looks like a plaintext private key, so we won't try to Base64-decode it"
-        return keycontent_stripped * '\n'
+        return keycontent * '\n'
     else
         @debug "We conclude that this must be a Base64-encoded private key"
         return base64decode(keycontent)
