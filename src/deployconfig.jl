@@ -64,6 +64,7 @@ function _decode_key_content(keycontent)
     is_plaintext_key = occursin("-----BEGIN", keycontent) && occursin("-----END", keycontent)
     if is_plaintext_key
         @debug "This looks like a plaintext private key, so we won't try to Base64-decode it"
+        # The private key file must end in a trailing newline
         return keycontent * '\n'
     else
         @debug "We conclude that this must be a Base64-encoded private key"
