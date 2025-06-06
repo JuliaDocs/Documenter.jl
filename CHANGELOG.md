@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* Added `meta` keyword to `makedocs` which allows to specify default values for `@meta` blocks. This can be used to alter the default values for anything that can be configured via a `@meta` block for all pages of the documentation. E.g. this can be used to set `CollapsedDocStrings = true` on all pages. ([#2512], [#2697])
+
 ### Changed
 
 * Work around GitHub rate limiting of link checks by passing `GITHUB_TOKEN` when applicable and available. ([#2729])
@@ -2046,6 +2050,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [#2505]: https://github.com/JuliaDocs/Documenter.jl/issues/2505
 [#2511]: https://github.com/JuliaDocs/Documenter.jl/issues/2511
+[#2512]: https://github.com/JuliaDocs/Documenter.jl/issues/2512
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
 [#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
@@ -2091,6 +2096,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2692]: https://github.com/JuliaDocs/Documenter.jl/issues/2692
 [#2693]: https://github.com/JuliaDocs/Documenter.jl/issues/2693
 [#2695]: https://github.com/JuliaDocs/Documenter.jl/issues/2695
+[#2697]: https://github.com/JuliaDocs/Documenter.jl/issues/2697
 [#2701]: https://github.com/JuliaDocs/Documenter.jl/issues/2701
 [#2710]: https://github.com/JuliaDocs/Documenter.jl/issues/2710
 [#2714]: https://github.com/JuliaDocs/Documenter.jl/issues/2714
