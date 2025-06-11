@@ -55,6 +55,23 @@ function documenter_key_previews(cfg::DeployConfig)
     return get(ENV, "DOCUMENTER_KEY_PREVIEWS", documenter_key(cfg))
 end
 
+function _decode_key_content(keycontent)
+    # If `keycontent` contains both `-----BEGIN` AND `-----END`, then we assume that it is
+    # a plaintext private key, and we don't try to Base64-decode it.
+    #
+    # Otherwise, we conclude that it must be a Base64-encoded private key, and we try to
+    # Base64-decode it.
+    is_plaintext_key = occursin("-----BEGIN", keycontent) && occursin("-----END", keycontent)
+    if is_plaintext_key
+        @debug "This looks like a plaintext private key, so we won't try to Base64-decode it"
+        # The private key file must end in a trailing newline
+        return keycontent * '\n'
+    else
+        @debug "We conclude that this must be a Base64-encoded private key"
+        return base64decode(keycontent)
+    end
+end
+
 """
     Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl,
                              tag_prefix, kwargs...)
