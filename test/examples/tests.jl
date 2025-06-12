@@ -394,6 +394,11 @@ end
             documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
+            let
+                example_output_html = read(joinpath(build_dir, "example-output.html"), String)
+                example_head = match(r"<head>(.*?)</head>"ms, example_output_html).captures[1]
+                @test occursin("<script>console.log('hello from head content! 🌸')</script>", example_head)
+            end
 
             @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
                 if size === :tiny

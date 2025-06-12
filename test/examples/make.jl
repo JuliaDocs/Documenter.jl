@@ -281,6 +281,7 @@ function html_doc(
                     asset("https://example.com/resource.js"),
                     asset("http://example.com/fonts?param=foo", class = :css),
                     asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class = :css),
+                    RawHTMLHeadContent("<script>console.log('hello from head content! 🌸')</script>")
                 ],
                 prettyurls = true,
                 canonical = "https://example.com/stable",
