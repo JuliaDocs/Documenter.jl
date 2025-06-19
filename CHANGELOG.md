@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.13.0] - not yet released
+
+### Added
+
+* Added new type `RawHTMLHeadContent` to `HTML` format object, which allows to add raw HTML to the head of the HTML output, by passing it as a element in the `assets` keyword argument. ([#2726])
+
 ## Version [v1.12.0] - 2025-06-06
 
 ### Added
