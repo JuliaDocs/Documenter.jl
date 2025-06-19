@@ -2111,6 +2111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2721]: https://github.com/JuliaDocs/Documenter.jl/issues/2721
 [#2722]: https://github.com/JuliaDocs/Documenter.jl/issues/2722
 [#2723]: https://github.com/JuliaDocs/Documenter.jl/issues/2723
+[#2726]: https://github.com/JuliaDocs/Documenter.jl/issues/2726
 [#2729]: https://github.com/JuliaDocs/Documenter.jl/issues/2729
 [#2737]: https://github.com/JuliaDocs/Documenter.jl/issues/2737
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
