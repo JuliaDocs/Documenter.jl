@@ -436,7 +436,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             assets = [
                 "assets/custom.css",
                 asset("https://plausible.io/js/plausible.js", class = :js, attributes = Dict(Symbol("data-domain") => "example.com", :defer => "")),
-                RawHTMLHeadContent("<script>console.log('hello from head content! 🌸')</script>")
+                RawHTMLHeadContent("<script>console.log('hello from head content! 🌸')</script>"),
             ],
             prettyurls = false,
             footer = nothing,
