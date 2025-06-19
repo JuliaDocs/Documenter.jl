@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.13.0] - 2025-06-19
+
+### Added
+
+* Added new type `RawHTMLHeadContent` to `HTML` format object, which allows to add raw HTML to the head of the HTML output, by passing it as a element in the `assets` keyword argument. ([#2726])
+
 ## Version [v1.12.0] - 2025-06-06
 
 ### Added
@@ -1538,6 +1544,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.11.3]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.11.3
 [v1.11.4]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.11.4
 [v1.12.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.12.0
+[v1.13.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.13.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -2105,6 +2112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2721]: https://github.com/JuliaDocs/Documenter.jl/issues/2721
 [#2722]: https://github.com/JuliaDocs/Documenter.jl/issues/2722
 [#2723]: https://github.com/JuliaDocs/Documenter.jl/issues/2723
+[#2726]: https://github.com/JuliaDocs/Documenter.jl/issues/2726
 [#2729]: https://github.com/JuliaDocs/Documenter.jl/issues/2729
 [#2737]: https://github.com/JuliaDocs/Documenter.jl/issues/2737
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953

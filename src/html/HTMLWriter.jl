@@ -92,7 +92,9 @@ const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
-struct HTMLAsset
+abstract type HTMLHeadContent end
+
+struct HTMLAsset <: HTMLHeadContent
     class::Symbol
     uri::String
     islocal::Bool
@@ -108,6 +110,16 @@ struct HTMLAsset
         class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
         return new(class, uri, islocal, attributes)
     end
+end
+
+"""
+    RawHTMLHeadContent(content::String)
+
+Raw HTML content to be inserted into the `<head>` section of the HTML document. This type can
+be used in the `assets` keyword of [`HTML`](@ref), just like [`asset`](@ref).
+"""
+struct RawHTMLHeadContent <: HTMLHeadContent
+    content::String
 end
 
 """
@@ -469,7 +481,7 @@ struct HTML <: Documenter.Writer
     edit_link::Union{String, Symbol, Nothing}
     repolink::Union{String, Nothing, Default{Nothing}}
     canonical::Union{String, Nothing}
-    assets::Vector{HTMLAsset}
+    assets::Vector{<:HTMLHeadContent}
     analytics::String
     collapselevel::Int
     sidebar_sitename::Bool
@@ -526,7 +538,7 @@ struct HTML <: Documenter.Writer
             prerender, node, highlightjs = prepare_prerendering(prerender, node, highlightjs, highlights)
         end
         assets = map(assets) do asset
-            isa(asset, HTMLAsset) && return asset
+            isa(asset, HTMLHeadContent) && return asset
             isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
             error("Invalid value in assets: $(asset) [$(typeof(asset))]")
         end
@@ -1101,11 +1113,15 @@ function find_preview_image(ctx)
     return nothing
 end
 
-function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
+function asset_links(src::AbstractString, assets::Vector{<:HTMLHeadContent})
     isabspath(src) && @error("Absolute path '$src' passed to asset_links")
     @tags link script
     links = DOM.Node[]
     for asset in assets
+        if isa(asset, RawHTMLHeadContent)
+            push!(links, DOM.Tag(Symbol("#RAW#"))(asset.content))
+            continue
+        end
         class = asset.class
         url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
