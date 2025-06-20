@@ -783,7 +783,6 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     end
 
     ctx = HTMLContext(doc, settings)
-    ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
     ctx.warner_js = copy_asset("warner.js", doc)
 
@@ -812,9 +811,34 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
         copy_asset("themes/$(theme).css", doc)
     end
 
-    size_limit_successes = map(collect(keys(doc.blueprint.pages))) do page
+    function page_navnode(page)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
         nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
+        return nn, idx
+    end
+
+    foreach(keys(doc.blueprint.pages)) do page
+        nn, idx = page_navnode(page)
+        @debug "Indexing $(page) [$(repr(idx))]"
+        generate_index!(ctx, nn)
+    end
+
+    # Make an attempt at avoiding spurious changes to the search index hash.
+    sort!(ctx.search_index; by = r -> (r.src, r.fragment, r.text))
+    search_index_buf = let io = IOBuffer()
+        println(io, "var documenterSearchIndex = {\"docs\":")
+        # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
+        println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
+        take!(io)
+    end
+    # Put the index's hash in its filename so it can have a long max-age.
+    ctx.search_index_js = "search_index_$(dataslug(search_index_buf)).js"
+    open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
+        write(io, search_index_buf)
+    end
+
+    size_limit_successes = map(collect(keys(doc.blueprint.pages))) do page
+        nn, idx = page_navnode(page)
         @debug "Rendering $(page) [$(repr(idx))]"
         render_page(ctx, nn)
     end
@@ -848,12 +872,6 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     end
     # Check that all HTML files are smaller or equal to size_threshold option
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
-
-    open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
-        println(io, "var documenterSearchIndex = {\"docs\":")
-        # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
-        println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
-    end
 
     write_inventory(doc, ctx)
 
@@ -1039,7 +1057,7 @@ function render_head(ctx, navnode)
             :src => RD.requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js),
         ],
-        script[:src => relhref(src, ctx.search_index_js)],
+        script[:src => relhref(src, ctx.search_index_js), :async, :id => "documenter-search-index-script"],
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
@@ -1716,10 +1734,6 @@ end
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     return map(getpage(ctx, navnode).mdast.children) do node
-        rec = searchrecord(ctx, navnode, node)
-        if !isnothing(rec)
-            push!(ctx.search_index, rec)
-        end
         domify(dctx, node, node.element)
     end
 end
@@ -1864,6 +1878,14 @@ function domify(::DCtx, ::Node, rawnode::Documenter.RawNode)
     return rawnode.name === :html ? DOM.Tag(Symbol("#RAW#"))(rawnode.text) : DOM.Node[]
 end
 
+function generate_index!(ctx::HTMLContext, navnode::Documenter.NavNode)
+    return foreach(getpage(ctx, navnode).mdast.children) do node
+        rec = searchrecord(ctx, navnode, node)
+        if !isnothing(rec)
+            push!(ctx.search_index, rec)
+        end
+    end
+end
 
 # Utilities
 # ------------------------------------------------------------------------------
