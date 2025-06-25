@@ -192,11 +192,11 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     processTerm: (term) => {
       let word = stopWords.has(term) ? null : term;
       if (word) {
-        // custom trimmer that doesn't strip @ and !, which are used in julia macro and function names
+        // custom trimmer that doesn't strip (@,!,+, -, *,/,^,&, |, %,<, >, =, :, .) which are used in julia macro,function names and identifiers
         word = word
-          .replace(/^[^a-zA-Z0-9@!]+/, "")
-          .replace(/[^a-zA-Z0-9@!]+$/, "");
-
+          .replace(/^[^a-zA-Z0-9@!+\-/*^&%|<>._=:]+/, "")
+          .replace(/[^a-zA-Z0-9@!+\-/*^&%|<>._=:]+$/, "");
+        
         word = word.toLowerCase();
       }
 
