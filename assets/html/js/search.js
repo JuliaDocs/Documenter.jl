@@ -204,7 +204,30 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     },
     // add . as a separator, because otherwise "title": "Documenter.Anchors.add!", would not
     // find anything if searching for "add!", only for the entire qualification
-    tokenize: (string) => string.split(/[\s\-\.]+/),
+    //updated tokenizer
+    tokenize: (string) => {
+      const tokens = [];
+      let remaining = string;
+
+      const patterns = [
+        // regular identifiers and function names
+        /\b[A-Za-z_][A-Za-z0-9_!]*\b/g
+      ];
+
+      for (const pattern of patterns) {
+        pattern.lastIndex = 0;
+        let match;
+        while ((match = pattern.exec(remaining)) != null) {
+          const token = match[0].trim();
+          if (token && !tokens.includes(token)) {
+            tokens.push(token);
+          }
+        }
+      }
+
+      return tokens.filter(token => token.length > 0);
+
+    },
     // options which will be applied during the search
     searchOptions: {
       prefix: true,
