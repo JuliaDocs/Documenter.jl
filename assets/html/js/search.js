@@ -209,19 +209,41 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       const tokens = [];
       let remaining = string;
 
+      // julia specific patterns
       const patterns = [
-        // regular identifiers and function names
-        /\b[A-Za-z_][A-Za-z0-9_!]*\b/g
+        // Module qualified names (e.g., Base.sort, Module.Submodule. function)
+        /\b[A-Za-z0-9_1*(?:\.[A-Z][A-Za-z0-9_1*)*\.[a-z_][A-Za-z0-9_!]*\b/g,
+        // Macro calls (e.g., @time, @async)
+        /@[A-Za-z0-9_]*/g,
+        // Type parameters (e.g., Array{T,N}, Vector{Int})
+        /\b[A-Za-z0-9_]*\{[^}]+\}/g,
+        // Function names with module qualification (e.g., Base.+, Base.:^)
+        /\b[A-Za-z0-9_]*\.:[A-Za-z0-9_!+\-*/^&|%<>=.]+/g,
+        // Operators as complete tokens (e.g., !=, aã, ||, ^, .=, →)
+        /[!<>=+\-*/^&|%:.]+/g,
+        // Function signatures with type annotations (e.g., f(x::Int))
+        /\b[A-Za-z0-9_!]*\([^)]*::[^)]*\)/g,
+        // Numbers (integers, floats,scientific notation)
+        /\b\d+(?:\.\d+)? (?:[eE][+-]?\d+)?\b/g
       ];
 
+      // apply patterns in order of specificity
       for (const pattern of patterns) {
-        pattern.lastIndex = 0;
+        pattern.lastIndex = 0; //reset regex state
         let match;
         while ((match = pattern.exec(remaining)) != null) {
           const token = match[0].trim();
           if (token && !tokens.includes(token)) {
             tokens.push(token);
           }
+        }
+      }
+
+      // splitting the content if something remains
+      const basicTokens = remaining.split(/[\s\-,;()[\]{}]+/).filter(t => t.trim()) ;
+      for (const token of basicTokens) {
+        if (token && !tokens.includes(token)) {
+          tokens.push(token);
         }
       }
 
