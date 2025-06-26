@@ -264,9 +264,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actionsx/prettier@v2
+      - uses: actions/setup-node@v4
         with:
-          args: --check .
+          node-version: '20'
+      - run: npm install --global prettier
+      - run : prettier --check . 
 
   runic:
     name: "Runic (Julia code formatting)"

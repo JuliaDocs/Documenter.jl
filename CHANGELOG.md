@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version [v1.13.0] - 2025-06-19
 
+### Changed
+
+* changed CI so that it always fetches the most recent version of prettier for linting
+
 ### Added
 
 * Added new type `RawHTMLHeadContent` to `HTML` format object, which allows to add raw HTML to the head of the HTML output, by passing it as a element in the `assets` keyword argument. ([#2726])
