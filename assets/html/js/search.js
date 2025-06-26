@@ -196,7 +196,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
         word = word
           .replace(/^[^a-zA-Z0-9@!+\-/*^&%|<>._=:]+/, "")
           .replace(/[^a-zA-Z0-9@!+\-/*^&%|<>._=:]+$/, "");
-        
+
         word = word.toLowerCase();
       }
 
@@ -240,15 +240,16 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       }
 
       // splitting the content if something remains
-      const basicTokens = remaining.split(/[\s\-,;()[\]{}]+/).filter(t => t.trim()) ;
+      const basicTokens = remaining
+        .split(/[\s\-,;()[\]{}]+/)
+        .filter((t) => t.trim());
       for (const token of basicTokens) {
         if (token && !tokens.includes(token)) {
           tokens.push(token);
         }
       }
 
-      return tokens.filter(token => token.length > 0);
-
+      return tokens.filter((token) => token.length > 0);
     },
     // options which will be applied during the search
     searchOptions: {
@@ -324,7 +325,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
             Math.min(
               textindex.index + querystring.length + 100,
               result.text.length
-            )
+            ),
           )
         : ""; // cut-off text before and after from the match
 
