@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* improved the tokenizer and the custom trimmer to improve search results. ([#2741])
+* improved the tokenizer and the custom trimmer to improve search results. ([#2744])
 
 ### Added
 
