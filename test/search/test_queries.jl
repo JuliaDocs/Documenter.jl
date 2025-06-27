@@ -15,12 +15,12 @@ basic_queries = [
     ),
     TestQuery(
         "latex",
-        ["LaTeX MWEs"]  # LaTeX MWEs page exists  
+        ["LaTeX MWEs"]  # LaTeX MWEs page exists
     ),
     TestQuery(
         "unicode",
         ["Unicode"]  # Unicode page exists
-    )
+    ),
 ]
 
 # Function/API queries - searching for actual documented functions
@@ -30,7 +30,7 @@ function_queries = [
         ["Home"]  # Main.Mod.func(x) is documented on Home page
     ),
     TestQuery(
-        "autodocs", 
+        "autodocs",
         ["@autodocs tests"]  # AutoDocs functionality
     ),
     TestQuery(
@@ -40,7 +40,7 @@ function_queries = [
     TestQuery(
         "f_1",
         ["@autodocs tests"]  # f_1 function in AutoDocs
-    )
+    ),
 ]
 
 # Content feature queries - searching for actual documented features
@@ -60,7 +60,7 @@ feature_queries = [
     TestQuery(
         "font",
         ["Font demo"]  # Font demo page
-    )
+    ),
 ]
 
 # Edge cases - realistic edge cases based on actual content
@@ -76,7 +76,7 @@ edge_case_queries = [
     TestQuery(
         "page",
         ["Home", "Tutorial", "Hidden Pages"]  # Common word, multiple matches
-    )
+    ),
 ]
 
 all_test_queries = vcat(basic_queries, function_queries, feature_queries, edge_case_queries)

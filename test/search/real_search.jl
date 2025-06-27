@@ -4,23 +4,23 @@ using JSON
 function load_real_search_index()
     # Use the example search index that's already built and tested
     search_index_path = joinpath(@__DIR__, "../examples/builds/html/search_index.js")
-    
+
     if !isfile(search_index_path)
         error("Search index not found at: $search_index_path")
     end
-    
+
     # Read and parse the JavaScript file
     content = read(search_index_path, String)
-    
+
     # Find the JSON data after "var documenterSearchIndex = "
     json_start = findfirst("var documenterSearchIndex = ", content)
     if json_start === nothing
         error("Invalid search index format: missing variable declaration")
     end
-    
+
     # Extract JSON content (everything after the variable declaration)
-    json_content = content[last(json_start) + 1:end]
-    
+    json_content = content[(last(json_start) + 1):end]
+
     # Parse the JSON
     parsed = JSON.parse(json_content)
     return parsed["docs"]  # Return just the docs array
