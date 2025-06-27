@@ -40,7 +40,7 @@ function real_search(query::String)
     node_modules_path = joinpath(@__DIR__, "node_modules")
     if !isdir(node_modules_path)
         cd(@__DIR__) do
-            run(`npm install minisearch`)
+            run(`npm install minisearch@6.1.0`)
         end
     end
 

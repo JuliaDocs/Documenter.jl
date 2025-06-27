@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "Search benchmarking for Documenter.jl",
   "dependencies": {
-    "minisearch": "^6.1.0"
+    "minisearch": "6.1.0"
   }
 }
