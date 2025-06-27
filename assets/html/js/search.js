@@ -392,8 +392,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     // Tier 3 : All query words in title
     const queryWords = queryLower.trim().split(/\s+/);
     const titleWords = titleLower.trim().split(/\s+/);
-    const allWordsInTitle = queryWords.every(qw => 
-      titleWords.some(tw => tw.includes(qw))
+    const allWordsInTitle = queryWords.every((qw) =>
+      titleWords.some((tw) => tw.includes(qw)),
     );
     if (allWordsInTitle) {
       return 2000 + result.score;
@@ -413,9 +413,9 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     });
 
     //calculate custom scores for all results
-    results = results.map(result => ({
+    results = results.map((result) => ({
       ...result,
-      customScore: calculateCustomScore(result, query)
+      customScore: calculateCustomScore(result, query),
     }));
 
     // sort by custom score in descending order
