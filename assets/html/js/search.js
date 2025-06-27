@@ -373,6 +373,35 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     return result_div;
   }
 
+  function calculateCustomScore(result, query) {
+    const titleLower = result.title.toLowerCase();
+    const queryLower = query.toLowerCase();
+
+    // Tier 1 : Exact title match
+    if (titleLower == queryLower) {
+      return 10000 + result.score;
+    }
+
+    // Tier 2 : Title contains exact query
+    if (titleLower.includes(queryLower)) {
+      const position = titleLower.indexOf(queryLower);
+      // prefer matches at the beginning
+      return 5000 + result.score - position * 10;
+    }
+
+    // Tier 3 : All query words in title
+    const queryWords = queryLower.trim().split(/\s+/);
+    const titleWords = titleLower.trim().split(/\s+/);
+    const allWordsInTitle = queryWords.every(qw => 
+      titleWords.some(tw => tw.includes(qw))
+    );
+    if (allWordsInTitle) {
+      return 2000 + result.score;
+    }
+
+    return result.score;
+  }
+
   self.onmessage = function (e) {
     let query = e.data;
     let results = index.search(query, {
@@ -382,6 +411,15 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       },
       combineWith: "AND",
     });
+
+    //calculate custom scores for all results
+    results = results.map(result => ({
+      ...result,
+      customScore: calculateCustomScore(result, query)
+    }));
+
+    // sort by custom score in descending order
+    results.sort((a, b) => b.customScore - a.customScore);
 
     // Pre-filter to deduplicate and limit to 200 per category to the extent
     // possible without knowing what the filters are.
