@@ -1,4 +1,5 @@
 JULIA:=julia
+RUNIC:=@runic
 
 default: help
 
@@ -21,6 +22,12 @@ changelog: docs/Manifest.toml
 
 themes:
 	$(MAKE) -C assets/html all
+
+format-julia:
+	julia --project=$(RUNIC) -e 'using Runic; exit(Runic.main(ARGS))' -- --inplace .
+
+install-runic:
+	julia --project=$(RUNIC) -e 'using Pkg; Pkg.add("Runic")'
 
 test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
@@ -54,9 +61,11 @@ help:
 	@echo " - make docs: build the documentation"
 	@echo " - make docs-warn-only: build the documentation, but do not error on failures"
 	@echo " - make docs-instantiate: instantiate the docs/ Julia environment"
+	@echo " - make format-julia: formats the Julia source code with Runic"
+	@echo " - make install-runic: installs Runic.jl into the @runic shared Julia environment (for make format)"
 	@echo " - make test: run the tests"
 	@echo " - make search-benchmarks: run search functionality benchmarks"
 	@echo " - make themes: compile Documenter's native CSS themes"
 	@echo " - make clean: remove generated files"
 
-.PHONY: default docs-instantiate themes help changelog docs test search-benchmarks
+.PHONY: default docs-instantiate themes help changelog docs test format-julia install-runic search-benchmarks

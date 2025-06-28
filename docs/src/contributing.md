@@ -44,6 +44,15 @@ formatting. In addition, the following style guidelines should be followed:
   * wrap long lines as near to 92 characters as possible, this includes docstrings;
   * follow the standard naming conventions used in `Base`.
 
+**Formatting.** You can run `make format-julia` to run Runic on the Documenter codebase.
+
+It expects that Runic is installed into the global, shared `--project=@runic` Julia environment.
+If the formatter fails to run because it can not load Runic, you can install it easily in the right place by calling `make install-runic`.
+
+### JS, HTML and (S)CSS
+
+We use [Prettier](https://github.com/prettier/prettier) v2 for formatting the HTML/web front end related code.
+
 ### Markdown
 
   * Use unbalanced `#` headers, i.e. no `#` on the right hand side of the header text;
@@ -67,8 +76,8 @@ style
 As is conventional for Julia packages, unit tests are located at `test/*.jl` with the entrypoint
 `test/runtests.jl`.
 
-### End to end testing 
+### End to end testing
 
 Tests that build example package docs from source and inspect the results (end to end tests) are
-located in `/test/examples`. The main entry points are `test/examples/make.jl` for building and 
+located in `/test/examples`. The main entry points are `test/examples/make.jl` for building and
 `test/examples/test.jl` for doing some basic checks on the generated outputs.
