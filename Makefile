@@ -25,6 +25,9 @@ themes:
 test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
 
+search-benchmarks:
+	cd test/search && ${JULIA} --project=../.. run_benchmarks.jl
+
 clean:
 	rm -f Manifest.toml
 	rm -f docs/Manifest.toml
@@ -42,6 +45,7 @@ clean:
 	rm -rf test/plugins/build
 	rm -rf test/quietly-logs
 	rm -rf test/workdir/builds
+	rm -f test/search/search_benchmark_results_*.txt
 
 
 help:
@@ -51,7 +55,8 @@ help:
 	@echo " - make docs-warn-only: build the documentation, but do not error on failures"
 	@echo " - make docs-instantiate: instantiate the docs/ Julia environment"
 	@echo " - make test: run the tests"
+	@echo " - make search-benchmarks: run search functionality benchmarks"
 	@echo " - make themes: compile Documenter's native CSS themes"
 	@echo " - make clean: remove generated files"
 
-.PHONY: default docs-instantiate themes help changelog docs test
+.PHONY: default docs-instantiate themes help changelog docs test search-benchmarks
