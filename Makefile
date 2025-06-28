@@ -32,6 +32,9 @@ install-runic:
 test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
 
+search-benchmarks:
+	cd test/search && ${JULIA} --project=../.. run_benchmarks.jl
+
 clean:
 	rm -f Manifest.toml
 	rm -f docs/Manifest.toml
@@ -49,6 +52,7 @@ clean:
 	rm -rf test/plugins/build
 	rm -rf test/quietly-logs
 	rm -rf test/workdir/builds
+	rm -f test/search/search_benchmark_results_*.txt
 
 
 help:
@@ -60,7 +64,8 @@ help:
 	@echo " - make format-julia: formats the Julia source code with Runic"
 	@echo " - make install-runic: installs Runic.jl into the @runic shared Julia environment (for make format)"
 	@echo " - make test: run the tests"
+	@echo " - make search-benchmarks: run search functionality benchmarks"
 	@echo " - make themes: compile Documenter's native CSS themes"
 	@echo " - make clean: remove generated files"
 
-.PHONY: default docs-instantiate themes help changelog docs test format-julia install-runic
+.PHONY: default docs-instantiate themes help changelog docs test format-julia install-runic search-benchmarks
