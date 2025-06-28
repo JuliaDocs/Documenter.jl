@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Created benchmarks for the search functionality ([#2740])
+
 * Added `meta` keyword to `makedocs` which allows to specify default values for `@meta` blocks. This can be used to alter the default values for anything that can be configured via a `@meta` block for all pages of the documentation. E.g. this can be used to set `CollapsedDocStrings = true` on all pages. ([#2512], [#2697])
 
 ### Changed
