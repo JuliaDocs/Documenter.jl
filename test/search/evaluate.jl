@@ -26,7 +26,6 @@ end
 
 # Calculates precision for search results against expected documents
 # Precision = (relevant documents found) / (total documents retrieved)
-# Measures accuracy of the search results - how many retrieved documents are actually relevant
 # Returns precision score, count of relevant documents found, and total documents retrieved
 function calculate_precision(results, expected_docs)
     if isempty(results)
