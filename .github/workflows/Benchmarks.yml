@@ -34,12 +34,18 @@ jobs:
           show-versioninfo: true
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
-      - name: Install dependencies
-        run: make docs/Manifest.toml
-      - name: Build the manual
-        run: julia --color=yes --project=docs/ docs/make.jl html
+      - name: Build test examples
+        shell: julia --color=yes --project=test/examples {0}
+        run: |
+          using Pkg
+          Pkg.instantiate()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate search index
+        run: julia --color=yes --project=test/examples --code-coverage test/examples/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_TEST_EXAMPLES: html
       - name: Run search benchmarks
         run: make search-benchmarks
         env:
