@@ -61,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Refactored `deploydocs` internals to allow dispatch on the `versions` keyword, intended as a non-public API for DocumenterVitepress which cannot use the default versioning mechanism during deployment ([#2695]).
 * Use different banners for dev and unreleased docs ([#2382], [#2682])
+* The search index now loads asynchronously, and can be cached indefinitely. ([#2702], [#2700])
 
 ### Fixed
 
