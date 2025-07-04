@@ -33,7 +33,7 @@ test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
 
 search-benchmarks:
-	cd test/search && ${JULIA} --project=../.. run_benchmarks.jl
+	${JULIA} --project test/search/run_benchmarks.jl
 
 clean:
 	rm -f Manifest.toml

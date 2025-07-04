@@ -3,9 +3,9 @@ using Dates
 using PrettyTables
 using Crayons
 
-include("test_queries.jl")
-include("evaluate.jl")
-include("real_search.jl")
+include(joinpath(@__DIR__, "test_queries.jl"))
+include(joinpath(@__DIR__, "evaluate.jl"))
+include(joinpath(@__DIR__, "real_search.jl"))
 
 function write_detailed_results(results::EvaluationResults, category::String, io::IO)
     println(io, "\n== $category ==")
@@ -92,7 +92,7 @@ function run_benchmarks()
 
     # Write detailed results to file
     timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
-    results_file = "search_benchmark_results_$(timestamp).txt"
+    results_file = joinpath(@__DIR__, "search_benchmark_results_$(timestamp).txt")
 
     open(results_file, "w") do io
         println(io, "Search Benchmark Results - $(timestamp)")
