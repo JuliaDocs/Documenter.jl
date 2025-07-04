@@ -1,6 +1,7 @@
 using Statistics
 using Dates
 using PrettyTables
+using Crayons
 
 include("test_queries.jl")
 include("evaluate.jl")
@@ -16,7 +17,7 @@ function write_detailed_results(results::EvaluationResults, category::String, io
         string("Total Documents Retrieved") string(results.total_documents_retrieved);
         string("Total Relevant Documents") string(results.total_relevant_documents)
     ]
-    pretty_table(io, summary_data, header=["Metric", "Value"]; alignment=:l) 
+    pretty_table(io, summary_data, header = ["Metric", "Value"]; alignment = :l)
 
     println(io, "\nDetailed Results:")
     detailed_data = Matrix{String}(undef, length(results.individual_results), 9)
@@ -31,7 +32,7 @@ function write_detailed_results(results::EvaluationResults, category::String, io
         detailed_data[i, 8] = string(result.expected)
         detailed_data[i, 9] = string(result.actual)
     end
-    pretty_table(io, detailed_data, header=["Query", "Precision (%)", "Recall (%)", "F1 (%)", "Relevant Found", "Total Retrieved", "Total Relevant", "Expected", "Actual"]; alignment=:l)
+    pretty_table(io, detailed_data, header = ["Query", "Precision (%)", "Recall (%)", "F1 (%)", "Relevant Found", "Total Retrieved", "Total Relevant", "Expected", "Actual"]; alignment = :l)
     return
 end
 
@@ -50,18 +51,44 @@ function run_benchmarks()
     # Overall results
     all_results = evaluate_all(real_search, all_test_queries)
 
-    # Show only overall results in terminal
     println("\n== Overall Results ==")
+
+    # Function to get color based on percentage value
+    function get_color_for_percentage(value)
+        if value >= 80.0
+            return crayon"green"
+        elseif value >= 60.0
+            return crayon"yellow"
+        elseif value >= 40.0
+            return crayon"red"
+        else
+            return crayon"bold red"
+        end
+    end
+
+    # Create colored summary data
+    precision_val = round(all_results.average_precision * 100, digits = 1)
+    recall_val = round(all_results.average_recall * 100, digits = 1)
+    f1_val = round(all_results.average_f1_score * 100, digits = 1)
+
     summary_data = [
-        string("Average Precision")  string(round(all_results.average_precision * 100, digits = 1));
-        string("Average Recall")     string(round(all_results.average_recall * 100, digits = 1));
-        string("Average F1 Score")   string(round(all_results.average_f1_score * 100, digits = 1));
+        string("Average Precision")  string(precision_val);
+        string("Average Recall")     string(recall_val);
+        string("Average F1 Score")   string(f1_val);
         string("Total Relevant Found") string(all_results.total_relevant_found);
         string("Total Documents Retrieved") string(all_results.total_documents_retrieved);
         string("Total Relevant Documents") string(all_results.total_relevant_documents)
     ]
-    pretty_table(summary_data, header=["Metric", "Value"]; alignment=:l, 
-    header_crayon=crayon"bold blue") 
+
+    # Create highlighters for each percentage metric
+    precision_highlighter = Highlighter((data, i, j) -> i == 1 && j == 2, get_color_for_percentage(precision_val))
+    recall_highlighter = Highlighter((data, i, j) -> i == 2 && j == 2, get_color_for_percentage(recall_val))
+    f1_highlighter = Highlighter((data, i, j) -> i == 3 && j == 2, get_color_for_percentage(f1_val))
+
+    pretty_table(
+        summary_data, header = ["Metric", "Value"]; alignment = :l,
+        header_crayon = crayon"bold blue", highlighters = (precision_highlighter, recall_highlighter, f1_highlighter)
+    )
 
     # Write detailed results to file
     timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
