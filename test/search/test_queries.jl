@@ -10,37 +10,37 @@ navigational_queries = [
     ),
     TestQuery(
         "deploydocs",
-        ["Deploydocs", "The deploydocs function", "Documenter.deploydocs", "Hosting Documentation"]  
-    ),  
-] 
+        ["Deploydocs", "The deploydocs function", "Documenter.deploydocs", "Hosting Documentation"]
+    ),
+]
 
 informational_queries = [
     TestQuery(
         "cross references",
-        ["External Cross-References", "Guide", "Syntax", "Documenter.crossref"]  
+        ["External Cross-References", "Guide", "Syntax", "Documenter.crossref"]
     ),
     TestQuery(
         "hosting documentation",
         ["Hosting Documentation", "SSH Deploy Keys Walkthrough", "Documenter.xref", "Guide"]
-    ), 
+    ),
     TestQuery(
         "unicode",
-        ["Documenter.JSDependencies.json_jsescape", "Release Notes"]  
+        ["Documenter.JSDependencies.json_jsescape", "Release Notes"]
     ),
 ]
 
 api_lookup_queries = [
     TestQuery(
         "doctest",
-        ["DocTestSetup and DocTestTeardown in @meta blocks", "Doctesting example", "Doctesting as Part of Testing", "Documenter.doctest", "Documenter._doctest"]  
+        ["DocTestSetup and DocTestTeardown in @meta blocks", "Doctesting example", "Doctesting as Part of Testing", "Documenter.doctest", "Documenter._doctest"]
     ),
     TestQuery(
         "@docs",
-        ["@docs block", "@docs; canonical=false block", "docs/Project.toml", "Markdown & MkDocs", "Documenter.docs"]  
+        ["@docs block", "@docs; canonical=false block", "docs/Project.toml", "Markdown & MkDocs", "Documenter.docs"]
     ),
     TestQuery(
         "HTML themes",
-        ["Documenter.HTMLWriter.HTML", "Guide", "Release Notes", "Semantic Versioning"]  
+        ["Documenter.HTMLWriter.HTML", "Guide", "Release Notes", "Semantic Versioning"]
     ),
 ]
 
@@ -60,7 +60,7 @@ special_symbol_queries = [
     TestQuery(
         "@",
         ["@ref and @id links", "@raw <format> block", "@setup <name> block", "@docs; canonical=false block", "@eval block"]
-    )
+    ),
 
 ]
 
