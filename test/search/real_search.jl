@@ -3,7 +3,7 @@ using JSON
 # Load the real search index from test examples (already built!)
 function load_real_search_index()
     # Use the example search index that's already built and tested
-    search_index_path = joinpath(@__DIR__, "../examples/builds/html/search_index.js")
+    search_index_path = joinpath(@__DIR__, "../../docs/build/search_index.js")
 
     if !isfile(search_index_path)
         error("Search index not found at: $search_index_path")

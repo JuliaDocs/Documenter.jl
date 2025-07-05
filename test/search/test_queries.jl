@@ -4,14 +4,14 @@ struct TestQuery
 end
 
 # Basic page queries - searching for content that actually exists
-basic_queries = [
+navigational_queries = [
     TestQuery(
-        "tutorial",
-        ["Tutorial"]  # Tutorial page exists in search index
+        "makedocs",
+        ["Documenter.makedocs", "Markdown & MkDocs", "Doctests", "Syntax", "Documenter.LatexWriter"]
     ),
     TestQuery(
-        "function",
-        ["Function Index"]  # Function Index page exists
+        "deploydocs",
+        ["Deploydocs", "Public API", "Hosting Documentation", "Syntax"]  # Function Index page exists
     ),
     TestQuery(
         "latex",
@@ -79,4 +79,4 @@ edge_case_queries = [
     ),
 ]
 
-all_test_queries = vcat(basic_queries, function_queries, feature_queries, edge_case_queries)
+all_test_queries = vcat(navigational_queries, function_queries, feature_queries, edge_case_queries)

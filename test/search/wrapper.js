@@ -38,5 +38,5 @@ const results = index.search(__QUERY__, {
 });
 
 // Extract unique page names from results (same logic as search.js)
-const pages = [...new Set(results.map(r => r.page))];
-console.log(JSON.stringify(pages)); 
+const pages = [...new Set(results.map(r => r.title))];
+console.log(JSON.stringify(pages.slice(0,5))); 

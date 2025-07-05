@@ -29,7 +29,7 @@ function write_detailed_results(results::EvaluationResults, category::String, io
         detailed_data[i, 5] = string(result.relevant_count)
         detailed_data[i, 6] = string(result.total_retrieved)
         detailed_data[i, 7] = string(result.total_relevant)
-        detailed_data[i, 8] = string(result.expected)
+        detailed_data[i, 8] = string(first(result.expected, 5))
         detailed_data[i, 9] = string(result.actual)
     end
     pretty_table(io, detailed_data, header = ["Query", "Precision (%)", "Recall (%)", "F1 (%)", "Relevant Found", "Total Retrieved", "Total Relevant", "Expected", "Actual"]; alignment = :l)
@@ -40,7 +40,7 @@ function run_benchmarks()
     println("Running search benchmarks...")
 
     # Test basic queries
-    basic_results = evaluate_all(real_search, basic_queries)
+    navigational_results = evaluate_all(real_search, navigational_queries)
 
     # Test feature queries
     feature_results = evaluate_all(real_search, feature_queries)
@@ -96,7 +96,7 @@ function run_benchmarks()
 
     open(results_file, "w") do io
         println(io, "Search Benchmark Results - $(timestamp)")
-        write_detailed_results(basic_results, "Basic Queries", io)
+        write_detailed_results(navigational_results, "Navigational Queries", io)
         write_detailed_results(feature_results, "Feature Queries", io)
         write_detailed_results(edge_results, "Edge Case Queries", io)
         write_detailed_results(all_results, "Overall Results", io)
