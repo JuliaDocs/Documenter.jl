@@ -44,7 +44,11 @@ function real_search(query::String)
         end
     end
 
-    # Run the wrapper
-    result = read(`node -e $wrapper_js`, String)
-    return JSON.parse(strip(result))
+    # Write the wrapper to a temporary file and run it
+    mktemp() do path, io
+        write(io, wrapper_js)
+        close(io)
+        result = read(`node $path`, String)
+        return JSON.parse(strip(result))
+    end
 end
