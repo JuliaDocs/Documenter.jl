@@ -39,14 +39,21 @@ end
 function run_benchmarks()
     println("Running search benchmarks...")
 
-    # Test basic queries
+    # Test navigational queries
     navigational_results = evaluate_all(real_search, navigational_queries)
 
-    # Test feature queries
-    feature_results = evaluate_all(real_search, feature_queries)
+    # Test informational queries
+    informational_results = evaluate_all(real_search, informational_queries)
 
-    # Test edge cases
-    edge_results = evaluate_all(real_search, edge_case_queries)
+    # Test api lookup cases
+    api_lookup_results = evaluate_all(real_search, api_lookup_queries)
+
+    # Test edge case cases
+    edge_case_results = evaluate_all(real_search, edge_case_queries)
+
+    # Test special symbol cases
+    special_symbol_results = evaluate_all(real_search, special_symbol_queries)
+
 
     # Overall results
     all_results = evaluate_all(real_search, all_test_queries)
@@ -97,8 +104,10 @@ function run_benchmarks()
     open(results_file, "w") do io
         println(io, "Search Benchmark Results - $(timestamp)")
         write_detailed_results(navigational_results, "Navigational Queries", io)
-        write_detailed_results(feature_results, "Feature Queries", io)
-        write_detailed_results(edge_results, "Edge Case Queries", io)
+        write_detailed_results(informational_results, "Feature Queries", io)
+        write_detailed_results(api_lookup_results, "API Lookup Case Queries", io)
+        write_detailed_results(edge_case_results, "Edge Case Queries", io)
+        write_detailed_results(special_symbol_results, "Special Symbol Case Queries", io)
         write_detailed_results(all_results, "Overall Results", io)
     end
 

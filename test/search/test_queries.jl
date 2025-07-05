@@ -3,7 +3,6 @@ struct TestQuery
     expected_docs::Vector{String}
 end
 
-# Basic page queries - searching for content that actually exists
 navigational_queries = [
     TestQuery(
         "makedocs",
@@ -11,72 +10,58 @@ navigational_queries = [
     ),
     TestQuery(
         "deploydocs",
-        ["Deploydocs", "Public API", "Hosting Documentation", "Syntax"]  # Function Index page exists
+        ["Deploydocs", "The deploydocs function", "Documenter.deploydocs", "Hosting Documentation"]  
+    ),  
+] 
+
+informational_queries = [
+    TestQuery(
+        "cross references",
+        ["External Cross-References", "Guide", "Syntax", "Documenter.crossref"]  
     ),
     TestQuery(
-        "latex",
-        ["LaTeX MWEs"]  # LaTeX MWEs page exists
-    ),
+        "hosting documentation",
+        ["Hosting Documentation", "SSH Deploy Keys Walkthrough", "Documenter.xref", "Guide"]
+    ), 
     TestQuery(
         "unicode",
-        ["Unicode"]  # Unicode page exists
+        ["Documenter.JSDependencies.json_jsescape", "Release Notes"]  
     ),
 ]
 
-# Function/API queries - searching for actual documented functions
-function_queries = [
+api_lookup_queries = [
     TestQuery(
-        "func",
-        ["Home"]  # Main.Mod.func(x) is documented on Home page
+        "doctest",
+        ["DocTestSetup and DocTestTeardown in @meta blocks", "Doctesting example", "Doctesting as Part of Testing", "Documenter.doctest", "Documenter._doctest"]  
     ),
     TestQuery(
-        "autodocs",
-        ["@autodocs tests"]  # AutoDocs functionality
+        "@docs",
+        ["@docs block", "@docs; canonical=false block", "docs/Project.toml", "Markdown & MkDocs", "Documenter.docs"]  
     ),
     TestQuery(
-        "repl",
-        ["@repl, @example, and @eval have correct LineNumberNodes inserted"]
-    ),
-    TestQuery(
-        "f_1",
-        ["@autodocs tests"]  # f_1 function in AutoDocs
-    ),
-]
-
-# Content feature queries - searching for actual documented features
-feature_queries = [
-    TestQuery(
-        "cross reference",
-        ["Cross-references"]  # Cross-references page
-    ),
-    TestQuery(
-        "hidden",
-        ["Hidden Pages"]  # Hidden pages functionality
-    ),
-    TestQuery(
-        "style",
-        ["Style demos"]  # Style demonstrations
-    ),
-    TestQuery(
-        "font",
-        ["Font demo"]  # Font demo page
+        "HTML themes",
+        ["Documenter.HTMLWriter.HTML", "Guide", "Release Notes", "Semantic Versioning"]  
     ),
 ]
 
 # Edge cases - realistic edge cases based on actual content
 edge_case_queries = [
     TestQuery(
-        "nonexistentthing",
+        "nonexistent function",
         String[]  # Should return empty
-    ),
-    TestQuery(
-        "edit",
-        ["Good EditURL", "Absolute EditURL"]  # Multiple EditURL pages
-    ),
-    TestQuery(
-        "page",
-        ["Home", "Tutorial", "Hidden Pages"]  # Common word, multiple matches
     ),
 ]
 
-all_test_queries = vcat(navigational_queries, function_queries, feature_queries, edge_case_queries)
+special_symbol_queries = [
+    TestQuery(
+        "^",
+        ["Version v1.6.0 - 2024-08-20", "Version v1.9.0 - 2025-03-17", "Version v1.5.0 - 2024-06-26", "Version v1.4.0 - 2024-04-14", "Version v1.8.1 - 2025-02-11"]
+    ),
+    TestQuery(
+        "@",
+        ["@ref and @id links", "@raw <format> block", "@setup <name> block", "@docs; canonical=false block", "@eval block"]
+    )
+
+]
+
+all_test_queries = vcat(navigational_queries, informational_queries, api_lookup_queries, edge_case_queries, special_symbol_queries)
