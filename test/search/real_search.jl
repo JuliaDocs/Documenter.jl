@@ -45,7 +45,7 @@ function real_search(query::String)
     end
 
     # Write the wrapper to a temporary file and run it
-    mktemp() do path, io
+    return mktemp() do path, io
         write(io, wrapper_js)
         close(io)
         result = read(`node $path`, String)
