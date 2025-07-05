@@ -36,19 +36,15 @@ function real_search(query::String)
     wrapper_js = replace(wrapper_js, "__SEARCH_INDEX__" => JSON.json(search_index_data))
     wrapper_js = replace(wrapper_js, "__QUERY__" => "\"" * query * "\"")
 
-    # Ensure minisearch is available
-    node_modules_path = joinpath(@__DIR__, "node_modules")
-    if !isdir(node_modules_path)
-        cd(@__DIR__) do
-            run(`npm install minisearch@6.1.0`)
-        end
-    end
+    
 
     # Write the wrapper to a temporary file and run it
     return mktemp() do path, io
         write(io, wrapper_js)
         close(io)
-        result = read(`node $path`, String)
-        return JSON.parse(strip(result))
+        cd(@__DIR__) do
+            result = read(`node $path`, String)
+            return JSON.parse(strip(result))
+        end
     end
 end
