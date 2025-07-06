@@ -39,7 +39,7 @@ function real_search(query::String)
     
 
     # Write the wrapper to a temporary file and run it
-    return mktemp() do path, io
+    return mktemp(@__DIR__) do path, io
         write(io, wrapper_js)
         close(io)
         cd(@__DIR__) do
