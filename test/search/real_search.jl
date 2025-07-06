@@ -36,7 +36,6 @@ function real_search(query::String)
     wrapper_js = replace(wrapper_js, "__SEARCH_INDEX__" => JSON.json(search_index_data))
     wrapper_js = replace(wrapper_js, "__QUERY__" => "\"" * query * "\"")
 
-    
 
     # Write the wrapper to a temporary file and run it
     return mktemp(@__DIR__) do path, io
