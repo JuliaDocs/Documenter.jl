@@ -217,7 +217,7 @@ end
                 devbranch = "master", devurl = "dev", push_preview = true
             )
             @test d.all_ok
-            @test d.subfolder == "v1.2.3+docs"
+            @test d.subfolder == "v1.2.3"
             @test d.repo == "github.com/JuliaDocs/DocumenterDocs.jl.git"
             @test d.branch == "gh-pages"
             @test Documenter.authentication_method(cfg) === Documenter.SSH
