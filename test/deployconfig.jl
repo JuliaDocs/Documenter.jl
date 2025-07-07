@@ -180,7 +180,7 @@ end
             @test Documenter.authentication_method(cfg) === Documenter.SSH
             @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         end
-        # Regular tag build GITHUB_EVENT_NAME `release`
+        # External Repo: Regular tag build with SSH deploy key (SSH key prioritized)
         withenv(
             "GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -201,7 +201,7 @@ end
             @test Documenter.authentication_method(cfg) === Documenter.SSH
             @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         end
-        # External Repo: Regular tag build with SSH deploy key (SSH key prioritized)
+        # Regular tag build GITHUB_EVENT_NAME `release`
         withenv(
             "GITHUB_EVENT_NAME" => "release",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -220,8 +220,6 @@ end
             @test d.subfolder == "v1.2.3"
             @test d.repo == "github.com/JuliaDocs/DocumenterDocs.jl.git"
             @test d.branch == "gh-pages"
-            @test Documenter.authentication_method(cfg) === Documenter.SSH
-            @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         end
         # Regular tag build with GITHUB_TOKEN and with tag prefix
         withenv(

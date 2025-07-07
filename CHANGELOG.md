@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Allow `release` to the allowed values for `GITHUB_EVENT_NAME` in the context of creating a new release manually in github. ([#2748])
+* Add `release` to the allowed values for `GITHUB_EVENT_NAME` in the context of creating a new release manually in github. ([#2748])
 
 ## Version [v1.13.0] - 2025-06-19
 
