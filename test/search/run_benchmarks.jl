@@ -113,9 +113,9 @@ function run_benchmarks()
     end
 
     summary_data = [
-        "Average Precision" precision_val precision_ref string(round(precision_diff, digits=1));
-        "Average Recall" recall_val recall_ref string(round(recall_diff, digits=1));
-        "Average F1 Score" f1_val f1_ref string(round(f1_diff, digits=1));
+        "Average Precision" precision_val precision_ref string(round(precision_diff, digits = 1));
+        "Average Recall" recall_val recall_ref string(round(recall_diff, digits = 1));
+        "Average F1 Score" f1_val f1_ref string(round(f1_diff, digits = 1));
         "Total Relevant Found" all_results.total_relevant_found "" "";
         "Total Documents Retrieved" all_results.total_documents_retrieved "" "";
         "Total Relevant Documents" all_results.total_relevant_documents "" ""
@@ -139,7 +139,7 @@ function run_benchmarks()
             f1_highlighter,
             Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[1, 4]))),
             Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[2, 4]))),
-            Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[3, 4])))
+            Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[3, 4]))),
         )
     )
 
