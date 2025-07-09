@@ -502,6 +502,8 @@ struct HTML <: Documenter.Writer
     size_threshold_ignore::Vector{String}
     example_size_threshold::Int
     inventory_version::Union{String, Nothing}
+    search_size_threshold::Int
+    search_size_threshold_warn::Int
 
     function HTML(;
             prettyurls::Bool = true,
@@ -531,6 +533,8 @@ struct HTML <: Documenter.Writer
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
             inventory_version = nothing,
+            search_size_threshold::Union{Integer, Nothing} = 2 * 2^20, # 2 MiB
+            search_size_threshold_warn::Union{Integer, Nothing} = 1 * 2^20, # 1 MiB
 
             # deprecated keywords
             edit_branch::Union{String, Nothing, Default} = Default(nothing),
@@ -581,6 +585,18 @@ struct HTML <: Documenter.Writer
         elseif example_size_threshold < 0
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
+        if isnothing(search_size_threshold)
+            search_size_threshold = typemax(Int)
+        elseif search_size_threshold <= 0
+            throw(ArgumentError("search_size_threshold must be non-negative, got $(search_size_threshold)"))
+        end
+        if isnothing(search_size_threshold_warn)
+            search_size_threshold_warn = min(typemax(Int), search_size_threshold)
+        elseif search_size_threshold_warn <= 0
+            throw(ArgumentError("search_size_threshold_warn must be non-negative, got $(search_size_threshold_warn)"))
+        elseif search_size_threshold_warn > search_size_threshold
+            throw(ArgumentError("search_size_threshold_warn ($search_size_threshold_warn) must be smaller than search_size_threshold ($search_size_threshold)"))
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         # We use normpath() when we construct the .page value for NavNodes, so we also need to normpath()
         # these values. This also ensures cross-platform compatibility of the values.
@@ -590,7 +606,8 @@ struct HTML <: Documenter.Writer
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
-            (isnothing(inventory_version) ? nothing : string(inventory_version))
+            (isnothing(inventory_version) ? nothing : string(inventory_version)),
+            search_size_threshold, search_size_threshold_warn
         )
     end
 end
@@ -861,11 +878,14 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     # Check that all HTML files are smaller or equal to size_threshold option
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
 
-    open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
+    # Check the size of the search index
+    search_index_path = joinpath(doc.user.build, ctx.search_index_js)
+    open(search_index_path, "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
     end
+    check_search_index_size(search_index_path, settings) || throw(HTMLSizeThresholdError("Search index file is too large."))
 
     write_inventory(doc, ctx)
 
@@ -1939,6 +1959,27 @@ function format_units(size)
     end
 
     return string(round(size, digits = 2), " (", unit, ")")
+end
+
+function check_search_index_size(path, settings)
+    file_size = filesize(path)
+    file_size_format_results = format_units(file_size)
+    size_threshold_format_results = format_units(settings.search_size_threshold)
+    size_threshold_warn_format_results = format_units(settings.search_size_threshold_warn)
+
+    size_threshold_msg(var::Symbol) = """
+    Generated search index over $(var) limit:
+        Generated file size: $(file_size_format_results)
+        search_size_threshold_warn: $(size_threshold_warn_format_results)
+        search_size_threshold:      $(size_threshold_format_results)
+        Search index file:   $(path)"""
+    if file_size > settings.search_size_threshold
+        @error size_threshold_msg(:search_size_threshold)
+        return false
+    elseif file_size > settings.search_size_threshold_warn
+        @warn size_threshold_msg(:search_size_threshold_warn)
+    end
+    return true
 end
 
 """
