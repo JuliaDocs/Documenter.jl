@@ -606,7 +606,10 @@ function waitUntilSearchIndexAvailable() {
   // has finished loading and documenterSearchIndex gets defined.
   // So we need to wait until the search index actually loads before setting
   // up all the search-related stuff.
-  if (typeof documenterSearchIndex !== "undefined" && typeof $ !== 'undefined') {
+  if (
+    typeof documenterSearchIndex !== "undefined" &&
+    typeof $ !== "undefined"
+  ) {
     runSearchMainCode();
   } else {
     console.warn("Search Index or jQuery not available, waiting");
