@@ -87,6 +87,8 @@ const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 const THEMES = ["documenter-light", "documenter-dark", "catppuccin-latte", "catppuccin-frappe", "catppuccin-macchiato", "catppuccin-mocha"]
 "The root directory of the HTML assets."
 const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
+"The version of minisearch to use."
+const MINISEARCH_VERSION = "6.1.0"
 "The directory where all the Sass/SCSS files needed for theme building are."
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
@@ -789,6 +791,16 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
 
     # Generate documenter.js file with all the JS dependencies
     ctx.documenter_js = "assets/documenter.js"
+    search_js = "assets/search.js"
+    if isfile(joinpath(doc.user.source, "assets", "search.js"))
+        @warn "not creating 'search.js', provided by the user."
+    else
+        search_js_path = joinpath(doc.user.build, "assets", "search.js")
+        mkpath(dirname(search_js_path))
+        search_js_content = read(joinpath(ASSETS, "js", "search.js"), String)
+        search_js_content = replace(search_js_content, "__MINISEARCH_VERSION__" => MINISEARCH_VERSION)
+        write(search_js_path, search_js_content)
+    end
     if isfile(joinpath(doc.user.source, "assets", "documenter.js"))
         @warn "not creating 'documenter.js', provided by the user."
     else
@@ -800,6 +812,10 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
             RD.highlightjs!(r, settings.highlights)
         end
         for filename in readdir(joinpath(ASSETS, "js"))
+            # search.js is handled separately
+            if filename == "search.js"
+                continue
+            end
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
             push!(r, JSDependencies.parse_snippet(path))
@@ -1040,6 +1056,7 @@ function render_head(ctx, navnode)
             Symbol("data-main") => relhref(src, ctx.documenter_js),
         ],
         script[:src => relhref(src, ctx.search_index_js)],
+        script[:src => relhref(src, "assets/search.js")],
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
