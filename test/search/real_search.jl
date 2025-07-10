@@ -42,6 +42,17 @@ function real_search(query::String)
         write(io, wrapper_js)
         close(io)
         cd(@__DIR__) do
+            # Install minisearch if it's not there
+            if !isdir("node_modules") || !isfile("node_modules/minisearch/package.json")
+                search_js_path = joinpath(@__DIR__, "..", "..", "assets", "html", "js", "search.js")
+                content = read(search_js_path, String)
+                m = match(r"minisearch@([\d\.]+)/", content)
+                if m === nothing
+                    error("Could not find minisearch version in search.js")
+                end
+                version = m.captures[1]
+                run(`npm install minisearch@$(version)`)
+            end
             result = read(`node $path`, String)
             return JSON.parse(strip(result))
         end
