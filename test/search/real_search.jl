@@ -1,4 +1,5 @@
 using JSON
+using NodeJS_22_jll
 
 # Load the real search index from test examples (already built!)
 function load_real_search_index()
@@ -53,7 +54,7 @@ function real_search(query::String)
                 version = m.captures[1]
                 run(`npm install minisearch@$(version)`)
             end
-            result = read(`node $path`, String)
+            result = read(`$(node()) $path`, String)
             return JSON.parse(strip(result))
         end
     end
