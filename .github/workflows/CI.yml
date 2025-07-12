@@ -245,7 +245,12 @@ jobs:
           Pkg.instantiate()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Node.js dependencies
+        run: npm install
+        working-directory: test/search
       - name: Run search benchmarks
         run: make search-benchmarks
         env:
