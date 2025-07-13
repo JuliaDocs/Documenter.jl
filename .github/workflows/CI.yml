@@ -233,6 +233,8 @@ jobs:
           show-versioninfo: true
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
+      - name: Instantiate main project environment
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
       - name: Download search index
         uses: actions/download-artifact@v4
         with:
