@@ -240,13 +240,6 @@ jobs:
         with:
           name: search-index
           path: docs/build
-      - name: Build test examples
-        shell: julia --color=yes --project=test/examples {0}
-        run: |
-          using Pkg
-          Pkg.instantiate()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create package.json for search benchmarks
         run: |
           MINISEARCH_VERSION=$(grep 'const MINISEARCH_VERSION' src/html/HTMLWriter.jl | cut -d'=' -f2 | sed 's/^[ ]*"//;s/"$//')

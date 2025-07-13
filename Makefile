@@ -32,8 +32,11 @@ install-runic:
 test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
 
-search-benchmarks:
-	${JULIA} --project test/search/run_benchmarks.jl
+search-benchmarks: test/search/Manifest.toml
+	${JULIA} --project=test/search test/search/run_benchmarks.jl
+
+test/search/Manifest.toml: test/search/Project.toml
+	${JULIA} --project=test/search -e'using Pkg; Pkg.instantiate()'
 
 clean:
 	rm -f Manifest.toml
