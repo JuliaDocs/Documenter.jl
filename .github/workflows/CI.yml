@@ -245,6 +245,10 @@ jobs:
           Pkg.instantiate()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create package.json for search benchmarks
+        run: |
+          MINISEARCH_VERSION=$(grep 'const MINISEARCH_VERSION' src/html/HTMLWriter.jl | cut -d'=' -f2 | tr -d ' ")
+          echo "{\"name\": \"documenter-search-benchmark\", \"version\": \"1.0.0\", \"dependencies\": {\"minisearch\": \"$MINISEARCH_VERSION\"}}" > test/search/package.json
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
