@@ -46,7 +46,7 @@ function real_search(query::String)
         cd(@__DIR__) do
             # Install minisearch if it's not there
             if !isdir("node_modules") || !isfile("node_modules/minisearch/package.json")
-                version = Documenter.HTMLWriter.MINISEARCH_VERSION;
+                version = Documenter.HTMLWriter.MINISEARCH_VERSION
                 if version === nothing
                     error("Could not find minisearch version in search.js")
                 end
