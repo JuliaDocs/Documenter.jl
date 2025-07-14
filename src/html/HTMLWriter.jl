@@ -791,16 +791,6 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
 
     # Generate documenter.js file with all the JS dependencies
     ctx.documenter_js = "assets/documenter.js"
-    search_js = "assets/search.js"
-    if isfile(joinpath(doc.user.source, "assets", "search.js"))
-        @warn "not creating 'search.js', provided by the user."
-    else
-        search_js_path = joinpath(doc.user.build, "assets", "search.js")
-        mkpath(dirname(search_js_path))
-        search_js_content = read(joinpath(ASSETS, "js", "search.js"), String)
-        search_js_content = replace(search_js_content, "__MINISEARCH_VERSION__" => MINISEARCH_VERSION)
-        write(search_js_path, search_js_content)
-    end
     if isfile(joinpath(doc.user.source, "assets", "documenter.js"))
         @warn "not creating 'documenter.js', provided by the user."
     else
@@ -812,13 +802,19 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
             RD.highlightjs!(r, settings.highlights)
         end
         for filename in readdir(joinpath(ASSETS, "js"))
-            # search.js is handled separately
-            if filename == "search.js"
-                continue
-            end
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
-            push!(r, JSDependencies.parse_snippet(path))
+
+            content = read(path, String)
+            if filename == "search.js"
+                if isfile(joinpath(doc.user.source, "assets", "search.js"))
+                    @warn "not embedding 'search.js', provided by the user."
+                    continue
+                end
+                content = replace(content, "__MINISEARCH_VERSION__" => MINISEARCH_VERSION)
+            end
+
+            push!(r, JSDependencies.parse_snippet(IOBuffer(content)))
         end
         JSDependencies.verify(r; verbose = true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
@@ -1056,7 +1052,6 @@ function render_head(ctx, navnode)
             Symbol("data-main") => relhref(src, ctx.documenter_js),
         ],
         script[:src => relhref(src, ctx.search_index_js)],
-        script[:src => relhref(src, "assets/search.js")],
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
