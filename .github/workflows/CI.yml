@@ -240,16 +240,6 @@ jobs:
         with:
           name: search-index
           path: docs/build
-      - name: Create package.json for search benchmarks
-        run: |
-          MINISEARCH_VERSION=$(grep 'const MINISEARCH_VERSION' src/html/HTMLWriter.jl | cut -d'=' -f2 | sed 's/^[ ]*"//;s/"$//')
-          echo "{\"name\": \"documenter-search-benchmark\", \"version\": \"1.0.0\", \"dependencies\": {\"minisearch\": \"$MINISEARCH_VERSION\"}}" > test/search/package.json
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-      - name: Install Node.js dependencies
-        run: npm install
-        working-directory: test/search
       - name: Run search benchmarks
         run: make search-benchmarks
         env:

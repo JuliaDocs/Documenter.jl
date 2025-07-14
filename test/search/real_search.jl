@@ -1,5 +1,6 @@
 using JSON
 using NodeJS_22_jll
+using Documenter
 
 # Load the real search index from test examples (already built!)
 function load_real_search_index()
@@ -45,16 +46,13 @@ function real_search(query::String)
         cd(@__DIR__) do
             # Install minisearch if it's not there
             if !isdir("node_modules") || !isfile("node_modules/minisearch/package.json")
-                search_js_path = joinpath(@__DIR__, "..", "..", "assets", "html", "js", "search.js")
-                content = read(search_js_path, String)
-                m = match(r"minisearch@([\d\.]+)/", content)
-                if m === nothing
+                version = Documenter.HTMLWriter.MINISEARCH_VERSION;
+                if version === nothing
                     error("Could not find minisearch version in search.js")
                 end
-                version = m.captures[1]
-                run(`npm install minisearch@$(version)`)
+                run(`$(NodeJS_22_jll.npm) install minisearch@$(version)`)
             end
-            result = read(`node $path`, String)
+            result = read(`$(NodeJS_22_jll.node) $path`, String)
             return JSON.parse(strip(result))
         end
     end
