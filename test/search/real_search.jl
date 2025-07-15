@@ -50,7 +50,9 @@ function real_search(query::String)
                 if version === nothing
                     error("Could not find minisearch version in search.js")
                 end
-                run(`$(NodeJS_22_jll.npm) install minisearch@$(version)`)
+                # We have to pass --prefix here, otherwise npm might try to install
+                # minisearch in a different location depending on the environment.
+                run(`$(NodeJS_22_jll.npm) --prefix . install minisearch@$(version)`)
             end
             result = read(`$(NodeJS_22_jll.node) $path`, String)
             return JSON.parse(strip(result))
