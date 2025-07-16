@@ -92,7 +92,7 @@ jobs:
       - name: "install pygments for tectonic"
         run: pip install pygments
         if: matrix.os == 'windows-latest'
-      - uses: teatimeguest/setup-texlive-action@v3
+      - uses: TeX-Live/setup-texlive-action@v3
         with:
           packages: |
             scheme-medium
@@ -213,6 +213,42 @@ jobs:
         with:
           name: PDF build logs
           path: ${{ github.workspace }}/latex-debug-logs
+      - name: Upload search index
+        if: ${{ matrix.format == 'html' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-index
+          path: docs/build/search_index.js
+
+  benchmarks:
+    name: Search Benchmarks
+    runs-on: ubuntu-latest
+    needs: docs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: 1
+          arch: x64
+          show-versioninfo: true
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
+      - name: Instantiate main project environment
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+      - name: Download search index
+        uses: actions/download-artifact@v4
+        with:
+          name: search-index
+          path: docs/build
+      - name: Run search benchmarks
+        run: make search-benchmarks
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload search benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-benchmark-results
+          path: test/search/search_benchmark_results_*.txt
 
   linkcheck:
     name: "Linkcheck: online tests"

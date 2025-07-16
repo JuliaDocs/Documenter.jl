@@ -3,6 +3,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.14.1] - 2025-07-09
+
+### Fixed
+
+* Fixed the `GITHUB_EVENT_NAME` message to include `release` as one of the options. ([#2750])
+
+## Version [v1.14.0] - 2025-07-09
+
+### Added
+
+* Add `release` to the allowed values for `GITHUB_EVENT_NAME` for `deploydocs`, to allow release docs to build when tagging via creating a new _release_ on GitHub. ([#2748], [#2748])
+
 ## Version [v1.13.0] - 2025-06-19
 
 ### Changed
@@ -1549,6 +1561,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.11.4]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.11.4
 [v1.12.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.12.0
 [v1.13.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.13.0
+[v1.14.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.14.0
+[v1.14.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.14.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -2119,6 +2133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2726]: https://github.com/JuliaDocs/Documenter.jl/issues/2726
 [#2729]: https://github.com/JuliaDocs/Documenter.jl/issues/2729
 [#2737]: https://github.com/JuliaDocs/Documenter.jl/issues/2737
+[#2748]: https://github.com/JuliaDocs/Documenter.jl/issues/2748
+[#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

@@ -67,7 +67,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js",
+    "https://cdn.jsdelivr.net/npm/minisearch@__MINISEARCH_VERSION__/dist/umd/index.min.js",
   );
 
   let data = documenterSearchIndex.map((x, key) => {
@@ -690,11 +690,14 @@ function waitUntilSearchIndexAvailable() {
   // has finished loading and documenterSearchIndex gets defined.
   // So we need to wait until the search index actually loads before setting
   // up all the search-related stuff.
-  if (typeof documenterSearchIndex !== "undefined") {
+  if (
+    typeof documenterSearchIndex !== "undefined" &&
+    typeof $ !== "undefined"
+  ) {
     runSearchMainCode();
   } else {
-    console.warn("Search Index not available, waiting");
-    setTimeout(waitUntilSearchIndexAvailable, 1000);
+    console.warn("Search Index or jQuery not available, waiting");
+    setTimeout(waitUntilSearchIndexAvailable, 100);
   }
 }
 

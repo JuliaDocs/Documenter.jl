@@ -87,6 +87,8 @@ const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 const THEMES = ["documenter-light", "documenter-dark", "catppuccin-latte", "catppuccin-frappe", "catppuccin-macchiato", "catppuccin-mocha"]
 "The root directory of the HTML assets."
 const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
+"The version of minisearch to use."
+const MINISEARCH_VERSION = "6.1.0"
 "The directory where all the Sass/SCSS files needed for theme building are."
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
@@ -802,7 +804,17 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
-            push!(r, JSDependencies.parse_snippet(path))
+
+            content = read(path, String)
+            if filename == "search.js"
+                if isfile(joinpath(doc.user.source, "assets", "search.js"))
+                    @warn "not embedding 'search.js', provided by the user."
+                    continue
+                end
+                content = replace(content, "__MINISEARCH_VERSION__" => MINISEARCH_VERSION)
+            end
+
+            push!(r, JSDependencies.parse_snippet(IOBuffer(content)))
         end
         JSDependencies.verify(r; verbose = true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
