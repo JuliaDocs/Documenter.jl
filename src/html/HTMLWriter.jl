@@ -532,7 +532,7 @@ struct HTML <: Documenter.Writer
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
             inventory_version = nothing,
-            search_size_threshold_warn::Union{Integer, Nothing} = 1 * 2^20, # 1 MiB
+            search_size_threshold_warn::Union{Integer, Nothing} = 500 * 2^10, # 500 KiB
 
             # deprecated keywords
             edit_branch::Union{String, Nothing, Default} = Default(nothing),
