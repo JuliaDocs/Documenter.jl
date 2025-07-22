@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* Created a warning for when the search index size is too big (500Kib). ([#2423])
+* Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
 
 ### Fixed
 
@@ -2055,6 +2055,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2410]: https://github.com/JuliaDocs/Documenter.jl/issues/2410
 [#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
+[#2423]: https://github.com/JuliaDocs/Documenter.jl/issues/2423
 [#2424]: https://github.com/JuliaDocs/Documenter.jl/issues/2424
 [#2430]: https://github.com/JuliaDocs/Documenter.jl/issues/2430
 [#2434]: https://github.com/JuliaDocs/Documenter.jl/issues/2434
@@ -2135,6 +2136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2737]: https://github.com/JuliaDocs/Documenter.jl/issues/2737
 [#2748]: https://github.com/JuliaDocs/Documenter.jl/issues/2748
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
+[#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
