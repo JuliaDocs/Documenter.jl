@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version [v1.14.1] - 2025-07-09
 
+### Changed
+
+* Created a warning for when the search index size is too big (500Kib). ([#2423])
+
 ### Fixed
 
 * Fixed the `GITHUB_EVENT_NAME` message to include `release` as one of the options. ([#2750])
