@@ -876,7 +876,18 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
     end
-    check_search_index_size(search_index_path, settings)
+    let file_size = filesize(search_index_path)
+        if file_size > settings.search_size_threshold_warn
+            file_size_format_results = format_units(file_size)
+            size_threshold_warn_format_results = format_units(settings.search_size_threshold_warn)
+            @warn """
+            Generated search index over size_threshold_warn limit:
+                Generated file size: $(file_size_format_results)
+                search_size_threshold_warn: $(size_threshold_warn_format_results)
+                Search index file:   $(search_index_path)
+            """
+        end
+    end
 
     write_inventory(doc, ctx)
 
@@ -1950,22 +1961,6 @@ function format_units(size)
     end
 
     return string(round(size, digits = 2), " (", unit, ")")
-end
-
-function check_search_index_size(path, settings)
-    file_size = filesize(path)
-    file_size_format_results = format_units(file_size)
-    size_threshold_warn_format_results = format_units(settings.search_size_threshold_warn)
-
-    size_threshold_msg(var::Symbol) = """
-    Generated search index over $(var) limit:
-        Generated file size: $(file_size_format_results)
-        search_size_threshold_warn: $(size_threshold_warn_format_results)
-        Search index file:   $(path)"""
-    if file_size > settings.search_size_threshold_warn
-        @warn size_threshold_msg(:search_size_threshold_warn)
-    end
-    return true
 end
 
 """
