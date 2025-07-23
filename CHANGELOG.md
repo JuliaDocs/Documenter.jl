@@ -3,11 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Version [v1.14.1] - 2025-07-09
+## Unreleased
 
 ### Changed
 
 * Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
+
+## Version [v1.14.1] - 2025-07-09
 
 ### Fixed
 
