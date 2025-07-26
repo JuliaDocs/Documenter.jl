@@ -501,8 +501,8 @@ struct HTML <: Documenter.Writer
     size_threshold_warn::Int
     size_threshold_ignore::Vector{String}
     example_size_threshold::Int
-    inventory_version::Union{String, Nothing}
     search_size_threshold_warn::Int
+    inventory_version::Union{String, Nothing}
 
     function HTML(;
             prettyurls::Bool = true,
