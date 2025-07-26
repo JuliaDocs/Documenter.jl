@@ -501,6 +501,7 @@ struct HTML <: Documenter.Writer
     size_threshold_warn::Int
     size_threshold_ignore::Vector{String}
     example_size_threshold::Int
+    search_size_threshold_warn::Int
     inventory_version::Union{String, Nothing}
 
     function HTML(;
@@ -530,6 +531,7 @@ struct HTML <: Documenter.Writer
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
+            search_size_threshold_warn::Union{Integer, Nothing} = 500 * 2^10, # 500 KiB
             inventory_version = nothing,
 
             # deprecated keywords
@@ -581,6 +583,11 @@ struct HTML <: Documenter.Writer
         elseif example_size_threshold < 0
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
+        if isnothing(search_size_threshold_warn)
+            search_size_threshold_warn = typemax(Int)
+        elseif search_size_threshold_warn <= 0
+            throw(ArgumentError("search_size_threshold_warn must be non-negative, got $(search_size_threshold_warn)"))
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         # We use normpath() when we construct the .page value for NavNodes, so we also need to normpath()
         # these values. This also ensures cross-platform compatibility of the values.
@@ -590,6 +597,7 @@ struct HTML <: Documenter.Writer
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
+            search_size_threshold_warn,
             (isnothing(inventory_version) ? nothing : string(inventory_version))
         )
     end
@@ -861,10 +869,24 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     # Check that all HTML files are smaller or equal to size_threshold option
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
 
-    open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
+    # Check the size of the search index
+    search_index_path = joinpath(doc.user.build, ctx.search_index_js)
+    open(search_index_path, "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
+    end
+    let file_size = filesize(search_index_path)
+        if file_size > settings.search_size_threshold_warn
+            file_size_format_results = format_units(file_size)
+            size_threshold_warn_format_results = format_units(settings.search_size_threshold_warn)
+            @warn """
+            Generated search index over size_threshold_warn limit:
+                Generated file size: $(file_size_format_results)
+                search_size_threshold_warn: $(size_threshold_warn_format_results)
+                Search index file:   $(search_index_path)
+            """
+        end
     end
 
     write_inventory(doc, ctx)
