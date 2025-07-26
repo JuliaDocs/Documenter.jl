@@ -5,6 +5,7 @@ using Crayons
 using JSON
 
 include(joinpath(@__DIR__, "test_queries.jl"))
+include(joinpath(@__DIR__, "edge_case_queries.jl"))
 include(joinpath(@__DIR__, "evaluate.jl"))
 include(joinpath(@__DIR__, "real_search.jl"))
 
@@ -47,30 +48,33 @@ function write_detailed_results(results::EvaluationResults, category::String, io
     return
 end
 
-function run_benchmarks()
+function run_benchmarks(search_index_path::String, overall_queries_name::String)
     println("Running search benchmarks...")
 
     # Load reference values
     reference_values = load_reference_values()
 
     # Test navigational queries
-    navigational_results = evaluate_all(real_search, navigational_queries)
+    navigational_results = evaluate_all(real_search, navigational_queries, search_index_path)
 
     # Test informational queries
-    informational_results = evaluate_all(real_search, informational_queries)
+    informational_results = evaluate_all(real_search, informational_queries, search_index_path)
 
     # Test api lookup cases
-    api_lookup_results = evaluate_all(real_search, api_lookup_queries)
+    api_lookup_results = evaluate_all(real_search, api_lookup_queries, search_index_path)
 
     # Test edge case cases
-    edge_case_results = evaluate_all(real_search, edge_case_queries)
+    edge_case_results = evaluate_all(real_search, edge_case_queries, search_index_path)
 
     # Test special symbol cases
-    special_symbol_results = evaluate_all(real_search, special_symbol_queries)
+    special_symbol_results = evaluate_all(real_search, special_symbol_queries, search_index_path)
 
+    # Test dedicated edge cases
+    dedicated_edge_case_results = evaluate_all(real_search, edge_case_queries, search_index_path)
 
     # Overall results
-    all_results = evaluate_all(real_search, all_test_queries)
+    overall_queries = getfield(Main, Symbol(overall_queries_name))
+    all_results = evaluate_all(real_search, overall_queries, search_index_path)
 
     println("\n== Overall Results ==")
 
@@ -154,6 +158,7 @@ function run_benchmarks()
         write_detailed_results(api_lookup_results, "API Lookup Case Queries", io)
         write_detailed_results(edge_case_results, "Edge Case Queries", io)
         write_detailed_results(special_symbol_results, "Special Symbol Case Queries", io)
+        write_detailed_results(dedicated_edge_case_results, "Dedicated Edge Case Queries", io)
         write_detailed_results(all_results, "Overall Results", io)
     end
 
@@ -163,5 +168,11 @@ function run_benchmarks()
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
-    run_benchmarks()
+    if length(ARGS) != 2
+        println("Usage: julia run_benchmarks.jl <path_to_search_index.js> <overall_queries_name>")
+        exit(1)
+    end
+    search_index_path = ARGS[1]
+    overall_queries_name = ARGS[2]
+    run_benchmarks(search_index_path, overall_queries_name)
 end
