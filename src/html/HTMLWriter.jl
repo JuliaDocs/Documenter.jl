@@ -531,8 +531,8 @@ struct HTML <: Documenter.Writer
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
-            inventory_version = nothing,
             search_size_threshold_warn::Union{Integer, Nothing} = 500 * 2^10, # 500 KiB
+            inventory_version = nothing,
 
             # deprecated keywords
             edit_branch::Union{String, Nothing, Default} = Default(nothing),
@@ -597,8 +597,8 @@ struct HTML <: Documenter.Writer
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
-            (isnothing(inventory_version) ? nothing : string(inventory_version)),
-            search_size_threshold_warn
+            search_size_threshold_warn,
+            (isnothing(inventory_version) ? nothing : string(inventory_version))
         )
     end
 end
