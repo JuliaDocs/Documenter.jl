@@ -1516,3 +1516,52 @@ end
         @test length(r.stdout) > 0
     end
 end
+
+@testset "post_status" begin
+    if Sys.which("curl") === nothing
+        @warn "'curl' binary not found, skipping related tests."
+    else
+        @testset "Default GitHubActions" begin
+            buffer = IOBuffer()
+            logger = SimpleLogger(buffer, Logging.Debug)
+            with_logger(logger) do
+                withenv(
+                    "GITHUB_EVENT_NAME" => "push",
+                    "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                    "GITHUB_REF" => "refs/tags/v1.2.3",
+                    "GITHUB_ACTOR" => "github-actions",
+                    "GITHUB_SHA" => "407d4b94",
+                    "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+                    "GITHUB_API_URL" => "badurl://api.github.com" # use bad url protocol to trigger CURL failure
+                ) do
+                    cfg = Documenter.GitHubActions()
+                    Documenter.post_status(cfg; type = "success", repo = "github.com/JuliaDocs/Documenter.jl")
+                end
+            end
+            logged = read(seek(buffer, 0), String)
+            @test occursin("""`curl -sX POST -H 'Authorization: token SGVsbG8sIHdvcmxkLg==' -H 'User-Agent: Documenter.jl' -H 'Content-Type: application/json' -d '{"target_url":"https://JuliaDocs.github.io/Documenter.jl/","context":"documenter/deploy","description":"Documentation build succeeded","state":"success"}' badurl://api.github.com/repos/JuliaDocs/Documenter.jl/statuses/407d4b94`""", logged)
+        end
+
+        @testset "Self-hosted GitHubActions" begin
+            buffer = IOBuffer()
+            logger = SimpleLogger(buffer, Logging.Debug)
+            with_logger(logger) do
+                withenv(
+                    "GITHUB_EVENT_NAME" => "push",
+                    "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                    "GITHUB_REF" => "refs/tags/v1.2.3",
+                    "GITHUB_ACTOR" => "github-actions",
+                    "GITHUB_SHA" => "407d4b94",
+                    "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+                    "GITHUB_API_URL" => "badurl://api.github.selfhosted" # use bad url protocol to trigger CURL failure
+                ) do
+                    cfg = Documenter.GitHubActions("github.selfhosted", "pages.selfhosted")
+                    Documenter.post_status(cfg; type = "success", repo = "github.selfhosted/JuliaDocs/Documenter.jl")
+                end
+            end
+            logged = read(seek(buffer, 0), String)
+            @test occursin("""`curl -sX POST -H 'Authorization: token SGVsbG8sIHdvcmxkLg==' -H 'User-Agent: Documenter.jl' -H 'Content-Type: application/json' -d '{\"target_url\":\"pages.selfhosted\",\"context\":\"documenter/deploy\",\"description\":\"Documentation build succeeded\",\"state\":\"success\"}' badurl://api.github.selfhosted/repos/JuliaDocs/Documenter.jl/statuses/407d4b94`""", logged)
+        end
+
+    end
+end

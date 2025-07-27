@@ -297,6 +297,9 @@ end
 
 Implementation of `DeployConfig` for deploying from GitHub Actions.
 
+For self-hosted GitHub installation use `GitHubActions(host, pages_url)` constructor 
+  to specify the host name and a **full path** to the GitHub pages location.
+
 The following environment variables influences the build
 when using the `GitHubActions` configuration:
 
@@ -310,6 +313,10 @@ when using the `GitHubActions` configuration:
 
  - `GITHUB_TOKEN` or `DOCUMENTER_KEY`: used for authentication with GitHub,
    see the manual section for [GitHub Actions](@ref) for more information.
+
+ - `GITHUB_API_URL`: defines URL to GitHub API.
+
+ - `GITHUB_ACTOR`: Name of the person/app that initiated the workflow.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
 [documentation](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables).
@@ -559,8 +566,8 @@ function post_github_status(cfg::GitHubActions, type::S, deploydocs_repo::S, sha
         io = IOBuffer()
         res = run(pipeline(cmd; stdout = io, stderr = devnull))
         @debug "Response of curl POST request" response = String(take!(io))
-    catch
-        @debug "Failed to post status"
+    catch e
+        @debug "Failed to post status" exception = e
     end
     return nothing
 end

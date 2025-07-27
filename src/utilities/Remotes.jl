@@ -106,8 +106,8 @@ end
 const GITHUB_HOST = "github.com"
 
 """
-    GitHub(user :: AbstractString, repo :: AbstractString)
-    GitHub(remote :: AbstractString)
+    GitHub(user :: AbstractString, repo :: AbstractString, [host :: AbstractString])
+    GitHub(remote :: AbstractString, [host :: AbstractString])
 
 Represents a remote Git repository hosted on GitHub. The repository is identified by the
 names of the user (or organization) and the repository: `GitHub(user, repository)`. E.g.:
@@ -120,6 +120,8 @@ makedocs(
 
 The single-argument constructor assumes that the user and repository parts are separated by
 a slash (e.g. `JuliaDocs/Documenter.jl`).
+
+A `host` can be provided to point to the location of the self-hosted GitHub installation.
 """
 struct GitHub <: Remote
     user::String
