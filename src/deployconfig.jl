@@ -520,8 +520,8 @@ function post_status(cfg::GitHubActions; type, repo::String, subfolder = nothing
         end
         sha === nothing && return
         return post_github_status(cfg, type, repo, sha, subfolder)
-    catch
-        @debug "Failed to post status"
+    catch e
+        @debug "Failed to post status" e
     end
 end
 
