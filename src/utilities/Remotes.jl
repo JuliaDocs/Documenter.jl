@@ -102,6 +102,9 @@ function repofile(remote::Remote, ref, filename, linerange = nothing)
     return fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
 end
 
+
+const GITHUB_HOST = "github.com"
+
 """
     GitHub(user :: AbstractString, repo :: AbstractString)
     GitHub(remote :: AbstractString)
@@ -121,12 +124,15 @@ a slash (e.g. `JuliaDocs/Documenter.jl`).
 struct GitHub <: Remote
     user::String
     repo::String
+    host::String
+
+    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = GITHUB_HOST) = new(user, repo, host)
 end
-function GitHub(remote::AbstractString)
+function GitHub(remote::AbstractString; host::AbstractString = GITHUB_HOST)
     user, repo = split(remote, '/')
-    return GitHub(user, repo)
+    return GitHub(user, repo, host)
 end
-repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
+repourl(remote::GitHub) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)
     url = "$(repourl(remote))/blob/$(ref)/$(filename)"
     isnothing(linerange) && return url

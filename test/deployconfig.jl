@@ -493,6 +493,28 @@ end
             )
             @test !d.all_ok
         end
+        # Self-hosted GitHub installation
+        # Regular tag build with GITHUB_TOKEN
+        withenv(
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/tags/v1.2.3",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+            cfg = Documenter.GitHubActions("github.selfhosted", "pages.selfhosted/something/JuliaDocs/Documenter.jl")
+            d = Documenter.deploy_folder(
+                cfg; repo = "github.selfhosted/JuliaDocs/Documenter.jl.git",
+                devbranch = "master", devurl = "dev", push_preview = true
+            )
+            @test d.all_ok
+            @test d.subfolder == "v1.2.3"
+            @test d.repo == "github.selfhosted/JuliaDocs/Documenter.jl.git"
+            @test d.branch == "gh-pages"
+            @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+            @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.selfhosted/JuliaDocs/Documenter.jl.git"
+        end
     end
 end
 
@@ -1396,7 +1418,7 @@ end
         "CI" => "woodpecker",
         "GITHUB_REPOSITORY" => nothing
     ) do
-        @test_throws KeyError  cfg = Documenter.auto_detect_deploy_system()
+        @test_throws KeyError cfg = Documenter.auto_detect_deploy_system()
     end
     # Drone compatibility ends post-1.0.0
     withenv(

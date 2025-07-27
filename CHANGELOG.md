@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version [v1.14.1] - 2025-07-09
 
+### Added
+
+* Support self-hosted GitHub instances.
+
 ### Fixed
 
 * Fixed the `GITHUB_EVENT_NAME` message to include `release` as one of the options. ([#2750])
