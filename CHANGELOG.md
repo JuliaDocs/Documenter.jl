@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
 
+## Unreleased
+
+### Added
+
+* Support self-hosted GitHub instances.
+
 ## Version [v1.14.1] - 2025-07-09
 
 ### Fixed
