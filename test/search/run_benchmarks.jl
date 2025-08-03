@@ -4,12 +4,26 @@ using PrettyTables
 using Crayons
 using JSON
 
-include(joinpath(@__DIR__, "test_queries.jl"))
-include(joinpath(@__DIR__, "edge_case_queries.jl"))
+# This block ensures that the query file is loaded before evaluate.jl
+# It finds the query file path from the command line arguments.
+let
+    query_file_path = ""
+    for arg in ARGS
+        if endswith(arg, ".jl")
+            # Basic check to find the query file argument.
+            # This assumes it's the first .jl file in the arguments.
+            query_file_path = arg
+            break
+        end
+    end
+    if !isempty(query_file_path) && isfile(query_file_path)
+        include(query_file_path)
+    end
+end
+
 include(joinpath(@__DIR__, "evaluate.jl"))
 include(joinpath(@__DIR__, "real_search.jl"))
 
-# Function to load reference benchmark values
 function load_reference_values()
     reference_file = joinpath(@__DIR__, "search_benchmark_reference.json")
     if isfile(reference_file)
@@ -48,37 +62,16 @@ function write_detailed_results(results::EvaluationResults, category::String, io
     return
 end
 
-function run_benchmarks(search_index_path::String, overall_queries_name::String)
-    println("Running search benchmarks...")
+function run_benchmarks(search_index_path::String, query_file_path::String, overall_queries_name::String)
+    println("Running search benchmarks for $query_file_path...")
 
-    # Load reference values
     reference_values = load_reference_values()
 
-    # Test navigational queries
-    navigational_results = evaluate_all(real_search, navigational_queries, search_index_path)
-
-    # Test informational queries
-    informational_results = evaluate_all(real_search, informational_queries, search_index_path)
-
-    # Test api lookup cases
-    api_lookup_results = evaluate_all(real_search, api_lookup_queries, search_index_path)
-
-    # Test edge case cases
-    edge_case_results = evaluate_all(real_search, edge_case_queries, search_index_path)
-
-    # Test special symbol cases
-    special_symbol_results = evaluate_all(real_search, special_symbol_queries, search_index_path)
-
-    # Test dedicated edge cases
-    dedicated_edge_case_results = evaluate_all(real_search, edge_case_queries, search_index_path)
-
-    # Overall results
     overall_queries = getfield(Main, Symbol(overall_queries_name))
     all_results = evaluate_all(real_search, overall_queries, search_index_path)
 
-    println("\n== Overall Results ==")
+    println("\n== Overall Results for $query_file_path ==")
 
-    # Function to get color based on percentage value
     function get_color_for_percentage(value)
         if value >= 80.0
             return crayon"green"
@@ -91,12 +84,10 @@ function run_benchmarks(search_index_path::String, overall_queries_name::String)
         end
     end
 
-    # Create colored summary data
     precision_val = round(all_results.average_precision * 100, digits = 1)
     recall_val = round(all_results.average_recall * 100, digits = 1)
     f1_val = round(all_results.average_f1_score * 100, digits = 1)
 
-    # Calculate differences from reference values
     precision_ref = get(reference_values, "average_precision", 0.0)
     recall_ref = get(reference_values, "average_recall", 0.0)
     f1_ref = get(reference_values, "average_f1_score", 0.0)
@@ -105,7 +96,6 @@ function run_benchmarks(search_index_path::String, overall_queries_name::String)
     recall_diff = recall_val - recall_ref
     f1_diff = f1_val - f1_ref
 
-    # Function to get color for differences
     function get_color_for_diff(diff)
         if diff > 0
             return crayon"green"
@@ -125,7 +115,6 @@ function run_benchmarks(search_index_path::String, overall_queries_name::String)
         "Total Relevant Documents" all_results.total_relevant_documents "" ""
     ]
 
-    # Create highlighters for each percentage metric
     precision_highlighter = Highlighter((data, i, j) -> i == 1 && j == 2, get_color_for_percentage(precision_val))
     recall_highlighter = Highlighter((data, i, j) -> i == 2 && j == 2, get_color_for_percentage(recall_val))
     f1_highlighter = Highlighter((data, i, j) -> i == 3 && j == 2, get_color_for_percentage(f1_val))
@@ -147,18 +136,12 @@ function run_benchmarks(search_index_path::String, overall_queries_name::String)
         )
     )
 
-    # Write detailed results to file
     timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
-    results_file = joinpath(@__DIR__, "search_benchmark_results_$(timestamp).txt")
+    query_file_name = basename(query_file_path)
+    results_file = joinpath(@__DIR__, "search_benchmark_results_$(query_file_name)_$(timestamp).txt")
 
     open(results_file, "w") do io
-        println(io, "Search Benchmark Results - $(timestamp)")
-        write_detailed_results(navigational_results, "Navigational Queries", io)
-        write_detailed_results(informational_results, "Feature Queries", io)
-        write_detailed_results(api_lookup_results, "API Lookup Case Queries", io)
-        write_detailed_results(edge_case_results, "Edge Case Queries", io)
-        write_detailed_results(special_symbol_results, "Special Symbol Case Queries", io)
-        write_detailed_results(dedicated_edge_case_results, "Dedicated Edge Case Queries", io)
+        println(io, "Search Benchmark Results for $query_file_path - $(timestamp)")
         write_detailed_results(all_results, "Overall Results", io)
     end
 
@@ -167,12 +150,18 @@ function run_benchmarks(search_index_path::String, overall_queries_name::String)
     return all_results
 end
 
-if abspath(PROGRAM_FILE) == @__FILE__
-    if length(ARGS) != 2
-        println("Usage: julia run_benchmarks.jl <path_to_search_index.js> <overall_queries_name>")
+function main()
+    if length(ARGS) != 3
+        println("Usage: julia run_benchmarks.jl <path_to_search_index.js> <path_to_query_file.jl> <overall_queries_name>")
         exit(1)
     end
     search_index_path = ARGS[1]
-    overall_queries_name = ARGS[2]
-    run_benchmarks(search_index_path, overall_queries_name)
+    query_file_path = ARGS[2]
+    overall_queries_name = ARGS[3]
+
+    run_benchmarks(search_index_path, query_file_path, overall_queries_name)
+end
+
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
 end

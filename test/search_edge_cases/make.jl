@@ -17,7 +17,6 @@ makedocs(
         "Auto-generated Docs" => "autodocs.md",
         "Cross-references" => "cross_references.md",
         "Doctests" => "doctests.md",
-        "LaTeX" => "latex.md",
         "Tables" => "tables.md",
     ],
     build = "build",
