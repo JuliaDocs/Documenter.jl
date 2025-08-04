@@ -159,7 +159,7 @@ function main()
     query_file_path = ARGS[2]
     overall_queries_name = ARGS[3]
 
-    run_benchmarks(search_index_path, query_file_path, overall_queries_name)
+    return run_benchmarks(search_index_path, query_file_path, overall_queries_name)
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__

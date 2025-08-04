@@ -1,4 +1,3 @@
-
 struct TestQuery
     query::String
     expected_docs::Vector{String}
@@ -28,11 +27,11 @@ common_words_queries = [
 ]
 
 autodocs_queries = [
-    TestQuery("Documenter", ["Structural Cases"] ),
+    TestQuery("Documenter", ["Structural Cases"]),
     TestQuery("makedocs", String[]),
-    TestQuery("func1", ["Main.DummyModule.func1", "Main.DummyModule.func2"] ),
-    TestQuery("func2", ["Main.DummyModule.func2", "Main.DummyModule.func1"] ),
-    TestQuery("MyType", ["Main.DummyModule.MyType"] ),
+    TestQuery("func1", ["Main.DummyModule.func1", "Main.DummyModule.func2"]),
+    TestQuery("func2", ["Main.DummyModule.func2", "Main.DummyModule.func1"]),
+    TestQuery("MyType", ["Main.DummyModule.MyType"]),
     TestQuery("docstring for func1", ["Main.DummyModule.func1", "Main.DummyModule.func2"]),
     TestQuery("docstring for func2", ["Main.DummyModule.func2", "Main.DummyModule.func1"]),
 ]

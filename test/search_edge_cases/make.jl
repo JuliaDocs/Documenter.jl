@@ -1,4 +1,3 @@
-
 using Documenter
 include("dummy_module.jl")
 
