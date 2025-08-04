@@ -5,54 +5,54 @@ struct TestQuery
 end
 
 atypical_content_queries = [
-    TestQuery("α β γ", ["atypical_content.md"]),
-    TestQuery("🚀", ["atypical_content.md"]),
-    TestQuery("averylongunbrokenstringofcharacterstotestthesearchindex", ["atypical_content.md"]),
-    TestQuery("мир", ["atypical_content.md"]),
+    TestQuery("α β γ", String[]),
+    TestQuery("🚀", String[]),
+    TestQuery("averylongunbrokenstringofcharacterstotestthesearchindex", ["Atypical Content"]),
+    TestQuery("мир", String[]),
 ]
 
 structural_cases_queries = [
-    TestQuery("An Empty Section", ["structural_cases.md"]),
-    TestQuery("A Section With Only A Code Block", ["structural_cases.md"]),
-    TestQuery("function foo()", ["structural_cases.md"]),
+    TestQuery("An Empty Section", ["An Empty Section"]),
+    TestQuery("A Section With Only A Code Block", ["A Section With Only A Code Block"]),
+    TestQuery("function foo()", ["Strucutural Cases"]),
 ]
 
 markdown_syntax_queries = [
-    TestQuery("Deeply nested lists", ["markdown_syntax.md"]),
-    TestQuery("complex to parse correctly", ["markdown_syntax.md"]),
-    TestQuery("blockquote with nested blockquotes", ["markdown_syntax.md"]),
+    TestQuery("Deeply nested lists", ["Markdown Syntax"]),
+    TestQuery("complex to parse correctly", ["Markdown Syntax"]),
+    TestQuery("blockquote with nested blockquotes", String[]),
 ]
 
 common_words_queries = [
-    TestQuery("function struct end", ["common_words.md"]),
+    TestQuery("function struct end", ["Structural Cases", "Common Words"]),
 ]
 
 autodocs_queries = [
-    TestQuery("Documenter", ["autodocs.md"]),
-    TestQuery("makedocs", ["autodocs.md"]),
-    TestQuery("func1", ["autodocs.md"]),
-    TestQuery("func2", ["autodocs.md"]),
-    TestQuery("MyType", ["autodocs.md"]),
-    TestQuery("docstring for func1", ["autodocs.md"]),
-    TestQuery("docstring for func2", ["autodocs.md"]),
+    TestQuery("Documenter", ["Structural Cases"] ),
+    TestQuery("makedocs", String[]),
+    TestQuery("func1", ["Main.DummyModule.func1", "Main.DummyModule.func2"] ),
+    TestQuery("func2", ["Main.DummyModule.func2", "Main.DummyModule.func1"] ),
+    TestQuery("MyType", ["Main.DummyModule.MyType"] ),
+    TestQuery("docstring for func1", ["Main.DummyModule.func1", "Main.DummyModule.func2"]),
+    TestQuery("docstring for func2", ["Main.DummyModule.func2", "Main.DummyModule.func1"]),
 ]
 
 cross_references_queries = [
-    TestQuery("link to the welcome page", ["cross_references.md"]),
-    TestQuery("cross-referencing syntax", ["cross_references.md"]),
+    TestQuery("link to the welcome page", ["Cross_references"]),
+    TestQuery("cross-referencing syntax", ["Cross_references"]),
 ]
 
 doctests_queries = [
-    TestQuery("jldoctest", ["doctests.md"]),
-    TestQuery("1 + 1", ["doctests.md"]),
+    TestQuery("jldoctest", String[]),
+    TestQuery("1 + 1", ["An Empty Section", "A Section With Only A Title", "Cross-references", "A Section With Only A Code Block", "Cross-References"]),
 ]
 
 
 tables_queries = [
-    TestQuery("table rendering", ["tables.md"]),
-    TestQuery("| A | B | C |", ["tables.md"]),
-    TestQuery("|---|---|---|", ["tables.md"]),
-    TestQuery("| 1 | 2 | 3 |", ["tables.md"]),
+    TestQuery("table rendering", ["Tables"]),
+    TestQuery("| A | B | C |", ["A Section With Only A Code Block", "A Section With Only A Title", "An Empty Section", "Cross-references", "Auto-generated Docs"]),
+    TestQuery("|---|---|---|", String[]),
+    TestQuery("| 1 | 2 | 3 |", ["An Empty Section", "A Section With Only A Title", "Cross-references", "A Section With Only A Code Block", "Cross-References"]),
 ]
 
 all_edge_case_queries = vcat(atypical_content_queries, structural_cases_queries, markdown_syntax_queries, common_words_queries, autodocs_queries, cross_references_queries, doctests_queries, tables_queries)
