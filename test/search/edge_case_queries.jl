@@ -8,6 +8,8 @@ atypical_content_queries = [
     TestQuery("🚀", String[]),
     TestQuery("averylongunbrokenstringofcharacterstotestthesearchindex", ["Atypical Content"]),
     TestQuery("мир", String[]),
+    TestQuery("empty", ["An Empty Section"]),
+    TestQuery("function", ["Structural Cases", "Doctests"]),
 ]
 
 structural_cases_queries = [
@@ -49,9 +51,20 @@ doctests_queries = [
 
 tables_queries = [
     TestQuery("table rendering", ["Tables"]),
-    TestQuery("| A | B | C |", ["A Section With Only A Code Block", "A Section With Only A Title", "An Empty Section", "Cross-references", "Auto-generated Docs"]),
+    TestQuery("cell content A", ["Tables"]),
+    TestQuery("cell content B", ["Tables"]),
+    TestQuery("cell content C", ["Tables"]),
+    TestQuery("1", ["Tables", "Doctests"]),
+    TestQuery("2", ["Tables", "Doctests"]),
+    TestQuery("3", ["Tables", "Doctests"]),
+    TestQuery("4", ["Tables"]),
+    TestQuery("5", ["Tables", "Doctests"]),
+    TestQuery("6", ["Tables"]),
+    # Test that markdown table syntax doesn't return search results
     TestQuery("|---|---|---|", String[]),
-    TestQuery("| 1 | 2 | 3 |", ["An Empty Section", "A Section With Only A Title", "Cross-references", "A Section With Only A Code Block", "Cross-References"]),
+    TestQuery("| A | B | C |", String[]),
+    TestQuery("|", String[]),
+    TestQuery("---", String[]),
 ]
 
 all_edge_case_queries = vcat(atypical_content_queries, structural_cases_queries, markdown_syntax_queries, common_words_queries, autodocs_queries, cross_references_queries, doctests_queries, tables_queries)
