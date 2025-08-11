@@ -4,6 +4,7 @@ include("dummy_module.jl")
 makedocs(
     root = @__DIR__,
     sitename = "Search Edge Case Tests",
+    modules = [DummyModule],
     format = Documenter.HTML(
         prettyurls = false,
     ),
@@ -19,6 +20,4 @@ makedocs(
         "Tables" => "tables.md",
     ],
     build = "build",
-    strict = false,
-    warnonly = [:cross_references],
 )
