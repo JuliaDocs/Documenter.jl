@@ -13,7 +13,7 @@ See the documentation for [`func1`](@ref Main.DummyModule.func1) for more detail
 
 You can also reference [`func2`](@ref Main.DummyModule.func2) and the custom type [`MyType`](@ref Main.DummyModule.MyType).
 
-Here are some inline references: [`func1`](@ref), [`func2`](@ref), and [`MyType`](@ref).
+Here are some inline references: [`func1`](@ref Main.DummyModule.func1), [`func2`](@ref Main.DummyModule.func2), and [`MyType`](@ref Main.DummyModule.MyType).
 
 ## Mixed References
 

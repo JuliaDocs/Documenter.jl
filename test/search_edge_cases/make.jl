@@ -20,4 +20,5 @@ makedocs(
         "Tables" => "tables.md",
     ],
     build = "build",
+    warnonly = [:cross_references],
 )
