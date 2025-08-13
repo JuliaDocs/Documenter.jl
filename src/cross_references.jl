@@ -228,9 +228,15 @@ function xref_unresolved(node)
         occursin(XREF_REGEX, node.element.destination)
 end
 
-
 function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
-    return (xref_unresolved(node) && anchor_exists(doc.internal.headers, slug))
+    xref_unresolved(node) || return false
+    dest = xrefname(node.element.destination)
+
+    if isempty(dest)
+        return first(linkcontent(node)) ∈ (:text, :complex)
+    else
+        return !startswith(dest, "#") && occursin(HEADER_REGEX, dest)
+    end
 end
 
 function Selectors.runner(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
@@ -248,7 +254,15 @@ end
 
 
 function Selectors.matcher(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
-    return xref_unresolved(node)
+    xref_unresolved(node) || return false
+
+    dest = xrefname(node.element.destination)
+
+    if isempty(dest)
+        return first(linkcontent(node)) == :code
+    else
+        return !startswith(dest, "#")
+    end
 end
 
 function Selectors.runner(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
@@ -285,15 +299,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
     slug = xrefname(link.destination)
     @assert !isnothing(slug)
     if isempty(slug)
-        # obtain a slug from the link text
-        if length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Code)
-            slug = first(node.children).element.code
-        else
-            # TODO: remove this hack (replace with mdflatten?)
-            md = _link_node_as_md(node)
-            text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
-            slug = Documenter.slugify(text)
-        end
+        slug = Documenter.slugify(last(linkcontent(node)))
     else
         # explicit slugs that are enclosed in quotes must be further sluggified
         stringmatch = match(r"\"(.+)\"", slug)
@@ -341,6 +347,22 @@ function xrefname(link_url::AbstractString)
     return isnothing(m[1]) ? "" : strip(m[1])
 end
 
+function linkcontent(node::MarkdownAST.Node)
+    isa(node.element, MarkdownAST.Link) || return nothing
+
+    if length(node.children) == 1
+        child = first(node.children).element
+        if isa(child, MarkdownAST.Code)
+            return (:code, child.code)
+        elseif isa(child, MarkdownAST.Text)
+            return (:text, child.text)
+        end
+    end
+
+    text = MDFlatten.mdflatten(node)
+    return (:complex, text)
+end
+
 """Regular expression for an `@ref` link url.
 
 This is used by the [`XRefResolvers.XRefResolverPipeline`](@ref), respectively
@@ -350,6 +372,10 @@ pipeline.
 """
 const XREF_REGEX = r"^\s*@ref(\s.*)?$"
 
+"""Regular expression for a slug
+"""
+const HEADER_REGEX = r"^\".+\"$"
+
 
 # Cross referencing headers.
 # --------------------------
@@ -357,21 +383,23 @@ const XREF_REGEX = r"^\s*@ref(\s.*)?$"
 function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     headers = doc.internal.headers
-    @assert anchor_exists(headers, slug)
-    # Add the link to list of local uncheck links.
-    doc.internal.locallinks[node.element] = node.element.destination
-    # Error checking: `slug` should exist and be unique.
-    # TODO: handle non-unique slugs.
-    if anchor_isunique(headers, slug)
-        # Replace the `@ref` url with a path to the referenced header.
-        anchor = Documenter.anchor(headers, slug)
-        pagekey = relpath(anchor.file, doc.user.build)
-        page = doc.blueprint.pages[pagekey]
-        node.element = Documenter.PageLink(page, anchor_label(anchor))
+    if anchor_exists(headers, slug)
+        # Add the link to list of local uncheck links.
+        doc.internal.locallinks[node.element] = node.element.destination
+        # Error checking: `slug` should exist and be unique.
+        # TODO: handle non-unique slugs.
+        if anchor_isunique(headers, slug)
+            # Replace the `@ref` url with a path to the referenced header.
+            anchor = Documenter.anchor(headers, slug)
+            pagekey = relpath(anchor.file, doc.user.build)
+            page = doc.blueprint.pages[pagekey]
+            node.element = Documenter.PageLink(page, anchor_label(anchor))
+        else
+            push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).")
+        end
     else
-        push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).")
+        push!(errors, "Header with slug '$slug' in $(Documenter.locrepr(page.source)) does not exist.")
     end
-    return
 end
 
 # Cross referencing docstrings.
