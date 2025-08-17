@@ -107,7 +107,7 @@ const GITHUB_HOST = "github.com"
 
 """
     GitHub(user :: AbstractString, repo :: AbstractString, [host :: AbstractString])
-    GitHub(remote :: AbstractString, [host :: AbstractString])
+    GitHub(remote :: AbstractString)
 
 Represents a remote Git repository hosted on GitHub. The repository is identified by the
 names of the user (or organization) and the repository: `GitHub(user, repository)`. E.g.:
@@ -130,9 +130,9 @@ struct GitHub <: Remote
 
     GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = GITHUB_HOST) = new(user, repo, host)
 end
-function GitHub(remote::AbstractString; host::AbstractString = GITHUB_HOST)
+function GitHub(remote::AbstractString)
     user, repo = split(remote, '/')
-    return GitHub(user, repo, host)
+    return GitHub(user, repo, GITHUB_HOST)
 end
 repourl(remote::GitHub) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)

@@ -314,9 +314,11 @@ when using the `GitHubActions` configuration:
  - `GITHUB_TOKEN` or `DOCUMENTER_KEY`: used for authentication with GitHub,
    see the manual section for [GitHub Actions](@ref) for more information.
 
- - `GITHUB_API_URL`: defines URL to GitHub API.
+ - `GITHUB_API_URL`: specifies the GitHub API URL, which generally is `https://api.github.com`,
+   but may be different for self-hosted GitHub instances.
 
- - `GITHUB_ACTOR`: Name of the person/app that initiated the workflow.
+ - `GITHUB_ACTOR`: name of the person or app that initiated the workflow; this is used to construct
+   API calls.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
 [documentation](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables).
