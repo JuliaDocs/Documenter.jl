@@ -1,4 +1,3 @@
-
 # Cross-References
 
 This page tests cross-referencing syntax.

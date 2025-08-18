@@ -1,4 +1,3 @@
-
 # Automatic Documentation
 
 This page tests the automatic generation of documentation from docstrings.

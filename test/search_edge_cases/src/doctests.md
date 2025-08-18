@@ -1,4 +1,3 @@
-
 # Doctests
 
 This page tests doctests.

@@ -1,4 +1,3 @@
-
 # Tables
 
 This page tests table rendering.
