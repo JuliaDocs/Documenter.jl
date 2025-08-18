@@ -24,8 +24,14 @@ end
 include(joinpath(@__DIR__, "evaluate.jl"))
 include(joinpath(@__DIR__, "real_search.jl"))
 
-function load_reference_values()
-    reference_file = joinpath(@__DIR__, "search_benchmark_reference.json")
+function load_reference_values(query_file_path::String)
+    # Determine reference file based on query file
+    if endswith(query_file_path, "edge_case_queries.jl")
+        reference_file = joinpath(@__DIR__, "edge_case_benchmark_reference.json")
+    else
+        reference_file = joinpath(@__DIR__, "search_benchmark_reference.json")
+    end
+
     if isfile(reference_file)
         return JSON.parsefile(reference_file)
     else
@@ -65,7 +71,7 @@ end
 function run_benchmarks(search_index_path::String, query_file_path::String, overall_queries_name::String)
     println("Running search benchmarks for $query_file_path...")
 
-    reference_values = load_reference_values()
+    reference_values = load_reference_values(query_file_path)
 
     overall_queries = getfield(Main, Symbol(overall_queries_name))
     all_results = evaluate_all(real_search, overall_queries, search_index_path)
