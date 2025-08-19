@@ -84,7 +84,6 @@ $(document).ready(function () {
     closeModal();
   });
 
-
   document.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "/") {
       openModal();
@@ -99,16 +98,20 @@ $(document).ready(function () {
         event.preventDefault();
         if (searchResults.length > 0) {
           const currentFocused = document.activeElement;
-          const currentIndex = Array.from(searchResults).indexOf(currentFocused);
-          const nextIndex = currentIndex < searchResults.length - 1 ? currentIndex + 1 : 0;
+          const currentIndex =
+            Array.from(searchResults).indexOf(currentFocused);
+          const nextIndex =
+            currentIndex < searchResults.length - 1 ? currentIndex + 1 : 0;
           searchResults[nextIndex].focus();
         }
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         if (searchResults.length > 0) {
           const currentFocused = document.activeElement;
-          const currentIndex = Array.from(searchResults).indexOf(currentFocused);
-          const prevIndex = currentIndex > 0 ? currentIndex - 1 : searchResults.length - 1;
+          const currentIndex =
+            Array.from(searchResults).indexOf(currentFocused);
+          const prevIndex =
+            currentIndex > 0 ? currentIndex - 1 : searchResults.length - 1;
           searchResults[prevIndex].focus();
         }
       }
