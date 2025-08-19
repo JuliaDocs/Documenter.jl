@@ -548,6 +548,9 @@ function runSearchMainCode() {
       }
 
       $(".search-modal-card-body").html(search_result_container);
+      
+      // Trigger event to reset keyboard navigation selection
+      document.dispatchEvent(new CustomEvent("search-results-updated"));
     } else {
       if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
         $(".search-modal-card-body").addClass("is-justify-content-center");
@@ -556,6 +559,9 @@ function runSearchMainCode() {
       $(".search-modal-card-body").html(`
         <div class="has-text-centered my-5 py-5">Type something to get started!</div>
       `);
+      
+      // Trigger event to reset keyboard navigation selection
+      document.dispatchEvent(new CustomEvent("search-results-updated"));
     }
   }
 

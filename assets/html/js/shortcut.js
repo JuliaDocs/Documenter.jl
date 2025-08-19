@@ -24,12 +24,21 @@ $(document).ready(function () {
   `;
 
   let search_modal_footer = `
-    <footer class="modal-card-foot">
-      <span>
-        <kbd class="search-modal-key-hints">Ctrl</kbd> +
-        <kbd class="search-modal-key-hints">/</kbd> to search
-      </span>
-      <span class="ml-3"> <kbd class="search-modal-key-hints">esc</kbd> to close </span>
+    <footer class="modal-card-foot is-flex is-justify-content-space-between is-align-items-center">
+      <div class="is-flex gap-3 is-flex-wrap-wrap">
+        <span>
+          <kbd class="search-modal-key-hints">Ctrl</kbd> +
+          <kbd class="search-modal-key-hints">/</kbd> to search
+        </span>
+        <span> <kbd class="search-modal-key-hints">esc</kbd> to close </span>
+      </div>
+      <div class="is-flex gap-3 is-flex-wrap-wrap">
+        <span>
+          <kbd class="search-modal-key-hints">↑</kbd>
+          <kbd class="search-modal-key-hints">↓</kbd> to navigate
+        </span>
+        <span> <kbd class="search-modal-key-hints">Enter</kbd> to select </span>
+      </div>
     </footer>
   `;
 
@@ -75,14 +84,59 @@ $(document).ready(function () {
     closeModal();
   });
 
+  document.addEventListener("search-results-updated", function () {
+    resetSelectedResult();
+  });
+
+  let selectedResultIndex = -1;
+
+  function updateSelectedResult(searchResults) {
+    // Remove previous highlighting
+    searchResults.forEach(result => result.classList.remove('search-result-selected'));
+    
+    // Add highlighting to current selection
+    if (selectedResultIndex >= 0 && selectedResultIndex < searchResults.length) {
+      const selectedResult = searchResults[selectedResultIndex];
+      selectedResult.classList.add('search-result-selected');
+      selectedResult.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+
+  function resetSelectedResult() {
+    selectedResultIndex = -1;
+    document.querySelectorAll(".search-result-link").forEach(result => {
+      result.classList.remove('search-result-selected');
+    });
+  }
+
   document.addEventListener("keydown", (event) => {
+    
     if ((event.ctrlKey || event.metaKey) && event.key === "/") {
       openModal();
     } else if (event.key === "Escape") {
       closeModal();
+    } else if (document.querySelector("#search-modal")?.classList.contains("is-active")) {
+      // Handle navigation within search modal
+      const searchResults = document.querySelectorAll(".search-result-link");
+      
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (searchResults.length > 0) {
+          selectedResultIndex = (selectedResultIndex + 1) % searchResults.length;
+          updateSelectedResult(searchResults);
+        }
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (searchResults.length > 0) {
+          selectedResultIndex = selectedResultIndex <= 0 ? searchResults.length - 1 : selectedResultIndex - 1;
+          updateSelectedResult(searchResults);
+        }
+      } else if (event.key === "Enter" && selectedResultIndex >= 0 && searchResults.length > 0) {
+        event.preventDefault();
+        searchResults[selectedResultIndex].click();
+      }
     }
 
-    return false;
   });
 
   //event listener for the link icon to copy the URL
@@ -110,6 +164,7 @@ $(document).ready(function () {
 
     searchModal.classList.add("is-active");
     document.querySelector(".documenter-search-input").focus();
+    resetSelectedResult();
   }
 
   function closeModal() {
