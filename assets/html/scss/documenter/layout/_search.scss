@@ -33,10 +33,7 @@ kbd.search-modal-key-hints {
 
 .search-result-link:hover, .search-result-link:focus {
   background-color: $search-result-link-hover;
-}
-
-.search-result-link.search-result-selected {
-  background-color: $search-result-link-hover;
+  outline : none;
 }
 
 .search-result-link .property-search-result-badge {
@@ -54,8 +51,7 @@ kbd.search-modal-key-hints {
   border-radius: 0.6rem;
 }
 
-.search-result-link:hover .property-search-result-badge, .search-result-link:focus .property-search-result-badge,
-.search-result-link.search-result-selected .property-search-result-badge {
+.search-result-link:hover .property-search-result-badge, .search-result-link:focus .property-search-result-badge {
   color: $search-result-link-text-color;
   background-color: $search-result-link-text-background-color;
 }

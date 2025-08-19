@@ -84,35 +84,6 @@ $(document).ready(function () {
     closeModal();
   });
 
-  document.addEventListener("search-results-updated", function () {
-    resetSelectedResult();
-  });
-
-  let selectedResultIndex = -1;
-
-  function updateSelectedResult(searchResults) {
-    // Remove previous highlighting
-    searchResults.forEach((result) =>
-      result.classList.remove("search-result-selected"),
-    );
-
-    // Add highlighting to current selection
-    if (
-      selectedResultIndex >= 0 &&
-      selectedResultIndex < searchResults.length
-    ) {
-      const selectedResult = searchResults[selectedResultIndex];
-      selectedResult.classList.add("search-result-selected");
-      selectedResult.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    }
-  }
-
-  function resetSelectedResult() {
-    selectedResultIndex = -1;
-    document.querySelectorAll(".search-result-link").forEach((result) => {
-      result.classList.remove("search-result-selected");
-    });
-  }
 
   document.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "/") {
@@ -122,32 +93,24 @@ $(document).ready(function () {
     } else if (
       document.querySelector("#search-modal")?.classList.contains("is-active")
     ) {
-      // Handle navigation within search modal
       const searchResults = document.querySelectorAll(".search-result-link");
 
       if (event.key === "ArrowDown") {
         event.preventDefault();
         if (searchResults.length > 0) {
-          selectedResultIndex =
-            (selectedResultIndex + 1) % searchResults.length;
-          updateSelectedResult(searchResults);
+          const currentFocused = document.activeElement;
+          const currentIndex = Array.from(searchResults).indexOf(currentFocused);
+          const nextIndex = currentIndex < searchResults.length - 1 ? currentIndex + 1 : 0;
+          searchResults[nextIndex].focus();
         }
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         if (searchResults.length > 0) {
-          selectedResultIndex =
-            selectedResultIndex <= 0
-              ? searchResults.length - 1
-              : selectedResultIndex - 1;
-          updateSelectedResult(searchResults);
+          const currentFocused = document.activeElement;
+          const currentIndex = Array.from(searchResults).indexOf(currentFocused);
+          const prevIndex = currentIndex > 0 ? currentIndex - 1 : searchResults.length - 1;
+          searchResults[prevIndex].focus();
         }
-      } else if (
-        event.key === "Enter" &&
-        selectedResultIndex >= 0 &&
-        searchResults.length > 0
-      ) {
-        event.preventDefault();
-        searchResults[selectedResultIndex].click();
       }
     }
   });
@@ -177,7 +140,6 @@ $(document).ready(function () {
 
     searchModal.classList.add("is-active");
     document.querySelector(".documenter-search-input").focus();
-    resetSelectedResult();
   }
 
   function closeModal() {
