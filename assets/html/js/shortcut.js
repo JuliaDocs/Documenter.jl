@@ -92,51 +92,64 @@ $(document).ready(function () {
 
   function updateSelectedResult(searchResults) {
     // Remove previous highlighting
-    searchResults.forEach(result => result.classList.remove('search-result-selected'));
-    
+    searchResults.forEach((result) =>
+      result.classList.remove("search-result-selected"),
+    );
+
     // Add highlighting to current selection
-    if (selectedResultIndex >= 0 && selectedResultIndex < searchResults.length) {
+    if (
+      selectedResultIndex >= 0 &&
+      selectedResultIndex < searchResults.length
+    ) {
       const selectedResult = searchResults[selectedResultIndex];
-      selectedResult.classList.add('search-result-selected');
-      selectedResult.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      selectedResult.classList.add("search-result-selected");
+      selectedResult.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
   }
 
   function resetSelectedResult() {
     selectedResultIndex = -1;
-    document.querySelectorAll(".search-result-link").forEach(result => {
-      result.classList.remove('search-result-selected');
+    document.querySelectorAll(".search-result-link").forEach((result) => {
+      result.classList.remove("search-result-selected");
     });
   }
 
   document.addEventListener("keydown", (event) => {
-    
     if ((event.ctrlKey || event.metaKey) && event.key === "/") {
       openModal();
     } else if (event.key === "Escape") {
       closeModal();
-    } else if (document.querySelector("#search-modal")?.classList.contains("is-active")) {
+    } else if (
+      document.querySelector("#search-modal")?.classList.contains("is-active")
+    ) {
       // Handle navigation within search modal
       const searchResults = document.querySelectorAll(".search-result-link");
-      
+
       if (event.key === "ArrowDown") {
         event.preventDefault();
         if (searchResults.length > 0) {
-          selectedResultIndex = (selectedResultIndex + 1) % searchResults.length;
+          selectedResultIndex =
+            (selectedResultIndex + 1) % searchResults.length;
           updateSelectedResult(searchResults);
         }
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         if (searchResults.length > 0) {
-          selectedResultIndex = selectedResultIndex <= 0 ? searchResults.length - 1 : selectedResultIndex - 1;
+          selectedResultIndex =
+            selectedResultIndex <= 0
+              ? searchResults.length - 1
+              : selectedResultIndex - 1;
           updateSelectedResult(searchResults);
         }
-      } else if (event.key === "Enter" && selectedResultIndex >= 0 && searchResults.length > 0) {
+      } else if (
+        event.key === "Enter" &&
+        selectedResultIndex >= 0 &&
+        searchResults.length > 0
+      ) {
         event.preventDefault();
         searchResults[selectedResultIndex].click();
       }
     }
-
   });
 
   //event listener for the link icon to copy the URL

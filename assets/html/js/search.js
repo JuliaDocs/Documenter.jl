@@ -548,7 +548,7 @@ function runSearchMainCode() {
       }
 
       $(".search-modal-card-body").html(search_result_container);
-      
+
       // Trigger event to reset keyboard navigation selection
       document.dispatchEvent(new CustomEvent("search-results-updated"));
     } else {
@@ -559,7 +559,7 @@ function runSearchMainCode() {
       $(".search-modal-card-body").html(`
         <div class="has-text-centered my-5 py-5">Type something to get started!</div>
       `);
-      
+
       // Trigger event to reset keyboard navigation selection
       document.dispatchEvent(new CustomEvent("search-results-updated"));
     }
