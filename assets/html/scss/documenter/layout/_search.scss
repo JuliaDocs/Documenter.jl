@@ -34,6 +34,8 @@ kbd.search-modal-key-hints {
 .search-result-link:hover, .search-result-link:focus {
   background-color: $search-result-link-hover;
   outline : none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .search-result-link .property-search-result-badge {
