@@ -67,8 +67,8 @@ end
 
 # Evaluates a single search query using the provided search function
 # Returns a QueryResult containing precision, recall, and F1 metrics
-function evaluate_query(search_function, query::TestQuery)
-    results = search_function(query.query)
+function evaluate_query(search_function, query::TestQuery, search_index_path::String)
+    results = search_function(query.query, search_index_path)
 
     precision, relevant_count, total_retrieved = calculate_precision(results, query.expected_docs)
     recall, found_count, total_relevant = calculate_recall(results, query.expected_docs)
@@ -89,8 +89,8 @@ end
 
 # Evaluates multiple search queries and aggregates the results
 # Returns an EvaluationResults containing average metrics across all queries
-function evaluate_all(search_function, queries)
-    results = [evaluate_query(search_function, q) for q in queries]
+function evaluate_all(search_function, queries, search_index_path::String)
+    results = [evaluate_query(search_function, q, search_index_path) for q in queries]
 
     avg_precision = mean([r.precision for r in results])
     avg_recall = mean([r.recall for r in results])

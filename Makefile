@@ -33,7 +33,7 @@ test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
 
 search-benchmarks: test/search/Manifest.toml
-	${JULIA} --project=test/search test/search/run_benchmarks.jl
+	${JULIA} --project=test/search test/search/run_all_benchmarks.jl
 
 test/search/Manifest.toml: test/search/Project.toml
 	${JULIA} --project=test/search -e'using Pkg; Pkg.instantiate()'
