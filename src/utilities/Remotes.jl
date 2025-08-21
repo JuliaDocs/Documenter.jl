@@ -102,8 +102,11 @@ function repofile(remote::Remote, ref, filename, linerange = nothing)
     return fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
 end
 
+
+const GITHUB_HOST = "github.com"
+
 """
-    GitHub(user :: AbstractString, repo :: AbstractString)
+    GitHub(user :: AbstractString, repo :: AbstractString, [host :: AbstractString])
     GitHub(remote :: AbstractString)
 
 Represents a remote Git repository hosted on GitHub. The repository is identified by the
@@ -117,16 +120,21 @@ makedocs(
 
 The single-argument constructor assumes that the user and repository parts are separated by
 a slash (e.g. `JuliaDocs/Documenter.jl`).
+
+A `host` can be provided to point to the location of the self-hosted GitHub installation.
 """
 struct GitHub <: Remote
     user::String
     repo::String
+    host::String
+
+    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = GITHUB_HOST) = new(user, repo, host)
 end
 function GitHub(remote::AbstractString)
     user, repo = split(remote, '/')
-    return GitHub(user, repo)
+    return GitHub(user, repo, GITHUB_HOST)
 end
-repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
+repourl(remote::GitHub) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)
     url = "$(repourl(remote))/blob/$(ref)/$(filename)"
     isnothing(linerange) && return url
