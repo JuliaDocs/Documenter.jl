@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added 
+
+* Navigate search modal using up and down keys ([#2761])
+
 ### Changed
 
 * Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
@@ -2139,6 +2143,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2748]: https://github.com/JuliaDocs/Documenter.jl/issues/2748
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
+[#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
