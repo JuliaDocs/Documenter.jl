@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Page category is removed from the search index and now everything is in section category. ([#2762])
 * Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
 
 ## Version [v1.14.1] - 2025-07-09
@@ -2139,6 +2140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2748]: https://github.com/JuliaDocs/Documenter.jl/issues/2748
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
+[#2762]: https://github.com/JuliaDocs/Documenter.jl/issues/2762
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
