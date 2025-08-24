@@ -757,7 +757,7 @@ function segment_page_by_sections(page_mdast::Node)
     segments = ContentSegment[]
     current_segment_content = Node[]
     current_section_header = nothing
-    
+
     for node in page_mdast.children
         if node.element isa Documenter.AnchoredHeader
             # Save previous segment if it has content or a header
@@ -774,12 +774,12 @@ function segment_page_by_sections(page_mdast::Node)
             end
         end
     end
-    
+
     # Add final segment
     if !isempty(current_segment_content) || current_section_header !== nothing
         push!(segments, ContentSegment(current_section_header, current_segment_content))
     end
-    
+
     return segments
 end
 
@@ -788,9 +788,9 @@ function create_segment_search_record(ctx::HTMLContext, navnode::Documenter.NavN
     if segment.section_header === nothing
         # Default section - use page title and aggregate content
         page_title = mdflatten_pagetitle(DCtx(ctx, navnode))
-        content_text = isempty(segment.content_nodes) ? "" : 
+        content_text = isempty(segment.content_nodes) ? "" :
             join([mdflatten(node) for node in segment.content_nodes], "\n\n")
-        
+
         return SearchRecord(
             pretty_url(ctx, get_url(ctx, navnode.page)),
             getpage(ctx, navnode),
@@ -804,9 +804,9 @@ function create_segment_search_record(ctx::HTMLContext, navnode::Documenter.NavN
         # Named section
         a = segment.section_header.element.anchor
         section_title = mdflatten(segment.section_header)
-        content_text = isempty(segment.content_nodes) ? "" : 
+        content_text = isempty(segment.content_nodes) ? "" :
             join([mdflatten(node) for node in segment.content_nodes], "\n\n")
-        
+
         return SearchRecord(
             pretty_url(ctx, get_url(ctx, navnode.page)),
             getpage(ctx, navnode),
@@ -1823,14 +1823,14 @@ end
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     page_mdast = getpage(ctx, navnode).mdast
-    
+
     # Generate search index using new segmentation approach
     segments = segment_page_by_sections(page_mdast)
     for segment in segments
         search_record = create_segment_search_record(ctx, navnode, segment)
         push!(ctx.search_index, search_record)
     end
-    
+
     # Generate HTML as before - process each child node individually
     return map(page_mdast.children) do node
         domify(dctx, node, node.element)
