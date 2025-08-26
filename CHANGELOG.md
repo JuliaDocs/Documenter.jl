@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added 
 
-* Navigate search modal using up and down keys ([#2761])
+* In the HTML output, the search modal can now be navigated using using up and down keys. ([#2761])
 
 ### Changed
 
