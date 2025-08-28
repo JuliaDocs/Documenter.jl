@@ -1,7 +1,6 @@
 using Statistics
 using Dates
 using PrettyTables
-using PrettyTables: Highlighter
 using Crayons
 using JSON
 
@@ -122,10 +121,10 @@ function run_benchmarks(search_index_path::String, query_file_path::String, over
         "Total Relevant Documents" all_results.total_relevant_documents "" ""
     ]
 
-    precision_highlighter = Highlighter((data, i, j) -> i == 1 && j == 2, get_color_for_percentage(precision_val))
-    recall_highlighter = Highlighter((data, i, j) -> i == 2 && j == 2, get_color_for_percentage(recall_val))
-    f1_highlighter = Highlighter((data, i, j) -> i == 3 && j == 2, get_color_for_percentage(f1_val))
-    diff_highlighter = Highlighter(
+    precision_highlighter = PrettyTables.Highlighter((data, i, j) -> i == 1 && j == 2, get_color_for_percentage(precision_val))
+    recall_highlighter = PrettyTables.Highlighter((data, i, j) -> i == 2 && j == 2, get_color_for_percentage(recall_val))
+    f1_highlighter = PrettyTables.Highlighter((data, i, j) -> i == 3 && j == 2, get_color_for_percentage(f1_val))
+    diff_highlighter = PrettyTables.Highlighter(
         (data, i, j) -> j == 4 && i in 1:3,
         (data, i, j) -> get_color_for_diff(parse(Float64, data[i, 4]))
     )
@@ -137,9 +136,9 @@ function run_benchmarks(search_index_path::String, query_file_path::String, over
             precision_highlighter,
             recall_highlighter,
             f1_highlighter,
-            Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[1, 4]))),
-            Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[2, 4]))),
-            Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[3, 4]))),
+            PrettyTables.Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[1, 4]))),
+            PrettyTables.Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[2, 4]))),
+            PrettyTables.Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[3, 4]))),
         )
     )
 
