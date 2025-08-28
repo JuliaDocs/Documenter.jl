@@ -3,9 +3,9 @@ using NodeJS_22_jll
 using Documenter
 
 # Load the real search index from test examples (already built!)
-function load_real_search_index()
-    # Use the example search index that's already built and tested
-    search_index_path = joinpath(@__DIR__, "../../docs/build/search_index.js")
+function load_real_search_index(search_index_path)
+    # Use the search index from the provided path
+    # search_index_path = joinpath(@__DIR__, "../../docs/build/search_index.js")
 
     if !isfile(search_index_path)
         error("Search index not found at: $search_index_path")
@@ -29,9 +29,8 @@ function load_real_search_index()
 end
 
 # Simple function that uses the existing search.js with real search data
-function real_search(query::String)
-    # Load the real search index automatically
-    search_index_data = load_real_search_index()
+function real_search(query::String, search_index_path::String)
+    search_index_data = load_real_search_index(search_index_path)
 
     # Read the JS wrapper and inject data
     wrapper_js = read(joinpath(@__DIR__, "wrapper.js"), String)
