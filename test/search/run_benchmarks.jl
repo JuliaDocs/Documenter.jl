@@ -1,6 +1,7 @@
 using Statistics
 using Dates
 using PrettyTables
+using PrettyTables: Highlighter
 using Crayons
 using JSON
 
