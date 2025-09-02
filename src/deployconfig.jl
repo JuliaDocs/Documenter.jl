@@ -334,9 +334,6 @@ end
 
 function GitHubActions()
     github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
-    github_event_name = get(ENV, "GITHUB_EVENT_NAME", "") # "push", "pull_request" or "cron" (?)
-    github_ref = get(ENV, "GITHUB_REF", "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
-    github_api = get(ENV, "GITHUB_API_URL", "") # https://api.github.com
 
     # Compute GitHub Pages URL from repository
     parts = split(github_repository, "/")
@@ -347,15 +344,15 @@ function GitHubActions()
         ""
     end
 
-    return GitHubActions(github_repository, github_event_name, github_ref, "github.com", github_api, github_pages_url)
+    return GitHubActions(github_pages_url)
 end
 
-function GitHubActions(host, pages_url)
+function GitHubActions(pages_url)
     github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
     github_event_name = get(ENV, "GITHUB_EVENT_NAME", "") # "push", "pull_request" or "cron" (?)
     github_ref = get(ENV, "GITHUB_REF", "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
     github_api = get(ENV, "GITHUB_API_URL", "") # https://api.github.com
-    return GitHubActions(github_repository, github_event_name, github_ref, host, github_api, pages_url)
+    return GitHubActions(github_repository, github_event_name, github_ref, Remotes.github_host(), github_api, pages_url)
 end
 
 # Check criteria for deployment
@@ -532,10 +529,14 @@ function post_github_status(cfg::GitHubActions, type::S, deploydocs_repo::S, sha
     try
         Sys.which("curl") === nothing && return
         ## Extract owner and repository name
-        m = match(Regex("^(?:https?://)?$(cfg.github_host)\\/(.+?)\\/(.+?)(.git)?\$"), deploydocs_repo)
+        m = match(Regex("^(?:https?://)?([^/]+)\\/(.+?)\\/(.+?)(.git)?\$"), deploydocs_repo)
         m === nothing && return
-        owner = String(m.captures[1])
-        repo = String(m.captures[2])
+        host = String(m.captures[1])
+        owner = String(m.captures[2])
+        repo = String(m.captures[3])
+
+        host != cfg.github_host && return
+
 
         ## Need an access token for this
         auth = get(ENV, "GITHUB_TOKEN", nothing)

@@ -102,8 +102,21 @@ function repofile(remote::Remote, ref, filename, linerange = nothing)
     return fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
 end
 
+"""
+    parse_url(url)
 
-const GITHUB_HOST = "github.com"
+Return named tuple with values `scheme`, `authority`, `userinfo`, `username`, `password`, `hostname`, `port`, `path`, `query`, `fragment`.
+If certain value is not present in URL then it is ommitted in return tuple.
+"""
+function parse_url(url)
+    m = match(r"^(?:(?P<scheme>https?\:)\/\/)?(?P<authority>(?:(?:(?P<userinfo>(?P<username>[^:]+)(?::(?P<password>[^@]+)?)?)@)?)(?P<hostname>[^:\/?#]*)(?:\:(?P<port>[0-9]+))?)(?P<path>[\/]{0,1}[^?#]*)(?P<query>\?[^#]*|)(?P<fragment>#.*|)$", url)
+    return NamedTuple{keys(m) .|> Symbol |> Tuple}(values(m))
+end
+
+function github_host()
+    url = get(ENV, "GITHUB_SERVER_URL", "github.com")
+    return parse_url(url)[:authority]
+end
 
 """
     GitHub(user :: AbstractString, repo :: AbstractString, [host :: AbstractString])
@@ -128,11 +141,18 @@ struct GitHub <: Remote
     repo::String
     host::String
 
-    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = GITHUB_HOST) = new(user, repo, host)
+    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = github_host()) = new(user, repo, host)
 end
 function GitHub(remote::AbstractString)
-    user, repo = split(remote, '/')
-    return GitHub(user, repo, GITHUB_HOST)
+    parsed = parse_url(remote)
+    path = chopprefix(parsed[:path], "/")
+
+    if occursin("/", path)
+        user, repo = split(path, "/")
+        return GitHub(user, repo, parsed[:hostname])
+    else
+        return GitHub(parsed[:hostname], path)
+    end
 end
 repourl(remote::GitHub) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)
