@@ -748,13 +748,13 @@ end
     end
 
     @testset "GitHub constructors" begin
-        gh = GitHub("user/project")
+        gh = Documenter.Remotes.GitHub("user/project")
         @test gh.user == "user"
         @test gh.repo == "project"
         @test gh.host == "github.com"
 
 
-        gh = GitHub("selfhosted.com/user/project")
+        gh = Documenter.Remotes.GitHub("selfhosted.com/user/project")
         @test gh.user == "user"
         @test gh.repo == "project"
         @test gh.host == "selfhosted.com"
