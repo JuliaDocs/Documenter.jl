@@ -747,7 +747,7 @@ end
         end
     end
 
-    @test "GitHub constructors" begin
+    @testset "GitHub constructors" begin
         gh = GitHub("user/project")
         @test gh.user == "user"
         @test gh.repo == "project"

@@ -106,13 +106,20 @@ end
     parse_url(url)
 
 Return named tuple with values `scheme`, `authority`, `userinfo`, `username`, `password`, `hostname`, `port`, `path`, `query`, `fragment`.
-If certain value is not present in URL then it is ommitted in return tuple.
+If certain value is not present in URL then it is omitted in return tuple.
 """
 function parse_url(url)
     m = match(r"^(?:(?P<scheme>https?\:)\/\/)?(?P<authority>(?:(?:(?P<userinfo>(?P<username>[^:]+)(?::(?P<password>[^@]+)?)?)@)?)(?P<hostname>[^:\/?#]*)(?:\:(?P<port>[0-9]+))?)(?P<path>[\/]{0,1}[^?#]*)(?P<query>\?[^#]*|)(?P<fragment>#.*|)$", url)
     return NamedTuple{keys(m) .|> Symbol |> Tuple}(values(m))
 end
 
+"""
+    github_host()
+
+Returns hostname of the GitHub installation it is running on.
+Is determined by `ENV[GITHUB_SERVER_URL]` variable which is set by GitHub Actions runtime.
+In case of missing variable default is "github.com"
+"""
 function github_host()
     url = get(ENV, "GITHUB_SERVER_URL", "github.com")
     return parse_url(url)[:authority]
