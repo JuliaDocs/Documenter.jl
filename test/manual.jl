@@ -27,7 +27,7 @@ using Test
     e = try
         @static if VERSION >= v"1.13-"
             Base.ScopedValues.@with(
-                Test.CURRENT_TESTSET => Test.FallbackTestSet() ,
+                Test.CURRENT_TESTSET => Test.FallbackTestSet(),
                 Test.TESTSET_DEPTH => 0,
                 doctest(Documenter)
             )

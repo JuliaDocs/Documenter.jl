@@ -22,7 +22,7 @@ function run_doctest(f, args...; kwargs...)
         # X-ref: https://github.com/JuliaLang/julia/pull/53462
         @static if VERSION >= v"1.13-"
             Base.ScopedValues.@with(
-                Test.CURRENT_TESTSET => Test.FallbackTestSet() ,
+                Test.CURRENT_TESTSET => Test.FallbackTestSet(),
                 Test.TESTSET_DEPTH => 0,
                 doctest(args...; kwargs...)
             )
