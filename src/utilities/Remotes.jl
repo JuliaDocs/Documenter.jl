@@ -93,7 +93,7 @@ issueurl(::Remote, ::Any) = nothing
 Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
 to the potentially user-defined `fileurl` implementations.
 """
-function repofile(remote::Remote, ref, filename, linerange = nothing)
+function repofile(remote::Remote, ref, filename, linerange=nothing)
     # sanitize the file name
     filename = replace(filename, '\\' => '/') # remove backslashes on Windows
     filename = lstrip(filename, '/') # remove leading spaces
@@ -110,7 +110,7 @@ If certain value is not present in URL then it is omitted in return tuple.
 """
 function parse_url(url)
     m = match(r"^(?:(?P<scheme>https?\:)\/\/)?(?P<authority>(?:(?:(?P<userinfo>(?P<username>[^:]+)(?::(?P<password>[^@]+)?)?)@)?)(?P<hostname>[^:\/?#]*)(?:\:(?P<port>[0-9]+))?)(?P<path>[\/]{0,1}[^?#]*)(?P<query>\?[^#]*|)(?P<fragment>#.*|)$", url)
-    return NamedTuple{keys(m) .|> Symbol |> Tuple}(values(m))
+    return NamedTuple((name => m[name] for name in (:scheme, :authority, :userinfo, :username, :password, :hostname, :port, :path, :query, :fragment)))
 end
 
 """
@@ -148,7 +148,7 @@ struct GitHub <: Remote
     repo::String
     host::String
 
-    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = github_host()) = new(user, repo, host)
+    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString=github_host()) = new(user, repo, host)
 end
 function GitHub(remote::AbstractString)
     parsed = parse_url(remote)
@@ -244,8 +244,8 @@ configuring Documenter.
 """
 struct URL <: Remote
     urltemplate::String
-    repourl::Union{String, Nothing}
-    URL(urltemplate, repourl = nothing) = new(urltemplate, repourl)
+    repourl::Union{String,Nothing}
+    URL(urltemplate, repourl=nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl
 function fileurl(remote::URL, ref, filename, linerange)
