@@ -36,7 +36,7 @@ function run_doctest(f, args...; kwargs...)
             catch e
                 # Since Julia 1.3, errors in task are wrapped in TaskFailedException, so
                 # we need to unwrap it (https://github.com/JuliaLang/julia/pull/32814).
-                rethrow(e.exception)
+                rethrow(e.task.exception)
             end
         end
     end

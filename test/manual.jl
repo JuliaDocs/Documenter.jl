@@ -40,7 +40,7 @@ using Test
         else
             # If we use the task-based approach, we need to unwrap the error
             @test e isa TaskFailedException
-            e.exception
+            e.task.exception
         end
     end
     println("^^^ Expected error output.")
