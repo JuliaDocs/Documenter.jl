@@ -263,7 +263,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication). This is done by adding
+(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -295,7 +295,7 @@ for more information.
 
 ### Permissions
 
-The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token) are required to successfully use [`deploydocs`](#the-deploydocs-function):
+The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token#modifying-the-permissions-for-the-github_token) are required to successfully use [`deploydocs`](#the-deploydocs-function):
 
 ```yaml
 permissions:
@@ -445,7 +445,7 @@ jobs:
 _This workflow was based on [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
 The `permissions:` line above is described in the
-[GitHub Docs](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token#setting-the-github_token-permissions-for-a-specific-job);
+[GitHub Docs](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token#modifying-the-permissions-for-the-github_token);
 an alternative is to give GitHub workflows write permissions under the repo settings, e.g.,
 `https://github.com/<USER>/<REPO>.jl/settings/actions`.
 
