@@ -14,18 +14,30 @@ import IOCapture
 # Test the Documenter.doctest function
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
-    (result, success, backtrace, output) =
-        c = IOCapture.capture(rethrow = InterruptException) do
-        # Running inside a Task to make sure that the parent testsets do not interfere.
-        t = Task(() -> doctest(args...; kwargs...))
-        schedule(t)
-        # if an exception happens, it gets propagated
-        try
-            fetch(t)
-        catch e
-            # Note: in Julia 1.3 fetch no longer throws the exception direction, but instead
-            # wraps it in a TaskFailedException (https://github.com/JuliaLang/julia/pull/32814).
-            rethrow(t.exception)
+    c = IOCapture.capture(rethrow = InterruptException) do
+        # Starting from 1.13, the Julia test infrastructure uses ScopedValues
+        # to handle testsets. So the original task-based approach does not work
+        # anymore for "detaching" the doctest testsets from the test suite.
+        # But we can manipulate the internal Test module state instead.
+        # X-ref: https://github.com/JuliaLang/julia/pull/53462
+        @static if VERSION >= v"1.13-"
+            Base.ScopedValues.@with(
+                Test.CURRENT_TESTSET => Test.FallbackTestSet() ,
+                Test.TESTSET_DEPTH => 0,
+                doctest(args...; kwargs...)
+            )
+        else
+            # Running inside a Task to make sure that the parent testsets do not interfere.
+            t = Task(() -> doctest(args...; kwargs...))
+            schedule(t)
+            # if an exception happens, it gets propagated
+            try
+                fetch(t)
+            catch
+                # Note: in Julia 1.3 fetch no longer throws the exception direction, but instead
+                # wraps it in a TaskFailedException (https://github.com/JuliaLang/julia/pull/32814).
+                rethrow(t.exception)
+            end
         end
     end
 
