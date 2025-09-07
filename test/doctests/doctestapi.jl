@@ -33,10 +33,10 @@ function run_doctest(f, args...; kwargs...)
             # if an exception happens, it gets propagated
             try
                 fetch(t)
-            catch
-                # Note: in Julia 1.3 fetch no longer throws the exception direction, but instead
-                # wraps it in a TaskFailedException (https://github.com/JuliaLang/julia/pull/32814).
-                rethrow(t.exception)
+            catch e
+                # Since Julia 1.3, errors in task are wrapped in TaskFailedException, so
+                # we need to unwrap it (https://github.com/JuliaLang/julia/pull/32814).
+                rethrow(e.exception)
             end
         end
     end
