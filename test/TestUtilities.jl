@@ -113,6 +113,7 @@ function any_non_pass(testset::Test.DefaultTestSet)
         return Test.anynonpass(testset)
     else
         return testset.anynonpass
+    end
 end
 
 is_success(testset::Test.DefaultTestSet) = !(any_non_pass(testset) || !is_success(testset.results))
