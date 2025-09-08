@@ -240,7 +240,7 @@ jobs:
         with:
           name: search-index
           path: docs/build
-      - name: Build search edge cases documentation  
+      - name: Build search edge cases documentation
         run: |
           cd test/search_edge_cases
           julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path="../../"))'
@@ -258,6 +258,8 @@ jobs:
   linkcheck:
     name: "Linkcheck: online tests"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@latest
