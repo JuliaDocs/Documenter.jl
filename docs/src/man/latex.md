@@ -157,7 +157,7 @@ mathengine = Documenter.MathJax(Dict(:TeX => Dict(
     ),
 )))
 ```
-Or with MathJax v3, the [physics package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf) can be loaded:
+Or with MathJax v3, the [physics package](https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf) can be loaded:
 
 ```julia
 mathengine = MathJax3(Dict(
