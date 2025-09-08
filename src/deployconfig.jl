@@ -312,7 +312,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables).
+[documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
