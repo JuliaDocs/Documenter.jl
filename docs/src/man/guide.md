@@ -23,7 +23,7 @@ pkg> activate docs/
 (docs) pkg> add Documenter
 ```
 
-This will create `Project.toml` and `Manifest.toml` files in the `docs/` subdirectory. 
+This will create `Project.toml` and `Manifest.toml` files in the `docs/` subdirectory.
 
 Note that for packages, you also likely need to have your package that you are documenting as a  ["dev dependency"](https://pkgdocs.julialang.org/v1/managing-packages/#developing) of the `docs/` environment.
 
@@ -349,7 +349,7 @@ to the above [`@ref`](@ref Cross-Referencing), e.g.,
 See the [`Documenter.makedocs`](@extref) function.
 ```
 
-See the [documentation of the `DocumenterInterLinks` package](http://juliadocs.org/DocumenterInterLinks.jl/stable/)
+See the [documentation of the `DocumenterInterLinks` package](https://juliadocs.org/DocumenterInterLinks.jl/stable/)
 for more details.
 
 
