@@ -93,7 +93,7 @@ issueurl(::Remote, ::Any) = nothing
 Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
 to the potentially user-defined `fileurl` implementations.
 """
-function repofile(remote::Remote, ref, filename, linerange = nothing)
+function repofile(remote::Remote, ref, filename, linerange=nothing)
     # sanitize the file name
     filename = replace(filename, '\\' => '/') # remove backslashes on Windows
     filename = lstrip(filename, '/') # remove leading spaces
@@ -103,7 +103,30 @@ function repofile(remote::Remote, ref, filename, linerange = nothing)
 end
 
 """
-    GitHub(user :: AbstractString, repo :: AbstractString)
+    parse_url(url)
+
+Return named tuple with values `scheme`, `authority`, `userinfo`, `username`, `password`, `hostname`, `port`, `path`, `query`, `fragment`.
+If certain value is not present in URL then it is omitted in return tuple.
+"""
+function parse_url(url)
+    m = match(r"^(?:(?P<scheme>https?\:)\/\/)?(?P<authority>(?:(?:(?P<userinfo>(?P<username>[^:]+)(?::(?P<password>[^@]+)?)?)@)?)(?P<hostname>[^:\/?#]*)(?:\:(?P<port>[0-9]+))?)(?P<path>[\/]{0,1}[^?#]*)(?P<query>\?[^#]*|)(?P<fragment>#.*|)$", url)
+    return NamedTuple((name => m[name] for name in (:scheme, :authority, :userinfo, :username, :password, :hostname, :port, :path, :query, :fragment)))
+end
+
+"""
+    github_host()
+
+Returns hostname of the GitHub installation it is running on.
+Is determined by `ENV[GITHUB_SERVER_URL]` variable which is set by GitHub Actions runtime.
+In case of missing variable default is "github.com"
+"""
+function github_host()
+    url = get(ENV, "GITHUB_SERVER_URL", "github.com")
+    return parse_url(url)[:authority]
+end
+
+"""
+    GitHub(user :: AbstractString, repo :: AbstractString, [host :: AbstractString])
     GitHub(remote :: AbstractString)
 
 Represents a remote Git repository hosted on GitHub. The repository is identified by the
@@ -117,16 +140,28 @@ makedocs(
 
 The single-argument constructor assumes that the user and repository parts are separated by
 a slash (e.g. `JuliaDocs/Documenter.jl`).
+
+A `host` can be provided to point to the location of the self-hosted GitHub installation.
 """
 struct GitHub <: Remote
     user::String
     repo::String
+    host::String
+
+    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString=github_host()) = new(user, repo, host)
 end
 function GitHub(remote::AbstractString)
-    user, repo = split(remote, '/')
-    return GitHub(user, repo)
+    parsed = parse_url(remote)
+    path = chopprefix(parsed[:path], "/")
+
+    if occursin("/", path)
+        user, repo = split(path, "/")
+        return GitHub(user, repo, parsed[:hostname])
+    else
+        return GitHub(parsed[:hostname], path)
+    end
 end
-repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
+repourl(remote::GitHub) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)
     url = "$(repourl(remote))/blob/$(ref)/$(filename)"
     isnothing(linerange) && return url
@@ -209,8 +244,8 @@ configuring Documenter.
 """
 struct URL <: Remote
     urltemplate::String
-    repourl::Union{String, Nothing}
-    URL(urltemplate, repourl = nothing) = new(urltemplate, repourl)
+    repourl::Union{String,Nothing}
+    URL(urltemplate, repourl=nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl
 function fileurl(remote::URL, ref, filename, linerange)
