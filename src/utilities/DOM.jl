@@ -110,14 +110,14 @@ const BLOCK_ELEMENTS = Set(
         :address, :article, :aside, :blockquote, :canvas, :dd, :div, :dl,
         :fieldset, :figcaption, :figure, :footer, :form, :h1, :h2, :h3, :h4, :h5,
         :h6, :header, :hgroup, :hr, :li, :main, :nav, :noscript, :ol, :output, :p,
-        :pre, :section, :table, :tfoot, :ul, :video,
+        :pre, :section, :table, :tfoot, :ul, :video, :details,
     ]
 )
 const INLINE_ELEMENTS = Set(
     [
         :a, :abbr, :acronym, :b, :bdo, :big, :br, :button, :cite, :code, :dfn, :em,
         :i, :img, :input, :kbd, :label, :map, :object, :q, :samp, :script, :select,
-        :small, :span, :strong, :sub, :sup, :textarea, :time, :tt, :var,
+        :small, :span, :strong, :sub, :sup, :textarea, :time, :tt, :var, :summary,
     ]
 )
 const VOID_ELEMENTS = Set(
