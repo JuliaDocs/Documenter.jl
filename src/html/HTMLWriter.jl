@@ -1889,7 +1889,7 @@ domify(dctx::DCtx, node::Node, ::Documenter.DocsNodesBlock) = domify(dctx, node.
 
 function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    @tags a code article header span
+    @tags a code article header span summary details
 
     # push to search index
     rec = SearchRecord(
@@ -1901,14 +1901,13 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
     )
     push!(ctx.search_index, rec)
 
-    return article[".docstring"](
-        header(
-            a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href => "javascript:;", :title => "Collapse docstring"],
-            a[".docstring-binding", :id => docsnode.anchor.id, :href => "#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
+    return details[".docstring"](
+        summary[
+            :id => docsnode.anchor.id,](
+            a[".docstring-binding", :href => "#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Documenter.doccat(docsnode.object))"),
-            span[".is-flex-grow-1.docstring-article-toggle-button", :title => "Collapse docstring"]("")
-        ),
+            span[".docstring-category"]("$(Documenter.doccat(docsnode.object))")
+            ),
         domify_doc(dctx, mdast_node)
     )
 end
@@ -1921,7 +1920,7 @@ function domify_doc(dctx::DCtx, node::Node)
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
     return map(zip(node.element.mdasts, node.element.results)) do (markdown, result)
-        ret = section(div(domify(dctx, markdown)))
+        ret = div(domify(dctx, markdown))
         # When a source link is available then print the link.
         if !ctx.settings.disable_git
             url = Documenter.source_url(ctx.doc, result)
