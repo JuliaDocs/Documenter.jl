@@ -72,9 +72,9 @@ code.language-julia-repl > span.hljs-meta {
   line-height: 1.5;
   border-radius: 10%;
   border-color: white;
-  position: relative;
-  left: 61.5em;
-  bottom: 0.375rem;
+  position: absolute;
+  right: 0.375rem;
+  bottom: 0.375rem;;
   transition: opacity 0.3s;
   opacity: 0;
 }
@@ -99,4 +99,18 @@ code.language-julia-repl > span.hljs-meta {
   opacity: 1;
 }
 
+.docstring>summary{
+  background-color: #f5f5f5;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #dbdbdb;
+}
 
+.docstring>div {
+  position: relative;
+  padding: 0.75rem 0.75rem;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.docstring>div>p {
+  margin: 0 !important;
+}
