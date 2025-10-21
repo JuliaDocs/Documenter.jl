@@ -188,7 +188,7 @@ end
             @testset ".documenter-siteinfo.json" begin
                 siteinfo_json_file = joinpath(build_dir, ".documenter-siteinfo.json")
                 @test isfile(siteinfo_json_file)
-                siteinfo_json = JSON.parse(read(siteinfo_json_file, String); dicttype=Dict{String, Any})
+                siteinfo_json = JSON.parse(read(siteinfo_json_file, String); dicttype = Dict{String, Any})
                 @test haskey(siteinfo_json, "documenter")
                 @test siteinfo_json["documenter"] isa Dict
                 @test haskey(siteinfo_json["documenter"], "documenter_version")
