@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+* Changed the docstring block accordions from a custom implementation to HTML details+summary tag. ([#2773])
+
 ## Version [v1.15.0] - 2025-10-22
 
 ### Changed
@@ -2146,6 +2152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
 [#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
+[#2773]: https://github.com/JuliaDocs/Documenter.jl/issues/2773
 [#2774]: https://github.com/JuliaDocs/Documenter.jl/issues/2774
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
