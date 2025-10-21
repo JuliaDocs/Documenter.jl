@@ -965,8 +965,8 @@ pipeline:
 ```
 
 More about pipeline syntax is documented here:
-- 0.15.x: [https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax (hosted at archive.org; the documentation is no longer available on the Woodpecker website)](https://web.archive.org/web/20240318223506/https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax)
-- 1.0.0 and onwards: [https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax (hosted at archive.org; the documentation is no longer available on the Woodpecker website)](https://web.archive.org/web/20240318224839/https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax)
+- 0.15.x: <https://github.com/woodpecker-ci/woodpecker/blob/release/v0.15/docs/docs/20-usage/20-pipeline-syntax.md>
+- 1.0.0 and onwards: <https://github.com/woodpecker-ci/woodpecker/blob/release/v1.0/docs/docs/20-usage/20-pipeline-syntax.md>
 - 2.0.0 and onwards: <https://woodpecker-ci.org/docs/usage/workflow-syntax>
 """
 struct Woodpecker <: DeployConfig
