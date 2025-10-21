@@ -15,7 +15,7 @@ atypical_content_queries = [
 structural_cases_queries = [
     TestQuery("An Empty Section", ["An Empty Section"]),
     TestQuery("A Section With Only A Code Block", ["A Section With Only A Code Block"]),
-    TestQuery("function foo()", ["Strucutural Cases"]),
+    TestQuery("function foo()", ["Structural Cases"]),
 ]
 
 markdown_syntax_queries = [
