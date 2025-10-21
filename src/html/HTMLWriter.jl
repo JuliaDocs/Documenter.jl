@@ -1856,11 +1856,12 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
 
     return details[".docstring"](
         summary[
-            :id => docsnode.anchor.id,](
+            :id => docsnode.anchor.id,
+        ](
             a[".docstring-binding", :href => "#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
             " — ", # &mdash;
             span[".docstring-category"]("$(Documenter.doccat(docsnode.object))")
-            ),
+        ),
         domify_doc(dctx, mdast_node)
     )
 end
