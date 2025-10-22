@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version [v1.15.0] - 2025-10-21
 
+### Added 
+
+* In the HTML output, the search modal can now be navigated using using up and down keys. ([#2761])
+
 ### Changed
 
 * The HTML output shows a warning now when the search index size is too big (500Kib). ([#2423], [#2753])
@@ -2143,6 +2147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2748]: https://github.com/JuliaDocs/Documenter.jl/issues/2748
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
+[#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
