@@ -3,15 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
-### Added 
-
-* In the HTML output, the search modal can now be navigated using using up and down keys. ([#2761])
+## Version [v1.15.0] - 2025-10-22
 
 ### Changed
 
-* Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
+* The HTML output shows a warning now when the search index size is too big (500Kib). ([#2423], [#2753])
+* In the HTML output, the search modal can now be navigated using using up and down keys. ([#2761])
+
+### Other
+
+* Documenter now declares the correct SHA standard library compat bound. ([#2774])
 
 ## Version [v1.14.1] - 2025-07-09
 
@@ -1569,6 +1570,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.13.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.13.0
 [v1.14.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.14.0
 [v1.14.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.14.1
+[v1.15.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.15.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -2144,6 +2146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
 [#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
+[#2774]: https://github.com/JuliaDocs/Documenter.jl/issues/2774
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
