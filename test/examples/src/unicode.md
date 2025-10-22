@@ -5,7 +5,7 @@ Some unicode tests here.
 In main sans-serif font:
 
 * Checkmark: "✓"
-* Cicled plus: "⊕"
+* Circled plus: "⊕"
 * XOR: "⊻"
 * Exists: "∀", forall: "∃"
 

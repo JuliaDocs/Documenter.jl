@@ -33,7 +33,7 @@ function load_reference_values(query_file_path::String)
     end
 
     if isfile(reference_file)
-        return JSON.parsefile(reference_file)
+        return JSON.parsefile(reference_file; dicttype = Dict{String, Any})
     else
         return Dict()
     end
