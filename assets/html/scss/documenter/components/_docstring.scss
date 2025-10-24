@@ -7,10 +7,7 @@
   box-shadow: $documenter-docstring-shadow;
   max-width: 100%;
 
-  > header {
-    cursor: pointer;
-    display: flex;
-    flex-grow: 1;
+  > summary {
     align-items: stretch;
     padding: $documenter-docstring-header-padding;
 
@@ -37,13 +34,17 @@
     }
   }
 
-  > section {
+  > div {
     position: relative;
     padding: $documenter-docstring-body-padding;
 
     border-bottom: 1px solid $border;
     &:last-child {
       border-bottom: none;
+    }
+
+    > p {
+      margin: 0 !important;
     }
 
     > a.docs-sourcelink {
@@ -62,15 +63,17 @@
     }
   }
 
-  &:hover > section > a.docs-sourcelink {
+  &:hover > div > a.docs-sourcelink {
     opacity: 0.2;
   }
 
-  &:focus-within > section > a.docs-sourcelink {
+  &:focus-within > div > a.docs-sourcelink {
     opacity: 0.2;
   }
 
-  & > section:hover a.docs-sourcelink {
+  & > div:hover a.docs-sourcelink {
     opacity: 1;
   }
 }
+
+
