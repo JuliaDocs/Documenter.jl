@@ -755,29 +755,27 @@ end
 # Segment page content by sections for improved search indexing
 function segment_page_by_sections(page_mdast::Node)
     segments = ContentSegment[]
-    current_segment_content = Node[]
-    current_section_header = nothing
+    current = ContentSegment(nothing, Node[])
 
     for node in page_mdast.children
         if node.element isa Documenter.AnchoredHeader
             # Save previous segment if it has content or a header
-            if !isempty(current_segment_content) || current_section_header !== nothing
-                push!(segments, ContentSegment(current_section_header, copy(current_segment_content)))
+            if !isempty(current.content_nodes) || current.section_header !== nothing
+                push!(segments, current)
             end
             # Start new section
-            current_section_header = node
-            current_segment_content = Node[]
+            current = ContentSegment(node, Node[])
         else
             # Skip nodes that shouldn't be indexed
             if !(node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES)
-                push!(current_segment_content, node)
+                push!(current.content_nodes, node)
             end
         end
     end
 
     # Add final segment
-    if !isempty(current_segment_content) || current_section_header !== nothing
-        push!(segments, ContentSegment(current_section_header, current_segment_content))
+    if !isempty(current.content_nodes) || current.section_header !== nothing
+        push!(segments, current)
     end
 
     return segments
@@ -795,7 +793,7 @@ function create_segment_search_record(ctx::HTMLContext, navnode::Documenter.NavN
             pretty_url(ctx, get_url(ctx, navnode.page)),
             getpage(ctx, navnode),
             "",  # no fragment for default section
-            "section",  # changed from "page" to "section"
+            "section",  
             page_title,
             page_title,
             content_text
