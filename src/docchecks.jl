@@ -13,14 +13,10 @@ defined in the `modules` keyword passed to [`makedocs`](@ref).
 Prints out the name of each object that has not had its docs spliced into the document.
 
 Returns the number of missing bindings to allow for automated testing of documentation.
-
-# Arguments
-- `doc::Document`: The document to check.
-- `exclude_modules::Vector{Module}=Module[]`: Optional list of modules to exclude from the check.
 """
-function missingdocs(doc::Document; exclude_modules::Vector{Module}=Module[])
+function missingdocs(doc::Document)
     doc.user.checkdocs === :none && return 0
-    bindings = missingbindings(doc; exclude_modules)
+    bindings = missingbindings(doc)
     n = reduce(+, map(length, values(bindings)), init = 0)
     if n > 0
         b = IOBuffer()
@@ -42,17 +38,9 @@ function missingdocs(doc::Document; exclude_modules::Vector{Module}=Module[])
     return n
 end
 
-function missingbindings(doc::Document; exclude_modules::Vector{Module}=Module[])
+function missingbindings(doc::Document)
     @debug "checking for missing docstrings."
-    # Filter out excluded modules
-    modules_to_check = filter(m -> m ∉ exclude_modules, doc.blueprint.modules)
-    bindings = allbindings(doc.user.checkdocs, modules_to_check)
-    # Also filter out any bindings that belong to excluded modules
-    for (binding, _) in collect(bindings)
-        if binding.mod ∈ exclude_modules
-            delete!(bindings, binding)
-        end
-    end
+    bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules)
     # Sort keys to ensure deterministic iteration order
     for object in sort!(collect(keys(doc.internal.objects)); by = o -> (string(o.binding), string(o.signature)))
         if !is_canonical(object)
