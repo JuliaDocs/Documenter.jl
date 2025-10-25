@@ -793,7 +793,7 @@ function create_segment_search_record(ctx::HTMLContext, navnode::Documenter.NavN
             pretty_url(ctx, get_url(ctx, navnode.page)),
             getpage(ctx, navnode),
             "",  # no fragment for default section
-            "section",  
+            "section",
             page_title,
             page_title,
             content_text
