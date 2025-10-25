@@ -192,7 +192,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     processTerm: (term) => {
       let word = stopWords.has(term) ? null : term;
       if (word) {
-        // custom trimmer that doesn't strip (@,!,+, -, *,/,^,&, |, %,<, >, =, :, .) which are used in julia macro,function names and identifiers
+        // custom trimmer that doesn't strip special characters `@!+-*/^&|%<>=:.` which are used in julia macro and function names.
         word = word
           .replace(/^[^a-zA-Z0-9@!+\-/*^&%|<>._=:]+/, "")
           .replace(/[^a-zA-Z0-9@!+\-/*^&%|<>._=:]+$/, "");
@@ -204,7 +204,6 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     },
     // add . as a separator, because otherwise "title": "Documenter.Anchors.add!", would not
     // find anything if searching for "add!", only for the entire qualification
-    //updated tokenizer
     tokenize: (string) => {
       const tokens = [];
       let remaining = string;
@@ -412,7 +411,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       combineWith: "AND",
     });
 
-    //calculate custom scores for all results
+    // calculate custom scores for all results
     results = results.map((result) => ({
       ...result,
       customScore: calculateCustomScore(result, query),
