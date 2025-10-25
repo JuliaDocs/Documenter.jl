@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now declares the correct SHA standard library compat bound. ([#2774])
 * Page category is removed from the search index and now everything is in section category. ([#2762])
+* Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
 * Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
 
 ## Version [v1.14.1] - 2025-07-09
@@ -2063,6 +2064,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
 [#2410]: https://github.com/JuliaDocs/Documenter.jl/issues/2410
+[#2413]: https://github.com/JuliaDocs/Documenter.jl/issues/2413
 [#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
 [#2423]: https://github.com/JuliaDocs/Documenter.jl/issues/2423
