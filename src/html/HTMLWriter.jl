@@ -58,7 +58,7 @@ to [`Documenter.makedocs`](@ref), and a project `version` taken from the
 `inventory_version` argument of the [`HTML`](@ref) options, or automatically
 determined by [`deploydocs`](@ref Documenter.deploydocs) for tagged releases.
 The bulk of the file is a list of plain text records, compressed with gzip. See
-[Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
+[Inventory Generation](https://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
 for details on these records.
 """
 module HTMLWriter
@@ -223,7 +223,7 @@ keyword to specify that the [MathJax v2 rendering engine](https://www.mathjax.or
 used in the HTML output to render mathematical expressions.
 
 A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
-the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7-latest/options/) function. By
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7/options/) function. By
 default, Documenter sets custom configurations for `tex2jax`, `config`, `jax`, `extensions`
 and `Tex`.
 
@@ -390,7 +390,7 @@ and the [Julia Programming Language](https://julialang.org/)."`.
 **`ansicolor`** can be used to globally disable colored output from `@repl` and `@example`
 blocks by setting it to `false` (default: `true`).
 
-**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
+**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang)
 of the top-level `<html>` element, declaring the language of the generated pages. The default
 value is `"en"`.
 
