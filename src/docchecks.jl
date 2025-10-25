@@ -40,7 +40,7 @@ end
 
 function missingbindings(doc::Document)
     @debug "checking for missing docstrings."
-    bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules)
+    bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules, doc.user.checkdocs_ignored_modules)
     # Sort keys to ensure deterministic iteration order
     for object in sort!(collect(keys(doc.internal.objects)); by = o -> (string(o.binding), string(o.signature)))
         if !is_canonical(object)
@@ -70,15 +70,15 @@ function missingbindings(doc::Document)
     return bindings
 end
 
-function allbindings(checkdocs::Symbol, mods)
+function allbindings(checkdocs::Symbol, mods, ignored_modules = Module[])
     out = Dict{Binding, Set{Type}}()
     for m in mods
-        allbindings(checkdocs, m, out)
+        allbindings(checkdocs, m, out, ignored_modules)
     end
     return out
 end
 
-function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Type}}())
+function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Type}}(), ignored_modules = Module[])
     # Sort the metadata entries to ensure deterministic iteration order
     metadata = collect(meta(mod))
     sort!(metadata; by = entry -> string(entry[1]))
@@ -88,6 +88,8 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Typ
         # some non-binding metadata gets added to the dict. So on the off-chance that has
         # happened, we simply ignore those entries.
         isa(binding, Docs.Binding) || continue
+        # Skip bindings from ignored modules
+        binding.mod ∈ ignored_modules && continue
         # We only consider a name exported only if it actually exists in the module, either
         # by virtue of being defined there, or if it has been brought into the scope with
         # import/using.
