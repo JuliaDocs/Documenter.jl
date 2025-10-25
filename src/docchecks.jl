@@ -47,6 +47,12 @@ function missingbindings(doc::Document; exclude_modules::Vector{Module}=Module[]
     # Filter out excluded modules
     modules_to_check = filter(m -> m ∉ exclude_modules, doc.blueprint.modules)
     bindings = allbindings(doc.user.checkdocs, modules_to_check)
+    # Also filter out any bindings that belong to excluded modules
+    for (binding, _) in collect(bindings)
+        if binding.mod ∈ exclude_modules
+            delete!(bindings, binding)
+        end
+    end
     # Sort keys to ensure deterministic iteration order
     for object in sort!(collect(keys(doc.internal.objects)); by = o -> (string(o.binding), string(o.signature)))
         if !is_canonical(object)
