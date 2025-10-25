@@ -782,7 +782,7 @@ function segment_page_by_sections(page_mdast::Node)
 end
 
 # Create search record for a content segment
-function create_segment_search_record(ctx::HTMLContext, navnode::Documenter.NavNode, segment::ContentSegment)
+function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::ContentSegment)
     if segment.section_header === nothing
         # Default section - use page title and aggregate content
         page_title = mdflatten_pagetitle(DCtx(ctx, navnode))
@@ -815,13 +815,6 @@ function create_segment_search_record(ctx::HTMLContext, navnode::Documenter.NavN
             content_text
         )
     end
-end
-function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Node)
-    # Skip indexing special at-blocks
-    if node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES
-        return nothing
-    end
-    return SearchRecord(ctx, navnode, node, node.element)
 end
 
 function JSON.lower(rec::SearchRecord)
@@ -1825,7 +1818,7 @@ function domify(dctx::DCtx)
     # Generate search index using new segmentation approach
     segments = segment_page_by_sections(page_mdast)
     for segment in segments
-        search_record = create_segment_search_record(ctx, navnode, segment)
+        search_record = searchrecord(ctx, navnode, segment)
         push!(ctx.search_index, search_record)
     end
 
