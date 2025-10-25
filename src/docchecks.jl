@@ -41,7 +41,8 @@ end
 function missingbindings(doc::Document)
     @debug "checking for missing docstrings."
     bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules)
-    for object in keys(doc.internal.objects)
+    # Sort keys to ensure deterministic iteration order
+    for object in sort!(collect(keys(doc.internal.objects)); by = o -> (string(o.binding), string(o.signature)))
         if !is_canonical(object)
             continue
         end
@@ -78,7 +79,10 @@ function allbindings(checkdocs::Symbol, mods)
 end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Type}}())
-    for (binding, doc) in meta(mod)
+    # Sort the metadata entries to ensure deterministic iteration order
+    metadata = collect(meta(mod))
+    sort!(metadata; by = entry -> string(entry[1]))
+    for (binding, doc) in metadata
         # The keys of the docs meta dictionary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
         # some non-binding metadata gets added to the dict. So on the off-chance that has
