@@ -13,10 +13,14 @@ defined in the `modules` keyword passed to [`makedocs`](@ref).
 Prints out the name of each object that has not had its docs spliced into the document.
 
 Returns the number of missing bindings to allow for automated testing of documentation.
+
+# Arguments
+- `doc::Document`: The document to check.
+- `exclude_modules::Vector{Module}=Module[]`: Optional list of modules to exclude from the check.
 """
-function missingdocs(doc::Document)
+function missingdocs(doc::Document; exclude_modules::Vector{Module}=Module[])
     doc.user.checkdocs === :none && return 0
-    bindings = missingbindings(doc)
+    bindings = missingbindings(doc; exclude_modules)
     n = reduce(+, map(length, values(bindings)), init = 0)
     if n > 0
         b = IOBuffer()
@@ -38,10 +42,13 @@ function missingdocs(doc::Document)
     return n
 end
 
-function missingbindings(doc::Document)
+function missingbindings(doc::Document; exclude_modules::Vector{Module}=Module[])
     @debug "checking for missing docstrings."
-    bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules)
-    for object in keys(doc.internal.objects)
+    # Filter out excluded modules
+    modules_to_check = filter(m -> m ∉ exclude_modules, doc.blueprint.modules)
+    bindings = allbindings(doc.user.checkdocs, modules_to_check)
+    # Sort keys to ensure deterministic iteration order
+    for object in sort!(collect(keys(doc.internal.objects)); by = o -> (string(o.binding), string(o.signature)))
         if !is_canonical(object)
             continue
         end
@@ -78,7 +85,10 @@ function allbindings(checkdocs::Symbol, mods)
 end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Type}}())
-    for (binding, doc) in meta(mod)
+    # Sort the metadata entries to ensure deterministic iteration order
+    metadata = collect(meta(mod))
+    sort!(metadata; by = entry -> string(entry[1]))
+    for (binding, doc) in metadata
         # The keys of the docs meta dictionary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
         # some non-binding metadata gets added to the dict. So on the off-chance that has
