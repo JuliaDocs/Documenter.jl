@@ -88,8 +88,18 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Typ
         # some non-binding metadata gets added to the dict. So on the off-chance that has
         # happened, we simply ignore those entries.
         isa(binding, Docs.Binding) || continue
-        # Skip bindings from ignored modules
-        binding.mod ∈ ignored_modules && continue
+        # Skip bindings from ignored modules or their submodules
+        if any(ignored_modules) do ignored
+            # Check if binding.mod is the ignored module or a submodule of it
+            current = binding.mod
+            while current != Main && current != Base
+                current == ignored && return true
+                current = parentmodule(current)
+            end
+            return false
+        end
+            continue
+        end
         # We only consider a name exported only if it actually exists in the module, either
         # by virtue of being defined there, or if it has been brought into the scope with
         # import/using.
