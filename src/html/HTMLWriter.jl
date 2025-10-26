@@ -725,13 +725,14 @@ function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing,
     )
 end
 
-function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader)
+function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader; text = "")
     a = element.anchor
     return SearchRecord(
         ctx, navnode;
         fragment = Documenter.anchor_fragment(a),
         title = mdflatten(node), # AnchoredHeader has Heading as single child
-        category = "section"
+        category = "section",
+        text
     )
 end
 
@@ -785,18 +786,11 @@ end
 function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::ContentSegment)
     if segment.section_header === nothing
         # Default section - use page title and aggregate content
-        page_title = mdflatten_pagetitle(DCtx(ctx, navnode))
-        content_text = isempty(segment.content_nodes) ? "" :
-            join([mdflatten(node) for node in segment.content_nodes], "\n\n")
-
-        return SearchRecord(
-            pretty_url(ctx, get_url(ctx, navnode.page)),
-            getpage(ctx, navnode),
-            "",  # no fragment for default section
-            "section",
-            page_title,
-            page_title,
-            content_text
+        content_text = join([mdflatten(node) for node in segment.content_nodes], "\n\n")
+        return SearchRecord(ctx, navnode;
+            fragment = "",  # no fragment for default section
+            category = "section",
+            text = content_text
         )
     else
         # Named section
@@ -804,15 +798,11 @@ function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::Co
         section_title = mdflatten(segment.section_header)
         content_text = isempty(segment.content_nodes) ? "" :
             join([mdflatten(node) for node in segment.content_nodes], "\n\n")
-
-        return SearchRecord(
-            pretty_url(ctx, get_url(ctx, navnode.page)),
-            getpage(ctx, navnode),
-            Documenter.anchor_fragment(a),
-            "section",
-            section_title,
-            mdflatten_pagetitle(DCtx(ctx, navnode)),
-            content_text
+        return SearchRecord(ctx, navnode;
+            fragment = Documenter.anchor_fragment(a),
+            title = section_title,
+            category = "section",
+            text = content_text
         )
     end
 end
