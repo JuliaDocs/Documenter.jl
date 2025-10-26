@@ -787,7 +787,8 @@ function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::Co
     if segment.section_header === nothing
         # Default section - use page title and aggregate content
         content_text = join([mdflatten(node) for node in segment.content_nodes], "\n\n")
-        return SearchRecord(ctx, navnode;
+        return SearchRecord(
+            ctx, navnode;
             fragment = "",  # no fragment for default section
             category = "section",
             text = content_text
@@ -798,7 +799,8 @@ function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::Co
         section_title = mdflatten(segment.section_header)
         content_text = isempty(segment.content_nodes) ? "" :
             join([mdflatten(node) for node in segment.content_nodes], "\n\n")
-        return SearchRecord(ctx, navnode;
+        return SearchRecord(
+            ctx, navnode;
             fragment = Documenter.anchor_fragment(a),
             title = section_title,
             category = "section",
