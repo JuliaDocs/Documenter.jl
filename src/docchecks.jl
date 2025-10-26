@@ -94,7 +94,10 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Typ
             current = binding.mod
             while current != Main && current != Base
                 current == ignored && return true
-                current = parentmodule(current)
+                parent = parentmodule(current)
+                # Guard against infinite loops if parentmodule returns itself
+                parent == current && break
+                current = parent
             end
             return false
         end
