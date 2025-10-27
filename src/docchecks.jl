@@ -89,7 +89,7 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Typ
         # happened, we simply ignore those entries.
         isa(binding, Docs.Binding) || continue
         # Skip bindings from ignored modules or their submodules
-        if any(ignored_modules) do ignored
+        any(ignored_modules) do ignored
             # Check if binding.mod is the ignored module or a submodule of it
             current = binding.mod
             while current != Main && current != Base
