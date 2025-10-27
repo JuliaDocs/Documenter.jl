@@ -2,21 +2,23 @@
 
 ## Overview
 
-The search system provides full-text search functionality for documentation sites through a two-phase architecture. During build time, a Julia-based indexer processes all documentation content and generates a searchable index. At runtime, a JavaScript client-side interface performs real-time search operations against this pre-built index using a Web Worker for performance optimization.
+The search system provides full-text search functionality for documentation sites through a two-phase architecture. 
+During build time, a Julia-based indexer processes all documentation content and generates a searchable index. 
+At runtime, a JavaScript client-side interface performs real-time search operations against this pre-built index using a Web Worker for performance optimization.
 
 ## Architecture
 
 The search implementation consists of three primary components operating in sequence:
 
-1. **Build-time Index Generation** - Julia code in `src/html/HTMLWriter.jl` processes documentation content during site generation
-2. **Client-side Search Interface** - JavaScript code in `assets/html/js/search.js` handles user interactions and search execution  
-3. **Web Worker Processing** - Background thread execution prevents UI blocking during search operations
+1. **Build-time Index Generation** - Julia code in `src/html/HTMLWriter.jl` processes documentation content during site generation.
+2. **Client-side Search Interface** - JavaScript code in `assets/html/js/search.js` handles user interactions and search execution. 
+3. **Web Worker Processing** - Background thread execution prevents UI blocking during search operations.
 
 ## Index Generation Process
 
 ### 1. SearchRecord Structure
 
-The core data structure is the `SearchRecord` struct defined in `src/html/HTMLWriter.jl:656`:
+The core data structure is the `SearchRecord` struct defined in `src/html/HTMLWriter.jl`:
 
 ```julia
 struct SearchRecord
@@ -34,12 +36,12 @@ end
 
 The indexer processes documentation content through a multi-stage pipeline during HTML generation:
 
-1. **AST Traversal** - The system walks each page's markdown abstract syntax tree structure at `src/html/HTMLWriter.jl:1752`
-2. **Record Instantiation** - Each content node generates a `SearchRecord` via the `searchrecord()` function at `src/html/HTMLWriter.jl:748`
+1. **AST Traversal** - The system walks each page's markdown abstract syntax tree structure at `src/html/HTMLWriter.jl` in the function `function domify(dctx::DCtx)`
+2. **Record Instantiation** - Each content node generates a `SearchRecord` via the `searchrecord()` function at `src/html/HTMLWriter.jl`
 3. **Content Classification** - The categorization system assigns content types
-4. **Text Normalization** - The `mdflatten()` function extracts plain text from markdown structures for indexing
-5. **Deduplication Pass** - Records sharing identical locations undergo merging to optimize index size
-6. **JavaScript Serialization** - The processed index outputs as JavaScript object notation for client consumption
+4. **Text Normalization** - The `mdflatten()` function extracts plain text from markdown structures for indexing.
+5. **Deduplication Pass** - Records sharing identical locations undergo merging to optimize index size.
+6. **JavaScript Serialization** - The processed index outputs as JavaScript object notation for client consumption.
 
 ### 3. Index Output
 
@@ -60,7 +62,7 @@ var documenterSearchIndex = {"docs": [
 
 ### 4. Content Filtering
 
-The indexer excludes specific node types from search index generation (`src/html/HTMLWriter.jl:743`):
+The indexer excludes specific node types from search index generation (`src/html/HTMLWriter.jl`):
 - `MetaNode` - Metadata annotation blocks containing non-searchable directives
 - `DocsNodesBlock` - Internal documentation node structures  
 - `SetupNode` - Configuration and setup directive blocks
@@ -76,7 +78,7 @@ The client-side implementation employs a multi-threaded Web Worker architecture 
 
 ### 2. MiniSearch Configuration
 
-The search system uses MiniSearch with the following configuration (`assets/html/js/search.js:189`):
+The search system uses MiniSearch with the following configuration (`assets/html/js/search.js`):
 
 ```javascript
 let index = new MiniSearch({
@@ -97,7 +99,7 @@ let index = new MiniSearch({
 
 ### 3. Stop Words
 
-The search engine implements a stop words filter (`assets/html/js/search.js:81`) derived from the Lunr 2.1.3 library, with Julia-language-specific modifications that preserve semantically important Julia symbols and keywords from filtration.
+The search engine implements a stop words filter (`assets/html/js/search.js`) derived from the Lunr 2.1.3 library, with Julia-language-specific modifications that preserve semantically important Julia symbols and keywords from filtration.
 
 ### 4. Search Workflow
 
@@ -115,7 +117,7 @@ The search engine implements a stop words filter (`assets/html/js/search.js:81`)
 
 ### 5. Result Rendering
 
-The search result rendering system generates structured output elements (`assets/html/js/search.js:264`):
+The search result rendering system generates structured output elements (`assets/html/js/search.js`):
 - **Title Component** - Content titles with syntax highlighting and category classification badges
 - **Text Snippet Component** - Extracted text excerpts with search term highlighting via HTML markup
 - **Navigation Link Component** - Direct URL references to specific content locations within documentation
