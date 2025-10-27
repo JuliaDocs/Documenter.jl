@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now declares the correct SHA standard library compat bound. ([#2774])
 
-
 ## Version [v1.14.1] - 2025-07-09
 
 ### Fixed

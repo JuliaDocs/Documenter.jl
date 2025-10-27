@@ -74,7 +74,7 @@ The indexer excludes specific node types from search index generation (`src/html
 The client-side implementation employs a multi-threaded Web Worker architecture for computational isolation:
 
 - **Main Thread** - Manages user interface event handling, result filtering, and DOM manipulation operations
-- **Web Worker Thread** - Executes search algorithms using the MiniSearch library without blocking the user interface
+- **Web Worker Thread** - Executes search algorithms using the [MiniSearch library](https://lucaong.github.io/minisearch/) without blocking the user interface
 
 ### 2. MiniSearch Configuration
 
