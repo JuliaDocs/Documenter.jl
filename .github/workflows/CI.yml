@@ -236,7 +236,7 @@ jobs:
       - name: Instantiate main project environment
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
       - name: Download search index
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: search-index
           path: docs/build
