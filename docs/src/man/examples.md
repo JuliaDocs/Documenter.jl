@@ -57,7 +57,6 @@ Packages that have tagged versions available in the general Registry:
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/stable/)
 - [Query.jl](https://www.queryverse.org/Query.jl/stable/)
 - [QuestDBClient.jl](https://ochibobo.github.io/QuestDBClient.jl/dev/)
-- [SimGBS.jl](https://kanji709.github.io/SimGBS.jl/stable/)
 - [SlimOptim.jl](https://slimgroup.github.io/SlimOptim.jl/stable/)
 - [SymbolicRegression.jl](https://astroautomata.com/SymbolicRegression.jl/stable/)
 - [TaylorSeries.jl](https://juliadiff.org/TaylorSeries.jl/stable/)
