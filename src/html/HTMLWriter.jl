@@ -774,7 +774,7 @@ end
 
 # Create search record for a content segment
 function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::ContentSegment)
-    content_text = join([mdflatten(node) for node in segment.content_nodes], "\n\n")
+    text = join([mdflatten(node) for node in segment.content_nodes], "\n\n")
 
     if segment.section_header === nothing
         title = nothing
@@ -787,10 +787,10 @@ function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::Co
 
     return SearchRecord(
         ctx, navnode;
-        fragment = fragment,
-        title = title,
+        fragment,
+        title,
         category = "section",
-        text = content_text
+        text
     )
 end
 
