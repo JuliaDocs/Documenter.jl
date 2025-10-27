@@ -100,9 +100,7 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Typ
                 current = parent
             end
             return false
-        end
-            continue
-        end
+        end && continue
         # We only consider a name exported only if it actually exists in the module, either
         # by virtue of being defined there, or if it has been brought into the scope with
         # import/using.
