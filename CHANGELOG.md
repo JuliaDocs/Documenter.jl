@@ -3,11 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Version [v1.15.0] - 2025-10-22
+## Unreleased
 
 ### Changed
 
 * Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
+
+## Version [v1.15.0] - 2025-10-22
+
+### Changed
+
 * Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
 * In the HTML output, the search modal can now be navigated using up and down keys. ([#2761])
 
