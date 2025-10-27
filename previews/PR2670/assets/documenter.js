@@ -39,8 +39,7 @@ requirejs.config({
       "highlight"
     ]
   }
-}
-});
+}});
 ////////////////////////////////////////////////////////////////////////////////
 require(['jquery', 'katex', 'katex-auto-render'], function($, katex, renderMathInElement) {
 $(document).ready(function() {
@@ -65,7 +64,6 @@ $(document).ready(function() {
     }
   ]
 }
-
   );
 })
 
@@ -110,7 +108,7 @@ $(document).on(
         .prop("title", articleToggleTitle);
       parent.siblings("section").slideToggle();
     });
-  }
+  },
 );
 
 $(document).on("click", ".docs-article-toggle-button", function (event) {
@@ -332,7 +330,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"
+    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js",
   );
 
   let data = documenterSearchIndex.map((x, key) => {
@@ -543,8 +541,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
             Math.max(textindex.index - 100, 0),
             Math.min(
               textindex.index + querystring.length + 100,
-              result.text.length
-            )
+              result.text.length,
+            ),
           )
         : ""; // cut-off text before and after from the match
 
@@ -554,7 +552,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       ? "..." +
         text.replace(
           new RegExp(`${escape(searchstring)}`, "i"), // For first occurrence
-          '<span class="search-result-highlight py-1">$&</span>'
+          '<span class="search-result-highlight py-1">$&</span>',
         ) +
         "..."
       : ""; // highlights the match
@@ -567,7 +565,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     // We encode the full url to escape some special characters which can lead to broken links
     let result_div = `
         <a href="${encodeURI(
-          documenterBaseURL + "/" + result.location
+          documenterBaseURL + "/" + result.location,
         )}" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 px-4 py-2">
           <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-flex-start">
             <div class="search-result-title has-text-weight-bold ${
@@ -871,11 +869,14 @@ function waitUntilSearchIndexAvailable() {
   // has finished loading and documenterSearchIndex gets defined.
   // So we need to wait until the search index actually loads before setting
   // up all the search-related stuff.
-  if (typeof documenterSearchIndex !== "undefined") {
+  if (
+    typeof documenterSearchIndex !== "undefined" &&
+    typeof $ !== "undefined"
+  ) {
     runSearchMainCode();
   } else {
-    console.warn("Search Index not available, waiting");
-    setTimeout(waitUntilSearchIndexAvailable, 1000);
+    console.warn("Search Index or jQuery not available, waiting");
+    setTimeout(waitUntilSearchIndexAvailable, 100);
   }
 }
 
@@ -929,12 +930,21 @@ $(document).ready(function () {
   `;
 
   let search_modal_footer = `
-    <footer class="modal-card-foot">
-      <span>
-        <kbd class="search-modal-key-hints">Ctrl</kbd> +
-        <kbd class="search-modal-key-hints">/</kbd> to search
-      </span>
-      <span class="ml-3"> <kbd class="search-modal-key-hints">esc</kbd> to close </span>
+    <footer class="modal-card-foot is-flex is-justify-content-space-between is-align-items-center">
+      <div class="is-flex gap-3 is-flex-wrap-wrap">
+        <span>
+          <kbd class="search-modal-key-hints">Ctrl</kbd> +
+          <kbd class="search-modal-key-hints">/</kbd> to search
+        </span>
+        <span> <kbd class="search-modal-key-hints">esc</kbd> to close </span>
+      </div>
+      <div class="is-flex gap-3 is-flex-wrap-wrap">
+        <span>
+          <kbd class="search-modal-key-hints">↑</kbd>
+          <kbd class="search-modal-key-hints">↓</kbd> to navigate
+        </span>
+        <span> <kbd class="search-modal-key-hints">Enter</kbd> to select </span>
+      </div>
     </footer>
   `;
 
@@ -950,7 +960,7 @@ $(document).ready(function () {
           ${search_modal_footer}
         </div>
       </div>
-    `
+    `,
   );
 
   function checkURLForSearch() {
@@ -985,9 +995,33 @@ $(document).ready(function () {
       openModal();
     } else if (event.key === "Escape") {
       closeModal();
-    }
+    } else if (
+      document.querySelector("#search-modal")?.classList.contains("is-active")
+    ) {
+      const searchResults = document.querySelectorAll(".search-result-link");
 
-    return false;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (searchResults.length > 0) {
+          const currentFocused = document.activeElement;
+          const currentIndex =
+            Array.from(searchResults).indexOf(currentFocused);
+          const nextIndex =
+            currentIndex < searchResults.length - 1 ? currentIndex + 1 : 0;
+          searchResults[nextIndex].focus();
+        }
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (searchResults.length > 0) {
+          const currentFocused = document.activeElement;
+          const currentIndex =
+            Array.from(searchResults).indexOf(currentFocused);
+          const prevIndex =
+            currentIndex > 0 ? currentIndex - 1 : searchResults.length - 1;
+          searchResults[prevIndex].focus();
+        }
+      }
+    }
   });
 
   //event listener for the link icon to copy the URL
@@ -1162,7 +1196,7 @@ $(document).ready(function () {
     var option = $(
       "<option value='#' selected='selected'>" +
         DOCUMENTER_CURRENT_VERSION +
-        "</option>"
+        "</option>",
     );
     version_selector_select.append(option);
   }
@@ -1179,7 +1213,7 @@ $(document).ready(function () {
       // otherwise update the old option with the URL and enable it
       if (existing_id == -1) {
         var option = $(
-          "<option value='" + version_url + "'>" + each + "</option>"
+          "<option value='" + version_url + "'>" + each + "</option>",
         );
         version_selector_select.append(option);
       } else {
