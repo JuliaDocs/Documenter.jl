@@ -34,11 +34,15 @@ jobs:
           - macos-latest
           - windows-latest
         arch:
-          - x64
+          - default
         include:
           - os: ubuntu-latest
             version: '1'
             arch: x86
+        exclude:
+          - os: macos-latest
+            version: '1.6'
+            arch: default
     steps:
       - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
@@ -229,7 +233,6 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: 1
-          arch: x64
           show-versioninfo: true
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
