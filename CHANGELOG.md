@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+* Changed the header crossref step to eagerly fail when encountering a non-unique header slug. ([#2668], [#2787])
+
 ## Version [v1.15.0] - 2025-10-22
 
 ### Changed
@@ -2122,6 +2128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2658]: https://github.com/JuliaDocs/Documenter.jl/issues/2658
 [#2659]: https://github.com/JuliaDocs/Documenter.jl/issues/2659
 [#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
+[#2668]: https://github.com/JuliaDocs/Documenter.jl/issues/2668
 [#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
 [#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
@@ -2147,6 +2154,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
 [#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
 [#2774]: https://github.com/JuliaDocs/Documenter.jl/issues/2774
+[#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
