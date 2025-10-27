@@ -4,6 +4,12 @@
 # replace various code blocks etc. with Documenter-specific elements that the writers
 # then can dispatch on. All the Documenter elements are subtypes of this node.
 abstract type AbstractDocumenterBlock <: MarkdownAST.AbstractBlock end
+abstract type AbstractDocumenterInline <: MarkdownAST.AbstractInline end
+
+# Override the show for Documenter elements types so that we would not print too much
+# information when we happen to show the AST.
+Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([...])")
+Base.show(io::IO, node::AbstractDocumenterInline) = print(io, typeof(node), "([...])")
 
 # Pages.
 # ------
@@ -57,6 +63,18 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
     end
     return Page(source, build, workdir, mdpage.content, Globals(), mdast)
 end
+
+Base.show(io::IO, page::Page) = print(
+    io,
+    "Documenter.Page(\"",
+    page.source,
+    "\", \"",
+    page.build,
+    "\", \"",
+    page.workdir,
+    "\")",
+)
+
 
 # FIXME -- special overload for parseblock
 parseblock(code::AbstractString, doc, page::Documenter.Page; kwargs...) = parseblock(code, doc, page.source; kwargs...)
@@ -195,10 +213,11 @@ end
 
 # Cross-references
 
-struct PageLink <: MarkdownAST.AbstractInline
+struct PageLink <: AbstractDocumenterInline
     page::Documenter.Page
     fragment::String
 end
+Base.show(io::IO, link::PageLink) = print(io, "Documenter.PageLink(\"", link.page, "\", \"", link.fragment, "\")")
 
 """
 Represents a reference to a local file. The `path` can be assumed to be an "absolute" path
@@ -207,19 +226,21 @@ relative to the document root (i.e. `src/` or `build/` directories).
 In the standard setup, when the documentation setup lives in `docs/`, with source files
 in `docs/src`, a link to the file `docs/src/foo/bar.md` would have `path = "foo/bar.md"`.
 """
-struct LocalLink <: MarkdownAST.AbstractInline
+struct LocalLink <: AbstractDocumenterInline
     path::String
     fragment::String
 end
+Base.show(io::IO, link::LocalLink) = print(io, "Documenter.LocalLink(\"", link.path, "\", \"", link.fragment, "\")")
 
 """
 Represents a reference to a local image. The `path` can be assumed to be an "absolute" path
 relative to the document root (i.e. `src/` or `build/` directories). See [`LocalLink`](@ref)
 for more details.
 """
-struct LocalImage <: MarkdownAST.AbstractInline
+struct LocalImage <: AbstractDocumenterInline
     path::String
 end
+Base.show(io::IO, image::LocalImage) = print(io, "Documenter.LocalImage(\"", image.path, "\")")
 
 # Navigation
 # ----------------------
@@ -341,6 +362,7 @@ struct User
     version::String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
     draft::Bool
+    meta::Dict{Symbol, Any} # default @meta block data for pages
 end
 
 """
@@ -403,6 +425,7 @@ function Document(;
         version::AbstractString = "",
         highlightsig::Bool = true,
         draft::Bool = false,
+        meta::Dict{Symbol} = Dict{Symbol, Any}(),
         others...
     )
 
@@ -468,6 +491,7 @@ function Document(;
         version,
         highlightsig,
         draft,
+        meta,
     )
     internal = Internal(
         assetsdir(),
@@ -1097,10 +1121,6 @@ struct SetupNode <: AbstractDocumenterBlock
     name::String
     code::String
 end
-
-# Override the show for DocumenterBlockTypes so that we would not print too much
-# information when we happen to show the AST.
-Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([...])")
 
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = MDFlatten.mdflatten(io, node.children)

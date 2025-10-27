@@ -263,7 +263,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication). This is done by adding
+(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -290,12 +290,12 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
+[Encrypted secrets](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
 for more information.
 
 ### Permissions
 
-The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token) are required to successfully use [`deploydocs`](#the-deploydocs-function):
+The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token#modifying-the-permissions-for-the-github_token) are required to successfully use [`deploydocs`](#the-deploydocs-function):
 
 ```yaml
 permissions:
@@ -445,7 +445,7 @@ jobs:
 _This workflow was based on [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
 The `permissions:` line above is described in the
-[GitHub Docs](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token#setting-the-github_token-permissions-for-a-specific-job);
+[GitHub Docs](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token#modifying-the-permissions-for-the-github_token);
 an alternative is to give GitHub workflows write permissions under the repo settings, e.g.,
 `https://github.com/<USER>/<REPO>.jl/settings/actions`.
 
@@ -602,15 +602,10 @@ repository on a "target" repo:
 4. Adapt `docs/make.jl` to deploy on "target" repository:
 
 ```julia
-# url of target repo
-repo = "github.com/TargetRepoOrg/TargetRepo.git"
-
-# You have to override the corresponding environment variable that
-# deplodocs uses to determine if it is deploying to the correct repository.
-# For GitHub, it's the GITHUB_REPOSITORY variable:
-withenv("GITHUB_REPOSITORY" => repo) do
-  deploydocs(repo=repo)
-end
+deploydocs(
+  repo="github.com/SourceRepoOrg/SourceRepo",
+  deploy_repo="github.com/TargetRepoOrg/TargetRepo"
+)
 ```
 
 ## Deploying from a monorepo

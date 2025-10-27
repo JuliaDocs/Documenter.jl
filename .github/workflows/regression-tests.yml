@@ -1,6 +1,14 @@
 name: 'Regression Tests'
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - master
+      - release-*
+      # You can suffix the branch name with '-runci' to run the CI on that branch
+      # without having to open a pull request. This is useful for long-lived branches.
+      - '*/*-runci'
+    tags: '*'
   pull_request:
     paths:
       - '.github/workflows/regression-tests.yml'
@@ -19,9 +27,11 @@ jobs:
           - package: 'DocumenterInterLinks'
           - package: 'DocumenterMermaid'
           - package: 'Asciicast'
+          - package: 'DocumenterPages'
+          - package: 'DocumenterDescriptions'
           - package: 'DocumenterVitepress'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -53,8 +63,9 @@ jobs:
       matrix:
         include:
           - package: 'MathOptInterface'
+          - package: 'Oscar'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'

@@ -21,7 +21,7 @@ should give a good overview of what this package is currently able to do.
 Packages that have tagged versions available in the general Registry:
 
 - [Augmentor.jl](https://evizero.github.io/Augmentor.jl/stable/)
-- [BanditOpt.jl](http://rajvishnu.in/BanditOpt.jl/stable/)
+- [BanditOpt.jl](https://rajvishnu.in/BanditOpt.jl/stable/)
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/stable/)
 - [ControlSystems.jl](https://juliacontrol.github.io/ControlSystems.jl/stable/)
 - [COSMO.jl](https://oxfordcontrol.github.io/COSMO.jl/stable/)
@@ -46,7 +46,7 @@ Packages that have tagged versions available in the general Registry:
 - [Mimi.jl](https://www.mimiframework.org/Mimi.jl/stable/)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/stable/)
 - [NLOptControl.jl](https://huckl3b3rry87.github.io/MPCDocs.jl/stable/)
-- [Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/))
+- [Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/)
 - [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
 - [OnlineStats.jl](https://joshday.github.io/OnlineStats.jl/stable/)
 - [PauliStrings.jl](https://paulistrings.org/dev/)
@@ -57,7 +57,6 @@ Packages that have tagged versions available in the general Registry:
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/stable/)
 - [Query.jl](https://www.queryverse.org/Query.jl/stable/)
 - [QuestDBClient.jl](https://ochibobo.github.io/QuestDBClient.jl/dev/)
-- [SimGBS.jl](https://kanji709.github.io/SimGBS.jl/stable/)
 - [SlimOptim.jl](https://slimgroup.github.io/SlimOptim.jl/stable/)
 - [SymbolicRegression.jl](https://astroautomata.com/SymbolicRegression.jl/stable/)
 - [TaylorSeries.jl](https://juliadiff.org/TaylorSeries.jl/stable/)

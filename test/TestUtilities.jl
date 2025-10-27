@@ -104,7 +104,19 @@ macro quietly(expr)
     end
 end
 
-is_success(testset::Test.DefaultTestSet) = !(testset.anynonpass || !is_success(testset.results))
+# Julia 1.13 change the .anynonpass field of the DefaultTestSet from a simple Bool
+# to an UInt. On the other hand, it added a convenience function to get the Bool.
+# So for compat, we just check the existence of the anynonpass() function.
+# X-ref: https://github.com/JuliaLang/julia/pull/59374
+function any_non_pass(testset::Test.DefaultTestSet)
+    @static if isdefined(Test, :anynonpass)
+        return Test.anynonpass(testset)
+    else
+        return testset.anynonpass
+    end
+end
+
+is_success(testset::Test.DefaultTestSet) = !(any_non_pass(testset) || !is_success(testset.results))
 is_success(ts::AbstractArray) = all(is_success.(ts))
 is_success(::Test.Fail) = false
 is_success(::Test.Pass) = true

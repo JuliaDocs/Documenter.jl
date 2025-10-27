@@ -60,9 +60,7 @@ Include images using basic Markdown syntax:
 
 ![Enter a descriptive caption for the image](assets/logo.png)
 
-The path should be relative to the directory of the current file. Alternatively,
-use `./` to begin a path relative to the `src` of the documents, e.g.,
-`./assets/logo.png`.
+The path should be relative to the directory of the current file.
 
 ## Admonitions
 

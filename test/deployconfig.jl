@@ -180,6 +180,47 @@ end
             @test Documenter.authentication_method(cfg) === Documenter.SSH
             @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         end
+        # External Repo: Regular tag build with SSH deploy key (SSH key prioritized)
+        withenv(
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/tags/v1.2.3",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+            cfg = Documenter.GitHubActions()
+            d = Documenter.deploy_folder(
+                cfg; repo = "github.com/JuliaDocs/Documenter.jl.git",
+                devbranch = "master", devurl = "dev", push_preview = true
+            )
+            @test d.all_ok
+            @test d.subfolder == "v1.2.3"
+            @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+            @test d.branch == "gh-pages"
+            @test Documenter.authentication_method(cfg) === Documenter.SSH
+            @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        end
+        # Regular tag build GITHUB_EVENT_NAME `release`
+        withenv(
+            "GITHUB_EVENT_NAME" => "release",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/tags/v1.2.3+docs",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+            cfg = Documenter.GitHubActions()
+            d = Documenter.deploy_folder(
+                cfg; repo = "github.com/JuliaDocs/Documenter.jl.git",
+                deploy_repo = "github.com/JuliaDocs/DocumenterDocs.jl.git",
+                devbranch = "master", devurl = "dev", push_preview = true
+            )
+            @test d.all_ok
+            @test d.subfolder == "v1.2.3"
+            @test d.repo == "github.com/JuliaDocs/DocumenterDocs.jl.git"
+            @test d.branch == "gh-pages"
+        end
         # Regular tag build with GITHUB_TOKEN and with tag prefix
         withenv(
             "GITHUB_EVENT_NAME" => "push",
@@ -394,6 +435,46 @@ end
                 @test Documenter.authentication_method(cfg) === Documenter.SSH
                 @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
                 @test Documenter.documenter_key_previews(cfg) === "SGVsbG8sIHdvcmxkLw=="
+            end
+            # External Repo: Regular pull request build with GITHUB_TOKEN
+            withenv(
+                "GITHUB_EVENT_NAME" => "pull_request",
+                "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                "GITHUB_REF" => "refs/pull/1962/merge",
+                "GITHUB_ACTOR" => "github-actions",
+                "DOCUMENTER_KEY" => nothing,
+            ) do
+                cfg = Documenter.GitHubActions()
+                d = Documenter.deploy_folder(
+                    cfg; repo = "github.com/JuliaDocs/Documenter.jl.git",
+                    deploy_repo = "github.com/JuliaDocs/DocumenterDocs.jl.git",
+                    devbranch = "master", devurl = "hello-world", push_preview = true
+                )
+                @test d.all_ok
+                @test d.subfolder == "previews/PR1962"
+                @test d.repo == "github.com/JuliaDocs/DocumenterDocs.jl.git"
+                @test d.branch == "gh-pages"
+            end
+            # External Repo: Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch
+            withenv(
+                "GITHUB_EVENT_NAME" => "pull_request",
+                "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                "GITHUB_REF" => "refs/pull/1962/merge",
+                "GITHUB_ACTOR" => "github-actions",
+                "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+            ) do
+                cfg = Documenter.GitHubActions()
+                d = Documenter.deploy_folder(
+                    cfg; repo = "github.com/JuliaDocs/Documenter.jl.git",
+                    devbranch = "master", devurl = "hello-world", push_preview = true,
+                    repo_previews = "github.com/JuliaDocs/Documenter-previews.jl.git",
+                    deploy_repo = "github.com/JuliaDocs/DocumenterDocs.jl.git",
+                    branch_previews = "gh-pages-previews"
+                )
+                @test d.all_ok
+                @test d.subfolder == "previews/PR1962"
+                @test d.repo == "github.com/JuliaDocs/Documenter-previews.jl.git" # prioritize repo_previews
+                @test d.branch == "gh-pages-previews"
             end
         end
         # Missing environment variables

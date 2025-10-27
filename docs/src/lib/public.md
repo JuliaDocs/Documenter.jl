@@ -26,6 +26,7 @@ Documenter.except
 hide
 Documenter.MissingRemoteError
 asset
+RawHTMLHeadContent
 deploydocs
 doctest
 DocMeta
@@ -39,4 +40,13 @@ DocMeta.setdocmeta!
 DocumenterTools.generate
 DocumenterTools.genkeys
 DocumenterTools.OutdatedWarning.generate
+```
+
+## Extensions
+
+These APIs are intended for extension and plugin authors to use.
+They would normally not be relevant for usual end-users.
+
+```@docs
+Documenter.writer_supports_ansicolor
 ```

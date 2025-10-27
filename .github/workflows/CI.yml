@@ -40,7 +40,7 @@ jobs:
             version: '1'
             arch: x86
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
@@ -49,6 +49,8 @@ jobs:
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
@@ -59,12 +61,48 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
+          flag-name: test-${{ join(matrix.*, '-') }}
+          parallel: true
 
   latex:
-    name: "PDF/LaTeX backend"
-    runs-on: ubuntu-latest
+    name: "PDF/LaTeX backend - ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - name: "Download and install DejaVu fonts"
+        run: |
+          Invoke-WebRequest "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip" -OutFile "DejaVu.zip"
+          Expand-Archive -Path "DejaVu.zip" -DestinationPath "."
+          $fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
+          foreach ($file in gci -Path ".\dejavu-fonts-ttf-2.37\ttf" "*.ttf")
+          {
+            $fonts.CopyHere($file.fullname)
+          }
+        if: matrix.os == 'windows-latest'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+        if: matrix.os == 'windows-latest'
+      - name: "install pygments for tectonic"
+        run: pip install pygments
+        if: matrix.os == 'windows-latest'
+      - uses: TeX-Live/setup-texlive-action@v3
+        with:
+          packages: |
+            scheme-medium
+            hyperref
+            minted
+            newunicodechar
+            transparent
+            upquote
+            tabulary
+            tcolorbox
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -74,14 +112,12 @@ jobs:
         run: |
           using Pkg
           Pkg.instantiate()
-          Pkg.develop(PackageSpec(path=pwd()))
-          Pkg.add(["IOCapture", "tectonic_jll"])
       - name: Run test/examples/tests_latex.jl
         run: julia --color=yes --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
-          file: lcov.info
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           plugins: noop
           disable_search: true
@@ -91,16 +127,18 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
-      - uses: actions/upload-artifact@v4
+          flag-name: latex-${{ join(matrix.*, '-') }}
+          parallel: true
+      - uses: actions/upload-artifact@v5
         with:
-          name: PDFs
+          name: "PDFs-${{ matrix.os }}"
           path: test/examples/builds/*/*.pdf
 
   themes:
     name: "CSS for HTML themes"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -120,7 +158,7 @@ jobs:
           - windows-latest
           - ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -134,7 +172,7 @@ jobs:
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
-          file: lcov.info
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           plugins: noop
           disable_search: true
@@ -144,6 +182,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
+          flag-name: prerender-${{ join(matrix.*, '-') }}
+          parallel: true
 
   docs:
     name: 'Documentation: ${{ matrix.format }}'
@@ -155,7 +195,7 @@ jobs:
           - html
           - pdf
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -168,17 +208,60 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
           DOCUMENTER_LATEX_DEBUG: ${{ github.workspace }}/latex-debug-logs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: ${{ always() && matrix.format == 'pdf' }}
         with:
           name: PDF build logs
           path: ${{ github.workspace }}/latex-debug-logs
+      - name: Upload search index
+        if: ${{ matrix.format == 'html' }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: search-index
+          path: docs/build/search_index.js
+
+  benchmarks:
+    name: Search Benchmarks
+    runs-on: ubuntu-latest
+    needs: docs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: 1
+          arch: x64
+          show-versioninfo: true
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
+      - name: Instantiate main project environment
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+      - name: Download search index
+        uses: actions/download-artifact@v6
+        with:
+          name: search-index
+          path: docs/build
+      - name: Build search edge cases documentation
+        run: |
+          cd test/search_edge_cases
+          julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path="../../"))'
+          julia --project=. make.jl
+      - name: Run search benchmarks
+        run: make search-benchmarks
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload search benchmark results
+        uses: actions/upload-artifact@v5
+        with:
+          name: search-benchmark-results
+          path: test/search/search_benchmark_results_*.txt
 
   linkcheck:
     name: "Linkcheck: online tests"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1'
@@ -186,10 +269,12 @@ jobs:
         run: julia --color=yes --project=test/online -e'using Pkg; Pkg.instantiate()'
       - name: Run online linkcheck tests
         run: julia --color=yes --project=test/online --code-coverage test/online/runtests.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
-          file: lcov.info
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           plugins: noop
           disable_search: true
@@ -199,12 +284,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
+          flag-name: linkcheck-${{ join(matrix.*, '-') }}
+          parallel: true
 
   linkcheck-manual:
     name: "Linkcheck: Documenter manual"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1'
@@ -212,13 +299,15 @@ jobs:
         run: make docs/Manifest.toml
       - name: Build and check documentation
         run: julia --color=yes --project=docs/ docs/make.jl linkcheck
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   prettier:
     name: Prettier (JS code formatting)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actionsx/prettier@v2
+      - uses: actions/checkout@v5
+      - uses: actionsx/prettier@v3
         with:
           args: --check .
 
@@ -226,7 +315,7 @@ jobs:
     name: "Runic (Julia code formatting)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1.11'
@@ -240,6 +329,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Actions Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Check spelling
         uses: crate-ci/typos@master
+
+  close-coveralls:
+    name: "Close Coveralls Submission"
+    needs: [test, latex, prerender, linkcheck]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true

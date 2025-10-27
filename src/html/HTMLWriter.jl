@@ -58,7 +58,7 @@ to [`Documenter.makedocs`](@ref), and a project `version` taken from the
 `inventory_version` argument of the [`HTML`](@ref) options, or automatically
 determined by [`deploydocs`](@ref Documenter.deploydocs) for tagged releases.
 The bulk of the file is a list of plain text records, compressed with gzip. See
-[Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
+[Inventory Generation](https://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
 for details on these records.
 """
 module HTMLWriter
@@ -87,12 +87,16 @@ const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 const THEMES = ["documenter-light", "documenter-dark", "catppuccin-latte", "catppuccin-frappe", "catppuccin-macchiato", "catppuccin-mocha"]
 "The root directory of the HTML assets."
 const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
+"The version of minisearch to use."
+const MINISEARCH_VERSION = "6.1.0"
 "The directory where all the Sass/SCSS files needed for theme building are."
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
-struct HTMLAsset
+abstract type HTMLHeadContent end
+
+struct HTMLAsset <: HTMLHeadContent
     class::Symbol
     uri::String
     islocal::Bool
@@ -108,6 +112,16 @@ struct HTMLAsset
         class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
         return new(class, uri, islocal, attributes)
     end
+end
+
+"""
+    RawHTMLHeadContent(content::String)
+
+Raw HTML content to be inserted into the `<head>` section of the HTML document. This type can
+be used in the `assets` keyword of [`HTML`](@ref), just like [`asset`](@ref).
+"""
+struct RawHTMLHeadContent <: HTMLHeadContent
+    content::String
 end
 
 """
@@ -192,9 +206,9 @@ struct KaTeX <: MathEngine
     function KaTeX(config::Union{Dict, Nothing} = nothing, override = false)
         default = Dict(
             :delimiters => [
-                Dict(:left => raw"$", :right => raw"$", display => false),
-                Dict(:left => raw"$$", :right => raw"$$", display => true),
-                Dict(:left => raw"\[", :right => raw"\]", display => true),
+                Dict(:left => raw"$", :right => raw"$", :display => false),
+                Dict(:left => raw"$$", :right => raw"$$", :display => true),
+                Dict(:left => raw"\[", :right => raw"\]", :display => true),
             ]
         )
         return new((config === nothing) ? default : override ? config : merge(default, config))
@@ -209,7 +223,7 @@ keyword to specify that the [MathJax v2 rendering engine](https://www.mathjax.or
 used in the HTML output to render mathematical expressions.
 
 A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
-the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7-latest/options/) function. By
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7/options/) function. By
 default, Documenter sets custom configurations for `tex2jax`, `config`, `jax`, `extensions`
 and `Tex`.
 
@@ -376,7 +390,7 @@ and the [Julia Programming Language](https://julialang.org/)."`.
 **`ansicolor`** can be used to globally disable colored output from `@repl` and `@example`
 blocks by setting it to `false` (default: `true`).
 
-**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
+**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang)
 of the top-level `<html>` element, declaring the language of the generated pages. The default
 value is `"en"`.
 
@@ -469,7 +483,7 @@ struct HTML <: Documenter.Writer
     edit_link::Union{String, Symbol, Nothing}
     repolink::Union{String, Nothing, Default{Nothing}}
     canonical::Union{String, Nothing}
-    assets::Vector{HTMLAsset}
+    assets::Vector{<:HTMLHeadContent}
     analytics::String
     collapselevel::Int
     sidebar_sitename::Bool
@@ -487,6 +501,7 @@ struct HTML <: Documenter.Writer
     size_threshold_warn::Int
     size_threshold_ignore::Vector{String}
     example_size_threshold::Int
+    search_size_threshold_warn::Int
     inventory_version::Union{String, Nothing}
 
     function HTML(;
@@ -516,6 +531,7 @@ struct HTML <: Documenter.Writer
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
+            search_size_threshold_warn::Union{Integer, Nothing} = 500 * 2^10, # 500 KiB
             inventory_version = nothing,
 
             # deprecated keywords
@@ -526,7 +542,7 @@ struct HTML <: Documenter.Writer
             prerender, node, highlightjs = prepare_prerendering(prerender, node, highlightjs, highlights)
         end
         assets = map(assets) do asset
-            isa(asset, HTMLAsset) && return asset
+            isa(asset, HTMLHeadContent) && return asset
             isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
             error("Invalid value in assets: $(asset) [$(typeof(asset))]")
         end
@@ -567,6 +583,11 @@ struct HTML <: Documenter.Writer
         elseif example_size_threshold < 0
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
+        if isnothing(search_size_threshold_warn)
+            search_size_threshold_warn = typemax(Int)
+        elseif search_size_threshold_warn <= 0
+            throw(ArgumentError("search_size_threshold_warn must be non-negative, got $(search_size_threshold_warn)"))
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         # We use normpath() when we construct the .page value for NavNodes, so we also need to normpath()
         # these values. This also ensures cross-platform compatibility of the values.
@@ -576,10 +597,15 @@ struct HTML <: Documenter.Writer
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
+            search_size_threshold_warn,
             (isnothing(inventory_version) ? nothing : string(inventory_version))
         )
     end
 end
+
+# HTML accepts ANSI, so this is `true`.
+Documenter.writer_supports_ansicolor(::HTML) = true
+
 
 # Cache of downloaded highlight.js bundles
 const HLJSFILES = Dict{String, String}()
@@ -713,6 +739,20 @@ function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
     return SearchRecord(ctx, navnode; text = mdflatten(node))
 end
 
+# Returns nothing for nodes that shouldn't be indexed in search
+const _SEARCHRECORD_IGNORED_BLOCK_TYPES = Union{
+    Documenter.MetaNode,
+    Documenter.DocsNodesBlock,
+    Documenter.SetupNode,
+}
+function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Node)
+    # Skip indexing special at-blocks
+    if node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES
+        return nothing
+    end
+    return SearchRecord(ctx, navnode, node, node.element)
+end
+
 function JSON.lower(rec::SearchRecord)
     # Replace any backslashes in links, if building the docs on Windows
     src = replace(rec.src, '\\' => '/')
@@ -772,7 +812,17 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
-            push!(r, JSDependencies.parse_snippet(path))
+
+            content = read(path, String)
+            if filename == "search.js"
+                if isfile(joinpath(doc.user.source, "assets", "search.js"))
+                    @warn "not embedding 'search.js', provided by the user."
+                    continue
+                end
+                content = replace(content, "__MINISEARCH_VERSION__" => MINISEARCH_VERSION)
+            end
+
+            push!(r, JSDependencies.parse_snippet(IOBuffer(content)))
         end
         JSDependencies.verify(r; verbose = true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
@@ -819,10 +869,24 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     # Check that all HTML files are smaller or equal to size_threshold option
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
 
-    open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
+    # Check the size of the search index
+    search_index_path = joinpath(doc.user.build, ctx.search_index_js)
+    open(search_index_path, "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
+    end
+    let file_size = filesize(search_index_path)
+        if file_size > settings.search_size_threshold_warn
+            file_size_format_results = format_units(file_size)
+            size_threshold_warn_format_results = format_units(settings.search_size_threshold_warn)
+            @warn """
+            Generated search index over size_threshold_warn limit:
+                Generated file size: $(file_size_format_results)
+                search_size_threshold_warn: $(size_threshold_warn_format_results)
+                Search index file:   $(search_index_path)
+            """
+        end
     end
 
     write_inventory(doc, ctx)
@@ -1083,11 +1147,15 @@ function find_preview_image(ctx)
     return nothing
 end
 
-function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
+function asset_links(src::AbstractString, assets::Vector{<:HTMLHeadContent})
     isabspath(src) && @error("Absolute path '$src' passed to asset_links")
     @tags link script
     links = DOM.Node[]
     for asset in assets
+        if isa(asset, RawHTMLHeadContent)
+            push!(links, DOM.Tag(Symbol("#RAW#"))(asset.content))
+            continue
+        end
         class = asset.class
         url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
@@ -1634,10 +1702,12 @@ function generate_redirect_file(redirectfile::AbstractString, entries)
     return
 end
 
-function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing})
+function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing}, is_dev_version::Bool = false)
     open(joinpath(dir, "siteinfo.js"), "w") do buf
         if version !== nothing
             println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+            # Add the development version flag
+            println(buf, "var DOCUMENTER_IS_DEV_VERSION = $(is_dev_version ? "true" : "false");")
         else
             println(buf, "var DOCUMENTER_VERSION_SELECTOR_DISABLED = true;")
         end
@@ -1680,8 +1750,10 @@ end
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     return map(getpage(ctx, navnode).mdast.children) do node
-        rec = SearchRecord(ctx, navnode, node, node.element)
-        push!(ctx.search_index, rec)
+        rec = searchrecord(ctx, navnode, node)
+        if !isnothing(rec)
+            push!(ctx.search_index, rec)
+        end
         domify(dctx, node, node.element)
     end
 end
@@ -2377,16 +2449,24 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             # apply a class
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-
+    node_repr = sprint(io -> show(io, node))
+    content_hash = string(hash(node_repr), base = 16)
+    admonition_id = if !isempty(a.title)
+        base_id = Documenter.slugify(a.title)
+        "$(base_id)-$(content_hash)"
+    else
+        "$(a.category)-$(content_hash)"
+    end
+    anchor_link = DOM.Tag(:a)[".admonition-anchor", :href => "#$(admonition_id)", :title => "Permalink"]()
     inner_div = div[".admonition-body"](domify(dctx, node.children))
     if a.category == "details"
         # details admonitions are rendered as <details><summary> blocks
-        return details[".admonition.is-details"](
-            summary[".admonition-header"](a.title), inner_div
+        return details[".admonition.is-details", :id => admonition_id](
+            summary[".admonition-header"](a.title, anchor_link), inner_div
         )
     else
-        return div[".admonition$(colorclass)"](
-            header[".admonition-header"](a.title), inner_div
+        return div[".admonition$(colorclass)", :id => admonition_id](
+            header[".admonition-header"](a.title, anchor_link), inner_div
         )
     end
 end

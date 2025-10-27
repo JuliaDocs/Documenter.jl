@@ -55,6 +55,23 @@ function documenter_key_previews(cfg::DeployConfig)
     return get(ENV, "DOCUMENTER_KEY_PREVIEWS", documenter_key(cfg))
 end
 
+function _decode_key_content(keycontent)
+    # If `keycontent` contains both `-----BEGIN` AND `-----END`, then we assume that it is
+    # a plaintext private key, and we don't try to Base64-decode it.
+    #
+    # Otherwise, we conclude that it must be a Base64-encoded private key, and we try to
+    # Base64-decode it.
+    is_plaintext_key = occursin("-----BEGIN", keycontent) && occursin("-----END", keycontent)
+    if is_plaintext_key
+        @debug "This looks like a plaintext private key, so we won't try to Base64-decode it"
+        # The private key file must end in a trailing newline
+        return keycontent * '\n'
+    else
+        @debug "We conclude that this must be a Base64-encoded private key"
+        return base64decode(keycontent)
+    end
+end
+
 """
     Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl,
                              tag_prefix, kwargs...)
@@ -166,7 +183,8 @@ end
 function deploy_folder(
         cfg::Travis;
         repo,
-        repo_previews = repo,
+        repo_previews = nothing,
+        deploy_repo = nothing,
         branch = "gh-pages",
         branch_previews = branch,
         devbranch,
@@ -201,7 +219,7 @@ function deploy_folder(
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"TRAVIS_TAG\"] contains a valid VersionNumber")
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
         is_preview = false
         ## Deploy to folder according to the tag
         subfolder = tag_nobuild
@@ -215,7 +233,7 @@ function deploy_folder(
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"TRAVIS_BRANCH\"] matches devbranch=\"$(devbranch)\"")
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
         is_preview = false
         ## Deploy to deploydocs devurl kwarg
         subfolder = devurl
@@ -228,7 +246,7 @@ function deploy_folder(
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
         deploy_branch = branch_previews
-        deploy_repo = repo_previews
+        deploy_repo = something(repo_previews, deploy_repo, repo)
         is_preview = true
         ## deploy to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
@@ -294,7 +312,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables).
+[documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -312,7 +330,8 @@ end
 function deploy_folder(
         cfg::GitHubActions;
         repo,
-        repo_previews = repo,
+        repo_previews = nothing,
+        deploy_repo = nothing,
         branch = "gh-pages",
         branch_previews = branch,
         devbranch,
@@ -338,9 +357,9 @@ function deploy_folder(
     println(io, "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"")
     if build_type === :release
         ## Do not deploy for PRs
-        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
+        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule", "release"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\", \"schedule\" or \"release\"")
         ## If a tag exist it should be a valid VersionNumber
         m = match(r"^refs\/tags\/(.*)$", cfg.github_ref)
         tag_nobuild = version_tag_strip_build(m.captures[1]; tag_prefix)
@@ -348,7 +367,7 @@ function deploy_folder(
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"GITHUB_REF\"]=\"$(cfg.github_ref)\" contains a valid VersionNumber")
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
         is_preview = false
         ## Deploy to folder according to the tag
         subfolder = m === nothing ? nothing : tag_nobuild
@@ -363,7 +382,7 @@ function deploy_folder(
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"GITHUB_REF\"] matches devbranch=\"$(devbranch)\"")
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
         is_preview = false
         ## Deploy to deploydocs devurl kwarg
         subfolder = devurl
@@ -382,7 +401,7 @@ function deploy_folder(
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
         deploy_branch = branch_previews
-        deploy_repo = repo_previews
+        deploy_repo = something(repo_previews, deploy_repo, repo)
         is_preview = true
         ## deploydocs to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
@@ -510,7 +529,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = not
         else
             error("unsupported type: $type")
         end
-        push!(cmd.exec, "-d", sprint(JSON.print, json))
+        push!(cmd.exec, "-d", JSON.json(json))
         push!(cmd.exec, "https://api.github.com/repos/$(owner)/$(repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
@@ -607,7 +626,8 @@ end
 function deploy_folder(
         cfg::GitLab;
         repo,
-        repo_previews = repo,
+        repo_previews = nothing,
+        deploy_repo = nothing,
         devbranch,
         push_preview,
         devurl,
@@ -650,7 +670,7 @@ function deploy_folder(
         is_preview = false
         subfolder = tag_nobuild
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
     elseif build_type == :preview
         pr_number = tryparse(Int, cfg.pull_request_iid)
         pr_ok = pr_number !== nothing
@@ -669,7 +689,7 @@ function deploy_folder(
         ## deploy to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
         deploy_branch = branch_previews
-        deploy_repo = repo_previews
+        deploy_repo = something(repo_previews, deploy_repo, repo)
     else
         branch_ok = !isempty(cfg.commit_tag) || cfg.commit_branch == devbranch
         all_ok &= branch_ok
@@ -680,7 +700,7 @@ function deploy_folder(
         is_preview = false
         subfolder = devurl
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
     end
 
     key_ok = env_nonempty("DOCUMENTER_KEY")
@@ -750,7 +770,8 @@ end
 function deploy_folder(
         cfg::Buildkite;
         repo,
-        repo_previews = repo,
+        repo_previews = nothing,
+        deploy_repo = nothing,
         devbranch,
         push_preview,
         devurl,
@@ -791,7 +812,7 @@ function deploy_folder(
         is_preview = false
         subfolder = tag_nobuild
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
     elseif build_type == :preview
         pr_number = tryparse(Int, cfg.pull_request)
         pr_ok = pr_number !== nothing
@@ -810,7 +831,7 @@ function deploy_folder(
         ## deploy to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
         deploy_branch = branch_previews
-        deploy_repo = repo_previews
+        deploy_repo = something(repo_previews, deploy_repo, repo)
     else
         branch_ok = !isempty(cfg.commit_tag) || cfg.commit_branch == devbranch
         all_ok &= branch_ok
@@ -821,7 +842,7 @@ function deploy_folder(
         is_preview = false
         subfolder = devurl
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
     end
 
     key_ok = env_nonempty("DOCUMENTER_KEY")
@@ -944,8 +965,8 @@ pipeline:
 ```
 
 More about pipeline syntax is documented here:
-- 0.15.x: [https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax (hosted at archive.org; the documentation is no longer available on the Woodpecker website)](https://web.archive.org/web/20240318223506/https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax)
-- 1.0.0 and onwards: [https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax (hosted at archive.org; the documentation is no longer available on the Woodpecker website)](https://web.archive.org/web/20240318224839/https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax)
+- 0.15.x: <https://github.com/woodpecker-ci/woodpecker/blob/release/v0.15/docs/docs/20-usage/20-pipeline-syntax.md>
+- 1.0.0 and onwards: <https://github.com/woodpecker-ci/woodpecker/blob/release/v1.0/docs/docs/20-usage/20-pipeline-syntax.md>
 - 2.0.0 and onwards: <https://woodpecker-ci.org/docs/usage/workflow-syntax>
 """
 struct Woodpecker <: DeployConfig
@@ -1003,7 +1024,8 @@ end
 function deploy_folder(
         cfg::Woodpecker;
         repo,
-        repo_previews = repo,
+        repo_previews = nothing,
+        deploy_repo = nothing,
         branch = "pages",
         branch_previews = branch,
         devbranch,
@@ -1047,7 +1069,7 @@ function deploy_folder(
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"]=\"$(cfg.woodpecker_tag)\" contains a valid VersionNumber")
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
         is_preview = false
         ## Deploy to folder according to the tag
         subfolder = tag_nobuild
@@ -1062,7 +1084,7 @@ function deploy_folder(
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"CI_COMMIT_REF\"] matches devbranch=\"$(devbranch)\"")
         deploy_branch = branch
-        deploy_repo = repo
+        deploy_repo = something(deploy_repo, repo)
         is_preview = false
         ## Deploy to deploydocs devurl kwarg
         subfolder = devurl
@@ -1081,7 +1103,7 @@ function deploy_folder(
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
         deploy_branch = branch_previews
-        deploy_repo = repo_previews
+        deploy_repo = something(repo_previews, deploy_repo, repo)
         is_preview = true
         ## deploydocs to previews/PR
         subfolder = "previews/PR$(something(pr_number1, 0))"

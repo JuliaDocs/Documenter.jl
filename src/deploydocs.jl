@@ -16,7 +16,8 @@
         forcepush = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview = false,
-        repo_previews = repo,
+        repo_previews = nothing,
+        deploy_repo = nothing,
         branch_previews = branch,
         tag_prefix = "",
     )
@@ -128,6 +129,12 @@ If `versions = nothing` documentation will be deployed directly to the "root", i
 not to a versioned subfolder. See the manual section on
 [Deploying without the versioning scheme](@ref) for more details.
 
+**`deploy_repo`** can be used to override the remote repository to deploy to, which
+normally will be the same as `repo` (if this is unset or set to `nothing`). This is mostly
+used when the documentation is deployed to a dedicated "docs hosting repository", usually
+to avoid issues with the main repository's `gh-pages` branch getting too large. The
+expected format of the argument is the same as for `repo`.
+
 **`push_preview`** a boolean that specifies if preview documentation should be
 deployed from pull requests or not. If your published documentation is hosted
 at `"https://USER.github.io/PACKAGE.jl/stable`, by default the preview will be
@@ -138,8 +145,9 @@ forks.
 **`branch_previews`** is the branch to which pull request previews are deployed.
 It defaults to the value of `branch`.
 
-**`repo_previews`** is the remote repository to which pull request previews are
-deployed. It defaults to the value of `repo`.
+**`repo_previews`** can be used to override the remote repository to which pull request previews are
+deployed. If this is not set, it will be the same as `deploy_repo` (if that is set) or `repo` otherwise.
+The expected format of the argument is the same as for `repo`.
 
 !!! note
     Pull requests made from forks will not have previews.
@@ -190,8 +198,9 @@ function deploydocs(;
 
         repo = error("no 'repo' keyword provided."),
         branch = "gh-pages",
+        deploy_repo = nothing,
 
-        repo_previews = repo,
+        repo_previews = nothing,
         branch_previews = branch,
 
         deps = nothing,
@@ -230,18 +239,16 @@ function deploydocs(;
         push_preview = push_preview,
         repo = repo,
         repo_previews = repo_previews,
+        deploy_repo = deploy_repo,
         tag_prefix
     )
     if deploy_decision.all_ok
         deploy_branch = deploy_decision.branch
         deploy_repo = deploy_decision.repo
-        deploy_subfolder = deploy_decision.subfolder
         deploy_is_preview = deploy_decision.is_preview
 
-        # Non-versioned docs: deploy to root
-        if versions === nothing && !deploy_is_preview
-            deploy_subfolder = nothing
-        end
+        # this dispatches on `versions` for a non-public API for DocumenterVitepress
+        deploy_subfolder = determine_deploy_subfolder(deploy_decision, versions)
 
         # Install dependencies when applicable.
         if deps !== nothing
@@ -306,7 +313,6 @@ function deploydocs(;
     end
     return
 end
-
 
 function _get_inventory_version(objects_inv)
     return open(objects_inv) do input
@@ -385,14 +391,14 @@ function git_push(
         run(`$(git()) remote add upstream $upstream`)
         try
             run(`$(git()) fetch upstream`)
-        catch e
+        catch
             @error """
             Git failed to fetch $upstream
             This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
             Make sure that the environment variable is properly set up as a Base64-encoded string
             of the SSH private key. You may need to re-generate the keys with DocumenterTools.
             """
-            rethrow(e)
+            rethrow()
         end
 
         try
@@ -418,44 +424,8 @@ function git_push(
             write(joinpath(dirname, "CNAME"), cname)
         end
 
-        if versions === nothing
-            # If the documentation is unversioned and deployed to root, we generate a
-            # siteinfo.js file that would disable the version selector in the docs
-            HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
-        else
-            # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
-            HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
-
-            # Expand the users `versions` vector
-            entries, symlinks = HTMLWriter.expand_versions(dirname, versions)
-
-            # Create the versions.js file containing a list of `entries`.
-            # This must always happen after the folder copying.
-            HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
-
-            # Create the index.html file to redirect ./stable or ./dev.
-            # This must always happen after the folder copying.
-            HTMLWriter.generate_redirect_file(joinpath(dirname, "index.html"), entries)
-
-            # generate the symlinks, make sure we don't overwrite devurl
-            cd(dirname) do
-                for kv in symlinks
-                    i = findfirst(x -> x.first == devurl, symlinks)
-                    if i === nothing
-                        rm_and_add_symlink(kv.second, kv.first)
-                    else
-                        throw(
-                            ArgumentError(
-                                string(
-                                    "link `$(kv)` cannot overwrite ",
-                                    "`devurl = $(devurl)` with the same name."
-                                )
-                            )
-                        )
-                    end
-                end
-            end
-        end
+        # this dispatches on `versions` for a non-public API for DocumenterVitepress
+        postprocess_before_push(versions; subfolder, devurl, deploy_dir, dirname)
 
         # Add, commit, and push the docs to the remote.
         run(`$(git()) add -A -- ':!.documenter-identity-file.tmp' ':!**/.documenter-identity-file.tmp'`)
@@ -489,7 +459,7 @@ function git_push(
             else
                 keycontent = documenter_key(deploy_config)
             end
-            write(keyfile, base64decode(keycontent))
+            write(keyfile, _decode_key_content(keycontent))
             chmod(keyfile, 0o600) # user-only rw permissions
         catch e
             @error """
@@ -545,6 +515,77 @@ function git_push(
         end
     end
     return
+end
+
+# Run arbitrary logic (for example, creating siteinfo and version files)
+# on the documentation with the new additions before the changes are pushed to the remote.
+# The logic depends on the versioning scheme defined via `versions`.
+# This function was factored out as part of a non-public API via dispatch on the `versions` keyword arg
+# to `deploydocs`, for use in DocumenterVitepress because it cannot use the default versioning.
+function postprocess_before_push(versions::Nothing; subfolder, devurl, deploy_dir, dirname)
+    # If the documentation is unversioned and deployed to root, we generate a
+    # siteinfo.js file that would disable the version selector in the docs
+    HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
+    return
+end
+
+# The default fallback method which we will use unless the user is passing a custom versions
+# object and has overridden this method.
+function postprocess_before_push(versions::Any; subfolder, devurl, deploy_dir, dirname)
+    # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
+    # Determine if this is a development version (e.g., "dev" or "latest")
+    is_dev_version = (subfolder == devurl || subfolder == "latest")
+    HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder, is_dev_version)
+
+    # Expand the users `versions` vector
+    entries, symlinks = HTMLWriter.expand_versions(dirname, versions)
+
+    # Create the versions.js file containing a list of `entries`.
+    # This must always happen after the folder copying.
+    HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
+
+    # Create the index.html file to redirect ./stable or ./dev.
+    # This must always happen after the folder copying.
+    HTMLWriter.generate_redirect_file(joinpath(dirname, "index.html"), entries)
+
+    # generate the symlinks, make sure we don't overwrite devurl
+    return cd(dirname) do
+        for kv in symlinks
+            i = findfirst(x -> x.first == devurl, symlinks)
+            if i === nothing
+                rm_and_add_symlink(kv.second, kv.first)
+            else
+                throw(
+                    ArgumentError(
+                        string(
+                            "link `$(kv)` cannot overwrite ",
+                            "`devurl = $(devurl)` with the same name."
+                        )
+                    )
+                )
+            end
+        end
+    end
+end
+
+# Determine the subfolder to deploy to given the `deploy_decision` and the `versions`.
+# Either return a `String` or `nothing` to deploy to the root folder.
+# This function was factored out as part of a non-public API via dispatch on the `versions` keyword arg
+# to `deploydocs`, for use in DocumenterVitepress because it cannot use the default versioning.
+function determine_deploy_subfolder(deploy_decision, versions::Nothing)
+    # Non-versioned docs: deploy to root unless it's a preview
+    return deploy_decision.is_preview ? deploy_decision.subfolder : nothing
+end
+# Method to handle the standard versions = [...] argument.
+function determine_deploy_subfolder(deploy_decision, versions::AbstractVector)
+    return deploy_decision.subfolder
+end
+# Fallback determine_deploy_subfolder for any non-standard `versions` arguments.
+function determine_deploy_subfolder(deploy_decision, versions::Any)
+    @warn """
+    Using a non-standard versions= argument, but determine_deploy_subfolder() is not implemented.
+    """ typeof(versions) versions
+    return deploy_decision.subfolder
 end
 
 function rm_and_add_symlink(target, link)
