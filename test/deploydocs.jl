@@ -126,7 +126,7 @@ end
             write(joinpath(subpackage_doc_dir, "page.html"), "...")
 
             # Use different versions for each set of docs to make it easier to see
-            # where the version has been deplyed.
+            # where the version has been deployed.
             # Deploy 1.0.0 tag - top level repo
             @quietly deploydocs(
                 root = pwd(),

@@ -334,11 +334,15 @@ end
     json_jsescape(args...)
 
 Call `JSON.json(args...)` to generate a `String` of JSON, but then also escape two Unicode
-characters to get valid JS (since [JSON is not a JS subset](https://web.archive.org/web/20200111135746/http://timelessrepo.com/json-isnt-a-javascript-subset)).
+characters to get valid JavaScript. This is necessary because U+2028 ("Line separator")
+and U+2029 ("Paragraph separator") are considered as plain whitespace characters in JSON,
+but JavaScript (at least in the past) considers them to be line terminators, just like
+U+000A ("Line Feed") and U+000D ("Carriage Return") and those are not allowed inside
+a string literal.
 
 !!! note
     Technically, starting with ECMAScript® 2019 (10th edition), this is no longer necessary.
-    The JS standard was changed in a way that all valid JSON is also valid JS.
+    The JS standard was changed in a way that all valid JSON is also valid JavaScript.
 """
 function json_jsescape(args...)
     escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")

@@ -26,6 +26,7 @@ Documenter.except
 hide
 Documenter.MissingRemoteError
 asset
+RawHTMLHeadContent
 deploydocs
 doctest
 DocMeta

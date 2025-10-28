@@ -55,6 +55,23 @@ function documenter_key_previews(cfg::DeployConfig)
     return get(ENV, "DOCUMENTER_KEY_PREVIEWS", documenter_key(cfg))
 end
 
+function _decode_key_content(keycontent)
+    # If `keycontent` contains both `-----BEGIN` AND `-----END`, then we assume that it is
+    # a plaintext private key, and we don't try to Base64-decode it.
+    #
+    # Otherwise, we conclude that it must be a Base64-encoded private key, and we try to
+    # Base64-decode it.
+    is_plaintext_key = occursin("-----BEGIN", keycontent) && occursin("-----END", keycontent)
+    if is_plaintext_key
+        @debug "This looks like a plaintext private key, so we won't try to Base64-decode it"
+        # The private key file must end in a trailing newline
+        return keycontent * '\n'
+    else
+        @debug "We conclude that this must be a Base64-encoded private key"
+        return base64decode(keycontent)
+    end
+end
+
 """
     Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl,
                              tag_prefix, kwargs...)
@@ -295,7 +312,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables).
+[documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -340,9 +357,9 @@ function deploy_folder(
     println(io, "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"")
     if build_type === :release
         ## Do not deploy for PRs
-        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
+        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule", "release"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\", \"schedule\" or \"release\"")
         ## If a tag exist it should be a valid VersionNumber
         m = match(r"^refs\/tags\/(.*)$", cfg.github_ref)
         tag_nobuild = version_tag_strip_build(m.captures[1]; tag_prefix)
@@ -948,8 +965,8 @@ pipeline:
 ```
 
 More about pipeline syntax is documented here:
-- 0.15.x: [https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax (hosted at archive.org; the documentation is no longer available on the Woodpecker website)](https://web.archive.org/web/20240318223506/https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax)
-- 1.0.0 and onwards: [https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax (hosted at archive.org; the documentation is no longer available on the Woodpecker website)](https://web.archive.org/web/20240318224839/https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax)
+- 0.15.x: <https://github.com/woodpecker-ci/woodpecker/blob/release/v0.15/docs/docs/20-usage/20-pipeline-syntax.md>
+- 1.0.0 and onwards: <https://github.com/woodpecker-ci/woodpecker/blob/release/v1.0/docs/docs/20-usage/20-pipeline-syntax.md>
 - 2.0.0 and onwards: <https://woodpecker-ci.org/docs/usage/workflow-syntax>
 """
 struct Woodpecker <: DeployConfig
