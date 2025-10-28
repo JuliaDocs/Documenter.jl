@@ -725,15 +725,6 @@ function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing,
     )
 end
 
-function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader)
-    a = element.anchor
-    return SearchRecord(
-        ctx, navnode;
-        fragment = Documenter.anchor_fragment(a),
-        title = mdflatten(node), # AnchoredHeader has Heading as single child
-        category = "section"
-    )
-end
 
 function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
     return SearchRecord(ctx, navnode; text = mdflatten(node))
@@ -745,12 +736,62 @@ const _SEARCHRECORD_IGNORED_BLOCK_TYPES = Union{
     Documenter.DocsNodesBlock,
     Documenter.SetupNode,
 }
-function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Node)
-    # Skip indexing special at-blocks
-    if node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES
-        return nothing
+
+# Content segment for grouping content by sections
+struct ContentSegment
+    section_header::Union{Node, Nothing}
+    content_nodes::Vector{Node}           # Content nodes belonging to this section
+end
+
+# Segment page content by sections for improved search indexing
+function segment_page_by_sections(page_mdast::Node)
+    segments = ContentSegment[]
+    current = ContentSegment(nothing, Node[])
+
+    for node in page_mdast.children
+        if node.element isa Documenter.AnchoredHeader
+            # Save previous segment if it has content or a header
+            if !isempty(current.content_nodes) || current.section_header !== nothing
+                push!(segments, current)
+            end
+            # Start new section
+            current = ContentSegment(node, Node[])
+        else
+            # Skip nodes that shouldn't be indexed
+            if !(node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES)
+                push!(current.content_nodes, node)
+            end
+        end
     end
-    return SearchRecord(ctx, navnode, node, node.element)
+
+    # Add final segment
+    if !isempty(current.content_nodes) || current.section_header !== nothing
+        push!(segments, current)
+    end
+
+    return segments
+end
+
+# Create search record for a content segment
+function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::ContentSegment)
+    text = join([mdflatten(node) for node in segment.content_nodes], "\n\n")
+
+    if segment.section_header === nothing
+        title = nothing
+        fragment = ""
+    else
+        a = segment.section_header.element.anchor
+        title = mdflatten(segment.section_header)
+        fragment = Documenter.anchor_fragment(a)
+    end
+
+    return SearchRecord(
+        ctx, navnode;
+        fragment,
+        title,
+        category = "section",
+        text
+    )
 end
 
 function JSON.lower(rec::SearchRecord)
@@ -1749,11 +1790,17 @@ end
 
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    return map(getpage(ctx, navnode).mdast.children) do node
-        rec = searchrecord(ctx, navnode, node)
-        if !isnothing(rec)
-            push!(ctx.search_index, rec)
-        end
+    page_mdast = getpage(ctx, navnode).mdast
+
+    # Generate search index using custom segmentation, with pages merged together
+    segments = segment_page_by_sections(page_mdast)
+    for segment in segments
+        search_record = searchrecord(ctx, navnode, segment)
+        push!(ctx.search_index, search_record)
+    end
+
+    # Generate HTML as before - process each child node individually
+    return map(page_mdast.children) do node
         domify(dctx, node, node.element)
     end
 end
