@@ -8,13 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Changed the header crossref step to eagerly fail when encountering a non-unique header slug. This may cause some documentation builds to fail, that previously passed but generated incorrect references. This can be fixed by having distinct headers in your markdown pages, or by not referencing headers directly but rather their `@id`.([#2668], [#2787])
+* Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
 
 ## Version [v1.15.0] - 2025-10-22
 
 ### Changed
 
-* The HTML output shows a warning now when the search index size is too big (500Kib). ([#2423], [#2753])
-* In the HTML output, the search modal can now be navigated using using up and down keys. ([#2761])
+* Created a warning for when the search index size is too big (500Kib). ([#2423], [#2753])
+* In the HTML output, the search modal can now be navigated using up and down keys. ([#2761])
 
 ### Other
 
@@ -2067,6 +2068,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
 [#2410]: https://github.com/JuliaDocs/Documenter.jl/issues/2410
+[#2413]: https://github.com/JuliaDocs/Documenter.jl/issues/2413
 [#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
 [#2423]: https://github.com/JuliaDocs/Documenter.jl/issues/2423
@@ -2153,6 +2155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
 [#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
+[#2762]: https://github.com/JuliaDocs/Documenter.jl/issues/2762
 [#2774]: https://github.com/JuliaDocs/Documenter.jl/issues/2774
 [#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
