@@ -1901,7 +1901,7 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
     )
     push!(ctx.search_index, rec)
 
-    return article(
+    docstring = article(
         details[".docstring"](
             summary[
                 :id => docsnode.anchor.id,
@@ -1913,6 +1913,16 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
             domify_doc(dctx, mdast_node)
         )
     )
+    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
+        # if DocStringsCollapse = true in `@meta`
+        # shouldn't the check then be false?
+        # see line 1530 for original comment?
+        # collapse everything!
+        # do nothing, that is
+    else
+        push!(docstring.nodes[1].attributes, :open => "true")
+    end
+    return docstring
 end
 
 function domify_doc(dctx::DCtx, node::Node)
