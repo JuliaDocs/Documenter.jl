@@ -234,6 +234,9 @@ The only case where you may want to consider passing `true` is when you are auto
 deploying the documentation for a package release. In that case, `warnonly` should be set
 dynamically by checking the relevant environment variables set by the CI system.
 
+**`treat_markdown_warnings_as_error`** can be used to control whether a build fails with error, or
+simply prints a warning if it detects unintended julia values within the markdown.
+
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).
 
