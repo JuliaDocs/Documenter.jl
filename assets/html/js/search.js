@@ -222,7 +222,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
         /[!<>=+\-*/^&|%:.]+/g,
         // Function signatures with type annotations (e.g., f(x::Int))
         /\b[A-Za-z0-9_!]*\([^)]*::[^)]*\)/g,
-        // Numbers (integers, floats,scientific notation)
+        // Numbers (integers, floats, scientific notation)
         /\b\d+(?:\.\d+)? (?:[eE][+-]?\d+)?\b/g,
       ];
 

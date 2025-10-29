@@ -37,7 +37,7 @@ const index = new MiniSearch({
   
         // julia specific patterns
         const patterns = [
-          // Module qualified names (e.g., Base.sort, Module.Submodule. function)
+          // Module qualified names (e.g., Base.sort or more generally Module.Submodule.function)
           /\b[A-Za-z0-9_1*(?:\.[A-Z][A-Za-z0-9_1*)*\.[a-z_][A-Za-z0-9_!]*\b/g,
           // Macro calls (e.g., @time, @async)
           /@[A-Za-z0-9_]*/g,
