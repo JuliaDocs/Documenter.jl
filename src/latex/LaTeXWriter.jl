@@ -856,7 +856,7 @@ function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue)
 
     To write the dollar sign, escape it with `\\\$`
 
-    We don't have the file or line number available, but we got given the value:
+    We have the file name $(io.filename), and we got given the value:
 
     `$(value.ref)` which is of type `$(typeof(value.ref))`
     """

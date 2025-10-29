@@ -2443,7 +2443,8 @@ function domify(dctx::DCtx, ::Node, e::MarkdownAST.JuliaValue)
 
         To write the dollar sign, escape it with `\\\$`
 
-        We don't have the file or line number available, but we got given the value:
+        Navnode is currently set to $(dctx.navnode.page), with parent $(dctx.navnode.parent), and we
+        got given the value:
 
         `$(e.ref)` which is of type `$(typeof(e.ref))`
     """
