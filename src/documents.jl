@@ -363,6 +363,7 @@ struct User
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
     draft::Bool
     meta::Dict{Symbol, Any} # default @meta block data for pages
+    treat_markdown_warnings_as_error::Bool # option to ttreat markdown warnings as an error
 end
 
 """
@@ -426,6 +427,7 @@ function Document(;
         highlightsig::Bool = true,
         draft::Bool = false,
         meta::Dict{Symbol} = Dict{Symbol, Any}(),
+        treat_markdown_warnings_as_error::Bool = false,
         others...
     )
 
@@ -492,6 +494,7 @@ function Document(;
         highlightsig,
         draft,
         meta,
+        treat_markdown_warnings_as_error,
     )
     internal = Internal(
         assetsdir(),
