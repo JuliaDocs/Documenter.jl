@@ -29,21 +29,13 @@ jobs:
           - package: 'Asciicast'
           - package: 'DocumenterPages'
           - package: 'DocumenterDescriptions'
+          - package: 'DocumenterVitepress'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
-      - uses: actions/cache@v4
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
+      - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - name: Test
         shell: julia --color=yes {0}
@@ -64,20 +56,11 @@ jobs:
           - package: 'MathOptInterface'
           - package: 'Oscar'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
-      - uses: actions/cache@v4
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
+      - uses: julia-actions/cache@v2
       - name: install-and-build-documentation
         shell: julia --color=yes {0}
         run: |

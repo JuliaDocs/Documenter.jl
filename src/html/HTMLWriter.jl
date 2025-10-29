@@ -58,7 +58,7 @@ to [`Documenter.makedocs`](@ref), and a project `version` taken from the
 `inventory_version` argument of the [`HTML`](@ref) options, or automatically
 determined by [`deploydocs`](@ref Documenter.deploydocs) for tagged releases.
 The bulk of the file is a list of plain text records, compressed with gzip. See
-[Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
+[Inventory Generation](https://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
 for details on these records.
 """
 module HTMLWriter
@@ -223,7 +223,7 @@ keyword to specify that the [MathJax v2 rendering engine](https://www.mathjax.or
 used in the HTML output to render mathematical expressions.
 
 A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
-the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7-latest/options/) function. By
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7/options/) function. By
 default, Documenter sets custom configurations for `tex2jax`, `config`, `jax`, `extensions`
 and `Tex`.
 
@@ -390,7 +390,7 @@ and the [Julia Programming Language](https://julialang.org/)."`.
 **`ansicolor`** can be used to globally disable colored output from `@repl` and `@example`
 blocks by setting it to `false` (default: `true`).
 
-**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
+**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang)
 of the top-level `<html>` element, declaring the language of the generated pages. The default
 value is `"en"`.
 
@@ -501,6 +501,7 @@ struct HTML <: Documenter.Writer
     size_threshold_warn::Int
     size_threshold_ignore::Vector{String}
     example_size_threshold::Int
+    search_size_threshold_warn::Int
     inventory_version::Union{String, Nothing}
 
     function HTML(;
@@ -530,6 +531,7 @@ struct HTML <: Documenter.Writer
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
+            search_size_threshold_warn::Union{Integer, Nothing} = 500 * 2^10, # 500 KiB
             inventory_version = nothing,
 
             # deprecated keywords
@@ -581,6 +583,11 @@ struct HTML <: Documenter.Writer
         elseif example_size_threshold < 0
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
+        if isnothing(search_size_threshold_warn)
+            search_size_threshold_warn = typemax(Int)
+        elseif search_size_threshold_warn <= 0
+            throw(ArgumentError("search_size_threshold_warn must be non-negative, got $(search_size_threshold_warn)"))
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         # We use normpath() when we construct the .page value for NavNodes, so we also need to normpath()
         # these values. This also ensures cross-platform compatibility of the values.
@@ -590,6 +597,7 @@ struct HTML <: Documenter.Writer
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
+            search_size_threshold_warn,
             (isnothing(inventory_version) ? nothing : string(inventory_version))
         )
     end
@@ -717,15 +725,6 @@ function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing,
     )
 end
 
-function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader)
-    a = element.anchor
-    return SearchRecord(
-        ctx, navnode;
-        fragment = Documenter.anchor_fragment(a),
-        title = mdflatten(node), # AnchoredHeader has Heading as single child
-        category = "section"
-    )
-end
 
 function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
     return SearchRecord(ctx, navnode; text = mdflatten(node))
@@ -737,12 +736,62 @@ const _SEARCHRECORD_IGNORED_BLOCK_TYPES = Union{
     Documenter.DocsNodesBlock,
     Documenter.SetupNode,
 }
-function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Node)
-    # Skip indexing special at-blocks
-    if node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES
-        return nothing
+
+# Content segment for grouping content by sections
+struct ContentSegment
+    section_header::Union{Node, Nothing}
+    content_nodes::Vector{Node}           # Content nodes belonging to this section
+end
+
+# Segment page content by sections for improved search indexing
+function segment_page_by_sections(page_mdast::Node)
+    segments = ContentSegment[]
+    current = ContentSegment(nothing, Node[])
+
+    for node in page_mdast.children
+        if node.element isa Documenter.AnchoredHeader
+            # Save previous segment if it has content or a header
+            if !isempty(current.content_nodes) || current.section_header !== nothing
+                push!(segments, current)
+            end
+            # Start new section
+            current = ContentSegment(node, Node[])
+        else
+            # Skip nodes that shouldn't be indexed
+            if !(node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES)
+                push!(current.content_nodes, node)
+            end
+        end
     end
-    return SearchRecord(ctx, navnode, node, node.element)
+
+    # Add final segment
+    if !isempty(current.content_nodes) || current.section_header !== nothing
+        push!(segments, current)
+    end
+
+    return segments
+end
+
+# Create search record for a content segment
+function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, segment::ContentSegment)
+    text = join([mdflatten(node) for node in segment.content_nodes], "\n\n")
+
+    if segment.section_header === nothing
+        title = nothing
+        fragment = ""
+    else
+        a = segment.section_header.element.anchor
+        title = mdflatten(segment.section_header)
+        fragment = Documenter.anchor_fragment(a)
+    end
+
+    return SearchRecord(
+        ctx, navnode;
+        fragment,
+        title,
+        category = "section",
+        text
+    )
 end
 
 function JSON.lower(rec::SearchRecord)
@@ -861,10 +910,24 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     # Check that all HTML files are smaller or equal to size_threshold option
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
 
-    open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
+    # Check the size of the search index
+    search_index_path = joinpath(doc.user.build, ctx.search_index_js)
+    open(search_index_path, "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
+    end
+    let file_size = filesize(search_index_path)
+        if file_size > settings.search_size_threshold_warn
+            file_size_format_results = format_units(file_size)
+            size_threshold_warn_format_results = format_units(settings.search_size_threshold_warn)
+            @warn """
+            Generated search index over size_threshold_warn limit:
+                Generated file size: $(file_size_format_results)
+                search_size_threshold_warn: $(size_threshold_warn_format_results)
+                Search index file:   $(search_index_path)
+            """
+        end
     end
 
     write_inventory(doc, ctx)
@@ -1727,11 +1790,17 @@ end
 
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    return map(getpage(ctx, navnode).mdast.children) do node
-        rec = searchrecord(ctx, navnode, node)
-        if !isnothing(rec)
-            push!(ctx.search_index, rec)
-        end
+    page_mdast = getpage(ctx, navnode).mdast
+
+    # Generate search index using custom segmentation, with pages merged together
+    segments = segment_page_by_sections(page_mdast)
+    for segment in segments
+        search_record = searchrecord(ctx, navnode, segment)
+        push!(ctx.search_index, search_record)
+    end
+
+    # Generate HTML as before - process each child node individually
+    return map(page_mdast.children) do node
         domify(dctx, node, node.element)
     end
 end

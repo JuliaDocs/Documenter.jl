@@ -7,5 +7,8 @@ NodeJS_22_jll = "8fca9ca2-e7a1-5ccf-8c05-43be5a78664f"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 
+[compat]
+PrettyTables = "2"
+
 [sources]
 Documenter = { path="../.." }

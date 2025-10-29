@@ -19,14 +19,32 @@ using Test
         """
     )
     @test isfile(tmpfile)
-    # Note: in Julia 1.3 fetch no longer throws the exception direction, but instead
-    # wraps it in a TaskFailedException (https://github.com/JuliaLang/julia/pull/32814).
-    if isdefined(Base, :TaskFailedException)
-        @test_throws TaskFailedException fetch(schedule(Task(() -> doctest(Documenter))))
-    else
-        @test_throws TestSetException fetch(schedule(Task(() -> doctest(Documenter))))
+    # Starting from 1.13, the Julia test infrastructure uses ScopedValues
+    # to handle testsets. So the original task-based approach does not work
+    # anymore for "detaching" the doctest testsets from the test suite.
+    # But we can manipulate the internal Test module state instead.
+    # X-ref: https://github.com/JuliaLang/julia/pull/53462
+    e = try
+        @static if VERSION >= v"1.13-"
+            Base.ScopedValues.@with(
+                Test.CURRENT_TESTSET => Test.FallbackTestSet(),
+                Test.TESTSET_DEPTH => 0,
+                doctest(Documenter)
+            )
+        else
+            fetch(schedule(Task(() -> doctest(Documenter))))
+        end
+    catch e
+        @static if VERSION >= v"1.13-"
+            e
+        else
+            # If we use the task-based approach, we need to unwrap the error
+            @test e isa TaskFailedException
+            e.task.exception
+        end
     end
     println("^^^ Expected error output.")
+    @test e isa TestSetException
     rm(tmpfile)
     @test !isfile(tmpfile)
 end
