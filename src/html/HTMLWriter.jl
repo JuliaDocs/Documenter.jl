@@ -1913,13 +1913,10 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
             domify_doc(dctx, mdast_node)
         )
     )
-    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
-        # if DocStringsCollapse = true in `@meta`
-        # shouldn't the check then be false?
-        # see line 1530 for original comment?
-        # collapse everything!
-        # do nothing, that is
-    else
+    if !get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
+        # If DocStringsCollapse = false in `@meta`, then set the `open`
+        # attribute to expand the docstring blocks (We don't need to care about
+        # the other case because detail blocks are collapsed by default)
         push!(docstring.nodes[1].attributes, :open => "true")
     end
     return docstring
