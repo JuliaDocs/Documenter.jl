@@ -39,8 +39,7 @@ requirejs.config({
       "highlight"
     ]
   }
-}
-});
+}});
 ////////////////////////////////////////////////////////////////////////////////
 require(['jquery', 'katex', 'katex-auto-render'], function($, katex, renderMathInElement) {
 $(document).ready(function() {
@@ -65,7 +64,6 @@ $(document).ready(function() {
     }
   ]
 }
-
   );
 })
 
@@ -80,81 +78,64 @@ $(document).ready(function() {
 ////////////////////////////////////////////////////////////////////////////////
 require(['jquery'], function($) {
 
-let timer = 0;
-var isExpanded = true;
+///////////////////////////////////
 
-$(document).on(
-  "click",
-  ".docstring .docstring-article-toggle-button",
-  function () {
-    let articleToggleTitle = "Expand docstring";
-    const parent = $(this).parent();
-
-    debounce(() => {
-      if (parent.siblings("section").is(":visible")) {
-        parent
-          .find("a.docstring-article-toggle-button")
-          .removeClass("fa-chevron-down")
-          .addClass("fa-chevron-right");
-      } else {
-        parent
-          .find("a.docstring-article-toggle-button")
-          .removeClass("fa-chevron-right")
-          .addClass("fa-chevron-down");
-
-        articleToggleTitle = "Collapse docstring";
-      }
-
-      parent
-        .children(".docstring-article-toggle-button")
-        .prop("title", articleToggleTitle);
-      parent.siblings("section").slideToggle();
-    });
-  }
-);
-
-$(document).on("click", ".docs-article-toggle-button", function (event) {
-  let articleToggleTitle = "Expand docstring";
-  let navArticleToggleTitle = "Expand all docstrings";
-  let animationSpeed = event.noToggleAnimation ? 0 : 400;
-
-  debounce(() => {
-    if (isExpanded) {
-      $(this).removeClass("fa-chevron-up").addClass("fa-chevron-down");
-      $("a.docstring-article-toggle-button")
-        .removeClass("fa-chevron-down")
-        .addClass("fa-chevron-right");
-
-      isExpanded = false;
-
-      $(".docstring section").slideUp(animationSpeed);
-    } else {
-      $(this).removeClass("fa-chevron-down").addClass("fa-chevron-up");
-      $("a.docstring-article-toggle-button")
-        .removeClass("fa-chevron-right")
-        .addClass("fa-chevron-down");
-
-      isExpanded = true;
-      articleToggleTitle = "Collapse docstring";
-      navArticleToggleTitle = "Collapse all docstrings";
-
-      $(".docstring section").slideDown(animationSpeed);
+// to open and scroll to
+function openTarget() {
+  const hash = decodeURIComponent(location.hash.substring(1));
+  if (hash) {
+    const target = document.getElementById(hash);
+    if (target) {
+      const details = target.closest("details");
+      if (details) details.open = true;
     }
-
-    $(this).prop("title", navArticleToggleTitle);
-    $(".docstring-article-toggle-button").prop("title", articleToggleTitle);
-  });
-});
-
-function debounce(callback, timeout = 300) {
-  if (Date.now() - timer > timeout) {
-    callback();
   }
-
-  clearTimeout(timer);
-
-  timer = Date.now();
 }
+openTarget(); // onload
+window.addEventListener("hashchange", openTarget);
+window.addEventListener("load", openTarget);
+
+//////////////////////////////////////
+// for the global expand/collapse butter
+
+function accordion() {
+  document.body
+    .querySelectorAll("details")
+    .forEach((e) => e.setAttribute("open", "true"));
+}
+
+function noccordion() {
+  document.body
+    .querySelectorAll("details")
+    .forEach((e) => e.removeAttribute("open"));
+}
+
+function expandAll() {
+  let me = document.getElementById("documenter-article-toggle-button");
+  me.setAttribute("open", "true");
+  $(me).removeClass("fa-chevron-down").addClass("fa-chevron-up");
+  $(me).prop("title", "Collapse all docstrings");
+  accordion();
+}
+
+function collapseAll() {
+  let me = document.getElementById("documenter-article-toggle-button");
+  me.removeAttribute("open");
+  $(me).removeClass("fa-chevron-up").addClass("fa-chevron-down");
+  $(me).prop("title", "Expand all docstrings");
+  noccordion();
+}
+
+$(document).on("click", ".docs-article-toggle-button", function () {
+  var isExpanded = this.hasAttribute("open");
+  if (isExpanded) {
+    collapseAll();
+    isExpanded = false;
+  } else {
+    expandAll();
+    isExpanded = true;
+  }
+});
 
 })
 ////////////////////////////////////////////////////////////////////////////////
@@ -239,26 +220,10 @@ require(['jquery'], function($) {
 
 $(document).ready(function () {
   let meta = $("div[data-docstringscollapsed]").data();
-
-  if (meta?.docstringscollapsed) {
+  if (!meta?.docstringscollapsed) {
     $("#documenter-article-toggle-button").trigger({
       type: "click",
-      noToggleAnimation: true,
     });
-
-    setTimeout(function () {
-      if (window.location.hash) {
-        const targetId = window.location.hash.substring(1);
-        const targetElement = document.getElementById(targetId);
-
-        if (targetElement) {
-          targetElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
-      }
-    }, 100);
   }
 });
 
@@ -332,7 +297,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"
+    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js",
   );
 
   let data = documenterSearchIndex.map((x, key) => {
@@ -543,8 +508,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
             Math.max(textindex.index - 100, 0),
             Math.min(
               textindex.index + querystring.length + 100,
-              result.text.length
-            )
+              result.text.length,
+            ),
           )
         : ""; // cut-off text before and after from the match
 
@@ -554,7 +519,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       ? "..." +
         text.replace(
           new RegExp(`${escape(searchstring)}`, "i"), // For first occurrence
-          '<span class="search-result-highlight py-1">$&</span>'
+          '<span class="search-result-highlight py-1">$&</span>',
         ) +
         "..."
       : ""; // highlights the match
@@ -567,7 +532,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     // We encode the full url to escape some special characters which can lead to broken links
     let result_div = `
         <a href="${encodeURI(
-          documenterBaseURL + "/" + result.location
+          documenterBaseURL + "/" + result.location,
         )}" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 px-4 py-2">
           <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-flex-start">
             <div class="search-result-title has-text-weight-bold ${
@@ -871,11 +836,14 @@ function waitUntilSearchIndexAvailable() {
   // has finished loading and documenterSearchIndex gets defined.
   // So we need to wait until the search index actually loads before setting
   // up all the search-related stuff.
-  if (typeof documenterSearchIndex !== "undefined") {
+  if (
+    typeof documenterSearchIndex !== "undefined" &&
+    typeof $ !== "undefined"
+  ) {
     runSearchMainCode();
   } else {
-    console.warn("Search Index not available, waiting");
-    setTimeout(waitUntilSearchIndexAvailable, 1000);
+    console.warn("Search Index or jQuery not available, waiting");
+    setTimeout(waitUntilSearchIndexAvailable, 100);
   }
 }
 
@@ -929,12 +897,21 @@ $(document).ready(function () {
   `;
 
   let search_modal_footer = `
-    <footer class="modal-card-foot">
-      <span>
-        <kbd class="search-modal-key-hints">Ctrl</kbd> +
-        <kbd class="search-modal-key-hints">/</kbd> to search
-      </span>
-      <span class="ml-3"> <kbd class="search-modal-key-hints">esc</kbd> to close </span>
+    <footer class="modal-card-foot is-flex is-justify-content-space-between is-align-items-center">
+      <div class="is-flex gap-3 is-flex-wrap-wrap">
+        <span>
+          <kbd class="search-modal-key-hints">Ctrl</kbd> +
+          <kbd class="search-modal-key-hints">/</kbd> to search
+        </span>
+        <span> <kbd class="search-modal-key-hints">esc</kbd> to close </span>
+      </div>
+      <div class="is-flex gap-3 is-flex-wrap-wrap">
+        <span>
+          <kbd class="search-modal-key-hints">↑</kbd>
+          <kbd class="search-modal-key-hints">↓</kbd> to navigate
+        </span>
+        <span> <kbd class="search-modal-key-hints">Enter</kbd> to select </span>
+      </div>
     </footer>
   `;
 
@@ -950,7 +927,7 @@ $(document).ready(function () {
           ${search_modal_footer}
         </div>
       </div>
-    `
+    `,
   );
 
   function checkURLForSearch() {
@@ -985,9 +962,33 @@ $(document).ready(function () {
       openModal();
     } else if (event.key === "Escape") {
       closeModal();
-    }
+    } else if (
+      document.querySelector("#search-modal")?.classList.contains("is-active")
+    ) {
+      const searchResults = document.querySelectorAll(".search-result-link");
 
-    return false;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (searchResults.length > 0) {
+          const currentFocused = document.activeElement;
+          const currentIndex =
+            Array.from(searchResults).indexOf(currentFocused);
+          const nextIndex =
+            currentIndex < searchResults.length - 1 ? currentIndex + 1 : 0;
+          searchResults[nextIndex].focus();
+        }
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (searchResults.length > 0) {
+          const currentFocused = document.activeElement;
+          const currentIndex =
+            Array.from(searchResults).indexOf(currentFocused);
+          const prevIndex =
+            currentIndex > 0 ? currentIndex - 1 : searchResults.length - 1;
+          searchResults[prevIndex].focus();
+        }
+      }
+    }
   });
 
   //event listener for the link icon to copy the URL
@@ -1162,7 +1163,7 @@ $(document).ready(function () {
     var option = $(
       "<option value='#' selected='selected'>" +
         DOCUMENTER_CURRENT_VERSION +
-        "</option>"
+        "</option>",
     );
     version_selector_select.append(option);
   }
@@ -1179,7 +1180,7 @@ $(document).ready(function () {
       // otherwise update the old option with the URL and enable it
       if (existing_id == -1) {
         var option = $(
-          "<option value='" + version_url + "'>" + each + "</option>"
+          "<option value='" + version_url + "'>" + each + "</option>",
         );
         version_selector_select.append(option);
       } else {
