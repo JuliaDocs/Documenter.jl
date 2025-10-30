@@ -1,5 +1,5 @@
 // The docstring element which reuses parts of the Bulma card component
-.docstring {
+details.docstring {
   margin-bottom: 1em;
   background-color: $documenter-docstring-background;
   border: $documenter-docstring-border-width solid $border;
@@ -7,10 +7,8 @@
   box-shadow: $documenter-docstring-shadow;
   max-width: 100%;
 
-  > header {
-    cursor: pointer;
-    display: flex;
-    flex-grow: 1;
+  > summary {
+    list-style-type: none;
     align-items: stretch;
     padding: $documenter-docstring-header-padding;
 
@@ -37,13 +35,26 @@
     }
   }
 
-  > section {
+  >summary::before {
+    content: '\f054';  // fa-chevron-right
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    min-width: 1.1rem;
+    color: #2E63BD;
+    display: inline-block;
+  }
+
+  > div {
     position: relative;
     padding: $documenter-docstring-body-padding;
 
     border-bottom: 1px solid $border;
     &:last-child {
       border-bottom: none;
+    }
+
+    > p {
+      margin: 0 !important;
     }
 
     > a.docs-sourcelink {
@@ -62,15 +73,19 @@
     }
   }
 
-  &:hover > section > a.docs-sourcelink {
+  &:hover > div > a.docs-sourcelink {
     opacity: 0.2;
   }
 
-  &:focus-within > section > a.docs-sourcelink {
+  &:focus-within > div > a.docs-sourcelink {
     opacity: 0.2;
   }
 
-  & > section:hover a.docs-sourcelink {
+  & > div:hover a.docs-sourcelink {
     opacity: 1;
   }
+}
+
+details.docstring[open]>summary::before {
+  content: "\f078";  // fa-chevron-down
 }
