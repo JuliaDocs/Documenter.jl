@@ -161,6 +161,10 @@ module XRefResolvers
     after the last step, [`Documenter.xref`](@ref) issues an error that includes any
     accumulated error messages from the steps. Failure to resolve an `@ref` link will fail
     [`Documenter.makedocs`](@ref) if it is not called with `warnonly=true`.
+    A step may choose to make the entire pipeline fail when it encounters a case that obviously
+    has to be resolved by this step, but cannot be resolved due to an error (for example,
+    a non-unique header slug). In that case, the step should set its [`Selectors.strict`](@ref)
+    to `true`.
 
     The default pipeline could be extended by plugins using the general [`Selectors`](@ref)
     machinery.
@@ -236,6 +240,8 @@ end
 function Selectors.runner(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
     return namedxref(node, slug, meta, page, doc, errors)
 end
+
+Selectors.strict(::Type{XRefResolvers.Header}) = true
 
 
 function Selectors.matcher(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)
