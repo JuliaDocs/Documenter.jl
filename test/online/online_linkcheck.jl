@@ -29,6 +29,10 @@ server = HTTP.serve!(lincheck_server_handler, PORT)
             [FTP (no proto) success](ftp.iana.org/tz/data/etcetera)
             [Redirect success](google.com)
             [HEAD fail GET success](https://codecov.io/gh/invenia/LibPQ.jl)
+
+            [Requires GITHUB_TOKEN](https://raw.githubusercontent.com/JuliaDocs/Documenter.jl/v1.0.0/Project.toml)
+            [Does not support GITHUB_TOKEN](https://github.com/JuliaDocs/Documenter.jl/pulls)
+            [May require GITHUB_TOKEN](https://github.com/JuliaDocs/Documenter.jl/pull/2729)
             """
         )
         doc = Documenter.Document(; linkcheck = true, linkcheck_timeout = 20)

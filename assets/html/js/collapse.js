@@ -1,78 +1,61 @@
 // libraries: jquery
 // arguments: $
 
-let timer = 0;
-var isExpanded = true;
+///////////////////////////////////
 
-$(document).on(
-  "click",
-  ".docstring .docstring-article-toggle-button",
-  function () {
-    let articleToggleTitle = "Expand docstring";
-    const parent = $(this).parent();
-
-    debounce(() => {
-      if (parent.siblings("section").is(":visible")) {
-        parent
-          .find("a.docstring-article-toggle-button")
-          .removeClass("fa-chevron-down")
-          .addClass("fa-chevron-right");
-      } else {
-        parent
-          .find("a.docstring-article-toggle-button")
-          .removeClass("fa-chevron-right")
-          .addClass("fa-chevron-down");
-
-        articleToggleTitle = "Collapse docstring";
-      }
-
-      parent
-        .children(".docstring-article-toggle-button")
-        .prop("title", articleToggleTitle);
-      parent.siblings("section").slideToggle();
-    });
-  }
-);
-
-$(document).on("click", ".docs-article-toggle-button", function (event) {
-  let articleToggleTitle = "Expand docstring";
-  let navArticleToggleTitle = "Expand all docstrings";
-  let animationSpeed = event.noToggleAnimation ? 0 : 400;
-
-  debounce(() => {
-    if (isExpanded) {
-      $(this).removeClass("fa-chevron-up").addClass("fa-chevron-down");
-      $("a.docstring-article-toggle-button")
-        .removeClass("fa-chevron-down")
-        .addClass("fa-chevron-right");
-
-      isExpanded = false;
-
-      $(".docstring section").slideUp(animationSpeed);
-    } else {
-      $(this).removeClass("fa-chevron-down").addClass("fa-chevron-up");
-      $("a.docstring-article-toggle-button")
-        .removeClass("fa-chevron-right")
-        .addClass("fa-chevron-down");
-
-      isExpanded = true;
-      articleToggleTitle = "Collapse docstring";
-      navArticleToggleTitle = "Collapse all docstrings";
-
-      $(".docstring section").slideDown(animationSpeed);
+// to open and scroll to
+function openTarget() {
+  const hash = decodeURIComponent(location.hash.substring(1));
+  if (hash) {
+    const target = document.getElementById(hash);
+    if (target) {
+      const details = target.closest("details");
+      if (details) details.open = true;
     }
-
-    $(this).prop("title", navArticleToggleTitle);
-    $(".docstring-article-toggle-button").prop("title", articleToggleTitle);
-  });
-});
-
-function debounce(callback, timeout = 300) {
-  if (Date.now() - timer > timeout) {
-    callback();
   }
-
-  clearTimeout(timer);
-
-  timer = Date.now();
 }
+openTarget(); // onload
+window.addEventListener("hashchange", openTarget);
+window.addEventListener("load", openTarget);
+
+//////////////////////////////////////
+// for the global expand/collapse butter
+
+function accordion() {
+  document.body
+    .querySelectorAll("details")
+    .forEach((e) => e.setAttribute("open", "true"));
+}
+
+function noccordion() {
+  document.body
+    .querySelectorAll("details")
+    .forEach((e) => e.removeAttribute("open"));
+}
+
+function expandAll() {
+  let me = document.getElementById("documenter-article-toggle-button");
+  me.setAttribute("open", "true");
+  $(me).removeClass("fa-chevron-down").addClass("fa-chevron-up");
+  $(me).prop("title", "Collapse all docstrings");
+  accordion();
+}
+
+function collapseAll() {
+  let me = document.getElementById("documenter-article-toggle-button");
+  me.removeAttribute("open");
+  $(me).removeClass("fa-chevron-up").addClass("fa-chevron-down");
+  $(me).prop("title", "Expand all docstrings");
+  noccordion();
+}
+
+$(document).on("click", ".docs-article-toggle-button", function () {
+  var isExpanded = this.hasAttribute("open");
+  if (isExpanded) {
+    collapseAll();
+    isExpanded = false;
+  } else {
+    expandAll();
+    isExpanded = true;
+  }
+});
