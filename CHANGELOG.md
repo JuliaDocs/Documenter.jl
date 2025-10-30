@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Changed the header crossref step to eagerly fail when encountering a non-unique header slug. This may cause some documentation builds to fail, that previously passed but generated incorrect references. This can be fixed by having distinct headers in your markdown pages, or by not referencing headers directly but rather their `@id`.([#2668], [#2787])
+* Changed the header crossref step to eagerly fail when encountering a non-unique header slug. This may cause some documentation builds to fail, that previously passed but generated incorrect references. This can be fixed by having distinct headers in your markdown pages, or by not referencing headers directly but rather their `@id`. ([#2668], [#2787])
 
 ## Version [v1.15.0] - 2025-10-22
 
