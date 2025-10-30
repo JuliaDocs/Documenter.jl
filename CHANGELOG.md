@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
 * Changed the docstring block accordions from a custom implementation to HTML details+summary tag. ([#2772], [#2773])
 
+### Fixed
+
+* Changed the header crossref step to eagerly fail when encountering a non-unique header slug. ([#2668], [#2787])
+
+  This is **potentially breaking** and may cause some documentation builds to fail.
+  Those previously passed but generated incorrect cross-references.
+  You can fix this by ensuring that you have distinct headers across your markdown pages, or by using the `@id` syntax to give the headers unique slugs.
+
 ## Version [v1.15.0] - 2025-10-22
 
 ### Changed
@@ -2134,6 +2142,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2658]: https://github.com/JuliaDocs/Documenter.jl/issues/2658
 [#2659]: https://github.com/JuliaDocs/Documenter.jl/issues/2659
 [#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
+[#2668]: https://github.com/JuliaDocs/Documenter.jl/issues/2668
 [#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
 [#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
@@ -2163,6 +2172,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2772]: https://github.com/JuliaDocs/Documenter.jl/issues/2772
 [#2773]: https://github.com/JuliaDocs/Documenter.jl/issues/2773
 [#2774]: https://github.com/JuliaDocs/Documenter.jl/issues/2774
+[#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
 [#2792]: https://github.com/JuliaDocs/Documenter.jl/issues/2792
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
