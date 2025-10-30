@@ -28,7 +28,8 @@ Tests that code-like blocks are expanded in nested Markdown contexts.
     Test the different types of code-like blocks:
 
     ```@eval
-    "expanded_"*"eval"
+    import Markdown
+    Markdown.parse("expanded_"*"eval")
     ```
 
     ```@example

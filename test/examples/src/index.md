@@ -25,7 +25,7 @@ Pages = ["man/tutorial.md"]
 ```@index
 ```
 
-### Embedded `@ref` links headers: [`ccall`](@ref)
+### Embedded `@ref` links headers: [`deepcopy`](@ref)
 
 [#60](@ref) [#61](@ref)
 
@@ -45,7 +45,7 @@ end
 
 ```jldoctest
 julia> [1.0, 2.0, 3.0]
-3-element Array{Float64,1}:
+3-element Vector{Float64}:
  1.0
  2.0
  3.0
@@ -199,7 +199,7 @@ julia> g(2)
 ```
 ```jldoctest
 julia> f(2)
-ERROR: UndefVarError: f not defined
+ERROR: UndefVarError: `f` not defined in `Main`
 ```
 
 ```jldoctest PR650; setup = :(f(x) = x^2; g(x) = x)
@@ -264,7 +264,7 @@ julia> t = T()
 T()
 
 julia> fullname(@__MODULE__)
-(:Main,)
+(:Main, :Main)
 
 julia> fullname(Base.Broadcast)
 (:Base, :Broadcast)
@@ -273,7 +273,7 @@ julia> @__MODULE__
 Main
 ```
 
-# Issue398
+# Issue #398
 
 ```@meta
 DocTestSetup = quote
@@ -309,7 +309,7 @@ abcd
 DocTestSetup = nothing
 ```
 
-# Issue653
+# Issue #653
 
 ```jldoctest
 julia> struct MyException <: Exception
@@ -331,7 +331,7 @@ julia> throw(MyException("test exception"))
 ERROR: MyException: test exception
 ```
 
-# Issue418
+# Issue #418
 
 ```jldoctest
 julia> f(x::Float64) = x
@@ -339,8 +339,11 @@ f (generic function with 1 method)
 
 julia> f("")
 ERROR: MethodError: no method matching f(::String)
+The function `f` exists, but no method is defined for this combination of argument types.
+
 Closest candidates are:
-  f(!Matched::Float64) at none:1
+  f(!Matched::Float64)
+   @ Main none:1
 ```
 
 
@@ -374,6 +377,7 @@ a = 1
 ```
 
 # Issue #793
+
 ```jldoctest
 julia> write("issue793.jl", "\"Hello!\"");
 
@@ -424,7 +428,7 @@ x
 @assert x == 1148
 ```
 
-# Issue513
+# Issue #513
 
 ```jldoctest named
 julia> a = 1
@@ -434,7 +438,10 @@ julia> ans
 1
 ```
 
-# Filtering of `Main.`
+# Filtering of `Main.` PR #574
+
+We filter the string `Main.` in outputs to make the outputs
+look more like they would in the REPL.
 
 ```jldoctest
 julia> struct Point end;
@@ -442,11 +449,13 @@ julia> struct Point end;
 julia> println(Point)
 Point
 
+julia> import Base: sqrt
+
 julia> sqrt(100)
 10.0
 
 julia> sqrt = 4
-ERROR: cannot assign variable Base.sqrt from module Main
+ERROR: cannot assign a value to imported variable Base.sqrt from module Main
 ```
 
 ```jldoctest
@@ -463,9 +472,14 @@ julia> g(2, 3.0)
 8.0
 
 julia> g(2.0, 3.0)
-ERROR: MethodError: g(::Float64, ::Float64) is ambiguous. Candidates:
-  g(x, y::Float64) in Main at none:1
-  g(x::Float64, y) in Main at none:1
+ERROR: MethodError: g(::Float64, ::Float64) is ambiguous.
+
+Candidates:
+  g(x, y::Float64)
+    @ Main none:1
+  g(x::Float64, y)
+    @ Main none:1
+
 Possible fix, define
   g(::Float64, ::Float64)
 ```
@@ -483,12 +497,6 @@ julia> x->x # ignore error on 0.7
 r = :a
 ```
 
-# Bad links (Windows)
-
-* [Colons not allowed on Windows -- `some:path`](some:path)
-* [No "drive" -- `:path`](:path)
-* [Absolute Windows paths -- `X:\some\path`](X:\some\path)
-
 # Rendering text/markdown
 
 ```@example
@@ -505,13 +513,13 @@ MarkdownOnly("""
 # Empty heading
 ##
 
-# Issue 1392
+# Issue #1392
 
 ```1392-test-language 1392-extra-info
 julia> function foo end;
 ```
 
-# Issue 890
+# Issue #890
 
 I will pay \$1 if $x^2$ is displayed correctly. People may also write \$s or
 even money bag\$\$.
