@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
 * Changed the docstring block accordions from a custom implementation to HTML details+summary tag. ([#2772], [#2773])
+* Improved the search tokenizer and custom trimmer to improve search results. ([#1457], [#2114], [#2744])
 
 ### Fixed
 
@@ -2165,6 +2166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2726]: https://github.com/JuliaDocs/Documenter.jl/issues/2726
 [#2729]: https://github.com/JuliaDocs/Documenter.jl/issues/2729
 [#2737]: https://github.com/JuliaDocs/Documenter.jl/issues/2737
+[#2744]: https://github.com/JuliaDocs/Documenter.jl/issues/2744
 [#2748]: https://github.com/JuliaDocs/Documenter.jl/issues/2748
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
 [#2751]: https://github.com/JuliaDocs/Documenter.jl/issues/2751

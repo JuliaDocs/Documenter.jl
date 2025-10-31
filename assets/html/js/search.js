@@ -192,10 +192,10 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     processTerm: (term) => {
       let word = stopWords.has(term) ? null : term;
       if (word) {
-        // custom trimmer that doesn't strip @ and !, which are used in julia macro and function names
+        // custom trimmer that doesn't strip special characters `@!+-*/^&|%<>=:.` which are used in julia macro and function names.
         word = word
-          .replace(/^[^a-zA-Z0-9@!]+/, "")
-          .replace(/[^a-zA-Z0-9@!]+$/, "");
+          .replace(/^[^a-zA-Z0-9@!+\-/*^&%|<>._=:]+/, "")
+          .replace(/[^a-zA-Z0-9@!+\-/*^&%|<>._=:]+$/, "");
 
         word = word.toLowerCase();
       }
@@ -204,7 +204,52 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     },
     // add . as a separator, because otherwise "title": "Documenter.Anchors.add!", would not
     // find anything if searching for "add!", only for the entire qualification
-    tokenize: (string) => string.split(/[\s\-\.]+/),
+    tokenize: (string) => {
+      const tokens = [];
+      let remaining = string;
+
+      // julia specific patterns
+      const patterns = [
+        // Module qualified names (e.g., Base.sort, Module.Submodule. function)
+        /\b[A-Za-z0-9_1*(?:\.[A-Z][A-Za-z0-9_1*)*\.[a-z_][A-Za-z0-9_!]*\b/g,
+        // Macro calls (e.g., @time, @async)
+        /@[A-Za-z0-9_]*/g,
+        // Type parameters (e.g., Array{T,N}, Vector{Int})
+        /\b[A-Za-z0-9_]*\{[^}]+\}/g,
+        // Function names with module qualification (e.g., Base.+, Base.:^)
+        /\b[A-Za-z0-9_]*\.:[A-Za-z0-9_!+\-*/^&|%<>=.]+/g,
+        // Operators as complete tokens (e.g., !=, aã, ||, ^, .=, →)
+        /[!<>=+\-*/^&|%:.]+/g,
+        // Function signatures with type annotations (e.g., f(x::Int))
+        /\b[A-Za-z0-9_!]*\([^)]*::[^)]*\)/g,
+        // Numbers (integers, floats, scientific notation)
+        /\b\d+(?:\.\d+)? (?:[eE][+-]?\d+)?\b/g,
+      ];
+
+      // apply patterns in order of specificity
+      for (const pattern of patterns) {
+        pattern.lastIndex = 0; //reset regex state
+        let match;
+        while ((match = pattern.exec(remaining)) != null) {
+          const token = match[0].trim();
+          if (token && !tokens.includes(token)) {
+            tokens.push(token);
+          }
+        }
+      }
+
+      // splitting the content if something remains
+      const basicTokens = remaining
+        .split(/[\s\-,;()[\]{}]+/)
+        .filter((t) => t.trim());
+      for (const token of basicTokens) {
+        if (token && !tokens.includes(token)) {
+          tokens.push(token);
+        }
+      }
+
+      return tokens.filter((token) => token.length > 0);
+    },
     // options which will be applied during the search
     searchOptions: {
       prefix: true,
@@ -327,6 +372,35 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     return result_div;
   }
 
+  function calculateCustomScore(result, query) {
+    const titleLower = result.title.toLowerCase();
+    const queryLower = query.toLowerCase();
+
+    // Tier 1 : Exact title match
+    if (titleLower == queryLower) {
+      return 10000 + result.score;
+    }
+
+    // Tier 2 : Title contains exact query
+    if (titleLower.includes(queryLower)) {
+      const position = titleLower.indexOf(queryLower);
+      // prefer matches at the beginning
+      return 5000 + result.score - position * 10;
+    }
+
+    // Tier 3 : All query words in title
+    const queryWords = queryLower.trim().split(/\s+/);
+    const titleWords = titleLower.trim().split(/\s+/);
+    const allWordsInTitle = queryWords.every((qw) =>
+      titleWords.some((tw) => tw.includes(qw)),
+    );
+    if (allWordsInTitle) {
+      return 2000 + result.score;
+    }
+
+    return result.score;
+  }
+
   self.onmessage = function (e) {
     let query = e.data;
     let results = index.search(query, {
@@ -336,6 +410,15 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       },
       combineWith: "AND",
     });
+
+    // calculate custom scores for all results
+    results = results.map((result) => ({
+      ...result,
+      customScore: calculateCustomScore(result, query),
+    }));
+
+    // sort by custom score in descending order
+    results.sort((a, b) => b.customScore - a.customScore);
 
     // Pre-filter to deduplicate and limit to 200 per category to the extent
     // possible without knowing what the filters are.
