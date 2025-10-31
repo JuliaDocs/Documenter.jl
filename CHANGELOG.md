@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
 * Changed the docstring block accordions from a custom implementation to HTML details+summary tag. ([#2772], [#2773])
+* Improved the search tokenizer and custom trimmer to improve search results. ([#1457], [#2114], [#2744])
 
 ### Fixed
 
@@ -46,10 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add `release` to the allowed values for `GITHUB_EVENT_NAME` for `deploydocs`, to allow release docs to build when tagging via creating a new _release_ on GitHub. ([#2748], [#2748])
 
 ## Version [v1.13.0] - 2025-06-19
-
-### Changed
-
-* Improved the search tokenizer and custom trimmer to improve search results. ([#2744])
 
 ### Added
 
