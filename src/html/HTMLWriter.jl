@@ -2436,26 +2436,35 @@ function domify(dctx::DCtx, node::Node, t::MarkdownAST.Table)
     )
 end
 
-function domify(::DCtx, ::Node, e::MarkdownAST.JuliaValue)
-    @warn(
-        """
-        Unexpected Julia interpolation in the Markdown. This probably means that you
-        have an unbalanced or un-escaped \$ in the text.
+function domify(dctx::DCtx, ::Node, e::MarkdownAST.JuliaValue)
+    message = """
+        Unexpected Julia interpolation in the Markdown. This probably means that you have an
+        unbalanced or un-escaped \$ in the text.
 
         To write the dollar sign, escape it with `\\\$`
 
         We don't have the file or line number available, but we got given the value:
 
         `$(e.ref)` which is of type `$(typeof(e.ref))`
-        """
-    )
+    """
+
+    if dctx.ctx.doc.user.treat_markdown_warnings_as_error
+        error(message)
+    else
+        @warn(message)
+    end
     return string(e.ref)
 end
 
 function domify(::DCtx, ::Node, f::MarkdownAST.FootnoteLink)
-    @tags sup a
-    return sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
+    @tags sup a span
+    # Create the footnote reference with preview
+    return sup[".footnote-reference"](
+        a["#citeref-$(f.id)", :href => "#footnote-$(f.id)", :class => "footnote-ref"]("[$(f.id)]"),
+        span[".footnote-preview", :id => "fn-$(f.id)"]()
+    )
 end
+
 function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     # As we run through the document to generate the document, we won't render the footnote
     # definitions right away, and instead store them on dctx.footnotes. They get printed
