@@ -1,0 +1,70 @@
+name: Update Status Labels When Author Replies
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  update_status_labels:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update labels if author replies
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const waitingForAuthor = "Status: Waiting for Author";
+            const waitingForReview = "Status: Waiting for Review";
+
+            const issue = context.payload.issue;
+            const comment = context.payload.comment;
+
+            // Ignore bot comments
+            if (comment.user.type === "Bot") {
+              console.log("Ignoring bot comment.");
+              return;
+            }
+
+            // Only act if the comment author is the issue/PR author
+            if (issue.user.login !== comment.user.login) {
+              console.log("Comment is not from the author — doing nothing.");
+              return;
+            }
+
+            // Get existing labels
+            const currentLabels = issue.labels.map(l => l.name);
+
+            // Check if "Status: Waiting for Author" is present
+            const hasWaitingForAuthor = currentLabels.includes(waitingForAuthor);
+
+            if (!hasWaitingForAuthor) {
+              console.log(`No "${waitingForAuthor}" label — nothing to remove.`);
+              return;
+            }
+
+            // Remove "Status: Waiting for Author"
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              name: waitingForAuthor
+            });
+            console.log(`Removed "${waitingForAuthor}" label from #${issue.number}`);
+
+            // Add "Status: Waiting for Review" if not already present
+            const hasWaitingForReview = currentLabels.includes(waitingForReview);
+            if (!hasWaitingForReview) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: [waitingForReview]
+              });
+              console.log(`Added "${waitingForReview}" label to #${issue.number}`);
+            } else {
+              console.log(`"${waitingForReview}" already present — not adding again.`);
+            }
