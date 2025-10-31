@@ -21,7 +21,7 @@ else
         "html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
         "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
         "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail", "html-sizethreshold-ignore-success", "html-sizethreshold-ignore-fail",
-        "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly",
+        "latex_texonly", "latex_simple_texonly", "latex_listings_texonly", "latex_showcase_texonly", "html-pagesonly",
     ]
 end
 
@@ -727,7 +727,7 @@ end
 
 examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_texonly")
-    @quietly makedocs(
+    makedocs(
         format = Documenter.LaTeX(platform = "none"),
         sitename = "Documenter LaTeX",
         root = examples_root,
@@ -769,6 +769,54 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_listings_texonly_doc = if "latex_listings_texonly" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_listings_texonly")
+    makedocs(
+        format = Documenter.LaTeX(platform = "none", code_listings = "listings"),
+        sitename = "Documenter LaTeX",
+        root = examples_root,
+        build = "builds/latex_listings_texonly",
+        pages = Any[
+            "General" => [
+                "index.md",
+                "latex.md",
+                "unicode.md",
+                hide("hidden.md"),
+                "example-output.md",
+                "linenumbers.md",
+            ],
+            # SVG images nor code blocks in footnotes are allowed in LaTeX
+            # "Manual" => [
+            #     "man/tutorial.md",
+            #     "man/style.md",
+            # ],
+            hide(
+                "Hidden Pages" => "hidden/index.md", Any[
+                    "Page X" => "hidden/x.md",
+                    "hidden/y.md",
+                    "hidden/z.md",
+                ]
+            ),
+            "Library" => [
+                "lib/functions.md",
+                "lib/autodocs.md",
+            ],
+            "Expandorder" => [
+                "expandorder/00.md",
+                "expandorder/01.md",
+                "expandorder/AA.md",
+            ],
+        ],
+        doctest = false,
+        debug = true,
+        warnonly = [:footnote, :cross_references, :example_block, :eval_block],
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_listings_texonly"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
@@ -836,6 +884,26 @@ examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
         sitename = "Documenter LaTeX Showcase",
         root = examples_root,
         build = "builds/latex_showcase",
+        source = "src.latex_showcase",
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
+        remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
+        doctest = false,
+        debug = true,
+        warnonly = [:docs_block, :cross_references],
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_showcase"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_showcase_doc = if "latex_showcase_listings" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_showcase_listings")
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform = "docker", version = v"1.2.3", code_listings = "listings"),
+        sitename = "Documenter LaTeX Showcase",
+        root = examples_root,
+        build = "builds/latex_showcase_listingslatex_showcase",
         source = "src.latex_showcase",
         pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
         remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),

@@ -499,6 +499,17 @@ end
         end
     end
 
+    @testset "PDF/LaTeX: simple listings (TeX only)" begin
+        doc = Main.examples_latex_listings_texonly_doc
+        @test isa(doc, Documenter.Documenter.Document)
+        let build_dir = joinpath(examples_root, "builds", "latex_listings_texonly")
+            @test joinpath(build_dir, "documenter.sty") |> isfile
+            texfile = joinpath(build_dir, latex_filename(doc))
+            @test isfile(texfile)
+            @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_simple_listings.tex"))
+        end
+    end
+
     @testset "PDF/LaTeX: showcase (TeX only)" begin
         doc = Main.examples_latex_showcase_texonly_doc
         @test isa(doc, Documenter.Documenter.Document)

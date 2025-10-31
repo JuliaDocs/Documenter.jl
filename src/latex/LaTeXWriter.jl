@@ -52,13 +52,16 @@ struct LaTeX <: Documenter.Writer
     platform::String
     version::String
     tectonic::Union{Cmd, String, Nothing}
+    code_listings::String
     function LaTeX(;
             platform = "native",
             version = get(ENV, "TRAVIS_TAG", ""),
-            tectonic = nothing
+            tectonic = nothing,
+            code_listings = "minted"
         )
         platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
-        return new(platform, string(version), tectonic)
+        code_listings ∈ ("minted", "listings") || throw(ArgumentError("unknown code formatting package: $platform"))
+        return new(platform, string(version), tectonic, code_listings)
     end
 end
 
@@ -73,8 +76,9 @@ mutable struct Context{I <: IO} <: IO
     depth::Int
     filename::String # currently active source file
     doc::Documenter.Document
+    code_listings::String
 end
-Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc)
+Context(io, doc, code_listings) = Context{typeof(io)}(io, false, Dict(), 1, "", doc, code_listings)
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
@@ -87,6 +91,9 @@ _hash(x) = string(hash(x))
 
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "documenter.sty")
 const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
+const JLCODE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "jlcode.sty")
+const LISTINGS_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "listings.sty")
+const MINTED_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "minted.sty")
 
 function hastex()
     try
@@ -122,7 +129,7 @@ function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
         cd(joinpath(path, "build")) do
             fileprefix = latex_fileprefix(doc, settings)
             open("$(fileprefix).tex", "w") do io
-                context = Context(io, doc)
+                context = Context(io, doc, settings.code_listings)
                 writeheader(context, doc, settings)
                 for (title, filename, depth) in files(doc.user.pages)
                     context.filename = filename
@@ -147,6 +154,7 @@ function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
                 writefooter(context, doc)
             end
             cp(STYLE, "documenter.sty")
+            settings.code_listings == "listings" && cp(JLCODE_PATH, "jlcode.sty")
 
             # compile .tex
             status = compile_tex(doc, settings, fileprefix)
@@ -257,6 +265,9 @@ end
 function writeheader(io::IO, doc::Documenter.Document, settings::LaTeX)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
+
+    cp(settings.code_listings == "minted" ? MINTED_PATH : LISTINGS_PATH, "code_listings.sty")
+
 
     custom_preamble_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
     if isfile(custom_preamble_file)
@@ -538,23 +549,43 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     text = IOBuffer(code.code)
     code_code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
     escape = '⊻' ∈ code_code
-    _print(io, "\n\\begin{minted}")
-    if escape
-        _print(io, "[escapeinside=\\#\\%")
+    if io.code_listings == "minted"
+        _print(io, "\n\\begin{minted}")
+        if escape
+            _print(io, "[escapeinside=\\#\\%")
+        end
+        if language == "text/plain"
+            _print(io, escape ? "," : "[")
+            # Special-case the formatting of code outputs from Julia.
+            _println(io, "xleftmargin=-\\fboxsep,xrightmargin=-\\fboxsep,bgcolor=white,frame=single]{text}")
+        else
+            _println(io, escape ? "]{" : "{", language, "}")
+        end
+        if escape
+            _print_code_escapes_minted(io, code_code)
+        else
+            _print(io, code_code)
+        end
+        _println(io, "\n\\end{minted}\n")
+    elseif io.code_listings == "listings"
+        _print(io, "\n\\begin{lstlisting}")
+        _print(io, escape ? "[escapeinside=\\#\\%," : "[")
+        if language == "text/plain"
+            # _print(io, escape ? "," : "[")
+            # Special-case the formatting of code outputs from Julia.
+            _println(io, "]")
+        elseif language == "jlcon"
+            _println(io, "language=julia, style=jlcodestyle]")
+        else
+            _println(io, "]")
+        end
+        if escape
+            _print_code_escapes_minted(io, code_code)
+        else
+            _print(io, code_code)
+        end
+        _println(io, "\n\\end{lstlisting}\n")
     end
-    if language == "text/plain"
-        _print(io, escape ? "," : "[")
-        # Special-case the formatting of code outputs from Julia.
-        _println(io, "xleftmargin=-\\fboxsep,xrightmargin=-\\fboxsep,bgcolor=white,frame=single]{text}")
-    else
-        _println(io, escape ? "]{" : "{", language, "}")
-    end
-    if escape
-        _print_code_escapes_minted(io, code_code)
-    else
-        _print(io, code_code)
-    end
-    _println(io, "\n\\end{minted}\n")
     return
 end
 
