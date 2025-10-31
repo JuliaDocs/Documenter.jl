@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* Added option `treat_markdown_warnings_as_error` which throws an error when encountering a markdown/interpolation warning ([#2792], [#2751])
+
 ### Changed
 
 * Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
@@ -2161,6 +2165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2737]: https://github.com/JuliaDocs/Documenter.jl/issues/2737
 [#2748]: https://github.com/JuliaDocs/Documenter.jl/issues/2748
 [#2750]: https://github.com/JuliaDocs/Documenter.jl/issues/2750
+[#2751]: https://github.com/JuliaDocs/Documenter.jl/issues/2751
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
 [#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
 [#2762]: https://github.com/JuliaDocs/Documenter.jl/issues/2762
@@ -2168,6 +2173,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2773]: https://github.com/JuliaDocs/Documenter.jl/issues/2773
 [#2774]: https://github.com/JuliaDocs/Documenter.jl/issues/2774
 [#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
+[#2792]: https://github.com/JuliaDocs/Documenter.jl/issues/2792
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
