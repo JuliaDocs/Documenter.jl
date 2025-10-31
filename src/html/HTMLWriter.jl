@@ -2457,9 +2457,14 @@ function domify(dctx::DCtx, ::Node, e::MarkdownAST.JuliaValue)
 end
 
 function domify(::DCtx, ::Node, f::MarkdownAST.FootnoteLink)
-    @tags sup a
-    return sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
+    @tags sup a span
+    # Create the footnote reference with preview
+    return sup[".footnote-reference"](
+        a["#citeref-$(f.id)", :href => "#footnote-$(f.id)", :class => "footnote-ref"]("[$(f.id)]"),
+        span[".footnote-preview", :id => "fn-$(f.id)"]()
+    )
 end
+
 function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     # As we run through the document to generate the document, we won't render the footnote
     # definitions right away, and instead store them on dctx.footnotes. They get printed
