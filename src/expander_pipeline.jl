@@ -715,7 +715,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
                 @docerror(
                     doc, :eval_block,
                     """
-                    failed to evaluate `@eval` block in $(Documenter.locrepr(page.source))
+                    failed to evaluate `@eval` block in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -732,7 +732,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
             # objects, like Paragraph.
             @docerror(
                 doc, :eval_block, """
-                Invalid type of object in @eval in $(Documenter.locrepr(page.source))
+                Invalid type of object in @eval in $(Documenter.locrepr(page.source, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -1015,10 +1015,11 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
         end
     catch err
         bt = Documenter.remove_common_backtrace(catch_backtrace())
+        lines = Documenter.find_block_in_file(x.code, page.source)
         @docerror(
             doc, :setup_block,
             """
-            failed to run `@setup` block in $(Documenter.locrepr(page.source))
+            failed to run `@setup` block in $(Documenter.locrepr(page.source, lines))
             ```$(x.info)
             $(x.code)
             ```
