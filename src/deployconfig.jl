@@ -317,8 +317,8 @@ when using the `GitHubActions` configuration:
  - `GITHUB_API_URL`: specifies the GitHub API URL, which generally is `https://api.github.com`,
    but may be different for self-hosted GitHub instances.
 
- - `GITHUB_ACTOR`: name of the person or app that initiated the workflow; this is used to construct
-   API calls.
+ - `GITHUB_ACTOR`: name of the person or app that initiated the workflow. For
+   example, `octocat`. This is used to construct API calls.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
 [documentation](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables).
@@ -520,7 +520,7 @@ function post_status(cfg::GitHubActions; type, repo::String, subfolder = nothing
         sha === nothing && return
         return post_github_status(cfg, type, repo, sha, subfolder)
     catch e
-        @debug "Failed to post status" e
+        @debug "Failed to post status" exception = e
     end
 end
 
@@ -529,7 +529,7 @@ function post_github_status(cfg::GitHubActions, type::S, deploydocs_repo::S, sha
     try
         Sys.which("curl") === nothing && return
         ## Extract owner and repository name
-        m = match(Regex("^(?:https?://)?([^/]+)\\/(.+?)\\/(.+?)(.git)?\$"), deploydocs_repo)
+        m = match(r"^(?:https?://)?([^/]+)\\/(.+?)\\/(.+?)(.git)?$", deploydocs_repo)
         m === nothing && return
         host = String(m.captures[1])
         owner = String(m.captures[2])

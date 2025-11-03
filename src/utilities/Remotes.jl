@@ -116,12 +116,13 @@ end
 """
     github_host()
 
-Returns hostname of the GitHub installation it is running on.
-Is determined by `ENV[GITHUB_SERVER_URL]` variable which is set by GitHub Actions runtime.
-In case of missing variable default is "github.com"
+Returns hostname of the GitHub installation where this code is running on at the moment.
+This is derived from the `ENV[GITHUB_SERVER_URL]` variable which is set in every GitHub Actions workflow.
+If this variable is not set, return "github.com".
 """
 function github_host()
-    url = get(ENV, "GITHUB_SERVER_URL", "github.com")
+    haskey(ENV, "GITHUB_SERVER_URL") || return "github.com"
+    url = ENV["GITHUB_SERVER_URL"]
     return parse_url(url)[:authority]
 end
 
