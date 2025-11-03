@@ -98,4 +98,4 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - name: "Regressions test"
-        run: ./.github/scripts/julia-manual-regression-test.sh
+        run: julia ./.github/scripts/julia-manual-regression-test.jl
