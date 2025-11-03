@@ -73,7 +73,7 @@ using SHA: SHA
 using CodecZlib: ZlibCompressorStream
 using ANSIColoredPrinters: ANSIColoredPrinters
 
-using ..Documenter: Documenter, Default, Remotes
+using ..Documenter: Documenter, Default, Remotes, locrepr
 using ...JSDependencies: JSDependencies
 using ...DOM: DOM, @tags
 using ...MDFlatten: mdflatten
@@ -2443,7 +2443,7 @@ function domify(dctx::DCtx, ::Node, e::MarkdownAST.JuliaValue)
 
         To write the dollar sign, escape it with `\\\$`
 
-        Navnode is currently set to $(dctx.navnode.page), with parent $(dctx.navnode.parent), and we
+        Navnode is currently set to $(locrepr(dctx.navnode.page)), with parent $(dctx.navnode.parent), and we
         were given the value:
 
         `$(e.ref)` which is of type `$(typeof(e.ref))`
