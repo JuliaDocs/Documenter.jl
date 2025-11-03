@@ -19,7 +19,54 @@ $(document).ready(function () {
     target_href = version_selector_select
       .children("option:selected")
       .get(0).value;
-    window.location.href = target_href;
+    
+    // if the target is just "#", don't navigate (it's the current version)
+    if (target_href === "#") {
+      return;
+    }
+    
+    // try to stay on the same page when switching versions
+    // get the current page path relative to the version root
+    var current_page = window.location.pathname;
+    
+    // resolve the documenterBaseURL to an absolute path
+    // documenterBaseURL is a relative path (usually "."), so we need to resolve it
+    var base_url_absolute = new URL(documenterBaseURL, window.location.href).pathname;
+    if (!base_url_absolute.endsWith("/")) {
+      base_url_absolute = base_url_absolute + "/";
+    }
+    
+    // extract the page path after the version directory
+    // e.g., if we're on /stable/man/guide.html, we want "man/guide.html"
+    var page_path = "";
+    if (current_page.startsWith(base_url_absolute)) {
+      page_path = current_page.substring(base_url_absolute.length);
+    }
+    
+    // construct the target URL with the same page path
+    var target_url = target_href;
+    if (page_path && page_path !== "" && page_path !== "index.html") {
+      // remove trailing slash from target_href if present
+      if (target_url.endsWith("/")) {
+        target_url = target_url.slice(0, -1);
+      }
+      target_url = target_url + "/" + page_path;
+    }
+    
+    // check if the target page exists, fallback to homepage if it doesn't
+    fetch(target_url, { method: "HEAD" })
+      .then(function (response) {
+        if (response.ok) {
+          window.location.href = target_url;
+        } else {
+          // page doesn't exist in the target version, go to homepage
+          window.location.href = target_href;
+        }
+      })
+      .catch(function (error) {
+        // network error or other failure - use homepage
+        window.location.href = target_href;
+      });
   });
 
   // add the current version to the selector based on siteinfo.js, but only if the selector is empty
