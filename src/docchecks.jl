@@ -138,15 +138,15 @@ function footnotes(doc::Document)
         for (id, (ids, bodies)) in orphans
             # Multiple footnote bodies.
             if bodies > 1
-                @docerror(doc, :footnote, "footnote '$id' has $bodies bodies in $(locrepr(page.source)).")
+                @docerror(doc, :footnote, "footnote '$id' has $bodies bodies in $(locrepr(doc, page)).")
             end
             # No footnote references for an id.
             if ids === 0
-                @docerror(doc, :footnote, "unused footnote named '$id' in $(locrepr(page.source)).")
+                @docerror(doc, :footnote, "unused footnote named '$id' in $(locrepr(doc, page)).")
             end
             # No footnote bodies for an id.
             if bodies === 0
-                @docerror(doc, :footnote, "no footnotes found for '$id' in $(locrepr(page.source)).")
+                @docerror(doc, :footnote, "no footnotes found for '$id' in $(locrepr(doc, page)).")
             end
         end
     end

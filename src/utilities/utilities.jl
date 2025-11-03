@@ -72,12 +72,16 @@ function find_block_in_file(code, file)
 end
 
 # Pretty-printing locations
-function locrepr(file, line = nothing)
+function locrepr(file::String, lines::Union{Nothing, Pair{Int, Int}} = nothing)
     basedir = isassigned(original_pwd) ? original_pwd[] : currentdir()
     file = abspath(file)
     str = Base.contractuser(relpath(file, basedir))
-    line !== nothing && (str = str * ":$(line.first)-$(line.second)")
+    lines !== nothing && (str = str * ":$(lines.first)-$(lines.second)")
     return str
+end
+
+function locrepr(doc, page, lines::Union{Nothing, Pair{Int, Int}} = nothing)
+    return locrepr(page.source, lines)
 end
 
 # Directory paths.
