@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Update labels if author replies
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const waitingForAuthor = "Status: Waiting for Author";
