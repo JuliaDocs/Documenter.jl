@@ -81,7 +81,8 @@ function locrepr(file::String, lines::Union{Nothing, Pair{Int, Int}} = nothing)
 end
 
 function locrepr(doc, page, lines::Union{Nothing, Pair{Int, Int}} = nothing)
-    return locrepr(page.source, lines)
+    file = joinpath(doc.user.root, page.source)
+    return locrepr(file, lines)
 end
 
 # Directory paths.
