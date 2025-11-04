@@ -188,7 +188,7 @@ end
             @testset ".documenter-siteinfo.json" begin
                 siteinfo_json_file = joinpath(build_dir, ".documenter-siteinfo.json")
                 @test isfile(siteinfo_json_file)
-                siteinfo_json = JSON.parse(read(siteinfo_json_file, String))
+                siteinfo_json = JSON.parse(read(siteinfo_json_file, String); dicttype = Dict{String, Any})
                 @test haskey(siteinfo_json, "documenter")
                 @test siteinfo_json["documenter"] isa Dict
                 @test haskey(siteinfo_json["documenter"], "documenter_version")
@@ -394,6 +394,11 @@ end
             documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
+            let
+                example_output_html = read(joinpath(build_dir, "example-output.html"), String)
+                example_head = match(r"<head>(.*?)</head>"ms, example_output_html).captures[1]
+                @test occursin("<script>console.log('hello from head content! 🌸')</script>", example_head)
+            end
 
             @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
                 if size === :tiny

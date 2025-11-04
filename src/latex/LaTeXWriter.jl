@@ -110,7 +110,7 @@ function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
     if isempty(doc.user.sitename) # otherwise, the latex compiler will terminate with a cryptic "There's no line here to end" error
         error(
             """
-            LaTeXWriter needs a non-empty `sitename` passed to `makedocs`, otherwise the LaTeX build will error!  
+            LaTeXWriter needs a non-empty `sitename` passed to `makedocs`, otherwise the LaTeX build will error!
             Please pass e.g. `sitename = "Some Site Name"` as a keyword argument to `makedocs`.
             """
         )
@@ -735,7 +735,7 @@ function latex(io::Context, node::Node, image::Documenter.LocalImage)
     wrapblock(io, "figure") do
         _println(io, "\\centering")
         wrapinline(io, "includegraphics[max width=\\linewidth]") do
-            _print(io, image.path)
+            _print(io, replace(image.path, "\\" => "/"))
         end
         _println(io)
         wrapinline(io, "caption") do
@@ -850,18 +850,21 @@ latex(io::Context, node::Node, ::Documenter.MetaNode) = _println(io, "\n")
 latex(io::Context, node::Node, ::Documenter.SetupNode) = nothing
 
 function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue)
-    @warn(
-        """
-        Unexpected Julia interpolation in the Markdown. This probably means that you
-        have an unbalanced or un-escaped \$ in the text.
+    message = """
+    Unexpected Julia interpolation in the Markdown. This probably means that you have an unbalanced
+    or un-escaped \$ in the text.
 
-        To write the dollar sign, escape it with `\\\$`
+    To write the dollar sign, escape it with `\\\$`
 
-        We don't have the file or line number available, but we got given the value:
+    We don't have the file or line number available, but we got given the value:
 
-        `$(value.ref)` which is of type `$(typeof(value.ref))`
-        """
-    )
+    `$(value.ref)` which is of type `$(typeof(value.ref))`
+    """
+    if io.doc.user.treat_markdown_warnings_as_error
+        error(message)
+    else
+        @warn(message)
+    end
     return latexesc(io, string(value.ref))
 end
 

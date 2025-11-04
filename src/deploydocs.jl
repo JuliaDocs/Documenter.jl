@@ -391,14 +391,14 @@ function git_push(
         run(`$(git()) remote add upstream $upstream`)
         try
             run(`$(git()) fetch upstream`)
-        catch e
+        catch
             @error """
             Git failed to fetch $upstream
             This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
             Make sure that the environment variable is properly set up as a Base64-encoded string
             of the SSH private key. You may need to re-generate the keys with DocumenterTools.
             """
-            rethrow(e)
+            rethrow()
         end
 
         try
@@ -459,7 +459,7 @@ function git_push(
             else
                 keycontent = documenter_key(deploy_config)
             end
-            write(keyfile, base64decode(keycontent))
+            write(keyfile, _decode_key_content(keycontent))
             chmod(keyfile, 0o600) # user-only rw permissions
         catch e
             @error """
@@ -529,7 +529,9 @@ function postprocess_before_push(versions::Nothing; subfolder, devurl, deploy_di
     return
 end
 
-function postprocess_before_push(versions::AbstractVector; subfolder, devurl, deploy_dir, dirname)
+# The default fallback method which we will use unless the user is passing a custom versions
+# object and has overridden this method.
+function postprocess_before_push(versions::Any; subfolder, devurl, deploy_dir, dirname)
     # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
     # Determine if this is a development version (e.g., "dev" or "latest")
     is_dev_version = (subfolder == devurl || subfolder == "latest")
@@ -574,8 +576,15 @@ function determine_deploy_subfolder(deploy_decision, versions::Nothing)
     # Non-versioned docs: deploy to root unless it's a preview
     return deploy_decision.is_preview ? deploy_decision.subfolder : nothing
 end
-
+# Method to handle the standard versions = [...] argument.
 function determine_deploy_subfolder(deploy_decision, versions::AbstractVector)
+    return deploy_decision.subfolder
+end
+# Fallback determine_deploy_subfolder for any non-standard `versions` arguments.
+function determine_deploy_subfolder(deploy_decision, versions::Any)
+    @warn """
+    Using a non-standard versions= argument, but determine_deploy_subfolder() is not implemented.
+    """ typeof(versions) versions
     return deploy_decision.subfolder
 end
 
