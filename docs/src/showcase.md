@@ -378,6 +378,20 @@ julia> f(3)
 9
 ```
 
+```jldoctest
+
+julia> a = 1;
+julia> a + 1
+2
+
+julia> a + 2
+3
+
+julia> println("Test:\n          YES!")
+Test:
+          YES!
+```
+
 If you write them as a ````` ```jldoctest ````` code block, Documenter can make sure that the doctest has not become outdated. See [Doctests](@ref) for more information.
 
 Script-style doctests are supported too:

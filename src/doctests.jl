@@ -594,30 +594,40 @@ function repl_splitter(code)
     buffer = IOBuffer() # temporary buffer for doctest inputs and outputs
     raw_input_buffer = IOBuffer()
     found_first_prompt = false
+    last_was_prompt = false
     while !isempty(lines)
         line = popfirst!(lines)
-        prompt = match(PROMPT_REGEX, line)
-        # We allow comments before the first julia> prompt
-        if !found_first_prompt && startswith(line, '#')
+        # We allow comments and empty lines before the first julia> prompt
+        if !found_first_prompt && (startswith(line, '#') || isempty(line))
             prefix.content *= line * "\n"
             continue
         end
+        prompt = match(PROMPT_REGEX, line)
         if prompt === nothing
+            # check for a potential multiline prompt
             source = match(SOURCE_REGEX, line)
-            if source === nothing
+            if source === nothing || !last_was_prompt
                 savebuffer!(input, buffer)
                 savebuffer!(raw_inputs, raw_input_buffer)
                 println(buffer, line)
                 takeuntil!(PROMPT_REGEX, buffer, lines)
+                last_was_prompt = false
             else
                 println(buffer, source[1])
                 println(raw_input_buffer, line)
             end
         else
+            # we just saw another prompt? then "flush the buffer"
+            if last_was_prompt
+                savebuffer!(input, buffer)
+                savebuffer!(raw_inputs, raw_input_buffer)
+                println(buffer, "")
+            end
             found_first_prompt = true
             savebuffer!(output, buffer)
             println(buffer, prompt[1])
             println(raw_input_buffer, line)
+            last_was_prompt = true
         end
     end
     savebuffer!(output, buffer)
