@@ -2516,7 +2516,7 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             # apply a class
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-    node_repr = _markdownast_to_str(node)
+    node_repr = strip(mdflatten(node))
     content_hash = string(hash(node_repr), base = 16)
     admonition_id = if !isempty(a.title)
         base_id = Documenter.slugify(a.title)
