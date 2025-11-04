@@ -636,13 +636,11 @@ function get_sandbox_module!(meta, prefix, name = nothing; share_default_module 
             Main, :(
                 baremodule $sym
                 using Base
+                eval(x) = Core.eval($sym, x)
+                include(x) = Base.include($sym, abspath(x))
                 end
             )
         )
-        # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-        Core.eval(m, :(eval(x) = Core.eval($m, x)))
-        # modules created with Module() does not have include defined
-        Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
         return m
     end
 end
