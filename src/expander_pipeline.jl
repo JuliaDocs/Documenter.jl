@@ -59,7 +59,7 @@ function expand(doc::Documenter.Document)
             Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
             expand_recursively(node, page, doc)
         end
-        pagecheck(page)
+        pagecheck(doc, page)
         clear_modules!(page.globals.meta)
     end
     return
@@ -85,10 +85,10 @@ function expand_recursively(node, page, doc)
 end
 
 # run some checks after expanding the page
-function pagecheck(page)
+function pagecheck(doc, page)
     # make sure there is no "continued code" lingering around
     if haskey(page.globals.meta, :ContinuedCode) && !isempty(page.globals.meta[:ContinuedCode])
-        @warn "code from a continued @example block unused in $(Documenter.locrepr(page.source))."
+        @warn "code from a continued @example block unused in $(Documenter.locrepr(doc, page))."
     end
     return
 end
@@ -341,7 +341,7 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
         # we will silently skip for now.
         if Documenter.isassign(ex)
             if !(ex.args[1] in (:CurrentModule, :DocTestSetup, :DocTestTeardown, :DocTestFilters, :EditURL, :Description, :Draft, :CollapsedDocStrings, :ShareDefaultModule))
-                source = Documenter.locrepr(page.source, lines)
+                source = Documenter.locrepr(doc, page, lines)
                 @warn(
                     "In $source: `@meta` block has an unsupported " *
                         "keyword argument: $(ex.args[1])",
@@ -353,7 +353,7 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
                 @docerror(
                     doc, :meta_block,
                     """
-                    failed to evaluate `$(strip(str))` in `@meta` block in $(Documenter.locrepr(page.source, lines))
+                    failed to evaluate `$(strip(str))` in `@meta` block in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -431,7 +431,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             @docerror(
                 doc, :docs_block,
                 """
-                unable to get the binding for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines)) from expression '$(repr(ex))' in module $(curmod)
+                unable to get the binding for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(doc, page, lines)) from expression '$(repr(ex))' in module $(curmod)
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -446,7 +446,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             @docerror(
                 doc, :docs_block,
                 """
-                undefined binding '$(binding)' in `@docs` block in $(Documenter.locrepr(page.source, lines))
+                undefined binding '$(binding)' in `@docs` block in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -463,7 +463,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             @docerror(
                 doc, :docs_block,
                 """
-                duplicate docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines))
+                duplicate docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ``` $(DocSystem.public_unexported_msg(apistatus))
@@ -486,7 +486,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             @docerror(
                 doc, :docs_block,
                 """
-                no docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines))
+                no docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -534,7 +534,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                 elseif ex.args[1] in (:Modules, :Order, :Pages, :Public, :Private)
                     fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
                 else
-                    source = Documenter.locrepr(page.source, lines)
+                    source = Documenter.locrepr(doc, page, lines)
                     @warn(
                         "In $source: `@autodocs` block has an unsupported " *
                             "keyword argument: $(ex.args[1])",
@@ -544,7 +544,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                 @docerror(
                     doc, :autodocs_block,
                     """
-                    failed to evaluate `$(strip(str))` in `@autodocs` block in $(Documenter.locrepr(page.source, lines))
+                    failed to evaluate `$(strip(str))` in `@autodocs` block in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -575,7 +575,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     @docerror(
                         doc, :autodocs_block,
                         """
-                        @autodocs ($(Documenter.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
+                        @autodocs ($(Documenter.locrepr(doc, page, lines))) encountered a bad docstring binding '$(binding)'
                         ```$(x.info)
                         $(x.code)
                         ```
@@ -649,7 +649,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                 @docerror(
                     doc, :autodocs_block,
                     """
-                    duplicate docs found for '$(object.binding)' in $(Documenter.locrepr(page.source, lines))
+                    duplicate docs found for '$(object.binding)' in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ``` $(DocSystem.public_unexported_msg(apistatus))
@@ -674,7 +674,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         @docerror(
             doc, :autodocs_block,
             """
-            '@autodocs' missing 'Modules = ...' in $(Documenter.locrepr(page.source, lines))
+            '@autodocs' missing 'Modules = ...' in $(Documenter.locrepr(doc, page, lines))
             ```$(x.info)
             $(x.code)
             ```
@@ -715,7 +715,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
                 @docerror(
                     doc, :eval_block,
                     """
-                    failed to evaluate `@eval` block in $(Documenter.locrepr(page.source))
+                    failed to evaluate `@eval` block in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -732,7 +732,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
             # objects, like Paragraph.
             @docerror(
                 doc, :eval_block, """
-                Invalid type of object in @eval in $(Documenter.locrepr(page.source))
+                Invalid type of object in @eval in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -864,7 +864,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
                 @docerror(
                     doc, :example_block,
                     """
-                    failed to run `@example` block in $(Documenter.locrepr(page.source, lines))
+                    failed to run `@example` block in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -1015,10 +1015,11 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
         end
     catch err
         bt = Documenter.remove_common_backtrace(catch_backtrace())
+        lines = Documenter.find_block_in_file(x.code, page.source)
         @docerror(
             doc, :setup_block,
             """
-            failed to run `@setup` block in $(Documenter.locrepr(page.source))
+            failed to run `@setup` block in $(Documenter.locrepr(doc, page, lines))
             ```$(x.info)
             $(x.code)
             ```
