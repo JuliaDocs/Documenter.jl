@@ -709,6 +709,12 @@ struct DCtx
     ) = new(dctx.ctx, navnode, droplinks, footnotes)
 end
 
+function Documenter.locrepr(dctx::DCtx, lines = nothing)
+    doc = dctx.ctx.doc
+    page = dctx.navnode.page
+    return Documenter.locrepr(dctx.ctx.doc, dctx.ctx.page, lines)
+end
+
 function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing, category = "page", text = "")
     page_title = mdflatten_pagetitle(DCtx(ctx, navnode))
     if title === nothing
@@ -2477,7 +2483,7 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     # TODO: this could be rearranged such that we push!() the DOM here into .footnotes, rather
     # than the Node objects.
     if isnothing(dctx.footnotes)
-        @error "Invalid nested footnote definition in $(Documenter.locrepr(dctx.navnode.page))" f.id
+        @error "Invalid nested footnote definition in $(Documenter.locrepr(dctx))" f.id
     else
         push!(dctx.footnotes, node)
     end
