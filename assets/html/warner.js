@@ -38,22 +38,34 @@ function maybeAddWarning() {
     document.body.removeChild(div);
   });
 
-  // build the stable version URL, trying to stay on the same page
-  let stableUrl = window.documenterBaseURL + "/../" + window.DOCUMENTER_STABLE;
-  const currentPath = window.location.pathname;
-  const baseUrl = new URL(window.documenterBaseURL, window.location.href)
-    .pathname;
-  const pagePath = currentPath.startsWith(baseUrl)
-    ? currentPath.substring(baseUrl.length)
-    : "";
+  // build the stable version URL - start with the base stable URL
+  const stableBaseUrl =
+    window.documenterBaseURL + "/../" + window.DOCUMENTER_STABLE;
 
-  if (
-    pagePath &&
-    pagePath !== "" &&
-    pagePath !== "/" &&
-    pagePath !== "index.html"
-  ) {
-    stableUrl = stableUrl.replace(/\/$/, "") + "/" + pagePath;
+  // try to stay on the same page when switching versions
+  const currentPath = window.location.pathname;
+
+  // resolve the documenterBaseURL to an absolute path
+  let baseUrl = new URL(window.documenterBaseURL, window.location.href)
+    .pathname;
+  if (!baseUrl.endsWith("/")) {
+    baseUrl = baseUrl + "/";
+  }
+
+  // extract the page path after the version directory
+  let pagePath = "";
+  if (currentPath.startsWith(baseUrl)) {
+    pagePath = currentPath.substring(baseUrl.length);
+  }
+
+  // construct the target URL with the same page path
+  let stableUrl = stableBaseUrl;
+  if (pagePath && pagePath !== "" && pagePath !== "index.html") {
+    // remove trailing slash from stableBaseUrl if present
+    if (stableUrl.endsWith("/")) {
+      stableUrl = stableUrl.slice(0, -1);
+    }
+    stableUrl = stableUrl + "/" + pagePath;
   }
 
   // Determine if this is a development version or an older release
@@ -68,12 +80,34 @@ function maybeAddWarning() {
       "This documentation is for an <strong>older version</strong> that may be missing recent changes.<br>";
   }
 
-  warningMessage +=
-    '<a href="' +
-    stableUrl +
-    '">Click here to go to the documentation for the latest stable release.</a>';
+  // create link element with click handler that checks if page exists
+  const link = document.createElement("a");
+  link.href = "#";
+  link.textContent =
+    "Click here to go to the documentation for the latest stable release.";
+  link.addEventListener("click", function (event) {
+    event.preventDefault();
+    // check if the target page exists, fallback to homepage if it doesn't
+    fetch(stableUrl, { method: "HEAD" })
+      .then(function (response) {
+        if (response.ok) {
+          window.location.href = stableUrl;
+        } else {
+          // page doesn't exist in the target version, go to homepage
+          window.location.href = stableBaseUrl;
+        }
+      })
+      .catch(function (error) {
+        // network error or other failure - use homepage
+        window.location.href = stableBaseUrl;
+      });
+  });
 
-  div.innerHTML = warningMessage;
+  const paragraph = document.createElement("span");
+  paragraph.innerHTML = warningMessage;
+
+  div.appendChild(paragraph);
+  div.appendChild(link);
   div.appendChild(closer);
   document.body.appendChild(div);
 }
