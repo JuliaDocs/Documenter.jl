@@ -711,8 +711,9 @@ end
 
 function Documenter.locrepr(dctx::DCtx, lines = nothing)
     doc = dctx.ctx.doc
-    page = dctx.navnode.page
-    return Documenter.locrepr(dctx.ctx.doc, dctx.ctx.page, lines)
+    src = dctx.navnode.page
+    page = doc.blueprint.pages[src]
+    return Documenter.locrepr(doc, page, lines)
 end
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing, category = "page", text = "")
@@ -2449,8 +2450,7 @@ function domify(dctx::DCtx, ::Node, e::MarkdownAST.JuliaValue)
 
         To write the dollar sign, escape it with `\\\$`
 
-        This is on the page $(locrepr(dctx.navnode.page)), with parent $(dctx.navnode.parent), and we
-        were given the value:
+        This is in file $(locrepr(dctx)), and we were given the value:
 
         `$(e.ref)` which is of type `$(typeof(e.ref))`
     """
