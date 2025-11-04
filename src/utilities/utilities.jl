@@ -632,7 +632,13 @@ function get_sandbox_module!(meta, prefix, name = nothing; share_default_module 
         # We create a baremodule so that we can insert a custom `include` method
         # that is closer to the one in Main, in that it works relative to the
         # current working directory, not relative to the module.
-        m = Core.eval(Main, :(baremodule $sym using Base end))
+        m = Core.eval(
+            Main, :(
+                baremodule $sym
+                using Base
+                end
+            )
+        )
         # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
         Core.eval(m, :(eval(x) = Core.eval($m, x)))
         # modules created with Module() does not have include defined
