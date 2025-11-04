@@ -2,7 +2,7 @@
 \newcommand{\DocMainTitle}{Documenter LaTeX}
 \newcommand{\DocVersion}{}
 \newcommand{\DocAuthors}{}
-\newcommand{\JuliaVersion}{1.9.0}
+\newcommand{\JuliaVersion}{1.12.1}
 
 % ---- Insert preamble
 \input{preamble.tex}
@@ -32,7 +32,7 @@
 \item \hyperlinkref{408188879749078986}{Tutorial Contents}
 \item \hyperlinkref{6663683553518785561}{Index}
 \begin{itemize}
-\item \hyperlinkref{6314011214927757498}{Embedded \texttt{@ref} links headers: \hyperlinkref{14245046751182637566}{\texttt{ccall}}}
+\item \hyperlinkref{18311841746230763310}{Embedded \texttt{@ref} links headers: \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}}
 \end{itemize}
 \item \hyperlinkref{13874303023969489032}{Raw Blocks}
 \end{itemize}
@@ -49,33 +49,32 @@
 \item \hyperlinkref{11517531047354431104}{World age issue for show}
 \end{itemize}
 \item \hyperlinkref{10742780047906711446}{Sanitise module names}
-\item \hyperlinkref{2549498190252584856}{Issue398}
-\item \hyperlinkref{1744747689002493869}{Issue653}
-\item \hyperlinkref{12101809483198928652}{Issue418}
+\item \hyperlinkref{13926260233784384991}{Issue \#398}
+\item \hyperlinkref{4271678389756687442}{Issue \#653}
+\item \hyperlinkref{14279791197695234075}{Issue \#418}
 \item \hyperlinkref{142823677432440190}{Issue \#793}
 \begin{itemize}
 \item \hyperlinkref{15766399429363808344}{Issue \#1148}
 \end{itemize}
-\item \hyperlinkref{18320015255820629047}{Issue513}
-\item \hyperlinkref{11837074900083153011}{Filtering of \texttt{Main.}}
+\item \hyperlinkref{2087044551059819015}{Issue \#513}
+\item \hyperlinkref{9589943747885040437}{Filtering of \texttt{Main.} PR \#574}
 \item \hyperlinkref{14560696320878109942}{Anonymous function declaration}
 \item \hyperlinkref{2704106513432579326}{Assigning symbols example}
-\item \hyperlinkref{4891343357159032293}{Bad links (Windows)}
 \item \hyperlinkref{6848322038670609146}{Rendering text/markdown}
 \item \hyperlinkref{12121464878615854585}{Empty heading}
 \begin{itemize}
 \item \hyperlinkref{13633231208144796923}{}
 \end{itemize}
-\item \hyperlinkref{987107409634109244}{Issue 1392}
-\item \hyperlinkref{16901975118583039516}{Issue 890}
+\item \hyperlinkref{670286492735599669}{Issue \#1392}
+\item \hyperlinkref{3236767701387592497}{Issue \#890}
 \item \hyperlinkref{12500314249427487157}{Module scrubbing from \texttt{@repl} and \texttt{@example}}
 \begin{itemize}
 \item \hyperlinkref{10276939801399720769}{Headings in block context}
 \end{itemize}
-\item \hyperlinkref{8207632397694604507}{JuliaValue}
 \item \hyperlinkref{1916796393499649241}{Admonitions}
 \begin{itemize}
 \item \hyperlinkref{16032070393363005082}{\texttt{@example} outputs to file}
+\item \hyperlinkref{14118484521876622666}{Issue \#2074: Named at-eval blocks}
 \end{itemize}
 \end{itemize}
 
@@ -86,6 +85,25 @@
 
 \label{10013362338599846780}{}
 
+\begin{itemize}
+\item \hyperlinkref{9596384704859398879}{Function Index}
+\item \hyperlinkref{13536066633202303496}{Functions}
+\item \hyperlinkref{374450266380008264}{Foo}
+\begin{itemize}
+\item \hyperlinkref{17415245328842318541}{Foo}
+\begin{itemize}
+\item \hyperlinkref{17607918834103512029}{Foo}
+\end{itemize}
+\end{itemize}
+\item \hyperlinkref{13360040930512514124}{Autodocs}
+\begin{itemize}
+\item \hyperlinkref{14974050576722623319}{AutoDocs Module}
+\item \hyperlinkref{3338605747262022226}{Functions, Modules, and Macros}
+\item \hyperlinkref{18297180183977969663}{Constants and Types}
+\item \hyperlinkref{17012311511907355869}{Autodocs by Page}
+\end{itemize}
+\item \hyperlinkref{8597286521325026101}{Named docstring \texttt{@ref}s}
+\end{itemize}
 
 
 \section{Tutorial Contents}
@@ -94,6 +112,19 @@
 
 \label{408188879749078986}{}
 
+\begin{itemize}
+\item \hyperlinkref{6046105431332359668}{Tutorial}
+\begin{itemize}
+\item \hyperlinkref{15047798572393265991}{Including images with \texttt{MIME}}
+\item \hyperlinkref{7759522621557353077}{Interacting with external files}
+\item \hyperlinkref{12150784196212878875}{\href{index.md}{Links} in headers}
+\item \hyperlinkref{17028002011607960893}{Embedding raw HTML}
+\item \hyperlinkref{6147076236960597988}{Tables}
+\item \hyperlinkref{8413921007264496340}{Customizing assets}
+\item \hyperlinkref{9494121745733198174}{Handling of \texttt{text/latex}}
+\item \hyperlinkref{14850858762169389156}{Videos}
+\end{itemize}
+\end{itemize}
 
 
 \section{Index}
@@ -109,6 +140,7 @@
 \item \hyperlinkref{17379154232303623334}{\texttt{Main.AutoDocs.A.K}}
 \item \hyperlinkref{3291598769099158785}{\texttt{Main.AutoDocs.B.K}}
 \item \hyperlinkref{15441025252371609530}{\texttt{Main.AutoDocs.K}}
+\item \hyperlinkref{11676817432925230066}{\texttt{Core.AssertionError}}
 \item \hyperlinkref{1070558433006397272}{\texttt{Main.AutoDocs.A.T}}
 \item \hyperlinkref{16943270388934614325}{\texttt{Main.AutoDocs.B.T}}
 \item \hyperlinkref{6785702989282266947}{\texttt{Main.AutoDocs.Filter.Major}}
@@ -117,11 +149,12 @@
 \item \hyperlinkref{14143981418775697458}{\texttt{Main.AutoDocs.Pages.E.T\_1}}
 \item \hyperlinkref{4871421601485935264}{\texttt{Main.AutoDocs.Pages.E.T\_2}}
 \item \hyperlinkref{3237252152661731042}{\texttt{Main.AutoDocs.Pages.E.T\_3}}
-\item \hyperlinkref{14050452459487205641}{\texttt{Main.AutoDocs.Pages.T}}
 \item \hyperlinkref{17100384742613090383}{\texttt{Main.AutoDocs.Pages.T}}
+\item \hyperlinkref{14050452459487205641}{\texttt{Main.AutoDocs.Pages.T}}
 \item \hyperlinkref{5246990970960098088}{\texttt{Main.AutoDocs.Pages.T}}
 \item \hyperlinkref{12338358314596597808}{\texttt{Main.AutoDocs.T}}
 \item \hyperlinkref{1885743281855441478}{\texttt{Main.Mod.T}}
+\item \hyperlinkref{3259459540194502889}{\texttt{Base.deepcopy}}
 \item \hyperlinkref{12333874902364664348}{\texttt{Documenter.hide}}
 \item \hyperlinkref{8047994080897963665}{\texttt{Main.AutoDocs.A.f}}
 \item \hyperlinkref{1354818346142581698}{\texttt{Main.AutoDocs.B.f}}
@@ -131,28 +164,28 @@
 \item \hyperlinkref{18335012651218585665}{\texttt{Main.AutoDocs.Pages.E.g\_1}}
 \item \hyperlinkref{12590794246865857269}{\texttt{Main.AutoDocs.Pages.E.g\_2}}
 \item \hyperlinkref{3152146771453799051}{\texttt{Main.AutoDocs.Pages.E.g\_3}}
-\item \hyperlinkref{18287295168891819021}{\texttt{Main.AutoDocs.Pages.f}}
-\item \hyperlinkref{9950366858879376632}{\texttt{Main.AutoDocs.Pages.f}}
 \item \hyperlinkref{16694402067483188119}{\texttt{Main.AutoDocs.Pages.f}}
+\item \hyperlinkref{9950366858879376632}{\texttt{Main.AutoDocs.Pages.f}}
+\item \hyperlinkref{18287295168891819021}{\texttt{Main.AutoDocs.Pages.f}}
 \item \hyperlinkref{14053004641171891989}{\texttt{Main.AutoDocs.f}}
 \item \hyperlinkref{16791148087951682840}{\texttt{Main.Mod.func}}
 \item \hyperlinkref{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}
 \item \hyperlinkref{4796942656392369899}{\texttt{Base.@assert}}
-\item \hyperlinkref{8029752041511656628}{\texttt{Base.@time}}
+\item \hyperlinkref{12895501458291832858}{\texttt{Base.@eval}}
 \item \hyperlinkref{7256264955516068825}{\texttt{Main.AutoDocs.@m}}
 \item \hyperlinkref{1819148365468180190}{\texttt{Main.AutoDocs.A.@m}}
 \item \hyperlinkref{10335956018691630658}{\texttt{Main.AutoDocs.B.@m}}
 \end{itemize}
 
 
-\subsection{Embedded \texttt{@ref} links headers: \texttt{ccall}}
+\subsection{Embedded \texttt{@ref} links headers: \texttt{deepcopy}}
 
 
 
-\label{6314011214927757498}{}
+\label{18311841746230763310}{}
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/issues/60}{\#60} \href{https://github.com/BambOoxX/Documenter.jl/issues/61}{\#61}
+\href{https://github.com/JuliaDocs/Documenter.jl/issues/60}{\#60} \href{https://github.com/JuliaDocs/Documenter.jl/issues/61}{\#61}
 
 
 
@@ -197,7 +230,7 @@ julia> zeros(50, 50)
 
 \begin{lstlisting}[language=julia, style=jlcodestyle]
 julia> [1.0, 2.0, 3.0]
-3-element Array{Float64,1}:
+3-element Vector{Float64}:
  1.0
  2.0
  3.0
@@ -423,7 +456,7 @@ julia> g(2)
 
 \begin{lstlisting}[language=julia, style=jlcodestyle]
 julia> f(2)
-ERROR: UndefVarError: f not defined
+ERROR: UndefVarError: `f` not defined in `Main`
 \end{lstlisting}
 
 
@@ -522,7 +555,7 @@ julia> t = T()
 T()
 
 julia> fullname(@__MODULE__)
-(:Main,)
+(:Main, :Main)
 
 julia> fullname(Base.Broadcast)
 (:Base, :Broadcast)
@@ -533,11 +566,11 @@ Main
 
 
 
-\chapter{Issue398}
+\chapter{Issue \#398}
 
 
 
-\label{2549498190252584856}{}
+\label{13926260233784384991}{}
 
 
 
@@ -552,11 +585,11 @@ abcd
 
 
 
-\chapter{Issue653}
+\chapter{Issue \#653}
 
 
 
-\label{1744747689002493869}{}
+\label{4271678389756687442}{}
 
 
 
@@ -582,11 +615,11 @@ ERROR: MyException: test exception
 
 
 
-\chapter{Issue418}
+\chapter{Issue \#418}
 
 
 
-\label{12101809483198928652}{}
+\label{14279791197695234075}{}
 
 
 
@@ -596,8 +629,11 @@ f (generic function with 1 method)
 
 julia> f("")
 ERROR: MethodError: no method matching f(::String)
+The function `f` exists, but no method is defined for this combination of argument types.
+
 Closest candidates are:
-  f(!Matched::Float64) at none:1
+  f(!Matched::Float64)
+   @ Main none:1
 \end{lstlisting}
 
 
@@ -684,7 +720,6 @@ julia> include("issue793.jl")
 "Hello!"
 
 julia> rm("issue793.jl")
-
 \end{lstlisting}
 
 
@@ -741,16 +776,15 @@ julia> x
 1148
 
 julia> @assert x == 1148
-
 \end{lstlisting}
 
 
 
-\chapter{Issue513}
+\chapter{Issue \#513}
 
 
 
-\label{18320015255820629047}{}
+\label{2087044551059819015}{}
 
 
 
@@ -764,11 +798,15 @@ julia> ans
 
 
 
-\chapter{Filtering of \texttt{Main.}}
+\chapter{Filtering of \texttt{Main.} PR \#574}
 
 
 
-\label{11837074900083153011}{}
+\label{9589943747885040437}{}
+
+
+We filter the string \texttt{Main.} in outputs to make the outputs look more like they would in the REPL.
+
 
 
 
@@ -778,11 +816,13 @@ julia> struct Point end;
 julia> println(Point)
 Point
 
+julia> import Base: sqrt
+
 julia> sqrt(100)
 10.0
 
 julia> sqrt = 4
-ERROR: cannot assign variable Base.sqrt from module Main
+ERROR: cannot assign a value to imported variable Base.sqrt from module Main
 \end{lstlisting}
 
 
@@ -802,9 +842,14 @@ julia> g(2, 3.0)
 8.0
 
 julia> g(2.0, 3.0)
-ERROR: MethodError: g(::Float64, ::Float64) is ambiguous. Candidates:
-  g(x, y::Float64) in Main at none:1
-  g(x::Float64, y) in Main at none:1
+ERROR: MethodError: g(::Float64, ::Float64) is ambiguous.
+
+Candidates:
+  g(x, y::Float64)
+    @ Main none:1
+  g(x::Float64, y)
+    @ Main none:1
+
 Possible fix, define
   g(::Float64, ::Float64)
 \end{lstlisting}
@@ -845,25 +890,6 @@ r = :a
 
 
 
-\chapter{Bad links (Windows)}
-
-
-
-\label{4891343357159032293}{}
-
-
-\begin{itemize}
-\item \href{some:path}{Colons not allowed on Windows – \texttt{some:path}}
-
-
-\item \href{:path}{No {\textquotedbl}drive{\textquotedbl} – \texttt{:path}}
-
-
-\item \href{X:{\textbackslash}some{\textbackslash}path}{Absolute Windows paths – \texttt{X:{\textbackslash}some{\textbackslash}path}}
-
-\end{itemize}
-
-
 \chapter{Rendering text/markdown}
 
 
@@ -901,11 +927,11 @@ MarkdownOnly("""
 \label{13633231208144796923}{}
 
 
-\chapter{Issue 1392}
+\chapter{Issue \#1392}
 
 
 
-\label{987107409634109244}{}
+\label{670286492735599669}{}
 
 
 
@@ -915,11 +941,11 @@ julia> function foo end;
 
 
 
-\chapter{Issue 890}
+\chapter{Issue \#890}
 
 
 
-\label{16901975118583039516}{}
+\label{3236767701387592497}{}
 
 
 I will pay \$1 if \(x^2\) is displayed correctly. People may also write \$s or even money bag\$\$.
@@ -1047,7 +1073,7 @@ Main
 
 \begin{lstlisting}[]
 ┌ Warning: Main as the module for this log message
-└ @ Main index.md:528
+└ @ Main index.md:536
 \end{lstlisting}
 
 
@@ -1137,25 +1163,6 @@ Headings:
 \subparagraph{Heading 6}\indent
 
 \end{quote}
-
-
-\chapter{JuliaValue}
-
-
-
-\label{8207632397694604507}{}
-
-
-It is possible to create pseudo-interpolations with the \texttt{Markdown} parser: foo.
-
-
-
-[1 2 3; 4 5 6]
-
-
-
-They do not get evaluated.
-
 
 
 \chapter{Admonitions}
@@ -1250,7 +1257,7 @@ Main.AT_EXAMPLE_FILES[("png", :big)]
 
 \begin{figure}[H]
 \centering
-\includegraphics[max width=\linewidth]{kihvxeu}
+\includegraphics[max width=\linewidth]{tiwglmj}
 \end{figure}
 
 
@@ -1262,7 +1269,7 @@ Main.AT_EXAMPLE_FILES[("png", :tiny)]
 
 \begin{figure}[H]
 \centering
-\includegraphics[max width=\linewidth]{rorjzav}
+\includegraphics[max width=\linewidth]{xrvykzv}
 \end{figure}
 
 
@@ -1310,8 +1317,25 @@ Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
 
 \begin{figure}[H]
 \centering
-\includegraphics[max width=\linewidth]{ucljeiy}
+\includegraphics[max width=\linewidth]{vxeuror}
 \end{figure}
+
+
+
+\section{Issue \#2074: Named at-eval blocks}
+
+
+
+\label{14118484521876622666}{}
+
+
+
+
+
+\begin{lstlisting}[]
+@assert x == 2074
+x
+\end{lstlisting}
 
 
 
@@ -1602,7 +1626,7 @@ Main.AT_EXAMPLE_FILES[("png", :big)]
 
 \begin{figure}[H]
 \centering
-\includegraphics[max width=\linewidth]{bygqpeb}
+\includegraphics[max width=\linewidth]{endxrgm}
 \end{figure}
 
 
@@ -1614,7 +1638,7 @@ Main.AT_EXAMPLE_FILES[("png", :tiny)]
 
 \begin{figure}[H]
 \centering
-\includegraphics[max width=\linewidth]{cpvoych}
+\includegraphics[max width=\linewidth]{sseaqnk}
 \end{figure}
 
 
@@ -1662,7 +1686,7 @@ Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
 
 \begin{figure}[H]
 \centering
-\includegraphics[max width=\linewidth]{rzsrxiu}
+\includegraphics[max width=\linewidth]{qpebcpv}
 \end{figure}
 
 
@@ -1681,7 +1705,7 @@ Main.SVG_BIG
 
 
 \begin{lstlisting}[]
-MIMEBytes{MIME{Symbol("image/svg+xml")}}(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x0d, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0d, 0x0a], "e162f65e")
+MIMEBytes{MIME{Symbol("image/svg+xml")}}(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x67, 0x3e, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0a], "8c868826")
 \end{lstlisting}
 
 
@@ -1704,7 +1728,7 @@ Main.SVG_HTML
 
 
 \begin{lstlisting}[]
-MIMEBytes{MIME{Symbol("text/html")}}(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x0d, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0d, 0x0a], "e162f65e")
+MIMEBytes{MIME{Symbol("text/html")}}(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x67, 0x3e, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0a], "8c868826")
 \end{lstlisting}
 
 
@@ -1720,7 +1744,7 @@ Main.SVG_MULTI
 
 
 \begin{lstlisting}[]
-MultiMIMESVG(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x0d, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0d, 0x0a], "e162f65e")
+MultiMIMESVG(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x67, 0x3e, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0a], "8c868826")
 \end{lstlisting}
 
 
@@ -1822,13 +1846,13 @@ Pages can be hidden with the \hyperlinkref{12333874902364664348}{\texttt{hide}} 
 
 
 \begin{itemize}
-\item \href{hidden{\textbackslash}x.md}{Hidden page 1}
+\item \href{hidden/x.md}{Hidden page 1}
 
 
-\item \href{hidden{\textbackslash}y.md}{Hidden page 2}
+\item \href{hidden/y.md}{Hidden page 2}
 
 
-\item \href{hidden{\textbackslash}z.md}{Hidden page 3}
+\item \href{hidden/z.md}{Hidden page 3}
 
 \end{itemize}
 
@@ -1867,7 +1891,7 @@ makedocs(
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/src/makedocs.jl#L282}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/src/makedocs.jl#L322}{\texttt{source}}
 
 
 
@@ -1897,7 +1921,7 @@ makedocs(
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/src/makedocs.jl#L306}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/src/makedocs.jl#L346}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -1960,7 +1984,7 @@ makedocs(
 \label{13536066633202303496}{}
 
 
-\hyperlinkref{14245046751182637566}{\texttt{ccall}}, \hyperlinkref{16791148087951682840}{\texttt{func(x)}}, \hyperlinkref{1885743281855441478}{\texttt{T}}, \hyperlinkref{9105224580875818383}{\texttt{for}}, and \hyperlinkref{15133348314455964692}{\texttt{while}}.
+\hyperlinkref{3259459540194502889}{\texttt{deepcopy}}, \hyperlinkref{16791148087951682840}{\texttt{func(x)}}, \hyperlinkref{1885743281855441478}{\texttt{T}}, \hyperlinkref{12895501458291832858}{\texttt{@eval}}, and \hyperlinkref{15133348314455964692}{\texttt{while}}.
 
 
 \hypertarget{16791148087951682840}{\texttt{Main.Mod.func}}  -- {Method.}
@@ -1976,7 +2000,7 @@ func(x)
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L28-L32}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L30-L34}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -1993,61 +2017,26 @@ T
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L35-L39}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L37-L41}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{14245046751182637566}{\texttt{ccall}}  -- {Keyword.}
+\hypertarget{3259459540194502889}{\texttt{Base.deepcopy}}  -- {Function.}
 
 \begin{adjustwidth}{2em}{0pt}
 
 
 \begin{lstlisting}[]
-ccall((function_name, library), returntype, (argtype1, ...), argvalue1, ...)
-ccall(function_name, returntype, (argtype1, ...), argvalue1, ...)
-ccall(function_pointer, returntype, (argtype1, ...), argvalue1, ...)
+deepcopy(x)
 \end{lstlisting}
 
-Call a function in a C-exported shared library, specified by the tuple \texttt{(function\_name, library)}, where each component is either a string or symbol. Instead of specifying a library, one can also use a \texttt{function\_name} symbol or string, which is resolved in the current process. Alternatively, \texttt{ccall} may also be used to call a function pointer \texttt{function\_pointer}, such as one returned by \texttt{dlsym}.
+Create a deep copy of \texttt{x}: everything is copied recursively, resulting in a fully independent object. For example, deep-copying an array creates deep copies of all the objects it contains and produces a new array with the consistent relationship structure (e.g., if the first two elements are the same object in the original array, the first two elements of the new array will also be the same \texttt{deepcopy}ed object). Calling \texttt{deepcopy} on an object should generally have the same effect as serializing and then deserializing it.
 
-Note that the argument type tuple must be a literal tuple, and not a tuple-valued variable or expression.
-
-Each \texttt{argvalue} to the \texttt{ccall} will be converted to the corresponding \texttt{argtype}, by automatic insertion of calls to \texttt{unsafe\_convert(argtype, cconvert(argtype, argvalue))}. (See also the documentation for \href{@ref Base.unsafe\_convert}{\texttt{unsafe\_convert}} and \href{@ref Base.cconvert}{\texttt{cconvert}} for further details.) In most cases, this simply results in a call to \texttt{convert(argtype, argvalue)}.
+While it isn{\textquotesingle}t normally necessary, user-defined types can override the default \texttt{deepcopy} behavior by defining a specialized version of the function \texttt{deepcopy\_internal(x::T, dict::IdDict)} (which shouldn{\textquotesingle}t otherwise be used), where \texttt{T} is the type to be specialized for, and \texttt{dict} keeps track of objects copied so far within the recursion. Within the definition, \texttt{deepcopy\_internal} should be used in place of \texttt{deepcopy}, and the \texttt{dict} variable should be updated as appropriate before returning.
 
 
 
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/docs/basedocs.jl#L1219-L1237}{\texttt{source}}
-
-
-\end{adjustwidth}
-\hypertarget{9105224580875818383}{\texttt{for}}  -- {Keyword.}
-
-\begin{adjustwidth}{2em}{0pt}
-
-
-\begin{lstlisting}[]
-for
-\end{lstlisting}
-
-\texttt{for} loops repeatedly evaluate a block of statements while iterating over a sequence of values.
-
-The iteration variable is always a new variable, even if a variable of the same name exists in the enclosing scope. Use \href{@ref}{\texttt{outer}} to reuse an existing local variable for iteration.
-
-\textbf{Examples}
-
-
-\begin{lstlisting}[language=julia, style=jlcodestyle]
-julia> for i in [1, 4, 0]
-           println(i)
-       end
-1
-4
-0
-\end{lstlisting}
-
-
-
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/docs/basedocs.jl#L906-L925}{\texttt{source}}
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/deepcopy.jl#L8-L26}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2081,69 +2070,24 @@ julia> while i < 5
 
 
 
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/docs/basedocs.jl#L928-L949}{\texttt{source}}
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/docs/basedocs.jl#L984-L1005}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{8029752041511656628}{\texttt{Base.@time}}  -- {Macro.}
+\hypertarget{12895501458291832858}{\texttt{Base.@eval}}  -- {Macro.}
 
 \begin{adjustwidth}{2em}{0pt}
 
 
 \begin{lstlisting}[]
-@time expr
-@time "description" expr
+@eval [mod,] ex
 \end{lstlisting}
 
-A macro to execute an expression, printing the time it took to execute, the number of allocations, and the total number of bytes its execution caused to be allocated, before returning the value of the expression. Any time spent garbage collecting (gc), compiling new code, or recompiling invalidated code is shown as a percentage.
-
-Optionally provide a description string to print before the time report.
-
-In some cases the system will look inside the \texttt{@time} expression and compile some of the called code before execution of the top-level expression begins. When that happens, some compilation time will not be counted. To include this time you can run \texttt{@time @eval ...}.
-
-See also \href{@ref}{\texttt{@showtime}}, \href{@ref}{\texttt{@timev}}, \href{@ref}{\texttt{@timed}}, \href{@ref}{\texttt{@elapsed}}, \href{@ref}{\texttt{@allocated}}, and \href{@ref}{\texttt{@allocations}}.
-
-\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-note!50!white,colframe=admonition-note,title=\textbf{Note}]
-For more serious benchmarking, consider the \texttt{@btime} macro from the BenchmarkTools.jl package which among other things evaluates the function multiple times in order to reduce noise.
-
-\end{tcolorbox}
-\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-compat!50!white,colframe=admonition-compat,title=\textbf{Julia 1.8}]
-The option to add a description was introduced in Julia 1.8.
-
-Recompilation time being shown separately from compilation time was introduced in Julia 1.8
-
-\end{tcolorbox}
-
-\begin{lstlisting}[language=julia, style=jlcodestyle]
-julia> x = rand(10,10);
-
-julia> @time x * x;
-  0.606588 seconds (2.19 M allocations: 116.555 MiB, 3.75% gc time, 99.94% compilation time)
-
-julia> @time x * x;
-  0.000009 seconds (1 allocation: 896 bytes)
-
-julia> @time begin
-           sleep(0.3)
-           1+1
-       end
-  0.301395 seconds (8 allocations: 336 bytes)
-2
-
-julia> @time "A one second sleep" sleep(1)
-A one second sleep: 1.005750 seconds (5 allocations: 144 bytes)
-
-julia> for loop in 1:3
-            @time loop sleep(1)
-        end
-1: 1.006760 seconds (5 allocations: 144 bytes)
-2: 1.001263 seconds (5 allocations: 144 bytes)
-3: 1.003676 seconds (5 allocations: 144 bytes)
-\end{lstlisting}
+Evaluate an expression with values interpolated into it using \texttt{eval}. If two arguments are provided, the first is the module to evaluate in.
 
 
 
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/timing.jl#L206-L260}{\texttt{source}}
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/essentials.jl#L463-L468}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2156,10 +2100,10 @@ julia> for loop in 1:3
 @assert cond [text]
 \end{lstlisting}
 
-Throw an \href{@ref}{\texttt{AssertionError}} if \texttt{cond} is \texttt{false}. Preferred syntax for writing assertions. Message \texttt{text} is optionally displayed upon assertion failure.
+Throw an \hyperlinkref{11676817432925230066}{\texttt{AssertionError}} if \texttt{cond} is \texttt{false}. This is the preferred syntax for writing assertions, which are conditions that are assumed to be true, but that the user might decide to check anyways, as an aid to debugging if they fail. The optional message \texttt{text} is displayed upon assertion failure.
 
 \begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-warning!50!white,colframe=admonition-warning,title=\textbf{Warning}]
-An assert might be disabled at various optimization levels. Assert should therefore only be used as a debugging tool and not used for authentication verification (e.g., verifying passwords), nor should side effects needed for the function to work correctly be used inside of asserts.
+An assert might be disabled at some optimization levels. Assert should therefore only be used as a debugging tool and not used for authentication verification (e.g., verifying passwords or checking array bounds). The code must not rely on the side effects of running \texttt{cond} for the correct behavior of a function.
 
 \end{tcolorbox}
 \textbf{Examples}
@@ -2174,11 +2118,38 @@ julia> @assert isodd(3) "What even are numbers?"
 
 
 
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/error.jl#L197-L217}{\texttt{source}}
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/error.jl#L207-L229}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{6220747639501087335}{\texttt{Main.Mod.func}}  -- {Method.}
+\hypertarget{11676817432925230066}{\texttt{Core.AssertionError}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+AssertionError([msg])
+\end{lstlisting}
+
+The asserted condition did not evaluate to \texttt{true}. Optional argument \texttt{msg} is a descriptive error string.
+
+\textbf{Examples}
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @assert false "this is not true"
+ERROR: AssertionError: this is not true
+\end{lstlisting}
+
+\texttt{AssertionError} is usually thrown from \hyperlinkref{4796942656392369899}{\texttt{@assert}}.
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/docs/basedocs.jl#L3240-L3253}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{13940855205476882399}{\texttt{Main.Mod.func}}  -- {Method.}
 
 \begin{adjustwidth}{2em}{0pt}
 
@@ -2191,11 +2162,11 @@ func(x)
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L28-L32}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L30-L34}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{1083418990168050645}{\texttt{Main.Mod.T}}  -- {Type.}
+\hypertarget{16263143784079293164}{\texttt{Main.Mod.T}}  -- {Type.}
 
 \begin{adjustwidth}{2em}{0pt}
 
@@ -2208,65 +2179,30 @@ T
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L35-L39}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L37-L41}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{2479356769239817337}{\texttt{ccall}}  -- {Keyword.}
+\hypertarget{14182605455813865358}{\texttt{Base.deepcopy}}  -- {Function.}
 
 \begin{adjustwidth}{2em}{0pt}
 
 
 \begin{lstlisting}[]
-ccall((function_name, library), returntype, (argtype1, ...), argvalue1, ...)
-ccall(function_name, returntype, (argtype1, ...), argvalue1, ...)
-ccall(function_pointer, returntype, (argtype1, ...), argvalue1, ...)
+deepcopy(x)
 \end{lstlisting}
 
-Call a function in a C-exported shared library, specified by the tuple \texttt{(function\_name, library)}, where each component is either a string or symbol. Instead of specifying a library, one can also use a \texttt{function\_name} symbol or string, which is resolved in the current process. Alternatively, \texttt{ccall} may also be used to call a function pointer \texttt{function\_pointer}, such as one returned by \texttt{dlsym}.
+Create a deep copy of \texttt{x}: everything is copied recursively, resulting in a fully independent object. For example, deep-copying an array creates deep copies of all the objects it contains and produces a new array with the consistent relationship structure (e.g., if the first two elements are the same object in the original array, the first two elements of the new array will also be the same \texttt{deepcopy}ed object). Calling \texttt{deepcopy} on an object should generally have the same effect as serializing and then deserializing it.
 
-Note that the argument type tuple must be a literal tuple, and not a tuple-valued variable or expression.
-
-Each \texttt{argvalue} to the \texttt{ccall} will be converted to the corresponding \texttt{argtype}, by automatic insertion of calls to \texttt{unsafe\_convert(argtype, cconvert(argtype, argvalue))}. (See also the documentation for \href{@ref Base.unsafe\_convert}{\texttt{unsafe\_convert}} and \href{@ref Base.cconvert}{\texttt{cconvert}} for further details.) In most cases, this simply results in a call to \texttt{convert(argtype, argvalue)}.
+While it isn{\textquotesingle}t normally necessary, user-defined types can override the default \texttt{deepcopy} behavior by defining a specialized version of the function \texttt{deepcopy\_internal(x::T, dict::IdDict)} (which shouldn{\textquotesingle}t otherwise be used), where \texttt{T} is the type to be specialized for, and \texttt{dict} keeps track of objects copied so far within the recursion. Within the definition, \texttt{deepcopy\_internal} should be used in place of \texttt{deepcopy}, and the \texttt{dict} variable should be updated as appropriate before returning.
 
 
 
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/docs/basedocs.jl#L1219-L1237}{\texttt{source}}
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/deepcopy.jl#L8-L26}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{12962926564300866742}{\texttt{for}}  -- {Keyword.}
-
-\begin{adjustwidth}{2em}{0pt}
-
-
-\begin{lstlisting}[]
-for
-\end{lstlisting}
-
-\texttt{for} loops repeatedly evaluate a block of statements while iterating over a sequence of values.
-
-The iteration variable is always a new variable, even if a variable of the same name exists in the enclosing scope. Use \href{@ref}{\texttt{outer}} to reuse an existing local variable for iteration.
-
-\textbf{Examples}
-
-
-\begin{lstlisting}[language=julia, style=jlcodestyle]
-julia> for i in [1, 4, 0]
-           println(i)
-       end
-1
-4
-0
-\end{lstlisting}
-
-
-
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/docs/basedocs.jl#L906-L925}{\texttt{source}}
-
-
-\end{adjustwidth}
-\hypertarget{4254378774946180703}{\texttt{while}}  -- {Keyword.}
+\hypertarget{2080321076594696295}{\texttt{while}}  -- {Keyword.}
 
 \begin{adjustwidth}{2em}{0pt}
 
@@ -2296,73 +2232,28 @@ julia> while i < 5
 
 
 
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/docs/basedocs.jl#L928-L949}{\texttt{source}}
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/docs/basedocs.jl#L984-L1005}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{16039636267419312856}{\texttt{Base.@time}}  -- {Macro.}
+\hypertarget{4653842890700059542}{\texttt{Base.@eval}}  -- {Macro.}
 
 \begin{adjustwidth}{2em}{0pt}
 
 
 \begin{lstlisting}[]
-@time expr
-@time "description" expr
+@eval [mod,] ex
 \end{lstlisting}
 
-A macro to execute an expression, printing the time it took to execute, the number of allocations, and the total number of bytes its execution caused to be allocated, before returning the value of the expression. Any time spent garbage collecting (gc), compiling new code, or recompiling invalidated code is shown as a percentage.
-
-Optionally provide a description string to print before the time report.
-
-In some cases the system will look inside the \texttt{@time} expression and compile some of the called code before execution of the top-level expression begins. When that happens, some compilation time will not be counted. To include this time you can run \texttt{@time @eval ...}.
-
-See also \href{@ref}{\texttt{@showtime}}, \href{@ref}{\texttt{@timev}}, \href{@ref}{\texttt{@timed}}, \href{@ref}{\texttt{@elapsed}}, \href{@ref}{\texttt{@allocated}}, and \href{@ref}{\texttt{@allocations}}.
-
-\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-note!50!white,colframe=admonition-note,title=\textbf{Note}]
-For more serious benchmarking, consider the \texttt{@btime} macro from the BenchmarkTools.jl package which among other things evaluates the function multiple times in order to reduce noise.
-
-\end{tcolorbox}
-\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-compat!50!white,colframe=admonition-compat,title=\textbf{Julia 1.8}]
-The option to add a description was introduced in Julia 1.8.
-
-Recompilation time being shown separately from compilation time was introduced in Julia 1.8
-
-\end{tcolorbox}
-
-\begin{lstlisting}[language=julia, style=jlcodestyle]
-julia> x = rand(10,10);
-
-julia> @time x * x;
-  0.606588 seconds (2.19 M allocations: 116.555 MiB, 3.75% gc time, 99.94% compilation time)
-
-julia> @time x * x;
-  0.000009 seconds (1 allocation: 896 bytes)
-
-julia> @time begin
-           sleep(0.3)
-           1+1
-       end
-  0.301395 seconds (8 allocations: 336 bytes)
-2
-
-julia> @time "A one second sleep" sleep(1)
-A one second sleep: 1.005750 seconds (5 allocations: 144 bytes)
-
-julia> for loop in 1:3
-            @time loop sleep(1)
-        end
-1: 1.006760 seconds (5 allocations: 144 bytes)
-2: 1.001263 seconds (5 allocations: 144 bytes)
-3: 1.003676 seconds (5 allocations: 144 bytes)
-\end{lstlisting}
+Evaluate an expression with values interpolated into it using \texttt{eval}. If two arguments are provided, the first is the module to evaluate in.
 
 
 
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/timing.jl#L206-L260}{\texttt{source}}
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/essentials.jl#L463-L468}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{1046448939276307341}{\texttt{Base.@assert}}  -- {Macro.}
+\hypertarget{16932624171676278587}{\texttt{Base.@assert}}  -- {Macro.}
 
 \begin{adjustwidth}{2em}{0pt}
 
@@ -2371,10 +2262,10 @@ julia> for loop in 1:3
 @assert cond [text]
 \end{lstlisting}
 
-Throw an \href{@ref}{\texttt{AssertionError}} if \texttt{cond} is \texttt{false}. Preferred syntax for writing assertions. Message \texttt{text} is optionally displayed upon assertion failure.
+Throw an \hyperlinkref{11676817432925230066}{\texttt{AssertionError}} if \texttt{cond} is \texttt{false}. This is the preferred syntax for writing assertions, which are conditions that are assumed to be true, but that the user might decide to check anyways, as an aid to debugging if they fail. The optional message \texttt{text} is displayed upon assertion failure.
 
 \begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-warning!50!white,colframe=admonition-warning,title=\textbf{Warning}]
-An assert might be disabled at various optimization levels. Assert should therefore only be used as a debugging tool and not used for authentication verification (e.g., verifying passwords), nor should side effects needed for the function to work correctly be used inside of asserts.
+An assert might be disabled at some optimization levels. Assert should therefore only be used as a debugging tool and not used for authentication verification (e.g., verifying passwords or checking array bounds). The code must not rely on the side effects of running \texttt{cond} for the correct behavior of a function.
 
 \end{tcolorbox}
 \textbf{Examples}
@@ -2389,7 +2280,34 @@ julia> @assert isodd(3) "What even are numbers?"
 
 
 
-\href{https://github.com/JuliaLang/julia/blob/8e630552924eac54c809aa7bc30871c7df1582d3/base/error.jl#L197-L217}{\texttt{source}}
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/error.jl#L207-L229}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{9203129741616521145}{\texttt{Core.AssertionError}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+AssertionError([msg])
+\end{lstlisting}
+
+The asserted condition did not evaluate to \texttt{true}. Optional argument \texttt{msg} is a descriptive error string.
+
+\textbf{Examples}
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @assert false "this is not true"
+ERROR: AssertionError: this is not true
+\end{lstlisting}
+
+\texttt{AssertionError} is usually thrown from \hyperlinkref{4796942656392369899}{\texttt{@assert}}.
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/docs/basedocs.jl#L3240-L3253}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2560,7 +2478,7 @@ using InteractiveUtils
 
 \begin{lstlisting}[]
 Main.T()
-     @ Main functions.md:61
+     @ Main functions.md:62
 \end{lstlisting}
 
 
@@ -2647,11 +2565,7 @@ b = ans
 
 
 \begin{lstlisting}[language=julia, style=jlcodestyle]
-
-
-
 julia> nothing
-
 
 julia> rand()
 0.07336635446929285
@@ -2672,7 +2586,6 @@ julia> struct T
            x :: Int
            y :: Vector
        end
-
 
 julia> x = T(1, [1])
 Main.T(1, [1])
@@ -2719,7 +2632,6 @@ Test setup function
 
 \begin{lstlisting}[language=julia, style=jlcodestyle]
 julia> @assert w === 5
-
 \end{lstlisting}
 
 
@@ -2747,7 +2659,7 @@ julia> @assert w === 5
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L76}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L78}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2759,7 +2671,7 @@ Constant \texttt{K}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L89}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L91}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2771,7 +2683,7 @@ Type \texttt{T}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L92}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L94}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2783,7 +2695,7 @@ Function \texttt{f}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L86}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L88}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2795,7 +2707,7 @@ Macro \texttt{@m}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L95}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L97}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2814,7 +2726,7 @@ Function \texttt{A.f}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L100}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L102}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2826,7 +2738,7 @@ Module \texttt{A}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L98}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L100}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2838,7 +2750,7 @@ Macro \texttt{B.@m}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L109}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L111}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2850,7 +2762,7 @@ Function \texttt{B.f}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L115}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L117}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2862,7 +2774,7 @@ Module \texttt{B}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L113}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L115}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2874,7 +2786,7 @@ Macro \texttt{B.@m}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L124}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L126}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2893,7 +2805,7 @@ Constant \texttt{A.K}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L103}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L105}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2905,7 +2817,7 @@ Type \texttt{B.T}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L106}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L108}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2917,7 +2829,7 @@ Constant \texttt{B.K}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L118}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L120}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2929,7 +2841,7 @@ Type \texttt{B.T}.
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L121}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L123}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2949,13 +2861,13 @@ Type \texttt{B.T}.
 Links:
 
 \begin{itemize}
-\item \hyperlinkref{14245046751182637566}{\texttt{ccall}}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
 
 
 \item \hyperlinkref{15133348314455964692}{\texttt{while}}
 
 
-\item \hyperlinkref{8029752041511656628}{\texttt{@time(x)}}
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval(x)}}
 
 
 \item \hyperlinkref{17100384742613090383}{\texttt{T(x)}}
@@ -2981,7 +2893,7 @@ Links:
 }
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/a.jl#L2-L21}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/a.jl#L1-L20}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -2994,13 +2906,13 @@ Links:
 Links:
 
 \begin{itemize}
-\item \hyperlinkref{14245046751182637566}{\texttt{ccall}}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
 
 
 \item \hyperlinkref{15133348314455964692}{\texttt{while}}
 
 
-\item \hyperlinkref{8029752041511656628}{\texttt{@time}}
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
 
 
 \item \hyperlinkref{5246990970960098088}{\texttt{T}}
@@ -3020,7 +2932,7 @@ Links:
 \end{itemize}
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/b.jl#L2-L16}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/b.jl#L1-L15}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3033,13 +2945,13 @@ Links:
 Links:
 
 \begin{itemize}
-\item \hyperlinkref{14245046751182637566}{\texttt{ccall}}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
 
 
 \item \hyperlinkref{15133348314455964692}{\texttt{while}}
 
 
-\item \hyperlinkref{8029752041511656628}{\texttt{@time}}
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
 
 
 \item \hyperlinkref{5246990970960098088}{\texttt{T}}
@@ -3059,7 +2971,7 @@ Links:
 \end{itemize}
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/c.jl#L2-L16}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/c.jl#L1-L15}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3072,13 +2984,13 @@ Links:
 Links:
 
 \begin{itemize}
-\item \hyperlinkref{14245046751182637566}{\texttt{ccall}}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
 
 
 \item \hyperlinkref{15133348314455964692}{\texttt{while}}
 
 
-\item \hyperlinkref{8029752041511656628}{\texttt{@time}}
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
 
 
 \item \hyperlinkref{5246990970960098088}{\texttt{T}}
@@ -3098,7 +3010,7 @@ Links:
 \end{itemize}
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/d.jl#L2-L16}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/d.jl#L1-L15}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3111,13 +3023,13 @@ Links:
 Links:
 
 \begin{itemize}
-\item \hyperlinkref{14245046751182637566}{\texttt{ccall}}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
 
 
 \item \hyperlinkref{15133348314455964692}{\texttt{while}}
 
 
-\item \hyperlinkref{8029752041511656628}{\texttt{@time}}
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
 
 
 \item \hyperlinkref{5246990970960098088}{\texttt{T()}}
@@ -3146,7 +3058,7 @@ Links:
 \end{itemize}
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/d.jl#L39-L56}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/d.jl#L38-L55}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3159,13 +3071,13 @@ Links:
 Links:
 
 \begin{itemize}
-\item \hyperlinkref{14245046751182637566}{\texttt{ccall}}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
 
 
 \item \hyperlinkref{15133348314455964692}{\texttt{while}}
 
 
-\item \hyperlinkref{8029752041511656628}{\texttt{@time}}
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
 
 
 \item \hyperlinkref{17100384742613090383}{\texttt{T(x)}}
@@ -3191,13 +3103,18 @@ Links:
 \end{itemize}
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/d.jl#L20-L36}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/d.jl#L19-L35}{\texttt{source}}
 
 
 \end{adjustwidth}
 
 A footnote reference \footnotemark[1].
 
+
+
+\footnotetext[1]{the footnote text
+
+}
 
 
 \chapter{Named docstring \texttt{@ref}s}
@@ -3214,10 +3131,10 @@ A footnote reference \footnotemark[1].
 \item a named docstring \texttt{@ref} link: \hyperlinkref{16694402067483188119}{\texttt{f}};
 
 
-\item and a link with custom text: \hyperlinkref{8029752041511656628}{\texttt{@time 1 + 2}};
+\item and a link with custom text: \hyperlinkref{12895501458291832858}{\texttt{@eval 1 + 2}};
 
 
-\item some invalid syntax: \hyperlinkref{9105224580875818383}{\texttt{for i = 1:10; ...}}.
+\item some invalid syntax: \hyperlinkref{15133348314455964692}{\texttt{while i < 10; ...}}.
 
 \end{itemize}
 
@@ -3265,7 +3182,7 @@ f\_1
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L5}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L16}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3277,7 +3194,7 @@ f\_2
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L8}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L19}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3289,7 +3206,7 @@ f\_3
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L11}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L22}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3328,7 +3245,7 @@ g\_1
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L15}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L26}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3340,7 +3257,7 @@ g\_2
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L18}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L29}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3352,7 +3269,7 @@ g\_3
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L21}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L32}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3388,7 +3305,7 @@ T\_1
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L26}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L37}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3400,7 +3317,7 @@ T\_2
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L29}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L40}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3412,7 +3329,7 @@ T\_3
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/pages/e.jl#L32}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L43}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3451,7 +3368,7 @@ abstract super type
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L129}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L131}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3463,7 +3380,7 @@ abstract sub type 1
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L132}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L134}{\texttt{source}}
 
 
 \end{adjustwidth}
@@ -3475,7 +3392,7 @@ abstract sub type 2
 
 
 
-\href{https://github.com/BambOoxX/Documenter.jl/blob/d157febde213549ed0d45c894f0651560da477d3/test/examples/make.jl#L135}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L137}{\texttt{source}}
 
 
 \end{adjustwidth}
