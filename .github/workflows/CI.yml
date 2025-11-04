@@ -34,11 +34,15 @@ jobs:
           - macos-latest
           - windows-latest
         arch:
-          - x64
+          - default
         include:
           - os: ubuntu-latest
             version: '1'
             arch: x86
+        exclude:
+          - os: macos-latest
+            version: '1.6'
+            arch: default
     steps:
       - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
@@ -85,7 +89,7 @@ jobs:
             $fonts.CopyHere($file.fullname)
           }
         if: matrix.os == 'windows-latest'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
         if: matrix.os == 'windows-latest'
@@ -129,7 +133,7 @@ jobs:
           path-to-lcov: lcov.info
           flag-name: latex-${{ join(matrix.*, '-') }}
           parallel: true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: "PDFs-${{ matrix.os }}"
           path: test/examples/builds/*/*.pdf
@@ -208,14 +212,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
           DOCUMENTER_LATEX_DEBUG: ${{ github.workspace }}/latex-debug-logs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: ${{ always() && matrix.format == 'pdf' }}
         with:
           name: PDF build logs
           path: ${{ github.workspace }}/latex-debug-logs
       - name: Upload search index
         if: ${{ matrix.format == 'html' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: search-index
           path: docs/build/search_index.js
@@ -229,18 +233,17 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: 1
-          arch: x64
           show-versioninfo: true
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - name: Instantiate main project environment
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
       - name: Download search index
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: search-index
           path: docs/build
-      - name: Build search edge cases documentation  
+      - name: Build search edge cases documentation
         run: |
           cd test/search_edge_cases
           julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path="../../"))'
@@ -250,7 +253,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload search benchmark results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: search-benchmark-results
           path: test/search/search_benchmark_results_*.txt
@@ -258,6 +261,8 @@ jobs:
   linkcheck:
     name: "Linkcheck: online tests"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@latest

@@ -33,7 +33,7 @@ function load_reference_values(query_file_path::String)
     end
 
     if isfile(reference_file)
-        return JSON.parsefile(reference_file)
+        return JSON.parsefile(reference_file; dicttype = Dict{String, Any})
     else
         return Dict()
     end
@@ -124,10 +124,6 @@ function run_benchmarks(search_index_path::String, query_file_path::String, over
     precision_highlighter = Highlighter((data, i, j) -> i == 1 && j == 2, get_color_for_percentage(precision_val))
     recall_highlighter = Highlighter((data, i, j) -> i == 2 && j == 2, get_color_for_percentage(recall_val))
     f1_highlighter = Highlighter((data, i, j) -> i == 3 && j == 2, get_color_for_percentage(f1_val))
-    diff_highlighter = Highlighter(
-        (data, i, j) -> j == 4 && i in 1:3,
-        (data, i, j) -> get_color_for_diff(parse(Float64, data[i, 4]))
-    )
 
     pretty_table(
         summary_data, header = ["Metric", "Value", "Reference", "Diff"], alignment = :l,
@@ -136,9 +132,9 @@ function run_benchmarks(search_index_path::String, query_file_path::String, over
             precision_highlighter,
             recall_highlighter,
             f1_highlighter,
-            Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[1, 4]))),
-            Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[2, 4]))),
-            Highlighter((data, i, j) -> j == 4 && i in 1:3, get_color_for_diff(parse(Float64, summary_data[3, 4]))),
+            Highlighter((data, i, j) -> j == 4 && i == 1, get_color_for_diff(precision_diff)),
+            Highlighter((data, i, j) -> j == 4 && i == 2, get_color_for_diff(recall_diff)),
+            Highlighter((data, i, j) -> j == 4 && i == 3, get_color_for_diff(f1_diff)),
         )
     )
 
