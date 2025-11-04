@@ -2485,10 +2485,6 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
 end
 
 # This function provided by Michael Goerz in https://github.com/JuliaDocs/MarkdownAST.jl/issues/18
-function _markdownast_to_str(node::MarkdownAST.Node)
-    text = Documenter.MDFlatten.mdflatten(node)
-    return strip(text)
-end
 
 function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
     @tags header div details summary
