@@ -37,7 +37,16 @@ function maybeAddWarning() {
   closer.addEventListener("click", function () {
     document.body.removeChild(div);
   });
-  const href = window.documenterBaseURL + "/../" + window.DOCUMENTER_STABLE;
+  
+  // build the stable version URL, trying to stay on the same page
+  let stableUrl = window.documenterBaseURL + "/../" + window.DOCUMENTER_STABLE;
+  const currentPath = window.location.pathname;
+  const baseUrl = new URL(window.documenterBaseURL, window.location.href).pathname;
+  const pagePath = currentPath.startsWith(baseUrl) ? currentPath.substring(baseUrl.length) : "";
+  
+  if (pagePath && pagePath !== "" && pagePath !== "/" && pagePath !== "index.html") {
+    stableUrl = stableUrl.replace(/\/$/, "") + "/" + pagePath;
+  }
 
   // Determine if this is a development version or an older release
   let warningMessage = "";
@@ -53,7 +62,7 @@ function maybeAddWarning() {
 
   warningMessage +=
     '<a href="' +
-    href +
+    stableUrl +
     '">Click here to go to the documentation for the latest stable release.</a>';
 
   div.innerHTML = warningMessage;
