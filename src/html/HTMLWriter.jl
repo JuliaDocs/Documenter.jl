@@ -2484,8 +2484,6 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     return DOM.Node[]
 end
 
-# This function provided by Michael Goerz in https://github.com/JuliaDocs/MarkdownAST.jl/issues/18
-
 function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
     @tags header div details summary
     colorclass =
