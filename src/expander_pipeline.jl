@@ -691,13 +691,20 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
+    matched = match(r"^@eval(?:\s+([^\s;]+))?\s*$", x.info)
+    matched === nothing && error("invalid '@eval <name>' syntax: $(x.info)")
+    name = matched[1]
+
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @eval block in draft mode:\n$(x.code)"
         create_draft_result!(node; blocktype = "@eval")
         return
     end
-    sandbox = Module(:EvalBlockSandbox)
+
+    # The sandboxed module -- either a new one or a cached one from this page.
+    sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
+
     lines = Documenter.find_block_in_file(x.code, page.source)
     linenumbernode = LineNumberNode(
         lines === nothing ? 0 : lines.first, basename(page.source)
