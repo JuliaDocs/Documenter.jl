@@ -819,8 +819,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
-    sym = nameof(mod)
+    sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
+    sym = nameof(sandbox)
     lines = Documenter.find_block_in_file(x.code, page.source)
 
     # "parse" keyword arguments to example
@@ -853,10 +853,10 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
             )
             c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
-                    Core.eval(mod, ex)
+                    Core.eval(sandbox, ex)
                 end
             end
-            Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+            Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
             result = c.value
             print(buffer, c.output)
             if c.error
@@ -886,14 +886,14 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
-        output[m] = remove_sandbox_from_output(output[m], mod)
+        output[m] = remove_sandbox_from_output(output[m], sandbox)
     end
 
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
     if result === nothing
         stdouterr = Documenter.sanitise(buffer)
-        stdouterr = remove_sandbox_from_output(stdouterr, mod)
+        stdouterr = remove_sandbox_from_output(stdouterr, sandbox)
         isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME, Any}(MIME"text/plain"() => stdouterr))))
     elseif !isempty(output)
         push!(content, Node(Documenter.MultiOutputElement(output)))
@@ -905,8 +905,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
 end
 
 # Replace references to gensym'd module with Main
-function remove_sandbox_from_output(str, mod::Module)
-    return replace(str, Regex(("(Main\\.)?$(nameof(mod))")) => "Main")
+function remove_sandbox_from_output(str, sandbox::Module)
+    return replace(str, Regex(("(Main\\.)?$(nameof(sandbox))")) => "Main")
 end
 
 # @repl
@@ -928,7 +928,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
+    sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
 
     # "parse" keyword arguments to repl
     ansicolor = _any_color_fmt(doc)
@@ -951,10 +951,10 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
         ex = REPL.softscope(ex)
         c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
             cd(page.workdir) do
-                Core.eval(mod, ex)
+                Core.eval(sandbox, ex)
             end
         end
-        Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+        Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
         result = c.value
         buf = IOContext(IOBuffer(), :color => ansicolor)
         output = if !c.error
@@ -976,7 +976,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
 
         outstr = String(take!(out))
         # Replace references to gensym'd module with Main
-        outstr = rstrip(remove_sandbox_from_output(outstr, mod))
+        outstr = rstrip(remove_sandbox_from_output(outstr, sandbox))
         !isempty(outstr) && push!(multicodeblock, MarkdownAST.CodeBlock("documenter-ansi", outstr))
     end
     node.element = Documenter.MultiCodeBlock(x, "julia-repl", [])
@@ -1005,13 +1005,13 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
+    sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
 
     @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise
     try
         cd(page.workdir) do
-            include_string(mod, x.code)
+            include_string(sandbox, x.code)
         end
     catch err
         bt = Documenter.remove_common_backtrace(catch_backtrace())
