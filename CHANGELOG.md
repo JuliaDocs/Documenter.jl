@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added option `treat_markdown_warnings_as_error` which throws an error when encountering a markdown/interpolation warning ([#2792], [#2751])
 * Footnotes can now be previewed by hovering over the link. ([#2080])
+* Allow named `@eval` blocks: such a block shares its execution context with all other `@eval`, `@example`, `@repl` and `@setup` blocks on the same page which use the same name. ([#2074], [#2812])
 
 ### Changed
 
@@ -1998,6 +1999,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2067]: https://github.com/JuliaDocs/Documenter.jl/issues/2067
 [#2070]: https://github.com/JuliaDocs/Documenter.jl/issues/2070
 [#2071]: https://github.com/JuliaDocs/Documenter.jl/issues/2071
+[#2074]: https://github.com/JuliaDocs/Documenter.jl/issues/2074
 [#2076]: https://github.com/JuliaDocs/Documenter.jl/issues/2076
 [#2078]: https://github.com/JuliaDocs/Documenter.jl/issues/2078
 [#2080]: https://github.com/JuliaDocs/Documenter.jl/issues/2080
@@ -2180,6 +2182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
 [#2792]: https://github.com/JuliaDocs/Documenter.jl/issues/2792
 [#2803]: https://github.com/JuliaDocs/Documenter.jl/issues/2803
+[#2812]: https://github.com/JuliaDocs/Documenter.jl/issues/2812
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
