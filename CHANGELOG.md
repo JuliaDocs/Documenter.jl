@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   This is **potentially breaking** and may cause some documentation builds to fail.
   Those previously passed but generated incorrect cross-references.
   You can fix this by ensuring that you have distinct headers across your markdown pages, or by using the `@id` syntax to give the headers unique slugs.
+* Changed CSS for the navigation "breadcrumbs" at the top of each page to avoid an issue where `code` blocks in there were missing spacing around them. ([#1614], [#2813])
 
 ## Version [v1.15.0] - 2025-10-22
 
@@ -1854,6 +1855,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1609]: https://github.com/JuliaDocs/Documenter.jl/issues/1609
 [#1610]: https://github.com/JuliaDocs/Documenter.jl/issues/1610
 [#1611]: https://github.com/JuliaDocs/Documenter.jl/issues/1611
+[#1614]: https://github.com/JuliaDocs/Documenter.jl/issues/1614
 [#1615]: https://github.com/JuliaDocs/Documenter.jl/issues/1615
 [#1616]: https://github.com/JuliaDocs/Documenter.jl/issues/1616
 [#1617]: https://github.com/JuliaDocs/Documenter.jl/issues/1617
@@ -2183,6 +2185,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2792]: https://github.com/JuliaDocs/Documenter.jl/issues/2792
 [#2803]: https://github.com/JuliaDocs/Documenter.jl/issues/2803
 [#2812]: https://github.com/JuliaDocs/Documenter.jl/issues/2812
+[#2813]: https://github.com/JuliaDocs/Documenter.jl/issues/2813
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
