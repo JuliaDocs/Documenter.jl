@@ -469,7 +469,7 @@ function version_tag_strip_build(tag; tag_prefix = "")
     return "$s0$s1$s2$s3$s4"
 end
 
-function post_status(::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
+function post_status(gha::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
     try # make this non-fatal and silent
         # If we got this far it usually means everything is in
         # order so no need to check everything again.
@@ -489,20 +489,21 @@ function post_status(::GitHubActions; type, repo::String, subfolder = nothing, k
             sha = get(ENV, "GITHUB_SHA", nothing)
         end
         sha === nothing && return
-        return post_github_status(type, repo, sha, subfolder)
+        return post_github_status(type, gha.github_repository, repo, sha, subfolder)
     catch
         @debug "Failed to post status"
     end
 end
 
-function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
+function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
     try
         Sys.which("curl") === nothing && return
-        ## Extract owner and repository name
+        ## Extract owner and repository names
+        source_owner, source_repo = split(source, '/')
         m = match(r"^github.com\/(.+?)\/(.+?)(.git)?$", deploydocs_repo)
         m === nothing && return
-        owner = String(m.captures[1])
-        repo = String(m.captures[2])
+        deploy_owner = String(m.captures[1])
+        deploy_repo = String(m.captures[2])
 
         ## Need an access token for this
         auth = get(ENV, "GITHUB_TOKEN", nothing)
@@ -517,7 +518,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = not
             json["description"] = "Documentation build in progress"
         elseif type == "success"
             json["description"] = "Documentation build succeeded"
-            target_url = "https://$(owner).github.io/$(repo)/"
+            target_url = "https://$(deploy_owner).github.io/$(deploy_repo)/"
             if subfolder !== nothing
                 target_url *= "$(subfolder)/"
             end
@@ -530,9 +531,10 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = not
             error("unsupported type: $type")
         end
         push!(cmd.exec, "-d", JSON.json(json))
-        push!(cmd.exec, "https://api.github.com/repos/$(owner)/$(repo)/statuses/$(sha)")
+        push!(cmd.exec, "https://api.github.com/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
+        @debug "About to run curl command" cmd
         res = run(pipeline(cmd; stdout = io, stderr = devnull))
         @debug "Response of curl POST request" response = String(take!(io))
     catch
