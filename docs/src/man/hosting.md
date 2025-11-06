@@ -596,7 +596,7 @@ In those cases, it can be useful to deploy the docs in the `gh-pages` of a separ
 The following steps can be used to deploy the documentation of a "source"
 repository on a "target" repo:
 
-1. Run `DocumenterTools.genkeys()` to generate a pair of keys
+1. Run `DocumenterTools.genkeys(; user="TargetRepoOrg", repo="TargetRepo")` to generate a pair of keys
 2. Add the **deploy key** to the **"target"** repository
 3. Add the `DOCUMENTER_KEY` **secret** to the **"source"** repository (that runs the documentation workflow)
 4. Adapt `docs/make.jl` to deploy on "target" repository:
