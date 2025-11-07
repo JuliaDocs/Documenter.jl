@@ -31,6 +31,8 @@ function run_warnings_test(name::String)
     return print(output)
 end
 
+###########################################################################################
+
 @doc raw"""
 ```jldoctest; setup=:(using ..WarningTests)
 julia> WarningTests.run_warnings_test("at-docs")
@@ -64,6 +66,19 @@ julia> WarningTests.run_warnings_test("at-docs")
 """
 module AtDocsWarningTests end
 
+###########################################################################################
+
+@doc raw"""
+    dummyFunctionWithUnbalancedDollar()
+
+It is possible to create pseudo-interpolations with the `Markdown` parser: $quux.
+
+$([0 1 ; 2 3])
+
+They do not get evaluated.
+"""
+function dummyFunctionWithUnbalancedDollar end
+
 @doc raw"""
 ```jldoctest; setup=:(using ..WarningTests)
 julia> WarningTests.run_warnings_test("dollar")
@@ -93,9 +108,29 @@ julia> WarningTests.run_warnings_test("dollar")
 │
 │ `[1 2 3; 4 5 6]` which is of type `Expr`
 └ @ Documenter
+┌ Warning: Unexpected Julia interpolation in the Markdown. This probably means that you have an
+│ unbalanced or un-escaped $ in the text.
+│
+│ To write the dollar sign, escape it with `\$`
+│
+│ This is in file src/dollar.md, and we were given the value:
+│
+│ `quux` which is of type `Symbol`
+└ @ Documenter
+┌ Warning: Unexpected Julia interpolation in the Markdown. This probably means that you have an
+│ unbalanced or un-escaped $ in the text.
+│
+│ To write the dollar sign, escape it with `\$`
+│
+│ This is in file src/dollar.md, and we were given the value:
+│
+│ `[0 1; 2 3]` which is of type `Expr`
+└ @ Documenter
 ```
 """
 module UnbalancedDollarWarningTests end
+
+###########################################################################################
 
 fixtests = haskey(ENV, "DOCUMENTER_FIXTESTS")
 
