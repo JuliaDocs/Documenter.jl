@@ -78,7 +78,7 @@ $(document).ready(function () {
     var option = $(
       "<option value='#' selected='selected'>" +
         DOCUMENTER_CURRENT_VERSION +
-        "</option>"
+        "</option>",
     );
     version_selector_select.append(option);
   }
@@ -95,7 +95,7 @@ $(document).ready(function () {
       // otherwise update the old option with the URL and enable it
       if (existing_id == -1) {
         var option = $(
-          "<option value='" + version_url + "'>" + each + "</option>"
+          "<option value='" + version_url + "'>" + each + "</option>",
         );
         version_selector_select.append(option);
       } else {
