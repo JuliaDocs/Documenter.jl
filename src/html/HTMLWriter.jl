@@ -2445,16 +2445,16 @@ end
 
 function domify(dctx::DCtx, ::Node, e::MarkdownAST.JuliaValue)
     message =
-        """
-        Unexpected Julia interpolation in the Markdown. This probably means that you have an
-        unbalanced or un-escaped \$ in the text.
+    """
+    Unexpected Julia interpolation in the Markdown. This probably means that you have an
+    unbalanced or un-escaped \$ in the text.
 
-        To write the dollar sign, escape it with `\\\$`
+    To write the dollar sign, escape it with `\\\$`
 
-        This is in file $(locrepr(dctx)), and we were given the value:
+    This is in file $(locrepr(dctx)), and we were given the value:
 
-        `$(e.ref)` which is of type `$(typeof(e.ref))`
-        """
+    `$(e.ref)` which is of type `$(typeof(e.ref))`
+    """
     if dctx.ctx.doc.user.treat_markdown_warnings_as_error
         error(message)
     else
