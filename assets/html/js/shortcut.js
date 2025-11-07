@@ -54,7 +54,7 @@ $(document).ready(function () {
           ${search_modal_footer}
         </div>
       </div>
-    `,
+    `
   );
 
   function checkURLForSearch() {

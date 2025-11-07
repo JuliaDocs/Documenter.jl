@@ -24,7 +24,7 @@ $(document).ready(function () {
         transform: "",
         "--arrow-left": "",
       });
-    },
+    }
   );
 
   function repositionPreview($preview, $ref) {
