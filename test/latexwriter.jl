@@ -37,7 +37,7 @@ end
 function _dummy_lctx()
     doc = Documenter.Document()
     buffer = IOBuffer()
-    return LaTeXWriter.Context(buffer, doc)
+    return LaTeXWriter.Context(buffer, doc, "minted")
 end
 
 function _latexesc(str)

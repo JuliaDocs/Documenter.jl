@@ -272,15 +272,15 @@ end
                             @test item.priority == 1
                             @test DocInventories.uri(item) == "lib/functions/#Main.AutoDocs.K"
                         end
-                        @test length(inv(":jl:keyword:`for`")) == 1
-                        if length(inv(":jl:keyword:`for`")) == 1
-                            item = inv[":jl:keyword:`for`"]
+                        @test length(inv(":jl:keyword:`while`")) == 1
+                        if length(inv(":jl:keyword:`while`")) == 1
+                            item = inv[":jl:keyword:`while`"]
                             @test item.domain == "jl"
                             @test item.role == "keyword"
-                            @test item.name == "for"
+                            @test item.name == "while"
                             @test item.uri == "lib/functions/#\$"
                             @test item.priority == 1
-                            @test DocInventories.uri(item) == "lib/functions/#for"
+                            @test DocInventories.uri(item) == "lib/functions/#while"
                         end
                         @test length(inv("Documenter.hide")) == 1
                         if length(inv("Documenter.hide")) == 1
@@ -496,6 +496,17 @@ end
             texfile = joinpath(build_dir, latex_filename(doc))
             @test isfile(texfile)
             @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_simple.tex"))
+        end
+    end
+
+    @testset "PDF/LaTeX: simple listings (TeX only)" begin
+        doc = Main.examples_latex_listings_texonly_doc
+        @test isa(doc, Documenter.Documenter.Document)
+        let build_dir = joinpath(examples_root, "builds", "latex_listings_texonly")
+            @test joinpath(build_dir, "documenter.sty") |> isfile
+            texfile = joinpath(build_dir, latex_filename(doc))
+            @test isfile(texfile)
+            @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_simple_listings.tex"))
         end
     end
 

@@ -12,26 +12,26 @@ Pages = ["lib/functions.md"]
 
 # Functions
 
-[`ccall`](@ref), [`func(x)`](@ref), [`T`](@ref), [`for`](@ref), and [`while`](@ref).
+[`deepcopy`](@ref), [`func(x)`](@ref), [`T`](@ref), [`@eval`](@ref), and [`while`](@ref).
 
 ```@docs
 func(x)
 T
-ccall
-for
+deepcopy
 while
-@time
+@eval
 @assert
+AssertionError
 ```
 
 ```@docs; canonical=false
 func(x)
 T
-ccall
-for
+deepcopy
 while
-@time
+@eval
 @assert
+AssertionError
 ```
 
 # Foo
@@ -212,9 +212,11 @@ Pages = ["c.jl", "d.jl"]
 
 A footnote reference [^footnote].
 
+[^footnote]: the footnote text
+
 # Named docstring `@ref`s
 
   * a normal docstring `@ref` link: [`AutoDocs.Pages.f`](@ref);
   * a named docstring `@ref` link: [`f`](@ref AutoDocs.Pages.f);
-  * and a link with custom text: [`@time 1 + 2`](@ref @time);
-  * some invalid syntax: [`for i = 1:10; ...`](@ref for).
+  * and a link with custom text: [`@eval 1 + 2`](@ref @eval);
+  * some invalid syntax: [`while i < 10; ...`](@ref while).

@@ -7,7 +7,7 @@ if Sys.iswindows() && get(ENV, "GITHUB_ACTIONS", nothing) == "true"
 else
     ENV["DOCUMENTER_TEST_EXAMPLES"] =
         "latex latex_simple latex_cover_page latex_toc_style latex_simple_nondocker latex_simple_tectonic " *
-        "latex_showcase"
+        "latex_showcase latex_showcase_listings"
 end
 # When the file is run separately we need to include make.jl which actually builds
 # the docs and defines a few modules that are referred to in the docs. The make.jl

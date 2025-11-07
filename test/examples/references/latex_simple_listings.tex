@@ -1,0 +1,3479 @@
+% Useful variables
+\newcommand{\DocMainTitle}{Documenter LaTeX}
+\newcommand{\DocVersion}{}
+\newcommand{\DocAuthors}{}
+\newcommand{\JuliaVersion}{1.12.1}
+
+% ---- Insert preamble
+\input{preamble.tex}
+
+
+\part{General}
+
+
+\chapter{Documentation}
+
+
+
+\label{15370268649601208206}{}
+
+
+\section{Index Page}
+
+
+
+\label{717217368905959711}{}
+
+\begin{itemize}
+\item \hyperlinkref{15370268649601208206}{Documentation}
+\begin{itemize}
+\item \hyperlinkref{717217368905959711}{Index Page}
+\item \hyperlinkref{10013362338599846780}{Functions Contents}
+\item \hyperlinkref{408188879749078986}{Tutorial Contents}
+\item \hyperlinkref{6663683553518785561}{Index}
+\begin{itemize}
+\item \hyperlinkref{18311841746230763310}{Embedded \texttt{@ref} links headers: \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}}
+\end{itemize}
+\item \hyperlinkref{13874303023969489032}{Raw Blocks}
+\end{itemize}
+\item \hyperlinkref{3875383913997789590}{Symbols in doctests}
+\item \hyperlinkref{11490516876546290289}{Named doctests}
+\item \hyperlinkref{8183647306788600377}{Filtered doctests}
+\begin{itemize}
+\item \hyperlinkref{17096412050555070472}{Global}
+\item \hyperlinkref{2476711236624669647}{Local}
+\item \hyperlinkref{2821521703884307412}{Errors}
+\end{itemize}
+\item \hyperlinkref{6180046600625199060}{Doctest keyword arguments}
+\begin{itemize}
+\item \hyperlinkref{11517531047354431104}{World age issue for show}
+\end{itemize}
+\item \hyperlinkref{10742780047906711446}{Sanitise module names}
+\item \hyperlinkref{13926260233784384991}{Issue \#398}
+\item \hyperlinkref{4271678389756687442}{Issue \#653}
+\item \hyperlinkref{14279791197695234075}{Issue \#418}
+\item \hyperlinkref{142823677432440190}{Issue \#793}
+\begin{itemize}
+\item \hyperlinkref{15766399429363808344}{Issue \#1148}
+\end{itemize}
+\item \hyperlinkref{2087044551059819015}{Issue \#513}
+\item \hyperlinkref{9589943747885040437}{Filtering of \texttt{Main.} PR \#574}
+\item \hyperlinkref{14560696320878109942}{Anonymous function declaration}
+\item \hyperlinkref{2704106513432579326}{Assigning symbols example}
+\item \hyperlinkref{6848322038670609146}{Rendering text/markdown}
+\item \hyperlinkref{12121464878615854585}{Empty heading}
+\begin{itemize}
+\item \hyperlinkref{13633231208144796923}{}
+\end{itemize}
+\item \hyperlinkref{670286492735599669}{Issue \#1392}
+\item \hyperlinkref{3236767701387592497}{Issue \#890}
+\item \hyperlinkref{12500314249427487157}{Module scrubbing from \texttt{@repl} and \texttt{@example}}
+\begin{itemize}
+\item \hyperlinkref{10276939801399720769}{Headings in block context}
+\end{itemize}
+\item \hyperlinkref{1916796393499649241}{Admonitions}
+\begin{itemize}
+\item \hyperlinkref{16032070393363005082}{\texttt{@example} outputs to file}
+\item \hyperlinkref{14118484521876622666}{Issue \#2074: Named at-eval blocks}
+\end{itemize}
+\end{itemize}
+
+
+\section{Functions Contents}
+
+
+
+\label{10013362338599846780}{}
+
+\begin{itemize}
+\item \hyperlinkref{9596384704859398879}{Function Index}
+\item \hyperlinkref{13536066633202303496}{Functions}
+\item \hyperlinkref{374450266380008264}{Foo}
+\begin{itemize}
+\item \hyperlinkref{17415245328842318541}{Foo}
+\begin{itemize}
+\item \hyperlinkref{17607918834103512029}{Foo}
+\end{itemize}
+\end{itemize}
+\item \hyperlinkref{13360040930512514124}{Autodocs}
+\begin{itemize}
+\item \hyperlinkref{14974050576722623319}{AutoDocs Module}
+\item \hyperlinkref{3338605747262022226}{Functions, Modules, and Macros}
+\item \hyperlinkref{18297180183977969663}{Constants and Types}
+\item \hyperlinkref{17012311511907355869}{Autodocs by Page}
+\end{itemize}
+\item \hyperlinkref{8597286521325026101}{Named docstring \texttt{@ref}s}
+\end{itemize}
+
+
+\section{Tutorial Contents}
+
+
+
+\label{408188879749078986}{}
+
+\begin{itemize}
+\item \hyperlinkref{6046105431332359668}{Tutorial}
+\begin{itemize}
+\item \hyperlinkref{15047798572393265991}{Including images with \texttt{MIME}}
+\item \hyperlinkref{7759522621557353077}{Interacting with external files}
+\item \hyperlinkref{12150784196212878875}{\href{index.md}{Links} in headers}
+\item \hyperlinkref{17028002011607960893}{Embedding raw HTML}
+\item \hyperlinkref{6147076236960597988}{Tables}
+\item \hyperlinkref{8413921007264496340}{Customizing assets}
+\item \hyperlinkref{9494121745733198174}{Handling of \texttt{text/latex}}
+\item \hyperlinkref{14850858762169389156}{Videos}
+\end{itemize}
+\end{itemize}
+
+
+\section{Index}
+
+
+
+\label{6663683553518785561}{}
+
+\begin{itemize}
+\item \hyperlinkref{11302554442225637105}{\texttt{AutoDocs}}
+\item \hyperlinkref{14171230956575570013}{\texttt{Main.AutoDocs.A}}
+\item \hyperlinkref{11339106303250130801}{\texttt{Main.AutoDocs.B}}
+\item \hyperlinkref{17379154232303623334}{\texttt{Main.AutoDocs.A.K}}
+\item \hyperlinkref{3291598769099158785}{\texttt{Main.AutoDocs.B.K}}
+\item \hyperlinkref{15441025252371609530}{\texttt{Main.AutoDocs.K}}
+\item \hyperlinkref{11676817432925230066}{\texttt{Core.AssertionError}}
+\item \hyperlinkref{1070558433006397272}{\texttt{Main.AutoDocs.A.T}}
+\item \hyperlinkref{16943270388934614325}{\texttt{Main.AutoDocs.B.T}}
+\item \hyperlinkref{6785702989282266947}{\texttt{Main.AutoDocs.Filter.Major}}
+\item \hyperlinkref{11704274081303557511}{\texttt{Main.AutoDocs.Filter.Minor1}}
+\item \hyperlinkref{4245242374026494985}{\texttt{Main.AutoDocs.Filter.Minor2}}
+\item \hyperlinkref{14143981418775697458}{\texttt{Main.AutoDocs.Pages.E.T\_1}}
+\item \hyperlinkref{4871421601485935264}{\texttt{Main.AutoDocs.Pages.E.T\_2}}
+\item \hyperlinkref{3237252152661731042}{\texttt{Main.AutoDocs.Pages.E.T\_3}}
+\item \hyperlinkref{17100384742613090383}{\texttt{Main.AutoDocs.Pages.T}}
+\item \hyperlinkref{14050452459487205641}{\texttt{Main.AutoDocs.Pages.T}}
+\item \hyperlinkref{5246990970960098088}{\texttt{Main.AutoDocs.Pages.T}}
+\item \hyperlinkref{12338358314596597808}{\texttt{Main.AutoDocs.T}}
+\item \hyperlinkref{1885743281855441478}{\texttt{Main.Mod.T}}
+\item \hyperlinkref{3259459540194502889}{\texttt{Base.deepcopy}}
+\item \hyperlinkref{12333874902364664348}{\texttt{Documenter.hide}}
+\item \hyperlinkref{8047994080897963665}{\texttt{Main.AutoDocs.A.f}}
+\item \hyperlinkref{1354818346142581698}{\texttt{Main.AutoDocs.B.f}}
+\item \hyperlinkref{2996493907818938116}{\texttt{Main.AutoDocs.Pages.E.f\_1}}
+\item \hyperlinkref{6076055157300971596}{\texttt{Main.AutoDocs.Pages.E.f\_2}}
+\item \hyperlinkref{3503352570886681808}{\texttt{Main.AutoDocs.Pages.E.f\_3}}
+\item \hyperlinkref{18335012651218585665}{\texttt{Main.AutoDocs.Pages.E.g\_1}}
+\item \hyperlinkref{12590794246865857269}{\texttt{Main.AutoDocs.Pages.E.g\_2}}
+\item \hyperlinkref{3152146771453799051}{\texttt{Main.AutoDocs.Pages.E.g\_3}}
+\item \hyperlinkref{16694402067483188119}{\texttt{Main.AutoDocs.Pages.f}}
+\item \hyperlinkref{9950366858879376632}{\texttt{Main.AutoDocs.Pages.f}}
+\item \hyperlinkref{18287295168891819021}{\texttt{Main.AutoDocs.Pages.f}}
+\item \hyperlinkref{14053004641171891989}{\texttt{Main.AutoDocs.f}}
+\item \hyperlinkref{16791148087951682840}{\texttt{Main.Mod.func}}
+\item \hyperlinkref{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}
+\item \hyperlinkref{4796942656392369899}{\texttt{Base.@assert}}
+\item \hyperlinkref{12895501458291832858}{\texttt{Base.@eval}}
+\item \hyperlinkref{7256264955516068825}{\texttt{Main.AutoDocs.@m}}
+\item \hyperlinkref{1819148365468180190}{\texttt{Main.AutoDocs.A.@m}}
+\item \hyperlinkref{10335956018691630658}{\texttt{Main.AutoDocs.B.@m}}
+\end{itemize}
+
+
+\subsection{Embedded \texttt{@ref} links headers: \texttt{deepcopy}}
+
+
+
+\label{18311841746230763310}{}
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/issues/60}{\#60} \href{https://github.com/JuliaDocs/Documenter.jl/issues/61}{\#61}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> zeros(5, 5)
+5×5 Matrix{Float64}:
+ 0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0
+
+julia> zeros(50, 50)
+50×50 Matrix{Float64}:
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ ⋮                        ⋮              ⋱            ⋮
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+\end{lstlisting}
+
+
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> [1.0, 2.0, 3.0]
+3-element Vector{Float64}:
+ 1.0
+ 2.0
+ 3.0
+
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> println(" "^5)
+
+julia> "\nfoo\n\nbar\n\n\nbaz"
+"\nfoo\n\nbar\n\n\nbaz"
+
+julia> println(ans)
+
+foo
+
+bar
+
+
+baz
+\end{lstlisting}
+
+
+
+\begin{itemize}
+\item \texttt{one} two three
+
+
+\item four \texttt{five} six
+
+
+\item 
+\begin{lstlisting}[]
+one
+\end{lstlisting}
+
+\end{itemize}
+
+
+\section{Raw Blocks}
+
+
+
+\label{13874303023969489032}{}
+
+
+
+
+
+\begin{verbatim}
+
+
+
+
+\end{verbatim}
+
+
+
+\chapter{Symbols in doctests}
+
+
+
+\label{3875383913997789590}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> a = :undefined
+:undefined
+
+julia> a
+:undefined
+\end{lstlisting}
+
+
+
+\chapter{Named doctests}
+
+
+
+\label{11490516876546290289}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> a = 1
+1
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> a + 1
+2
+\end{lstlisting}
+
+
+
+\chapter{Filtered doctests}
+
+
+
+\label{8183647306788600377}{}
+
+
+\section{Global}
+
+
+
+\label{17096412050555070472}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> print("Ptr{0x123456}")
+Ptr{0x654321}
+\end{lstlisting}
+
+
+
+\section{Local}
+
+
+
+\label{2476711236624669647}{}
+
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> print("foobar")
+foobuu
+\end{lstlisting}
+
+
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> print("foobar123")
+foobuu456
+\end{lstlisting}
+
+
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> print("foobar")
+foobuu
+\end{lstlisting}
+
+
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> print("foobar")
+foobar
+\end{lstlisting}
+
+
+
+
+
+\section{Errors}
+
+
+
+\label{2821521703884307412}{}
+
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> error()
+ERROR:
+Stacktrace:
+ [1] error() at ./thisfiledoesnotexist.jl:123456789
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> error()
+ERROR:
+Stacktrace:
+[...]
+\end{lstlisting}
+
+
+
+
+
+\chapter{Doctest keyword arguments}
+
+
+
+\label{6180046600625199060}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> f(2)
+4
+
+julia> g(2)
+2
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> f(2)
+ERROR: UndefVarError: `f` not defined in `Main`
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> f(2)
+4
+
+julia> g(2)
+2
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> f(2)
+4
+
+julia> g(2)
+2
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> print("foobar")
+foobuu
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> print("foobar123")
+foobuu456
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> print("foobar")
+foobuu
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> f()
+foobuu
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+foo(a, b) = a * b
+foo(2, 3)
+\end{lstlisting}
+
+
+
+\section{World age issue for show}
+
+
+
+\label{11517531047354431104}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @enum Color red blue green
+
+julia> instances(Color)
+(red, blue, green)
+\end{lstlisting}
+
+
+
+\chapter{Sanitise module names}
+
+
+
+\label{10742780047906711446}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> struct T end
+
+julia> t = T()
+T()
+
+julia> fullname(@__MODULE__)
+(:Main, :Main)
+
+julia> fullname(Base.Broadcast)
+(:Base, :Broadcast)
+
+julia> @__MODULE__
+Main
+\end{lstlisting}
+
+
+
+\chapter{Issue \#398}
+
+
+
+\label{13926260233784384991}{}
+
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @define_show_and_make_object q "abcd"
+abcd
+\end{lstlisting}
+
+
+
+
+
+\chapter{Issue \#653}
+
+
+
+\label{4271678389756687442}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> struct MyException <: Exception
+           msg::AbstractString
+       end
+
+julia> function Base.showerror(io::IO, err::MyException)
+           print(io, "MyException: ")
+           print(io, err.msg)
+       end
+
+julia> err = MyException("test exception")
+MyException("test exception")
+
+julia> sprint(showerror, err)
+"MyException: test exception"
+
+julia> throw(MyException("test exception"))
+ERROR: MyException: test exception
+\end{lstlisting}
+
+
+
+\chapter{Issue \#418}
+
+
+
+\label{14279791197695234075}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> f(x::Float64) = x
+f (generic function with 1 method)
+
+julia> f("")
+ERROR: MethodError: no method matching f(::String)
+The function `f` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  f(!Matched::Float64)
+   @ Main none:1
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> a = 1
+1
+
+julia> b = 2
+2
+
+julia> ex = :(a + b)
+:(a + b)
+
+julia> eval(ex)
+3
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> ex = :(1 + 5)
+:(1 + 5)
+
+julia> eval(ex)
+6
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+ex = :(1 + 5)
+eval(ex)
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+6
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+a = 1
+:(a + 1)
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+:(a + 1)
+\end{lstlisting}
+
+
+
+\chapter{Issue \#793}
+
+
+
+\label{142823677432440190}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> write("issue793.jl", "\"Hello!\"");
+
+julia> include("issue793.jl")
+"Hello!"
+
+julia> rm("issue793.jl");
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> write("issue793.jl", "\"Hello!\"")
+8
+
+julia> include("issue793.jl")
+"Hello!"
+
+julia> rm("issue793.jl")
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+write("issue793.jl", "\"Hello!\"")
+r = include("issue793.jl")
+rm("issue793.jl")
+r
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+"Hello!"
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> a = 1
+1
+
+julia> ans
+1
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> "hello"; "world"
+"world"
+
+julia> ans
+"world"
+\end{lstlisting}
+
+
+
+\section{Issue \#1148}
+
+
+
+\label{15766399429363808344}{}
+
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> x
+1148
+
+julia> @assert x == 1148
+\end{lstlisting}
+
+
+
+\chapter{Issue \#513}
+
+
+
+\label{2087044551059819015}{}
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> a = 1
+1
+
+julia> ans
+1
+\end{lstlisting}
+
+
+
+\chapter{Filtering of \texttt{Main.} PR \#574}
+
+
+
+\label{9589943747885040437}{}
+
+
+We filter the string \texttt{Main.} in outputs to make the outputs look more like they would in the REPL.
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> struct Point end;
+
+julia> println(Point)
+Point
+
+julia> import Base: sqrt
+
+julia> sqrt(100)
+10.0
+
+julia> sqrt = 4
+ERROR: cannot assign a value to imported variable Base.sqrt from module Main
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> g(x::Float64, y) = 2x + y
+g (generic function with 1 method)
+
+julia> g(x, y::Float64) = x + 2y
+g (generic function with 2 methods)
+
+julia> g(2.0, 3)
+7.0
+
+julia> g(2, 3.0)
+8.0
+
+julia> g(2.0, 3.0)
+ERROR: MethodError: g(::Float64, ::Float64) is ambiguous.
+
+Candidates:
+  g(x, y::Float64)
+    @ Main none:1
+  g(x::Float64, y)
+    @ Main none:1
+
+Possible fix, define
+  g(::Float64, ::Float64)
+\end{lstlisting}
+
+
+
+\chapter{Anonymous function declaration}
+
+
+
+\label{14560696320878109942}{}
+
+
+
+\begin{lstlisting}[]
+julia> x->x # ignore error on 0.7
+#1 (generic function with 1 method)
+\end{lstlisting}
+
+
+
+\chapter{Assigning symbols example}
+
+
+
+\label{2704106513432579326}{}
+
+
+
+\begin{lstlisting}[]
+r = :a
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+:a
+\end{lstlisting}
+
+
+
+\chapter{Rendering text/markdown}
+
+
+
+\label{6848322038670609146}{}
+
+
+
+\begin{lstlisting}[]
+struct MarkdownOnly
+    value::String
+end
+Base.show(io::IO, ::MIME"text/markdown", mo::MarkdownOnly) = print(io, mo.value)
+
+MarkdownOnly("""
+**bold** output from MarkdownOnly
+""")
+\end{lstlisting}
+
+\textbf{bold} output from MarkdownOnly
+
+
+
+\chapter{Empty heading}
+
+
+
+\label{12121464878615854585}{}
+
+
+\section{}
+
+
+
+\label{13633231208144796923}{}
+
+
+\chapter{Issue \#1392}
+
+
+
+\label{670286492735599669}{}
+
+
+
+\begin{lstlisting}[]
+julia> function foo end;
+\end{lstlisting}
+
+
+
+\chapter{Issue \#890}
+
+
+
+\label{3236767701387592497}{}
+
+
+I will pay \$1 if \(x^2\) is displayed correctly. People may also write \$s or even money bag\$\$.
+
+
+
+\chapter{Module scrubbing from \texttt{@repl} and \texttt{@example}}
+
+
+
+\label{12500314249427487157}{}
+
+
+None of these expressions should result in the gensym{\textquotesingle}d module in the output
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @__MODULE__
+Main
+
+julia> println("@__MODULE__ is ", @__MODULE__) # sandbox printed to stdout
+@__MODULE__ is Main
+
+julia> function f()
+           println("@__MODULE__ is ", @__MODULE__)
+           @warn "Main as the module for this log message"
+           @__MODULE__
+       end
+f (generic function with 1 method)
+
+julia> f()
+@__MODULE__ is Main
+┌ Warning: Main as the module for this log message
+└ @ Main REPL[3]:3
+Main
+
+julia> @warn "Main as the module for this log message"
+┌ Warning: Main as the module for this log message
+└ @ Main REPL[5]:1
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> module A
+           function f()
+               println("@__MODULE__ is ", @__MODULE__)
+               @warn "Main.A as the module for this log message"
+               @__MODULE__
+           end
+       end
+Main.A
+
+julia> A.f()
+@__MODULE__ is Main.A
+┌ Warning: Main.A as the module for this log message
+└ @ Main.A REPL[1]:4
+Main.A
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+@__MODULE__ # sandbox as return value
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+Main
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+println("@__MODULE__ is ", @__MODULE__) # sandbox printed to stdout
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+@__MODULE__ is Main
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+function f()
+    println("@__MODULE__ is ", @__MODULE__)
+end
+f()
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+@__MODULE__ is Main
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+function f()
+    @__MODULE__
+end
+f()
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+Main
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+@warn "Main as the module for this log message"
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+┌ Warning: Main as the module for this log message
+└ @ Main index.md:536
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+module A
+    function f()
+        println("@__MODULE__ is ", @__MODULE__)
+        @warn "Main.A as the module for this log message"
+        @__MODULE__
+    end
+end
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+Main.A
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+A.f()
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+Main.A
+\end{lstlisting}
+
+
+
+\section{Headings in block context}
+
+
+
+\label{10276939801399720769}{}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-default!50!white,colframe=admonition-default,title=\textbf{Blocks in block context}]
+
+\begin{lstlisting}[]
+x^2
+\end{lstlisting}
+
+Headings:
+
+\chapter{Heading 1}
+
+\section{Heading 2}
+
+\subsection{Heading 3}
+
+\subsubsection{Heading 4}
+
+\paragraph{Heading 5}\indent
+
+\subparagraph{Heading 6}\indent
+
+\end{tcolorbox}
+
+
+Also in block quotes:
+
+
+
+\begin{quote}
+
+\begin{lstlisting}[]
+x^2
+\end{lstlisting}
+
+Headings:
+
+\chapter{Heading 1}
+
+\section{Heading 2}
+
+\subsection{Heading 3}
+
+\subsubsection{Heading 4}
+
+\paragraph{Heading 5}\indent
+
+\subparagraph{Heading 6}\indent
+
+\end{quote}
+
+
+\chapter{Admonitions}
+
+
+
+\label{1916796393499649241}{}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-note!50!white,colframe=admonition-note,title=\textbf{{\textquotesingle}note{\textquotesingle} admonition}]
+Admonitions look like this. This is a \texttt{!!! note}-type admonition.
+
+Note that admonitions themselves can contain other block-level elements too, such as code blocks. E.g.
+
+
+\begin{lstlisting}[]
+f(x) = x^2
+\end{lstlisting}
+
+However, you \textbf{can not} have at-blocks, docstrings, doctests etc. in an admonition.
+
+Headings are OK though:
+
+\chapter{Heading 1}
+
+\section{Heading 2}
+
+\subsection{Heading 3}
+
+\subsubsection{Heading 4}
+
+\paragraph{Heading 5}\indent
+
+\subparagraph{Heading 6}\indent
+
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-info!50!white,colframe=admonition-info,title=\textbf{{\textquotesingle}info{\textquotesingle} admonition}]
+This is a \texttt{!!! info}-type admonition.
+
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-tip!50!white,colframe=admonition-tip,title=\textbf{{\textquotesingle}tip{\textquotesingle} admonition}]
+This is a \texttt{!!! tip}-type admonition.
+
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-warning!50!white,colframe=admonition-warning,title=\textbf{{\textquotesingle}warning{\textquotesingle} admonition}]
+This is a \texttt{!!! warning}-type admonition.
+
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-danger!50!white,colframe=admonition-danger,title=\textbf{{\textquotesingle}danger{\textquotesingle} admonition}]
+This is a \texttt{!!! danger}-type admonition.
+
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-compat!50!white,colframe=admonition-compat,title=\textbf{{\textquotesingle}compat{\textquotesingle} admonition}]
+This is a \texttt{!!! compat}-type admonition.
+
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-default!50!white,colframe=admonition-default,title=\textbf{{\textquotesingle}details{\textquotesingle} admonition}]
+This is a \texttt{!!! details}-type admonition.
+
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-default!50!white,colframe=admonition-default,title=\textbf{Unknown admonition class}]
+Admonition with an unknown admonition class.
+
+\end{tcolorbox}
+
+
+\section{\texttt{@example} outputs to file}
+
+
+
+\label{16032070393363005082}{}
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("png", :big)]
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\includegraphics[max width=\linewidth]{tiwglmj}
+\end{figure}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("png", :tiny)]
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\includegraphics[max width=\linewidth]{xrvykzv}
+\end{figure}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("webp", :big)]
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MIMEBytes{MIME{Symbol("image/webp")}}(UInt8[0x52, 0x49, 0x46, 0x46, 0x98, 0x51, 0x00, 0x00, 0x57, 0x45  …  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], "d3d30ae9")
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("webp", :tiny)]
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MIMEBytes{MIME{Symbol("image/webp")}}(UInt8[0x52, 0x49, 0x46, 0x46, 0xc8, 0x01, 0x00, 0x00, 0x57, 0x45  …  0xe8, 0xe4, 0x31, 0x47, 0x66, 0xd0, 0x11, 0xd4, 0x00, 0x00], "d0a50f8a")
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("gif", :big)]
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MIMEBytes{MIME{Symbol("image/gif")}}(UInt8[0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x20, 0x03, 0xb5, 0x02  …  0xcd, 0xd7, 0x7d, 0xed, 0xd7, 0x23, 0x11, 0x10, 0x00, 0x3b], "02bbc9de")
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\includegraphics[max width=\linewidth]{vxeuror}
+\end{figure}
+
+
+
+\section{Issue \#2074: Named at-eval blocks}
+
+
+
+\label{14118484521876622666}{}
+
+
+
+
+
+\begin{lstlisting}[]
+@assert x == 2074
+x
+\end{lstlisting}
+
+
+
+\chapter{LaTeX MWEs}
+
+
+
+\label{1925292743794655301}{}
+
+
+\section{\texttt{ContentsNode} level jumps}
+
+
+
+\label{15118955462992457116}{}
+
+\begin{itemize}
+\item \hyperlinkref{1925292743794655301}{LaTeX MWEs}
+\begin{itemize}
+\item \hyperlinkref{15118955462992457116}{\texttt{ContentsNode} level jumps}
+\begin{itemize}
+\item ~
+\begin{itemize}
+\item \hyperlinkref{16707865978221737672}{Level 4}
+\end{itemize}
+\end{itemize}
+\item \hyperlinkref{16667177169392038189}{Level 2 again}
+\begin{itemize}
+\item \hyperlinkref{1607357897553791978}{Level 3}
+\end{itemize}
+\item \hyperlinkref{8268966452746558956}{Empty \texttt{ContentsNode} and \texttt{IndexNode}}
+\end{itemize}
+\end{itemize}
+
+
+\subsubsection{Level 4}
+
+
+
+\label{16707865978221737672}{}
+
+
+\section{Level 2 again}
+
+
+
+\label{16667177169392038189}{}
+
+
+\subsection{Level 3}
+
+
+
+\label{1607357897553791978}{}
+
+
+\section{Empty \texttt{ContentsNode} and \texttt{IndexNode}}
+
+
+
+\label{8268966452746558956}{}
+
+
+
+
+\chapter{Unicode}
+
+
+
+\label{14828929048168676331}{}
+
+
+Some unicode tests here.
+
+
+
+In main sans-serif font:
+
+
+
+\begin{itemize}
+\item Checkmark: {\textquotedbl}✓{\textquotedbl}
+
+
+\item Circled plus: {\textquotedbl}⊕{\textquotedbl}
+
+
+\item XOR: {\textquotedbl}⊻{\textquotedbl}
+
+
+\item Exists: {\textquotedbl}∀{\textquotedbl}, forall: {\textquotedbl}∃{\textquotedbl}
+
+\end{itemize}
+
+
+\texttt{{\textbackslash}begin\{lstlisting\}} is used for non-highlighted blocks:
+
+
+
+
+\begin{lstlisting}[escapeinside=\#\%,]
+xor:    #\unicodeveebar%
+forall: ∀
+exists: ∃
+check:  ✓
+oplus:  ⊕
+
+What about the other edge cases: \ #%% \#%% #%%\ #%%#%% #%%\#%%#%%
+\end{lstlisting}
+
+
+
+\texttt{{\textbackslash}begin\{minted\}} is used for highlighted blocks:
+
+
+
+
+\begin{lstlisting}[escapeinside=\#\%,]
+xor:    #\unicodeveebar%
+forall: ∀
+exists: ∃
+check:  ✓
+oplus:  ⊕
+\end{lstlisting}
+
+
+
+Inlines:
+
+
+
+\texttt{xor:    \unicodeveebar{}  -> \%{\textbackslash}unicodeveebar\% <-}
+
+
+
+\texttt{forall: ∀, exists: ∃, check:  ✓}
+
+
+
+\texttt{\%{\textbackslash}\%\%{\textbackslash}unicodeveebar, oplus:  ⊕}
+
+
+
+\section{Drawings etc}
+
+
+
+\label{4569512277787935494}{}
+
+
+
+\begin{lstlisting}[]
+┌────────────────────────────────────────────────────────────────────────────┐
+│                                             ┌───────────────┐              │
+│ HTTP.request(method, uri, headers, body) -> │ HTTP.Response ├──────────────┼┐
+│   │                                         └───────────────┘              ││
+│   │                                                                        ││
+│   │    ┌──────────────────────────────────────┐       ┌──────────────────┐ ││
+│   └───▶│ request(RedirectLayer, ...)          │       │ HTTP.StatusError │ ││
+│        └─┬────────────────────────────────────┴─┐     └─────────▲────────┘ ││
+│          │ request(BasicAuthLayer, ...)         │               │          ││
+│          └─┬────────────────────────────────────┴─┐             │          ││
+│            │ request(CookieLayer, ...)            │             │          ││
+│            └─┬────────────────────────────────────┴─┐           │          ││
+│              │ request(CanonicalizeLayer, ...)      │           │          ││
+│              └─┬────────────────────────────────────┴─┐         │          ││
+│                │ request(MessageLayer, ...)           ├─────────┼──────┐   ││
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+  ┌──────────────────────────────────────────────────────────────────────┐
+1 │                             ▗▄▞▀▀▀▀▀▀▀▄▄                             │
+  │                           ▄▞▘           ▀▄▖                          │
+  │                         ▄▀                ▝▚▖                        │
+  │                       ▗▞                    ▝▄                       │
+  │                      ▞▘                      ▝▚▖                     │
+  │                    ▗▀                          ▝▚                    │
+  │                   ▞▘                             ▀▖                  │
+  │                 ▗▞                                ▝▄                 │
+  │                ▄▘                                   ▚▖               │
+  │              ▗▞                                      ▝▄              │
+  │             ▄▘                                         ▚▖            │
+  │           ▗▀                                            ▝▚           │
+  │         ▗▞▘                                               ▀▄         │
+  │       ▄▀▘                                                   ▀▚▖      │
+0 │ ▄▄▄▄▀▀                                                        ▝▀▚▄▄▄▖│
+  └──────────────────────────────────────────────────────────────────────┘
+  0                                                                     70
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+2×4 DataFrames.DataFrame
+│ Row │ a     │ b       │ c     │ d      │
+│     │ Int64 │ Float64 │ Int64 │ String │
+├─────┼───────┼─────────┼───────┼────────┤
+│ 1   │ 2     │ 2.0     │ 2     │ John   │
+│ 2   │ 2     │ 2.0     │ 2     │ Sally  │
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+function map_filter_iterators(xs, init)
+    ret = iterate(xs)
+    ret === nothing && return
+    acc = init
+    @goto filter
+    local state, x
+    while true
+        while true                                    # input
+            ret = iterate(xs, state)                  #
+            ret === nothing && return acc             #
+            @label filter                             #
+            x, state = ret                            #
+            iseven(x) && break             # filter   :
+        end                                #          :
+        y = 2x              # imap         :          :
+        acc += y    # +     :              :          :
+    end             # :     :              :          :
+    #                 + <-- imap <-------- filter <-- input
+    return acc
+end
+\end{lstlisting}
+
+
+
+\chapter{Hidden (toplevel)}
+
+
+
+\label{6313475699066143527}{}
+
+
+\section{Section}
+
+
+
+\label{17839007067547789498}{}
+
+
+\chapter{Example stdout}
+
+
+
+\label{5127638645760162431}{}
+
+
+Checking that \texttt{@example} output is contained in a specific HTML class.
+
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-warning!50!white,colframe=admonition-warning,title=\textbf{Warning}]
+This file should contain exactly one \texttt{@example} for the test to work.
+
+\end{tcolorbox}
+
+
+
+\begin{lstlisting}[]
+println("hello")
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+hello
+\end{lstlisting}
+
+
+
+\section{\texttt{@example} outputs to file}
+
+
+
+\label{16032070393363005082}{}
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("png", :big)]
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\includegraphics[max width=\linewidth]{endxrgm}
+\end{figure}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("png", :tiny)]
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\includegraphics[max width=\linewidth]{sseaqnk}
+\end{figure}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("webp", :big)]
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MIMEBytes{MIME{Symbol("image/webp")}}(UInt8[0x52, 0x49, 0x46, 0x46, 0x98, 0x51, 0x00, 0x00, 0x57, 0x45  …  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], "d3d30ae9")
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("webp", :tiny)]
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MIMEBytes{MIME{Symbol("image/webp")}}(UInt8[0x52, 0x49, 0x46, 0x46, 0xc8, 0x01, 0x00, 0x00, 0x57, 0x45  …  0xe8, 0xe4, 0x31, 0x47, 0x66, 0xd0, 0x11, 0xd4, 0x00, 0x00], "d0a50f8a")
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("gif", :big)]
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MIMEBytes{MIME{Symbol("image/gif")}}(UInt8[0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x20, 0x03, 0xb5, 0x02  …  0xcd, 0xd7, 0x7d, 0xed, 0xd7, 0x23, 0x11, 0x10, 0x00, 0x3b], "02bbc9de")
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\includegraphics[max width=\linewidth]{qpebcpv}
+\end{figure}
+
+
+
+\subsection{SVG output}
+
+
+
+\label{7074750330941949804}{}
+
+
+
+\begin{lstlisting}[]
+Main.SVG_BIG
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MIMEBytes{MIME{Symbol("image/svg+xml")}}(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x67, 0x3e, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0a], "8c868826")
+\end{lstlisting}
+
+
+
+\subsection{\texttt{text/html} fallbacks}
+
+
+
+\label{8096659708007340917}{}
+
+
+SVG with just \texttt{text/html} output (in practice, \texttt{DataFrame}s and such would fall into this category):
+
+
+
+
+\begin{lstlisting}[]
+Main.SVG_HTML
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MIMEBytes{MIME{Symbol("text/html")}}(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x67, 0x3e, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0a], "8c868826")
+\end{lstlisting}
+
+
+
+SVG with both \texttt{text/html} and \texttt{image/svg+xml} MIME, in which case we expect to pick the image one (because text is too big) and write it to a file.
+
+
+
+
+\begin{lstlisting}[]
+Main.SVG_MULTI
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+MultiMIMESVG(UInt8[0x3c, 0x3f, 0x78, 0x6d, 0x6c, 0x20, 0x76, 0x65, 0x72, 0x73  …  0x67, 0x3e, 0x0a, 0x3c, 0x2f, 0x73, 0x76, 0x67, 0x3e, 0x0a], "8c868826")
+\end{lstlisting}
+
+
+
+\chapter{\texttt{@repl}, \texttt{@example}, and \texttt{@eval} have correct \texttt{LineNumberNode}s inserted}
+
+
+
+\label{14177920617661754068}{}
+
+
+Add new things at the bottom!!
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> println("@__FILE__ should be REPL[1]: ", @__FILE__)
+@__FILE__ should be REPL[1]: REPL[1]
+
+julia> println("@__FILE__ should be REPL[2]: ", @__FILE__)
+@__FILE__ should be REPL[2]: REPL[2]
+
+julia> println("@__LINE__ should be 1: ", @__LINE__)
+@__LINE__ should be 1: 1
+
+julia> @warn "@__FILE__ should be REPL[4] and @__LINE__ 1"
+┌ Warning: @__FILE__ should be REPL[4] and @__LINE__ 1
+└ @ Main REPL[4]:1
+
+julia> begin
+           println("@__FILE__ should be REPL[5]: ", @__FILE__)
+           println("@__FILE__ should be REPL[5]: ", @__FILE__)
+           println("@__LINE__ should be 4: ", @__LINE__)
+           @warn "@__FILE__ should be REPL[5] and @__LINE__ 5"
+       end
+@__FILE__ should be REPL[5]: REPL[5]
+@__FILE__ should be REPL[5]: REPL[5]
+@__LINE__ should be 4: 4
+┌ Warning: @__FILE__ should be REPL[5] and @__LINE__ 5
+└ @ Main REPL[5]:5
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+println("@__FILE__ should be linenumbers.md: ", @__FILE__)
+println("@__LINE__ should be 20: ", @__LINE__)
+@warn "@__FILE__ should be linenumbers.md and @__LINE__ 21"
+begin
+    println("@__FILE__ should be linenumbers.md: ", @__FILE__)
+    println("@__LINE__ should be 24: ", @__LINE__)
+    @warn "@__FILE__ should be linenumbers.md and @__LINE__ 25"
+end
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+@__FILE__ should be linenumbers.md: linenumbers.md
+@__LINE__ should be 20: 20
+┌ Warning: @__FILE__ should be linenumbers.md and @__LINE__ 21
+└ @ Main linenumbers.md:21
+@__FILE__ should be linenumbers.md: linenumbers.md
+@__LINE__ should be 24: 24
+┌ Warning: @__FILE__ should be linenumbers.md and @__LINE__ 25
+└ @ Main linenumbers.md:25
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+$(@__FILE__):$(@__LINE__) should be linenumbers.md:32: linenumbers.md:32
+$(@__FILE__):$(@__LINE__) should be linenumbers.md:33: linenumbers.md:33
+\end{lstlisting}
+
+
+
+\part{Hidden Pages}
+
+
+\chapter{Hidden pages}
+
+
+
+\label{17674588485938683954}{}
+
+
+Pages can be hidden with the \hyperlinkref{12333874902364664348}{\texttt{hide}} function.
+
+
+
+\section{List of hidden pages}
+
+
+
+\label{11617838668139858457}{}
+
+
+\begin{itemize}
+\item \href{hidden/x.md}{Hidden page 1}
+
+
+\item \href{hidden/y.md}{Hidden page 2}
+
+
+\item \href{hidden/z.md}{Hidden page 3}
+
+\end{itemize}
+
+
+\section{Docs for \texttt{hide}}
+
+
+
+\label{1400566111489432392}{}
+
+\hypertarget{12333874902364664348}{\texttt{Documenter.hide}}  -- {Function.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+hide(page)
+
+\end{lstlisting}
+
+Allows a page to be hidden in the navigation menu. It will only show up if it happens to be the current page. The hidden page will still be present in the linear page list that can be accessed via the previous and next page links. The title of the hidden page can be overridden using the \texttt{=>} operator as usual.
+
+\textbf{Usage}
+
+
+\begin{lstlisting}[]
+makedocs(
+    ...,
+    pages = [
+        ...,
+        hide("page1.md"),
+        hide("Title" => "page2.md")
+    ]
+)
+\end{lstlisting}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/src/makedocs.jl#L322}{\texttt{source}}
+
+
+
+\begin{lstlisting}[]
+hide(root, children)
+
+\end{lstlisting}
+
+Allows a subsection of pages to be hidden from the navigation menu. \texttt{root} will be linked to in the navigation menu, with the title determined as usual. \texttt{children} should be a list of pages (note that it \textbf{can not} be hierarchical).
+
+\textbf{Usage}
+
+
+\begin{lstlisting}[]
+makedocs(
+    ...,
+    pages = [
+        ...,
+        hide("Hidden section" => "hidden_index.md", [
+            "hidden1.md",
+            "Hidden 2" => "hidden2.md"
+        ]),
+        hide("hidden_index.md", [...])
+    ]
+)
+\end{lstlisting}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/src/makedocs.jl#L346}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\chapter{Page X}
+
+
+\section{Hidden 1}
+
+
+
+\label{1027738413916218921}{}
+
+
+\subsection{First heading}
+
+
+
+\label{15441515940141321147}{}
+
+
+\subsection{Second heading}
+
+
+
+\label{4961812884660315121}{}
+
+
+\chapter{Hidden 2}
+
+
+
+\label{14698839771105993437}{}
+
+
+\chapter{Hidden 3}
+
+
+
+\label{4462048914964654574}{}
+
+
+\part{Library}
+
+
+
+
+\chapter{Function Index}
+
+
+
+\label{9596384704859398879}{}
+
+
+
+\chapter{Functions}
+
+
+
+\label{13536066633202303496}{}
+
+
+\hyperlinkref{3259459540194502889}{\texttt{deepcopy}}, \hyperlinkref{16791148087951682840}{\texttt{func(x)}}, \hyperlinkref{1885743281855441478}{\texttt{T}}, \hyperlinkref{12895501458291832858}{\texttt{@eval}}, and \hyperlinkref{15133348314455964692}{\texttt{while}}.
+
+
+\hypertarget{16791148087951682840}{\texttt{Main.Mod.func}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+func(x)
+\end{lstlisting}
+
+\hyperlinkref{1885743281855441478}{\texttt{T}}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L30-L34}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{1885743281855441478}{\texttt{Main.Mod.T}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+T
+\end{lstlisting}
+
+\hyperlinkref{16791148087951682840}{\texttt{func(x)}}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L37-L41}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{3259459540194502889}{\texttt{Base.deepcopy}}  -- {Function.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+deepcopy(x)
+\end{lstlisting}
+
+Create a deep copy of \texttt{x}: everything is copied recursively, resulting in a fully independent object. For example, deep-copying an array creates deep copies of all the objects it contains and produces a new array with the consistent relationship structure (e.g., if the first two elements are the same object in the original array, the first two elements of the new array will also be the same \texttt{deepcopy}ed object). Calling \texttt{deepcopy} on an object should generally have the same effect as serializing and then deserializing it.
+
+While it isn{\textquotesingle}t normally necessary, user-defined types can override the default \texttt{deepcopy} behavior by defining a specialized version of the function \texttt{deepcopy\_internal(x::T, dict::IdDict)} (which shouldn{\textquotesingle}t otherwise be used), where \texttt{T} is the type to be specialized for, and \texttt{dict} keeps track of objects copied so far within the recursion. Within the definition, \texttt{deepcopy\_internal} should be used in place of \texttt{deepcopy}, and the \texttt{dict} variable should be updated as appropriate before returning.
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/deepcopy.jl#L8-L26}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{15133348314455964692}{\texttt{while}}  -- {Keyword.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+while
+\end{lstlisting}
+
+\texttt{while} loops repeatedly evaluate a conditional expression, and continue evaluating the body of the while loop as long as the expression remains true. If the condition expression is false when the while loop is first reached, the body is never evaluated.
+
+\textbf{Examples}
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> i = 1
+1
+
+julia> while i < 5
+           println(i)
+           global i += 1
+       end
+1
+2
+3
+4
+\end{lstlisting}
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/docs/basedocs.jl#L984-L1005}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{12895501458291832858}{\texttt{Base.@eval}}  -- {Macro.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+@eval [mod,] ex
+\end{lstlisting}
+
+Evaluate an expression with values interpolated into it using \texttt{eval}. If two arguments are provided, the first is the module to evaluate in.
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/essentials.jl#L463-L468}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{4796942656392369899}{\texttt{Base.@assert}}  -- {Macro.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+@assert cond [text]
+\end{lstlisting}
+
+Throw an \hyperlinkref{11676817432925230066}{\texttt{AssertionError}} if \texttt{cond} is \texttt{false}. This is the preferred syntax for writing assertions, which are conditions that are assumed to be true, but that the user might decide to check anyways, as an aid to debugging if they fail. The optional message \texttt{text} is displayed upon assertion failure.
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-warning!50!white,colframe=admonition-warning,title=\textbf{Warning}]
+An assert might be disabled at some optimization levels. Assert should therefore only be used as a debugging tool and not used for authentication verification (e.g., verifying passwords or checking array bounds). The code must not rely on the side effects of running \texttt{cond} for the correct behavior of a function.
+
+\end{tcolorbox}
+\textbf{Examples}
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @assert iseven(3) "3 is an odd number!"
+ERROR: AssertionError: 3 is an odd number!
+
+julia> @assert isodd(3) "What even are numbers?"
+\end{lstlisting}
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/error.jl#L207-L229}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{11676817432925230066}{\texttt{Core.AssertionError}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+AssertionError([msg])
+\end{lstlisting}
+
+The asserted condition did not evaluate to \texttt{true}. Optional argument \texttt{msg} is a descriptive error string.
+
+\textbf{Examples}
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @assert false "this is not true"
+ERROR: AssertionError: this is not true
+\end{lstlisting}
+
+\texttt{AssertionError} is usually thrown from \hyperlinkref{4796942656392369899}{\texttt{@assert}}.
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/docs/basedocs.jl#L3240-L3253}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{13940855205476882399}{\texttt{Main.Mod.func}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+func(x)
+\end{lstlisting}
+
+\hyperlinkref{1885743281855441478}{\texttt{T}}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L30-L34}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{16263143784079293164}{\texttt{Main.Mod.T}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+T
+\end{lstlisting}
+
+\hyperlinkref{16791148087951682840}{\texttt{func(x)}}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L37-L41}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{14182605455813865358}{\texttt{Base.deepcopy}}  -- {Function.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+deepcopy(x)
+\end{lstlisting}
+
+Create a deep copy of \texttt{x}: everything is copied recursively, resulting in a fully independent object. For example, deep-copying an array creates deep copies of all the objects it contains and produces a new array with the consistent relationship structure (e.g., if the first two elements are the same object in the original array, the first two elements of the new array will also be the same \texttt{deepcopy}ed object). Calling \texttt{deepcopy} on an object should generally have the same effect as serializing and then deserializing it.
+
+While it isn{\textquotesingle}t normally necessary, user-defined types can override the default \texttt{deepcopy} behavior by defining a specialized version of the function \texttt{deepcopy\_internal(x::T, dict::IdDict)} (which shouldn{\textquotesingle}t otherwise be used), where \texttt{T} is the type to be specialized for, and \texttt{dict} keeps track of objects copied so far within the recursion. Within the definition, \texttt{deepcopy\_internal} should be used in place of \texttt{deepcopy}, and the \texttt{dict} variable should be updated as appropriate before returning.
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/deepcopy.jl#L8-L26}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{2080321076594696295}{\texttt{while}}  -- {Keyword.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+while
+\end{lstlisting}
+
+\texttt{while} loops repeatedly evaluate a conditional expression, and continue evaluating the body of the while loop as long as the expression remains true. If the condition expression is false when the while loop is first reached, the body is never evaluated.
+
+\textbf{Examples}
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> i = 1
+1
+
+julia> while i < 5
+           println(i)
+           global i += 1
+       end
+1
+2
+3
+4
+\end{lstlisting}
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/docs/basedocs.jl#L984-L1005}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{4653842890700059542}{\texttt{Base.@eval}}  -- {Macro.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+@eval [mod,] ex
+\end{lstlisting}
+
+Evaluate an expression with values interpolated into it using \texttt{eval}. If two arguments are provided, the first is the module to evaluate in.
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/essentials.jl#L463-L468}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{16932624171676278587}{\texttt{Base.@assert}}  -- {Macro.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+@assert cond [text]
+\end{lstlisting}
+
+Throw an \hyperlinkref{11676817432925230066}{\texttt{AssertionError}} if \texttt{cond} is \texttt{false}. This is the preferred syntax for writing assertions, which are conditions that are assumed to be true, but that the user might decide to check anyways, as an aid to debugging if they fail. The optional message \texttt{text} is displayed upon assertion failure.
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-warning!50!white,colframe=admonition-warning,title=\textbf{Warning}]
+An assert might be disabled at some optimization levels. Assert should therefore only be used as a debugging tool and not used for authentication verification (e.g., verifying passwords or checking array bounds). The code must not rely on the side effects of running \texttt{cond} for the correct behavior of a function.
+
+\end{tcolorbox}
+\textbf{Examples}
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @assert iseven(3) "3 is an odd number!"
+ERROR: AssertionError: 3 is an odd number!
+
+julia> @assert isodd(3) "What even are numbers?"
+\end{lstlisting}
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/error.jl#L207-L229}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{9203129741616521145}{\texttt{Core.AssertionError}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{lstlisting}[]
+AssertionError([msg])
+\end{lstlisting}
+
+The asserted condition did not evaluate to \texttt{true}. Optional argument \texttt{msg} is a descriptive error string.
+
+\textbf{Examples}
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @assert false "this is not true"
+ERROR: AssertionError: this is not true
+\end{lstlisting}
+
+\texttt{AssertionError} is usually thrown from \hyperlinkref{4796942656392369899}{\texttt{@assert}}.
+
+
+
+\href{https://github.com/JuliaLang/julia/blob/ba1e628ee49351af0b704afd2b2903d253bd3564/base/docs/basedocs.jl#L3240-L3253}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\chapter{Foo}
+
+
+
+\label{374450266380008264}{}
+
+
+
+\begin{lstlisting}[]
+@show pwd()
+a = 1
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+1
+\end{lstlisting}
+
+
+
+...
+
+
+
+
+\begin{lstlisting}[]
+@isdefined a
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+false
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+f(x) = 2x
+g(x) = 3x
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+x, y = 1, 2
+println(x, y)
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+12
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+struct T end
+t = T()
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+Main.T()
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+a + b + c + d + e + f
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+21
+\end{lstlisting}
+
+
+
+\section{Foo}
+
+
+
+\label{17415245328842318541}{}
+
+
+
+\begin{lstlisting}[]
+@isdefined T
+@show typeof(T)
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+Main.T
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+x + y
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+3
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+f(2), g(2)
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+(4, 6)
+\end{lstlisting}
+
+
+
+\subsection{Foo}
+
+
+
+\label{17607918834103512029}{}
+
+
+
+\begin{lstlisting}[]
+x - y
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+-1
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+f(1), g(1)
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+(2, 3)
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+using InteractiveUtils
+@which T()
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+Main.T()
+     @ Main functions.md:62
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+A = 1
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+1
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+for i in 1:3
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+A = 2
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+2
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+    println(A + i)
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+end
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+2
+3
+4
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+A + 1
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+2
+\end{lstlisting}
+
+
+
+\subsubsection{Foo}
+
+
+
+\label{12217055824246208395}{}
+
+
+
+\begin{lstlisting}[]
+a = 1
+b = ans
+@assert a === b
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> nothing
+
+julia> rand()
+0.07336635446929285
+
+julia> a = 1
+1
+
+julia> println(a)
+1
+
+julia> b = 2
+2
+
+julia> a + b
+3
+
+julia> struct T
+           x :: Int
+           y :: Vector
+       end
+
+julia> x = T(1, [1])
+Main.T(1, [1])
+
+julia> x.y
+1-element Vector{Int64}:
+ 1
+
+julia> x.x
+1
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> d = 1
+1
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> println(d)
+1
+\end{lstlisting}
+
+
+
+Test setup function
+
+
+
+
+
+
+\begin{lstlisting}[]
+@assert w === 5
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+julia> @assert w === 5
+\end{lstlisting}
+
+
+
+\chapter{Autodocs}
+
+
+
+\label{13360040930512514124}{}
+
+
+
+
+\section{AutoDocs Module}
+
+
+
+\label{14974050576722623319}{}
+
+\hypertarget{11302554442225637105}{\texttt{AutoDocs}}  -- {Module.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+\texttt{AutoDocs} module.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L78}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{15441025252371609530}{\texttt{Main.AutoDocs.K}}  -- {Constant.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Constant \texttt{K}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L91}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{12338358314596597808}{\texttt{Main.AutoDocs.T}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Type \texttt{T}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L94}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{14053004641171891989}{\texttt{Main.AutoDocs.f}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Function \texttt{f}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L88}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{7256264955516068825}{\texttt{Main.AutoDocs.@m}}  -- {Macro.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Macro \texttt{@m}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L97}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\section{Functions, Modules, and Macros}
+
+
+
+\label{3338605747262022226}{}
+
+\hypertarget{8047994080897963665}{\texttt{Main.AutoDocs.A.f}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Function \texttt{A.f}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L102}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{14171230956575570013}{\texttt{Main.AutoDocs.A}}  -- {Module.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Module \texttt{A}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L100}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{1819148365468180190}{\texttt{Main.AutoDocs.A.@m}}  -- {Macro.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Macro \texttt{B.@m}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L111}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{1354818346142581698}{\texttt{Main.AutoDocs.B.f}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Function \texttt{B.f}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L117}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{11339106303250130801}{\texttt{Main.AutoDocs.B}}  -- {Module.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Module \texttt{B}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L115}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{10335956018691630658}{\texttt{Main.AutoDocs.B.@m}}  -- {Macro.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Macro \texttt{B.@m}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L126}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\section{Constants and Types}
+
+
+
+\label{18297180183977969663}{}
+
+\hypertarget{17379154232303623334}{\texttt{Main.AutoDocs.A.K}}  -- {Constant.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Constant \texttt{A.K}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L105}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{1070558433006397272}{\texttt{Main.AutoDocs.A.T}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Type \texttt{B.T}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L108}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{3291598769099158785}{\texttt{Main.AutoDocs.B.K}}  -- {Constant.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Constant \texttt{B.K}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L120}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{16943270388934614325}{\texttt{Main.AutoDocs.B.T}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Type \texttt{B.T}.
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L123}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\section{Autodocs by Page}
+
+
+
+\label{17012311511907355869}{}
+
+\hypertarget{16694402067483188119}{\texttt{Main.AutoDocs.Pages.f}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+\texttt{f} from page \texttt{a.jl}.
+
+Links:
+
+\begin{itemize}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
+
+
+\item \hyperlinkref{15133348314455964692}{\texttt{while}}
+
+
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval(x)}}
+
+
+\item \hyperlinkref{17100384742613090383}{\texttt{T(x)}}
+
+
+\item \hyperlinkref{14050452459487205641}{\texttt{T(x, y)}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f(::Integer)}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f(::Any)}}
+
+
+\item \hyperlinkref{9950366858879376632}{\texttt{f(::Any, ::Any)}}
+
+
+\item \hyperlinkref{18287295168891819021}{\texttt{f(x, y, z)}}
+
+\end{itemize}
+\footnotetext[1]{Footnote contents. \footnotemark[1]
+
+}
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/a.jl#L1-L20}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{9950366858879376632}{\texttt{Main.AutoDocs.Pages.f}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+\texttt{f} from page \texttt{b.jl}.
+
+Links:
+
+\begin{itemize}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
+
+
+\item \hyperlinkref{15133348314455964692}{\texttt{while}}
+
+
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
+
+
+\item \hyperlinkref{5246990970960098088}{\texttt{T}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f(::Any)}}
+
+
+\item \hyperlinkref{9950366858879376632}{\texttt{f(::Any, ::Any)}}
+
+
+\item \hyperlinkref{18287295168891819021}{\texttt{f(::Any, ::Any, ::Any)}}
+
+\end{itemize}
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/b.jl#L1-L15}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{18287295168891819021}{\texttt{Main.AutoDocs.Pages.f}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+\texttt{f} from page \texttt{c.jl}.
+
+Links:
+
+\begin{itemize}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
+
+
+\item \hyperlinkref{15133348314455964692}{\texttt{while}}
+
+
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
+
+
+\item \hyperlinkref{5246990970960098088}{\texttt{T}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f(::Any)}}
+
+
+\item \hyperlinkref{9950366858879376632}{\texttt{f(::Any, ::Any)}}
+
+
+\item \hyperlinkref{18287295168891819021}{\texttt{f(::Any, ::Any, ::Any)}}
+
+\end{itemize}
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/c.jl#L1-L15}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{5246990970960098088}{\texttt{Main.AutoDocs.Pages.T}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+\texttt{T} from page \texttt{d.jl}.
+
+Links:
+
+\begin{itemize}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
+
+
+\item \hyperlinkref{15133348314455964692}{\texttt{while}}
+
+
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
+
+
+\item \hyperlinkref{5246990970960098088}{\texttt{T}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f(x)}}
+
+
+\item \hyperlinkref{9950366858879376632}{\texttt{f(x, y)}}
+
+
+\item \hyperlinkref{18287295168891819021}{\texttt{f(::Any, ::Any, ::Any)}}
+
+\end{itemize}
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/d.jl#L1-L15}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{14050452459487205641}{\texttt{Main.AutoDocs.Pages.T}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+\texttt{T} from page \texttt{d.jl}.
+
+Links:
+
+\begin{itemize}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
+
+
+\item \hyperlinkref{15133348314455964692}{\texttt{while}}
+
+
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
+
+
+\item \hyperlinkref{5246990970960098088}{\texttt{T()}}
+
+
+\item \hyperlinkref{17100384742613090383}{\texttt{T(x)}}
+
+
+\item \hyperlinkref{14050452459487205641}{\texttt{T(x, y)}}
+
+
+\item \hyperlinkref{5246990970960098088}{\texttt{T(x, y, z)}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f(x)}}
+
+
+\item \hyperlinkref{9950366858879376632}{\texttt{f(x, y)}}
+
+
+\item \hyperlinkref{18287295168891819021}{\texttt{f(::Any, ::Any, ::Any)}}
+
+\end{itemize}
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/d.jl#L38-L55}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{17100384742613090383}{\texttt{Main.AutoDocs.Pages.T}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+\texttt{T} from page \texttt{d.jl}.
+
+Links:
+
+\begin{itemize}
+\item \hyperlinkref{3259459540194502889}{\texttt{deepcopy}}
+
+
+\item \hyperlinkref{15133348314455964692}{\texttt{while}}
+
+
+\item \hyperlinkref{12895501458291832858}{\texttt{@eval}}
+
+
+\item \hyperlinkref{17100384742613090383}{\texttt{T(x)}}
+
+
+\item \hyperlinkref{14050452459487205641}{\texttt{T(x, y)}}
+
+
+\item \hyperlinkref{5246990970960098088}{\texttt{T(x, y, z)}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f}}
+
+
+\item \hyperlinkref{16694402067483188119}{\texttt{f(x)}}
+
+
+\item \hyperlinkref{9950366858879376632}{\texttt{f(x, y)}}
+
+
+\item \hyperlinkref{18287295168891819021}{\texttt{f(::Any, ::Any, ::Any)}}
+
+\end{itemize}
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/d.jl#L19-L35}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+A footnote reference \footnotemark[1].
+
+
+
+\footnotetext[1]{the footnote text
+
+}
+
+
+\chapter{Named docstring \texttt{@ref}s}
+
+
+
+\label{8597286521325026101}{}
+
+
+\begin{itemize}
+\item a normal docstring \texttt{@ref} link: \hyperlinkref{16694402067483188119}{\texttt{AutoDocs.Pages.f}};
+
+
+\item a named docstring \texttt{@ref} link: \hyperlinkref{16694402067483188119}{\texttt{f}};
+
+
+\item and a link with custom text: \hyperlinkref{12895501458291832858}{\texttt{@eval 1 + 2}};
+
+
+\item some invalid syntax: \hyperlinkref{15133348314455964692}{\texttt{while i < 10; ...}}.
+
+\end{itemize}
+
+
+\chapter{\texttt{@autodocs} tests}
+
+
+
+\label{11910521728371484862}{}
+
+
+
+
+\section{Public}
+
+
+
+\label{1292728206705221544}{}
+
+
+Should include docs for
+
+
+
+\begin{itemize}
+\item \hyperlinkref{2996493907818938116}{\texttt{AutoDocs.Pages.E.f\_1}}
+
+
+\item \hyperlinkref{6076055157300971596}{\texttt{AutoDocs.Pages.E.f\_2}}
+
+
+\item \hyperlinkref{3503352570886681808}{\texttt{AutoDocs.Pages.E.f\_3}}
+
+\end{itemize}
+
+
+in that order.
+
+
+\hypertarget{2996493907818938116}{\texttt{Main.AutoDocs.Pages.E.f\_1}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+f\_1
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L16}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{6076055157300971596}{\texttt{Main.AutoDocs.Pages.E.f\_2}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+f\_2
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L19}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{3503352570886681808}{\texttt{Main.AutoDocs.Pages.E.f\_3}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+f\_3
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L22}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\section{Private}
+
+
+
+\label{11979819337618326564}{}
+
+
+Should include docs for
+
+
+
+\begin{itemize}
+\item \hyperlinkref{18335012651218585665}{\texttt{AutoDocs.Pages.E.g\_1}}
+
+
+\item \hyperlinkref{12590794246865857269}{\texttt{AutoDocs.Pages.E.g\_2}}
+
+
+\item \hyperlinkref{3152146771453799051}{\texttt{AutoDocs.Pages.E.g\_3}}
+
+\end{itemize}
+
+
+in that order.
+
+
+\hypertarget{18335012651218585665}{\texttt{Main.AutoDocs.Pages.E.g\_1}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+g\_1
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L26}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{12590794246865857269}{\texttt{Main.AutoDocs.Pages.E.g\_2}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+g\_2
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L29}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{3152146771453799051}{\texttt{Main.AutoDocs.Pages.E.g\_3}}  -- {Method.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+g\_3
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L32}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\section{Ordering of Public and Private}
+
+
+
+\label{3913788247092433451}{}
+
+
+Should include docs for
+
+
+
+\begin{itemize}
+\item \hyperlinkref{14143981418775697458}{\texttt{AutoDocs.Pages.E.T\_1}}
+
+
+\item \hyperlinkref{4871421601485935264}{\texttt{AutoDocs.Pages.E.T\_2}}
+
+\end{itemize}
+
+
+in that order.
+
+
+\hypertarget{14143981418775697458}{\texttt{Main.AutoDocs.Pages.E.T\_1}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+T\_1
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L37}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{4871421601485935264}{\texttt{Main.AutoDocs.Pages.E.T\_2}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+T\_2
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L40}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{3237252152661731042}{\texttt{Main.AutoDocs.Pages.E.T\_3}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+T\_3
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/pages/e.jl#L43}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\section{Filtering}
+
+
+
+\label{6391929926972855801}{}
+
+
+Should include docs for
+
+
+
+\begin{itemize}
+\item \hyperlinkref{6785702989282266947}{\texttt{AutoDocs.Filter.Major}}
+
+
+\item \hyperlinkref{11704274081303557511}{\texttt{AutoDocs.Filter.Minor1}}
+
+
+\item \hyperlinkref{4245242374026494985}{\texttt{AutoDocs.Filter.Minor2}}
+
+\end{itemize}
+
+
+in that order.
+
+
+\hypertarget{6785702989282266947}{\texttt{Main.AutoDocs.Filter.Major}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+abstract super type
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L131}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{11704274081303557511}{\texttt{Main.AutoDocs.Filter.Minor1}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+abstract sub type 1
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L134}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{4245242374026494985}{\texttt{Main.AutoDocs.Filter.Minor2}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+abstract sub type 2
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/eefca50709ea92ad7d4ff7fdd58d2b22dae8d5c9/test/examples/make.jl#L137}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\part{Expandorder}
+
+
+\chapter{Expand order test 00}
+
+
+
+\label{6834115470379416000}{}
+
+
+Filename suggest that this will be expanded before \texttt{01.md}.
+
+
+
+
+\begin{lstlisting}[]
+touch("00.txt")
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+"00.txt"
+\end{lstlisting}
+
+
+
+\chapter{Expand order test 01}
+
+
+
+\label{16473237151146092639}{}
+
+
+This should be expanded after \texttt{00.md} and \texttt{AA.md}.
+
+
+
+
+\begin{lstlisting}[]
+isfile("00.txt") || error("00.txt missing")
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+true
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[]
+isfile("AA.txt") || error("AA.txt missing")
+\end{lstlisting}
+
+
+
+\chapter{Expand order test AA}
+
+
+
+\label{7343046884903966924}{}
+
+
+Filename suggest that this will be expanded after \texttt{00.md} and \texttt{01.md}. Hence we use \texttt{expandfirst} to force this to be expanded first.
+
+
+
+
+\begin{lstlisting}[]
+touch("AA.txt")
+\end{lstlisting}
+
+
+\begin{lstlisting}[]
+"AA.txt"
+\end{lstlisting}
+
+
+
+\end{document}

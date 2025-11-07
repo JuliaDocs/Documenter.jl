@@ -3,3 +3,6 @@ fo = "fo"
 ket = "ket"
 trun = "trun"
 varius = "varius"
+
+[files]
+extend-exclude = ["assets/latex/jlcode.sty"]
