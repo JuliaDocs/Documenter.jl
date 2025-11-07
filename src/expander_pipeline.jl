@@ -38,7 +38,8 @@ function clear_modules!(d::Dict{Symbol, Any})
 end
 
 function expand(doc::Documenter.Document)
-    priority_pages = filter(doc.user.expandfirst) do src
+    expandfirst = map(normpath, doc.user.expandfirst)
+    priority_pages = filter(expandfirst) do src
         if src in keys(doc.blueprint.pages)
             return true
         else
