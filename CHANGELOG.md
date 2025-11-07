@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Those previously passed but generated incorrect cross-references.
   You can fix this by ensuring that you have distinct headers across your markdown pages, or by using the `@id` syntax to give the headers unique slugs.
 * Changed CSS for the navigation "breadcrumbs" at the top of each page to avoid an issue where `code` blocks in there were missing spacing around them. ([#1614], [#2813])
+* Commit status for pull request previews publishing in GitHub Actions for out-of-repo deployment now works correctly. ([#2814], [#2816])
 
 ## Version [v1.15.0] - 2025-10-22
 
