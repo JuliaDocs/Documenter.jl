@@ -614,14 +614,6 @@ Also in block quotes:
 > ##### Heading 5
 > ###### Heading 6
 
-# JuliaValue
-
-It is possible to create pseudo-interpolations with the `Markdown` parser: $foo.
-
-$([1 2 3; 4 5 6])
-
-They do not get evaluated.
-
 # Admonitions
 
 !!! note "'note' admonition"
@@ -684,4 +676,15 @@ Main.AT_EXAMPLE_FILES[("gif", :big)]
 ```
 ```@example
 Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
+```
+
+## Issue #2074: Named at-eval blocks
+
+```@setup setup-at-eval
+x = 20274
+```
+
+```@eval setup-at-eval
+@assert x == 2074
+x
 ```
