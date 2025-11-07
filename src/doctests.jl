@@ -4,12 +4,6 @@
 # Julia code block testing.
 # -------------------------
 
-mutable struct MutableMD2CodeBlock
-    language::String
-    code::String
-end
-MutableMD2CodeBlock(block::MarkdownAST.CodeBlock) = MutableMD2CodeBlock(block.info, block.code)
-
 struct DocTestContext
     file::String
     doc::Documenter.Document
@@ -108,15 +102,14 @@ function _doctest(ctx::DocTestContext, mdast::MarkdownAST.Node)
     return
 end
 
-function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
-    lang = block_immutable.info
+function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
+    lang = block.info
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
 
         # Normalise line endings.
-        block = MutableMD2CodeBlock(block_immutable)
         block.code = replace(block.code, "\r\n" => "\n")
 
         # parse keyword arguments to doctest
@@ -232,7 +225,7 @@ _doctest(ctx::DocTestContext, block) = true
 # Doctest evaluation.
 
 mutable struct Result
-    block::MutableMD2CodeBlock # The entire code block that is being tested.
+    block::MarkdownAST.CodeBlock # The entire code block that is being tested.
     raw_input::String # Part of `block.code` representing the current input.
     # Part of `block.code` representing the current input
     # without leading repl prompts and spaces.
@@ -253,7 +246,7 @@ mutable struct Result
 end
 
 
-function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
+function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page)
     src_lines = Documenter.find_block_in_file(block.code, meta[:CurrentFile])
     (prefix, split) = repl_splitter(block.code)
     for (raw_input, input, output) in split
@@ -282,7 +275,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     return
 end
 
-function eval_script(block, sandbox, meta::Dict, doc::Documenter.Document, page)
+function eval_script(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page)
     # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
     #       Maybe use double blank lines, i.e.
     #
@@ -410,7 +403,7 @@ function debug_report(; result, expected_filtered, evaluated, evaluated_filtered
     r = """
     Verifying doctest at $(Documenter.locrepr(result.file, lines))
 
-    ```$(result.block.language)
+    ```$(result.block.info)
     $(result.block.code)
     ```
 
@@ -492,7 +485,7 @@ function report(result::Result, str, doc::Documenter.Document)
         """
         doctest failure in $(Documenter.locrepr(result.file, lines))
 
-        ```$(result.block.language)
+        ```$(result.block.info)
         $(result.block.code)
         ```
 
