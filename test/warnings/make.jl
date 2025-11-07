@@ -64,6 +64,39 @@ julia> WarningTests.run_warnings_test("at-docs")
 """
 module AtDocsWarningTests end
 
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("dollar")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+┌ Warning:     Unexpected Julia interpolation in the Markdown. This probably means that you have an
+│     unbalanced or un-escaped $ in the text.
+│
+│     To write the dollar sign, escape it with `\$`
+│
+│     We don't have the file or line number available, but we got given the value:
+│
+│     `foo` which is of type `Symbol`
+└ @ Documenter
+┌ Warning:     Unexpected Julia interpolation in the Markdown. This probably means that you have an
+│     unbalanced or un-escaped $ in the text.
+│
+│     To write the dollar sign, escape it with `\$`
+│
+│     We don't have the file or line number available, but we got given the value:
+│
+│     `[1 2 3; 4 5 6]` which is of type `Expr`
+└ @ Documenter
+```
+"""
+module UnbalancedDollarWarningTests end
+
 fixtests = haskey(ENV, "DOCUMENTER_FIXTESTS")
 
 # run the doctests in Julia >= 1.10 (some outputs have minor difference in
