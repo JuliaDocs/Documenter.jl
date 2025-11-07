@@ -455,7 +455,21 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             push!(docsnodes, admonition)
             continue
         end
-        typesig = Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
+        typesig = try
+            Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
+        catch err
+            @docerror(
+                doc, :docs_block,
+                """
+                failed to evaluate `$(strip(str))` in `@docs` block in $(Documenter.locrepr(doc, page, lines))
+                ```$(x.info)
+                $(x.code)
+                ```
+                """, exception = err
+            )
+            push!(docsnodes, admonition)
+            continue
+        end
         object = make_object(binding, typesig, is_canonical, doc, page)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)

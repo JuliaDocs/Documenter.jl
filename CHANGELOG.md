@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
 * Changed the docstring block accordions from a custom implementation to HTML details+summary tag. ([#2772], [#2773])
 * Improved the search tokenizer and custom trimmer to improve search results. ([#1457], [#2114], [#2744])
-* Improved several warning/error messages to (more accurately) report the location (filename, line range) in which the warning/error originated. ([#2803])
+* Improved several warning/error messages to (more accurately) report the location (filename, line range) in which the warning/error originated. ([#2426], [#2803], [#2809])
 
 ### Fixed
 
@@ -2093,6 +2093,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
 [#2423]: https://github.com/JuliaDocs/Documenter.jl/issues/2423
 [#2424]: https://github.com/JuliaDocs/Documenter.jl/issues/2424
+[#2426]: https://github.com/JuliaDocs/Documenter.jl/issues/2426
 [#2430]: https://github.com/JuliaDocs/Documenter.jl/issues/2430
 [#2434]: https://github.com/JuliaDocs/Documenter.jl/issues/2434
 [#2438]: https://github.com/JuliaDocs/Documenter.jl/issues/2438
@@ -2184,6 +2185,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
 [#2792]: https://github.com/JuliaDocs/Documenter.jl/issues/2792
 [#2803]: https://github.com/JuliaDocs/Documenter.jl/issues/2803
+[#2809]: https://github.com/JuliaDocs/Documenter.jl/issues/2809
 [#2812]: https://github.com/JuliaDocs/Documenter.jl/issues/2812
 [#2813]: https://github.com/JuliaDocs/Documenter.jl/issues/2813
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
