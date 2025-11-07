@@ -97,6 +97,51 @@ julia> WarningTests.run_warnings_test("dollar")
 """
 module UnbalancedDollarWarningTests end
 
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("windows_paths")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+┌ Warning: invalid local link/image: file does not exist in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link("some:path", "") do
+│      MarkdownAST.Text("Colons not allowed on Windows ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code("some:path")
+│    end
+│
+└ @ Documenter
+┌ Warning: invalid local link/image: file does not exist in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link(":path", "") do
+│      MarkdownAST.Text("No 'drive' ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code(":path")
+│    end
+│
+└ @ Documenter
+┌ Warning: invalid local link/image: file does not exist in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link("X:\\some\\path", "") do
+│      MarkdownAST.Text("Absolute Windows paths ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code("X:\\some\\path")
+│    end
+│
+└ @ Documenter
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+module WindowsPathSeparatorWarningTests end
+
 fixtests = haskey(ENV, "DOCUMENTER_FIXTESTS")
 
 # run the doctests in Julia >= 1.10 (some outputs have minor difference in

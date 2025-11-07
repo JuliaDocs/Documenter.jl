@@ -483,12 +483,6 @@ julia> x->x # ignore error on 0.7
 r = :a
 ```
 
-# Bad links (Windows)
-
-* [Colons not allowed on Windows -- `some:path`](some:path)
-* [No "drive" -- `:path`](:path)
-* [Absolute Windows paths -- `X:\some\path`](X:\some\path)
-
 # Rendering text/markdown
 
 ```@example
