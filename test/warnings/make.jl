@@ -85,7 +85,7 @@ julia> WarningTests.run_warnings_test("at-eval")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
-┌ Warning: Invalid type of object in @eval in src/at-eval.md:5-7
+┌ Warning: Invalid type of object in @eval in src/at-eval.md:14-16
 │ ```@eval
 │ "expanded_"*"eval"
 │ ```
@@ -105,6 +105,76 @@ julia> WarningTests.run_warnings_test("at-eval")
 ```
 """
 module AtEvalWarningTests end
+
+###########################################################################################
+
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("at-example")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+module AtExampleWarningTests end
+
+###########################################################################################
+
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("at-meta")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+module AtMetaWarningTests end
+
+###########################################################################################
+
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("at-repl")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+module AtReplWarningTests end
+
+###########################################################################################
+
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("at-setup")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+module AtSetupWarningTests end
+
+###########################################################################################
 
 @doc raw"""
 ```jldoctest; setup=:(using ..WarningTests)

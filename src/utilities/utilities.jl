@@ -155,8 +155,7 @@ function parseblock(
         line = match(r"^(.*)\r?\n"m, SubString(code, cursor)).match
         keyword = Symbol(strip(line))
         (ex, ncursor) =
-        # TODO: On 0.7 Symbol("") is in Docs.keywords, remove that check when dropping 0.6
-        if keywords && (haskey(Docs.keywords, keyword) || keyword == Symbol(""))
+        if keywords && haskey(Docs.keywords, keyword)
             (QuoteNode(keyword), cursor + lastindex(line))
         else
             try
@@ -174,6 +173,10 @@ function parseblock(
     end
     if linenumbernode isa LineNumberNode
         exs = Meta.parseall(code; filename = linenumbernode.file).args
+        if isempty(results) && length(exs) == 1 && exs[1] isa LineNumberNode
+            # block was empty or consisted of just comments
+            empty!(exs)
+        end
         @assert length(exs) == 2 * length(results) "Issue at $linenumbernode:\n$code"
         for (i, ex) in enumerate(Iterators.partition(exs, 2))
             @assert ex[1] isa LineNumberNode
