@@ -72,12 +72,17 @@ function find_block_in_file(code, file)
 end
 
 # Pretty-printing locations
-function locrepr(file, line = nothing)
+function locrepr(file::String, lines::Union{Nothing, Pair{Int, Int}} = nothing)
     basedir = isassigned(original_pwd) ? original_pwd[] : currentdir()
     file = abspath(file)
     str = Base.contractuser(relpath(file, basedir))
-    line !== nothing && (str = str * ":$(line.first)-$(line.second)")
+    lines !== nothing && (str = str * ":$(lines.first)-$(lines.second)")
     return str
+end
+
+function locrepr(doc, page, lines::Union{Nothing, Pair{Int, Int}} = nothing)
+    file = joinpath(doc.user.root, page.source)
+    return locrepr(file, lines)
 end
 
 # Directory paths.
@@ -623,12 +628,19 @@ function get_sandbox_module!(meta, prefix, name = nothing; share_default_module 
     # Either fetch and return an existing sandbox from the meta dictionary (based on the generated name),
     # or initialize a new clean one, which gets stored in meta for future re-use.
     return get!(meta, sym) do
-        # If the module does not exists already, we need to construct a new one.
-        m = Module(sym)
-        # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-        Core.eval(m, :(eval(x) = Core.eval($m, x)))
-        # modules created with Module() does not have include defined
-        Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
+        # If the module does not exist already, we need to construct a new one.
+        # We create a baremodule so that we can insert a custom `include` method
+        # that is closer to the one in Main, in that it works relative to the
+        # current working directory, not relative to the module.
+        m = Core.eval(
+            Main, :(
+                baremodule $sym
+                using Base
+                eval(x) = Core.eval($sym, x)
+                include(x) = Base.include($sym, abspath(x))
+                end
+            )
+        )
         return m
     end
 end

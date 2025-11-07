@@ -3,6 +3,8 @@ name: Update Status Labels When Author Replies
 on:
   issue_comment:
     types: [created]
+  pull_request_review_comment:
+    types: [created]
 
 permissions:
   issues: write
@@ -20,8 +22,9 @@ jobs:
             const waitingForAuthor = "Status: Waiting for Author";
             const waitingForReview = "Status: Waiting for Review";
 
-            const issue = context.payload.issue;
             const comment = context.payload.comment;
+            let authorLogin;
+            let issueNumber;
 
             // Ignore bot comments
             if (comment.user.type === "Bot") {
@@ -29,17 +32,36 @@ jobs:
               return;
             }
 
-            // Only act if the comment author is the issue/PR author
-            if (issue.user.login !== comment.user.login) {
+            // Figure out what event type we are dealing with
+            if (context.payload.issue) {
+              // issue_comment event (could be issue or PR main thread)
+              authorLogin = context.payload.issue.user.login;
+              issueNumber = context.payload.issue.number;
+            } else if (context.payload.pull_request) {
+              // pull_request_review_comment event (inline code review comment)
+              authorLogin = context.payload.pull_request.user.login;
+              issueNumber = context.payload.pull_request.number;
+            } else {
+              console.log("Not an issue or PR event — skipping.");
+              return;
+            }
+
+            // Only act if the comment is from the original author
+            if (authorLogin !== comment.user.login) {
               console.log("Comment is not from the author — doing nothing.");
               return;
             }
 
-            // Get existing labels
-            const currentLabels = issue.labels.map(l => l.name);
+            // Fetch current labels (since pull_request_review_comment doesn't include them)
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const currentLabels = labels.map(l => l.name);
 
-            // Check if "Status: Waiting for Author" is present
             const hasWaitingForAuthor = currentLabels.includes(waitingForAuthor);
+            const hasWaitingForReview = currentLabels.includes(waitingForReview);
 
             if (!hasWaitingForAuthor) {
               console.log(`No "${waitingForAuthor}" label — nothing to remove.`);
@@ -50,21 +72,20 @@ jobs:
             await github.rest.issues.removeLabel({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: issue.number,
+              issue_number: issueNumber,
               name: waitingForAuthor
             });
-            console.log(`Removed "${waitingForAuthor}" label from #${issue.number}`);
+            console.log(`Removed "${waitingForAuthor}" label from #${issueNumber}`);
 
             // Add "Status: Waiting for Review" if not already present
-            const hasWaitingForReview = currentLabels.includes(waitingForReview);
             if (!hasWaitingForReview) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: issue.number,
+                issue_number: issueNumber,
                 labels: [waitingForReview]
               });
-              console.log(`Added "${waitingForReview}" label to #${issue.number}`);
+              console.log(`Added "${waitingForReview}" label to #${issueNumber}`);
             } else {
               console.log(`"${waitingForReview}" already present — not adding again.`);
             }

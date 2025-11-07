@@ -5,7 +5,7 @@
 
 | **Documentation**                                                               | **Build Status**                                                                                |
 |:-------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][GHA-img]][GHA-url] [![][codecov-img]][codecov-url] [![PkgEval][pkgeval-img]][pkgeval-url] |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][GHA-img]][GHA-url] [![][regressions-img]][regressions-url] [![][codecov-img]][codecov-url] [![PkgEval][pkgeval-img]][pkgeval-url] |
 
 
 ## Installation
@@ -72,8 +72,11 @@ Finally, there are also a few other packages in the Julia ecosystem that are sim
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://documenter.juliadocs.org/stable
 
-[GHA-img]: https://github.com/JuliaDocs/Documenter.jl/workflows/CI/badge.svg
-[GHA-url]: https://github.com/JuliaDocs/Documenter.jl/actions?query=workflows/CI
+[GHA-img]: https://github.com/JuliaDocs/Documenter.jl/actions/workflows/CI.yml/badge.svg
+[GHA-url]: https://github.com/JuliaDocs/Documenter.jl/actions/workflows/CI.yml
+
+[regressions-img]: https://github.com/JuliaDocs/Documenter.jl/actions/workflows/regression-tests.yml/badge.svg
+[regressions-url]: https://github.com/JuliaDocs/Documenter.jl/actions/workflows/regression-tests.yml
 
 [codecov-img]: https://codecov.io/gh/JuliaDocs/Documenter.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/JuliaDocs/Documenter.jl

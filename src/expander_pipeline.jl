@@ -59,7 +59,7 @@ function expand(doc::Documenter.Document)
             Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
             expand_recursively(node, page, doc)
         end
-        pagecheck(page)
+        pagecheck(doc, page)
         clear_modules!(page.globals.meta)
     end
     return
@@ -85,10 +85,10 @@ function expand_recursively(node, page, doc)
 end
 
 # run some checks after expanding the page
-function pagecheck(page)
+function pagecheck(doc, page)
     # make sure there is no "continued code" lingering around
     if haskey(page.globals.meta, :ContinuedCode) && !isempty(page.globals.meta[:ContinuedCode])
-        @warn "code from a continued @example block unused in $(Documenter.locrepr(page.source))."
+        @warn "code from a continued @example block unused in $(Documenter.locrepr(doc, page))."
     end
     return
 end
@@ -341,7 +341,7 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
         # we will silently skip for now.
         if Documenter.isassign(ex)
             if !(ex.args[1] in (:CurrentModule, :DocTestSetup, :DocTestTeardown, :DocTestFilters, :EditURL, :Description, :Draft, :CollapsedDocStrings, :ShareDefaultModule))
-                source = Documenter.locrepr(page.source, lines)
+                source = Documenter.locrepr(doc, page, lines)
                 @warn(
                     "In $source: `@meta` block has an unsupported " *
                         "keyword argument: $(ex.args[1])",
@@ -353,7 +353,7 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
                 @docerror(
                     doc, :meta_block,
                     """
-                    failed to evaluate `$(strip(str))` in `@meta` block in $(Documenter.locrepr(page.source, lines))
+                    failed to evaluate `$(strip(str))` in `@meta` block in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -431,7 +431,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             @docerror(
                 doc, :docs_block,
                 """
-                unable to get the binding for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines)) from expression '$(repr(ex))' in module $(curmod)
+                unable to get the binding for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(doc, page, lines)) from expression '$(repr(ex))' in module $(curmod)
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -446,7 +446,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             @docerror(
                 doc, :docs_block,
                 """
-                undefined binding '$(binding)' in `@docs` block in $(Documenter.locrepr(page.source, lines))
+                undefined binding '$(binding)' in `@docs` block in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -455,7 +455,21 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             push!(docsnodes, admonition)
             continue
         end
-        typesig = Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
+        typesig = try
+            Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
+        catch err
+            @docerror(
+                doc, :docs_block,
+                """
+                failed to evaluate `$(strip(str))` in `@docs` block in $(Documenter.locrepr(doc, page, lines))
+                ```$(x.info)
+                $(x.code)
+                ```
+                """, exception = err
+            )
+            push!(docsnodes, admonition)
+            continue
+        end
         object = make_object(binding, typesig, is_canonical, doc, page)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
@@ -463,7 +477,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             @docerror(
                 doc, :docs_block,
                 """
-                duplicate docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines))
+                duplicate docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ``` $(DocSystem.public_unexported_msg(apistatus))
@@ -486,7 +500,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             @docerror(
                 doc, :docs_block,
                 """
-                no docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines))
+                no docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -534,7 +548,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                 elseif ex.args[1] in (:Modules, :Order, :Pages, :Public, :Private)
                     fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
                 else
-                    source = Documenter.locrepr(page.source, lines)
+                    source = Documenter.locrepr(doc, page, lines)
                     @warn(
                         "In $source: `@autodocs` block has an unsupported " *
                             "keyword argument: $(ex.args[1])",
@@ -544,7 +558,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                 @docerror(
                     doc, :autodocs_block,
                     """
-                    failed to evaluate `$(strip(str))` in `@autodocs` block in $(Documenter.locrepr(page.source, lines))
+                    failed to evaluate `$(strip(str))` in `@autodocs` block in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -575,7 +589,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     @docerror(
                         doc, :autodocs_block,
                         """
-                        @autodocs ($(Documenter.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
+                        @autodocs ($(Documenter.locrepr(doc, page, lines))) encountered a bad docstring binding '$(binding)'
                         ```$(x.info)
                         $(x.code)
                         ```
@@ -649,7 +663,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                 @docerror(
                     doc, :autodocs_block,
                     """
-                    duplicate docs found for '$(object.binding)' in $(Documenter.locrepr(page.source, lines))
+                    duplicate docs found for '$(object.binding)' in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ``` $(DocSystem.public_unexported_msg(apistatus))
@@ -674,7 +688,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         @docerror(
             doc, :autodocs_block,
             """
-            '@autodocs' missing 'Modules = ...' in $(Documenter.locrepr(page.source, lines))
+            '@autodocs' missing 'Modules = ...' in $(Documenter.locrepr(doc, page, lines))
             ```$(x.info)
             $(x.code)
             ```
@@ -691,13 +705,20 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
+    matched = match(r"^@eval(?:\s+([^\s;]+))?\s*$", x.info)
+    matched === nothing && error("invalid '@eval <name>' syntax: $(x.info)")
+    name = matched[1]
+
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @eval block in draft mode:\n$(x.code)"
         create_draft_result!(node; blocktype = "@eval")
         return
     end
-    sandbox = Module(:EvalBlockSandbox)
+
+    # The sandboxed module -- either a new one or a cached one from this page.
+    sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
+
     lines = Documenter.find_block_in_file(x.code, page.source)
     linenumbernode = LineNumberNode(
         lines === nothing ? 0 : lines.first, basename(page.source)
@@ -715,7 +736,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
                 @docerror(
                     doc, :eval_block,
                     """
-                    failed to evaluate `@eval` block in $(Documenter.locrepr(page.source))
+                    failed to evaluate `@eval` block in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -732,7 +753,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
             # objects, like Paragraph.
             @docerror(
                 doc, :eval_block, """
-                Invalid type of object in @eval in $(Documenter.locrepr(page.source))
+                Invalid type of object in @eval in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -819,8 +840,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
-    sym = nameof(mod)
+    sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
+    sym = nameof(sandbox)
     lines = Documenter.find_block_in_file(x.code, page.source)
 
     # "parse" keyword arguments to example
@@ -853,10 +874,10 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
             )
             c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
-                    Core.eval(mod, ex)
+                    Core.eval(sandbox, ex)
                 end
             end
-            Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+            Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
             result = c.value
             print(buffer, c.output)
             if c.error
@@ -864,7 +885,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
                 @docerror(
                     doc, :example_block,
                     """
-                    failed to run `@example` block in $(Documenter.locrepr(page.source, lines))
+                    failed to run `@example` block in $(Documenter.locrepr(doc, page, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -886,14 +907,14 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
-        output[m] = remove_sandbox_from_output(output[m], mod)
+        output[m] = remove_sandbox_from_output(output[m], sandbox)
     end
 
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
     if result === nothing
         stdouterr = Documenter.sanitise(buffer)
-        stdouterr = remove_sandbox_from_output(stdouterr, mod)
+        stdouterr = remove_sandbox_from_output(stdouterr, sandbox)
         isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME, Any}(MIME"text/plain"() => stdouterr))))
     elseif !isempty(output)
         push!(content, Node(Documenter.MultiOutputElement(output)))
@@ -905,8 +926,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
 end
 
 # Replace references to gensym'd module with Main
-function remove_sandbox_from_output(str, mod::Module)
-    return replace(str, Regex(("(Main\\.)?$(nameof(mod))")) => "Main")
+function remove_sandbox_from_output(str, sandbox::Module)
+    return replace(str, Regex(("(Main\\.)?$(nameof(sandbox))")) => "Main")
 end
 
 # @repl
@@ -928,7 +949,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
+    sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
 
     # "parse" keyword arguments to repl
     ansicolor = _any_color_fmt(doc)
@@ -951,10 +972,10 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
         ex = REPL.softscope(ex)
         c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
             cd(page.workdir) do
-                Core.eval(mod, ex)
+                Core.eval(sandbox, ex)
             end
         end
-        Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+        Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
         result = c.value
         buf = IOContext(IOBuffer(), :color => ansicolor)
         output = if !c.error
@@ -976,7 +997,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
 
         outstr = String(take!(out))
         # Replace references to gensym'd module with Main
-        outstr = rstrip(remove_sandbox_from_output(outstr, mod))
+        outstr = rstrip(remove_sandbox_from_output(outstr, sandbox))
         !isempty(outstr) && push!(multicodeblock, MarkdownAST.CodeBlock("documenter-ansi", outstr))
     end
     node.element = Documenter.MultiCodeBlock(x, "julia-repl", [])
@@ -1005,20 +1026,21 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
+    sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
 
     @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise
     try
         cd(page.workdir) do
-            include_string(mod, x.code)
+            include_string(sandbox, x.code)
         end
     catch err
         bt = Documenter.remove_common_backtrace(catch_backtrace())
+        lines = Documenter.find_block_in_file(x.code, page.source)
         @docerror(
             doc, :setup_block,
             """
-            failed to run `@setup` block in $(Documenter.locrepr(page.source))
+            failed to run `@setup` block in $(Documenter.locrepr(doc, page, lines))
             ```$(x.info)
             $(x.code)
             ```
