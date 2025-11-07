@@ -81,6 +81,33 @@ function dummyFunctionWithUnbalancedDollar end
 
 @doc raw"""
 ```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("at-eval")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+┌ Warning: Invalid type of object in @eval in src/at-eval.md:5-7
+│ ```@eval
+│ "expanded_"*"eval"
+│ ```
+│ Evaluated to `String`, but should be one of
+│  - Nothing
+│  - Markdown.MD
+│ Falling back to textual code block representation.
+│
+│ If you are seeing this warning/error after upgrading Documenter and this used to work,
+│ please open an issue on the Documenter issue tracker.
+└ @ Documenter
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+module AtEvalWarningTests end
+
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
 julia> WarningTests.run_warnings_test("dollar")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
