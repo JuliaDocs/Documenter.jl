@@ -80,7 +80,7 @@ julia> WarningTests.run_warnings_test("dollar")
 │
 │     To write the dollar sign, escape it with `\$`
 │
-│     We don't have the file or line number available, but we got given the value:
+│     This is in file src/dollar.md, and we were given the value:
 │
 │     `foo` which is of type `Symbol`
 └ @ Documenter
@@ -89,7 +89,7 @@ julia> WarningTests.run_warnings_test("dollar")
 │
 │     To write the dollar sign, escape it with `\$`
 │
-│     We don't have the file or line number available, but we got given the value:
+│     This is in file src/dollar.md, and we were given the value:
 │
 │     `[1 2 3; 4 5 6]` which is of type `Expr`
 └ @ Documenter
