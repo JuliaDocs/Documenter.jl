@@ -216,6 +216,79 @@ module AtSetupWarningTests end
 ###########################################################################################
 
 @doc raw"""
+````jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("doctest")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+┌ Error: doctest failure in src/doctest.md:4-8
+│
+│ ```jldoctest
+│
+│ julia> 1+1
+│ 2
+│ ```
+│
+│ Subexpression:
+│
+│ 1+1
+│
+│ Evaluated output:
+│
+│ 2
+│
+│ Expected output:
+│
+│
+│
+│   diff =
+│    Warning: Diff output requires color.
+│    2
+└ @ Documenter
+┌ Error: doctest failure in src/doctest.md:11-15
+│
+│ ```jldoctest
+│ julia> a=1;
+│ julia> a+1
+│ 2
+│ ```
+│
+│ Subexpression:
+│
+│ a+1
+│
+│ Evaluated output:
+│
+│ ERROR: UndefVarError: `a` not defined in `Main`
+│ Suggestion: check for spelling errors or missing imports.
+│ Stacktrace:
+│  [1] top-level scope
+│    @ none:1
+│
+│ Expected output:
+│
+│ a=1;
+│
+│   diff =
+│    Warning: Diff output requires color.
+│    a=1;ERROR: UndefVarError: `a` not defined in `Main`
+│    Suggestion: check for spelling errors or missing imports.
+│    Stacktrace:
+│     [1] top-level scope
+│       @ none:1
+└ @ Documenter
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+````
+"""
+module DoctestWarningTests end
+
+###########################################################################################
+
+@doc raw"""
 ```jldoctest; setup=:(using ..WarningTests)
 julia> WarningTests.run_warnings_test("dollar")
 [ Info: SetupBuildDirectory: setting up build directory.
@@ -275,6 +348,8 @@ fixtests = haskey(ENV, "DOCUMENTER_FIXTESTS")
 # with that "properly")
 VERSION >= v"1.10" && makedocs(;
     sitename = "",
+    pages = ["index.md"],
+    pagesonly = true,
     doctest = fixtests ? :fix : :only,
     modules = [WarningTests],
     remotes = nothing,
