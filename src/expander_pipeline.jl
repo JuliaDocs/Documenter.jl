@@ -335,7 +335,7 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
     meta = page.globals.meta
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @meta block:\n$(x.code)"
-    for (ex, str) in Documenter.parseblock(x.code, doc, page)
+    for (ex, str) in Documenter.parseblock(x.code, doc, page; lines)
         # If not `isassign`, this might be a comment, or any code that the user
         # wants to hide. We should probably warn, but it is common enough that
         # we will silently skip for now.
@@ -418,7 +418,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
     curmod = get(page.globals.meta, :CurrentModule, Main)
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @docs block:\n$(x.code)"
-    for (ex, str) in Documenter.parseblock(x.code, doc, page)
+    for (ex, str) in Documenter.parseblock(x.code, doc, page; lines)
         adstr = """
         !!! warning "Missing docstring."
 
@@ -540,7 +540,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
     fields = Dict{Symbol, Any}()
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @autodocs block:\n$(x.code)"
-    for (ex, str) in Documenter.parseblock(x.code, doc, page)
+    for (ex, str) in Documenter.parseblock(x.code, doc, page; lines)
         if Documenter.isassign(ex)
             try
                 if ex.args[1] == :Filter
@@ -727,7 +727,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     cd(page.workdir) do
         result = nothing
         for (ex, str) in Documenter.parseblock(
-                x.code, doc, page; keywords = false, linenumbernode = linenumbernode
+                x.code, doc, page; keywords = false, linenumbernode, lines
             )
             try
                 result = Core.eval(sandbox, ex)
@@ -870,7 +870,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
             lines === nothing ? 0 : lines.first, basename(page.source)
         )
         for (ex, str) in Documenter.parseblock(
-                code, doc, page; keywords = false, linenumbernode = linenumbernode
+                code, doc, page; keywords = false, linenumbernode, lines
             )
             c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
@@ -960,11 +960,12 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
         end
     end
 
+    lines = Documenter.find_block_in_file(x.code, page.source)
     multicodeblock = MarkdownAST.CodeBlock[]
     linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
     @debug "Evaluating @repl block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(
-            x.code, doc, page; keywords = false, linenumbernode = linenumbernode
+            x.code, doc, page; keywords = false, linenumbernode, lines
         )
         input = droplines(str)
         # Use the REPL softscope for REPLBlocks,
@@ -1035,7 +1036,6 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
             include_string(sandbox, x.code)
         end
     catch err
-        bt = Documenter.remove_common_backtrace(catch_backtrace())
         lines = Documenter.find_block_in_file(x.code, page.source)
         @docerror(
             doc, :setup_block,
@@ -1044,7 +1044,7 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
             ```$(x.info)
             $(x.code)
             ```
-            """, exception = (err, bt)
+            """, exception = err
         )
     end
     node.element = Documenter.SetupNode(x.info, x.code)

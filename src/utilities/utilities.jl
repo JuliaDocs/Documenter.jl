@@ -142,7 +142,7 @@ and starting line number of the block (requires Julia 1.6 or higher).
 """
 function parseblock(
         code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
-        linenumbernode = nothing
+        linenumbernode = nothing, lines = nothing
     )
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
@@ -161,8 +161,8 @@ function parseblock(
             try
                 Meta.parse(code, cursor; raise = raise)
             catch err
-                @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
-                break
+                @docerror(doc, :parse_error, "failed to parse code block in $(locrepr(file, lines))", exception = err)
+                return []
             end
         end
         str = SubString(code, cursor, prevind(code, ncursor))

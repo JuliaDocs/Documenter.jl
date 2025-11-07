@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   You can fix this by ensuring that you have distinct headers across your markdown pages, or by using the `@id` syntax to give the headers unique slugs.
 * Changed CSS for the navigation "breadcrumbs" at the top of each page to avoid an issue where `code` blocks in there were missing spacing around them. ([#1614], [#2813])
 * Commit status for pull request previews publishing in GitHub Actions for out-of-repo deployment now works correctly. ([#2814], [#2816])
-* Fix an assertion being raised when encountering empty @example, @eval, @repl blocks. ([#2206], [#2827])
+* Fix assertions resp. errors being raised in `@example`, `@eval`, `@repl` blocks that are empty or contain code with syntax errors. ([#2206], [#2731], [#2827])
 
 ## Version [v1.15.0] - 2025-10-22
 
@@ -2177,6 +2177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2723]: https://github.com/JuliaDocs/Documenter.jl/issues/2723
 [#2726]: https://github.com/JuliaDocs/Documenter.jl/issues/2726
 [#2729]: https://github.com/JuliaDocs/Documenter.jl/issues/2729
+[#2731]: https://github.com/JuliaDocs/Documenter.jl/issues/2731
 [#2737]: https://github.com/JuliaDocs/Documenter.jl/issues/2737
 [#2744]: https://github.com/JuliaDocs/Documenter.jl/issues/2744
 [#2748]: https://github.com/JuliaDocs/Documenter.jl/issues/2748

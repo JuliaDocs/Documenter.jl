@@ -8,3 +8,8 @@ Same if it consists of only a comment.
 ```@example
 # comment
 ```
+
+Syntax errors in blocks should be a `@docerror`, not an exception (issue #2731).
+```@example
+1 !in 2
+```

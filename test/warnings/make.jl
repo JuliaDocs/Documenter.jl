@@ -57,6 +57,13 @@ julia> WarningTests.run_warnings_test("at-docs")
 │    UndefVarError: `NonsenseTypeThatDoesNotExist` not defined in `Main`
 │    Suggestion: check for spelling errors or missing imports.
 └ @ Documenter
+┌ Warning: failed to parse code block in src/at-docs.md:19-21
+│   exception =
+│    ParseError:
+│    # Error @ none:1:2
+│    1 !in 2
+│    #└────┘ ── extra tokens after end of expression
+└ @ Documenter
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.
@@ -85,7 +92,14 @@ julia> WarningTests.run_warnings_test("at-eval")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
-┌ Warning: Invalid type of object in @eval in src/at-eval.md:14-16
+┌ Warning: failed to parse code block in build/src/at-eval.md:13-15
+│   exception =
+│    ParseError:
+│    # Error @ none:1:2
+│    1 !in 2
+│    #└────┘ ── extra tokens after end of expression
+└ @ Documenter
+┌ Warning: Invalid type of object in @eval in src/at-eval.md:19-21
 │ ```@eval
 │ "expanded_"*"eval"
 │ ```
@@ -114,6 +128,13 @@ julia> WarningTests.run_warnings_test("at-example")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+┌ Warning: failed to parse code block in src/at-example.md:13-15
+│   exception =
+│    ParseError:
+│    # Error @ none:1:2
+│    1 !in 2
+│    #└────┘ ── extra tokens after end of expression
+└ @ Documenter
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.
@@ -148,6 +169,13 @@ julia> WarningTests.run_warnings_test("at-repl")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+┌ Warning: failed to parse code block in src/at-repl.md:13-15
+│   exception =
+│    ParseError:
+│    # Error @ none:1:2
+│    1 !in 2
+│    #└────┘ ── extra tokens after end of expression
+└ @ Documenter
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.
@@ -165,6 +193,17 @@ julia> WarningTests.run_warnings_test("at-setup")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+┌ Warning: failed to run `@setup` block in src/at-setup.md:9-11
+│ ```@setup
+│ 1 !in 2
+│ ```
+│   exception =
+│    LoadError: ParseError:
+│    # Error @ string:1:2
+│    1 !in 2
+│    #└────┘ ── extra tokens after end of expression
+│    in expression starting at string:1
+└ @ Documenter
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.
