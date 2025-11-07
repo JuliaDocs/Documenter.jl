@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed the docstring block accordions from a custom implementation to HTML details+summary tag. ([#2772], [#2773])
 * Improved the search tokenizer and custom trimmer to improve search results. ([#1457], [#2114], [#2744])
 * Improved several warning/error messages to (more accurately) report the location (filename, line range) in which the warning/error originated. ([#2426], [#2752], [#2793], [#2803], [#2809])
+* Warn/error if jldoctest starts with an empty line; or lacks empty line between two REPL prompts. ([#2031], [#2083], [#2679], [#2808])
 * The `forcepush=true` option to `deploydocs` now uses `--force-with-lease` instead of `--force`. ([#2817])
 
 ### Fixed
@@ -1999,6 +2000,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2018]: https://github.com/JuliaDocs/Documenter.jl/issues/2018
 [#2019]: https://github.com/JuliaDocs/Documenter.jl/issues/2019
 [#2027]: https://github.com/JuliaDocs/Documenter.jl/issues/2027
+[#2031]: https://github.com/JuliaDocs/Documenter.jl/issues/2031
 [#2051]: https://github.com/JuliaDocs/Documenter.jl/issues/2051
 [#2054]: https://github.com/JuliaDocs/Documenter.jl/issues/2054
 [#2058]: https://github.com/JuliaDocs/Documenter.jl/issues/2058
@@ -2011,6 +2013,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2078]: https://github.com/JuliaDocs/Documenter.jl/issues/2078
 [#2080]: https://github.com/JuliaDocs/Documenter.jl/issues/2080
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
+[#2083]: https://github.com/JuliaDocs/Documenter.jl/issues/2083
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
 [#2103]: https://github.com/JuliaDocs/Documenter.jl/issues/2103
@@ -2162,6 +2165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2683]: https://github.com/JuliaDocs/Documenter.jl/issues/2683
 [#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
+[#2679]: https://github.com/JuliaDocs/Documenter.jl/issues/2679
 [#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
 [#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
 [#2688]: https://github.com/JuliaDocs/Documenter.jl/issues/2688
@@ -2196,6 +2200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2793]: https://github.com/JuliaDocs/Documenter.jl/issues/2793
 [#2803]: https://github.com/JuliaDocs/Documenter.jl/issues/2803
 [#2804]: https://github.com/JuliaDocs/Documenter.jl/issues/2804
+[#2808]: https://github.com/JuliaDocs/Documenter.jl/issues/2808
 [#2809]: https://github.com/JuliaDocs/Documenter.jl/issues/2809
 [#2812]: https://github.com/JuliaDocs/Documenter.jl/issues/2812
 [#2813]: https://github.com/JuliaDocs/Documenter.jl/issues/2813

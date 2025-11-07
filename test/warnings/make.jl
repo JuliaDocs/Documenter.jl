@@ -220,61 +220,23 @@ module AtSetupWarningTests end
 julia> WarningTests.run_warnings_test("doctest")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
-┌ Error: doctest failure in src/doctest.md:4-8
+┌ Warning: Unable to to evaluate doctest in src/doctest.md:4-8
+│ No empty lines are allowed before first `julia>` prompt.
 │
 │ ```jldoctest
 │
 │ julia> 1+1
 │ 2
 │ ```
-│
-│ Subexpression:
-│
-│ 1+1
-│
-│ Evaluated output:
-│
-│ 2
-│
-│ Expected output:
-│
-│
-│
-│   diff =
-│    Warning: Diff output requires color.
-│    2
 └ @ Documenter
-┌ Error: doctest failure in src/doctest.md:11-15
+┌ Warning: Unable to to evaluate doctest in src/doctest.md:11-15
+│ Consecutive `julia>` prompts must be separated by an empty line.
 │
 │ ```jldoctest
 │ julia> a=1;
 │ julia> a+1
 │ 2
 │ ```
-│
-│ Subexpression:
-│
-│ a+1
-│
-│ Evaluated output:
-│
-│ ERROR: UndefVarError: `a` not defined in `Main`
-│ Suggestion: check for spelling errors or missing imports.
-│ Stacktrace:
-│  [1] top-level scope
-│    @ none:1
-│
-│ Expected output:
-│
-│ a=1;
-│
-│   diff =
-│    Warning: Diff output requires color.
-│    a=1;ERROR: UndefVarError: `a` not defined in `Main`
-│    Suggestion: check for spelling errors or missing imports.
-│    Stacktrace:
-│     [1] top-level scope
-│       @ none:1
 └ @ Documenter
 [ Info: ExpandTemplates: expanding markdown templates.
 [ Info: CrossReferences: building cross-references.
