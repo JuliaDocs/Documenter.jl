@@ -75,23 +75,23 @@ julia> WarningTests.run_warnings_test("dollar")
 [ Info: Populate: populating indices.
 [ Info: RenderDocument: rendering document.
 [ Info: HTMLWriter: rendering HTML pages.
-┌ Warning:     Unexpected Julia interpolation in the Markdown. This probably means that you have an
-│     unbalanced or un-escaped $ in the text.
+┌ Warning: Unexpected Julia interpolation in the Markdown. This probably means that you have an
+│ unbalanced or un-escaped $ in the text.
 │
-│     To write the dollar sign, escape it with `\$`
+│ To write the dollar sign, escape it with `\$`
 │
-│     We don't have the file or line number available, but we got given the value:
+│ This is in file src/dollar.md, and we were given the value:
 │
-│     `foo` which is of type `Symbol`
+│ `foo` which is of type `Symbol`
 └ @ Documenter
-┌ Warning:     Unexpected Julia interpolation in the Markdown. This probably means that you have an
-│     unbalanced or un-escaped $ in the text.
+┌ Warning: Unexpected Julia interpolation in the Markdown. This probably means that you have an
+│ unbalanced or un-escaped $ in the text.
 │
-│     To write the dollar sign, escape it with `\$`
+│ To write the dollar sign, escape it with `\$`
 │
-│     We don't have the file or line number available, but we got given the value:
+│ This is in file src/dollar.md, and we were given the value:
 │
-│     `[1 2 3; 4 5 6]` which is of type `Expr`
+│ `[1 2 3; 4 5 6]` which is of type `Expr`
 └ @ Documenter
 ```
 """
