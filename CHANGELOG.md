@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed the docstring block accordions from a custom implementation to HTML details+summary tag. ([#2772], [#2773])
 * Improved the search tokenizer and custom trimmer to improve search results. ([#1457], [#2114], [#2744])
 * Improved several warning/error messages to (more accurately) report the location (filename, line range) in which the warning/error originated. ([#2426], [#2752], [#2793], [#2803], [#2809])
+* The `forcepush=true` option to `deploydocs` now uses `--force-with-lease` instead of `--force`. ([#2817])
 
 ### Fixed
 
