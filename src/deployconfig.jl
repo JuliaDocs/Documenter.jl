@@ -534,7 +534,6 @@ function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subf
         push!(cmd.exec, "https://api.github.com/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
-        @debug "About to run curl command" cmd
         res = run(pipeline(cmd; stdout = io, stderr = devnull))
         @debug "Response of curl POST request" response = String(take!(io))
     catch
