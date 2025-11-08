@@ -718,8 +718,8 @@ name also share the same evaluation context.
 
 !!! note
 
-    Unlike `@example` and `@repl` blocks, `@setup` requires a `<name>` attribute to associate it
-    with downstream `@example <name>` and `@repl <name>` blocks.
+    Unlike `@eval`, `@example` and `@repl` blocks, `@setup` requires a `<name>` attribute to
+    associate it with downstream `@eval <name>`, `@example <name>` and `@repl <name>` blocks.
 
 ````markdown
 ```@setup abc
