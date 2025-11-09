@@ -36,7 +36,7 @@ See also [the Pkg.jl documentation on working with project environments](https:/
     can generate the basic structure that Documenter expects.
 
 Firstly, we need a Julia module to document. This could be a package generated via
-`PkgDev.generate` or a single `.jl` script accessible via Julia's `LOAD_PATH`. For this
+`Pkg.generate` or a single `.jl` script accessible via Julia's `LOAD_PATH`. For this
 guide we'll be using a package called `Example.jl` that has the following directory layout:
 
 ```
