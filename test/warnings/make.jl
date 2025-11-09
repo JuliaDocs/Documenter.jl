@@ -92,7 +92,7 @@ julia> WarningTests.run_warnings_test("at-eval")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
-┌ Warning: failed to parse code block in build/src/at-eval.md:13-15
+┌ Warning: failed to parse code block in src/at-eval.md:13-15
 │   exception =
 │    ParseError:
 │    # Error @ none:1:2
