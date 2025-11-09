@@ -1,21 +1,15 @@
-# Test warnings in `@eval` block
+# Test warnings in `@example` block
 
 Empty `@example` block should not result in an assertion (issue #2206).
-```@eval
+```@example
 ```
 
 Same if it consists of only a comment.
-```@eval
+```@example
 # comment
 ```
 
 Syntax errors in blocks should be a `@docerror`, not an exception (issue #2731).
-```@eval
+```@example
 1 !in 2
-```
-
-Eval block evaluates to a value with unsupported type (should be `nothing`
-or `Markdown.MD`).
-```@eval
-"expanded_"*"eval"
 ```

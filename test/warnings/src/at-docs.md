@@ -14,3 +14,8 @@ Syntax error due to invalid type in argument list.
 ```@docs
 Base.sin(::NonsenseTypeThatDoesNotExist)
 ```
+
+Syntax errors in blocks should be a `@docerror`, not an exception (issue #2731).
+```@docs
+1 !in 2
+```

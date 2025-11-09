@@ -142,7 +142,7 @@ and starting line number of the block (requires Julia 1.6 or higher).
 """
 function parseblock(
         code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
-        linenumbernode = nothing
+        linenumbernode = nothing, lines = nothing
     )
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
@@ -155,15 +155,14 @@ function parseblock(
         line = match(r"^(.*)\r?\n"m, SubString(code, cursor)).match
         keyword = Symbol(strip(line))
         (ex, ncursor) =
-        # TODO: On 0.7 Symbol("") is in Docs.keywords, remove that check when dropping 0.6
-        if keywords && (haskey(Docs.keywords, keyword) || keyword == Symbol(""))
+        if keywords && haskey(Docs.keywords, keyword)
             (QuoteNode(keyword), cursor + lastindex(line))
         else
             try
                 Meta.parse(code, cursor; raise = raise)
             catch err
-                @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
-                break
+                @docerror(doc, :parse_error, "failed to parse code block in $(locrepr(file, lines))", exception = err)
+                return []
             end
         end
         str = SubString(code, cursor, prevind(code, ncursor))
@@ -174,6 +173,10 @@ function parseblock(
     end
     if linenumbernode isa LineNumberNode
         exs = Meta.parseall(code; filename = linenumbernode.file).args
+        if isempty(results) && length(exs) == 1 && exs[1] isa LineNumberNode
+            # block was empty or consisted of just comments
+            empty!(exs)
+        end
         @assert length(exs) == 2 * length(results) "Issue at $linenumbernode:\n$code"
         for (i, ex) in enumerate(Iterators.partition(exs, 2))
             @assert ex[1] isa LineNumberNode
