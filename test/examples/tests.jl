@@ -272,15 +272,15 @@ end
                             @test item.priority == 1
                             @test DocInventories.uri(item) == "lib/functions/#Main.AutoDocs.K"
                         end
-                        @test length(inv(":jl:keyword:`for`")) == 1
-                        if length(inv(":jl:keyword:`for`")) == 1
-                            item = inv[":jl:keyword:`for`"]
+                        @test length(inv(":jl:keyword:`while`")) == 1
+                        if length(inv(":jl:keyword:`while`")) == 1
+                            item = inv[":jl:keyword:`while`"]
                             @test item.domain == "jl"
                             @test item.role == "keyword"
-                            @test item.name == "for"
+                            @test item.name == "while"
                             @test item.uri == "lib/functions/#\$"
                             @test item.priority == 1
-                            @test DocInventories.uri(item) == "lib/functions/#for"
+                            @test DocInventories.uri(item) == "lib/functions/#while"
                         end
                         @test length(inv("Documenter.hide")) == 1
                         if length(inv("Documenter.hide")) == 1
