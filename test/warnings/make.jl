@@ -216,6 +216,41 @@ module AtSetupWarningTests end
 ###########################################################################################
 
 @doc raw"""
+````jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("doctest")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+┌ Warning: Unable to to evaluate doctest in src/doctest.md:4-8
+│ No empty lines are allowed before first `julia>` prompt.
+│
+│ ```jldoctest
+│
+│ julia> 1+1
+│ 2
+│ ```
+└ @ Documenter
+┌ Warning: Unable to to evaluate doctest in src/doctest.md:11-15
+│ Consecutive `julia>` prompts must be separated by an empty line.
+│
+│ ```jldoctest
+│ julia> a=1;
+│ julia> a+1
+│ 2
+│ ```
+└ @ Documenter
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+````
+"""
+module DoctestWarningTests end
+
+###########################################################################################
+
+@doc raw"""
 ```jldoctest; setup=:(using ..WarningTests)
 julia> WarningTests.run_warnings_test("dollar")
 [ Info: SetupBuildDirectory: setting up build directory.
@@ -275,6 +310,8 @@ fixtests = haskey(ENV, "DOCUMENTER_FIXTESTS")
 # with that "properly")
 VERSION >= v"1.10" && makedocs(;
     sitename = "",
+    pages = ["index.md"],
+    pagesonly = true,
     doctest = fixtests ? :fix : :only,
     modules = [WarningTests],
     remotes = nothing,
