@@ -24,7 +24,7 @@ echo "Cloning JuliaLang/julia.git, commit ${julia_commit}"
 git clone --revision=${julia_commit} --depth=1 https://github.com/JuliaLang/julia.git julia.git
 
 # Use the local checkout of Documenter
-$JULIA --project="julia.git" -e 'using Pkg; Pkg.develop(path=".")'
+$JULIA --project=julia.git -e 'using Pkg; Pkg.develop(path=".")'
 
 # Build the docs
-make -C julia/doc html JULIA_EXECUTABLE="${JULIA}"
+make -C julia.git/doc html JULIA_EXECUTABLE="${JULIA}"
