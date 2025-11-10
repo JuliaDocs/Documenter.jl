@@ -1805,6 +1805,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1449]: https://github.com/JuliaDocs/Documenter.jl/issues/1449
 [#1452]: https://github.com/JuliaDocs/Documenter.jl/issues/1452
 [#1456]: https://github.com/JuliaDocs/Documenter.jl/issues/1456
+[#1457]: https://github.com/JuliaDocs/Documenter.jl/issues/1457
 [#1462]: https://github.com/JuliaDocs/Documenter.jl/issues/1462
 [#1463]: https://github.com/JuliaDocs/Documenter.jl/issues/1463
 [#1466]: https://github.com/JuliaDocs/Documenter.jl/issues/1466
@@ -2018,6 +2019,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
 [#2103]: https://github.com/JuliaDocs/Documenter.jl/issues/2103
+[#2114]: https://github.com/JuliaDocs/Documenter.jl/issues/2114
 [#2128]: https://github.com/JuliaDocs/Documenter.jl/issues/2128
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
@@ -2163,11 +2165,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
 [#2668]: https://github.com/JuliaDocs/Documenter.jl/issues/2668
 [#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
-[#2683]: https://github.com/JuliaDocs/Documenter.jl/issues/2683
 [#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
 [#2679]: https://github.com/JuliaDocs/Documenter.jl/issues/2679
 [#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
+[#2683]: https://github.com/JuliaDocs/Documenter.jl/issues/2683
 [#2685]: https://github.com/JuliaDocs/Documenter.jl/issues/2685
 [#2688]: https://github.com/JuliaDocs/Documenter.jl/issues/2688
 [#2692]: https://github.com/JuliaDocs/Documenter.jl/issues/2692
@@ -2205,6 +2207,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2809]: https://github.com/JuliaDocs/Documenter.jl/issues/2809
 [#2812]: https://github.com/JuliaDocs/Documenter.jl/issues/2812
 [#2813]: https://github.com/JuliaDocs/Documenter.jl/issues/2813
+[#2814]: https://github.com/JuliaDocs/Documenter.jl/issues/2814
+[#2816]: https://github.com/JuliaDocs/Documenter.jl/issues/2816
+[#2817]: https://github.com/JuliaDocs/Documenter.jl/issues/2817
 [#2827]: https://github.com/JuliaDocs/Documenter.jl/issues/2827
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
