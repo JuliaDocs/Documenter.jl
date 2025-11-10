@@ -72,12 +72,17 @@ function find_block_in_file(code, file)
 end
 
 # Pretty-printing locations
-function locrepr(file, line = nothing)
+function locrepr(file::String, lines::Union{Nothing, Pair{Int, Int}} = nothing)
     basedir = isassigned(original_pwd) ? original_pwd[] : currentdir()
     file = abspath(file)
     str = Base.contractuser(relpath(file, basedir))
-    line !== nothing && (str = str * ":$(line.first)-$(line.second)")
+    lines !== nothing && (str = str * ":$(lines.first)-$(lines.second)")
     return str
+end
+
+function locrepr(doc, page, lines::Union{Nothing, Pair{Int, Int}} = nothing)
+    file = joinpath(doc.user.root, page.source)
+    return locrepr(file, lines)
 end
 
 # Directory paths.
@@ -137,7 +142,7 @@ and starting line number of the block (requires Julia 1.6 or higher).
 """
 function parseblock(
         code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
-        linenumbernode = nothing
+        linenumbernode = nothing, lines = nothing
     )
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
@@ -150,15 +155,14 @@ function parseblock(
         line = match(r"^(.*)\r?\n"m, SubString(code, cursor)).match
         keyword = Symbol(strip(line))
         (ex, ncursor) =
-        # TODO: On 0.7 Symbol("") is in Docs.keywords, remove that check when dropping 0.6
-        if keywords && (haskey(Docs.keywords, keyword) || keyword == Symbol(""))
+        if keywords && haskey(Docs.keywords, keyword)
             (QuoteNode(keyword), cursor + lastindex(line))
         else
             try
                 Meta.parse(code, cursor; raise = raise)
             catch err
-                @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
-                break
+                @docerror(doc, :parse_error, "failed to parse code block in $(locrepr(file, lines))", exception = err)
+                return []
             end
         end
         str = SubString(code, cursor, prevind(code, ncursor))
@@ -169,6 +173,10 @@ function parseblock(
     end
     if linenumbernode isa LineNumberNode
         exs = Meta.parseall(code; filename = linenumbernode.file).args
+        if isempty(results) && length(exs) == 1 && exs[1] isa LineNumberNode
+            # block was empty or consisted of just comments
+            empty!(exs)
+        end
         @assert length(exs) == 2 * length(results) "Issue at $linenumbernode:\n$code"
         for (i, ex) in enumerate(Iterators.partition(exs, 2))
             @assert ex[1] isa LineNumberNode
@@ -623,12 +631,19 @@ function get_sandbox_module!(meta, prefix, name = nothing; share_default_module 
     # Either fetch and return an existing sandbox from the meta dictionary (based on the generated name),
     # or initialize a new clean one, which gets stored in meta for future re-use.
     return get!(meta, sym) do
-        # If the module does not exists already, we need to construct a new one.
-        m = Module(sym)
-        # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-        Core.eval(m, :(eval(x) = Core.eval($m, x)))
-        # modules created with Module() does not have include defined
-        Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
+        # If the module does not exist already, we need to construct a new one.
+        # We create a baremodule so that we can insert a custom `include` method
+        # that is closer to the one in Main, in that it works relative to the
+        # current working directory, not relative to the module.
+        m = Core.eval(
+            Main, :(
+                baremodule $sym
+                using Base
+                eval(x) = Core.eval($sym, x)
+                include(x) = Base.include($sym, abspath(x))
+                end
+            )
+        )
         return m
     end
 end

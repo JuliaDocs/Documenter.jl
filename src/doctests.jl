@@ -4,12 +4,6 @@
 # Julia code block testing.
 # -------------------------
 
-mutable struct MutableMD2CodeBlock
-    language::String
-    code::String
-end
-MutableMD2CodeBlock(block::MarkdownAST.CodeBlock) = MutableMD2CodeBlock(block.info, block.code)
-
 struct DocTestContext
     file::String
     doc::Documenter.Document
@@ -108,15 +102,14 @@ function _doctest(ctx::DocTestContext, mdast::MarkdownAST.Node)
     return
 end
 
-function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
-    lang = block_immutable.info
+function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
+    lang = block.info
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
 
         # Normalise line endings.
-        block = MutableMD2CodeBlock(block_immutable)
         block.code = replace(block.code, "\r\n" => "\n")
 
         # parse keyword arguments to doctest
@@ -232,7 +225,7 @@ _doctest(ctx::DocTestContext, block) = true
 # Doctest evaluation.
 
 mutable struct Result
-    block::MutableMD2CodeBlock # The entire code block that is being tested.
+    block::MarkdownAST.CodeBlock # The entire code block that is being tested.
     raw_input::String # Part of `block.code` representing the current input.
     # Part of `block.code` representing the current input
     # without leading repl prompts and spaces.
@@ -253,11 +246,12 @@ mutable struct Result
 end
 
 
-function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
-    src_lines = Documenter.find_block_in_file(block.code, meta[:CurrentFile])
-    (prefix, split) = repl_splitter(block.code)
+function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page)
+    file = meta[:CurrentFile]
+    src_lines = Documenter.find_block_in_file(block.code, file)
+    (prefix, split) = repl_splitter(block.code, doc, file, src_lines)
     for (raw_input, input, output) in split
-        result = Result(block, raw_input, input, output, meta[:CurrentFile])
+        result = Result(block, raw_input, input, output, file)
         for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false)
             # Input containing a semi-colon gets suppressed in the final output.
             @debug "Evaluating REPL line from doctest at $(Documenter.locrepr(result.file, src_lines))" unparsed_string = str parsed_expression = ex
@@ -282,7 +276,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     return
 end
 
-function eval_script(block, sandbox, meta::Dict, doc::Documenter.Document, page)
+function eval_script(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page)
     # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
     #       Maybe use double blank lines, i.e.
     #
@@ -410,7 +404,7 @@ function debug_report(; result, expected_filtered, evaluated, evaluated_filtered
     r = """
     Verifying doctest at $(Documenter.locrepr(result.file, lines))
 
-    ```$(result.block.language)
+    ```$(result.block.info)
     $(result.block.code)
     ```
 
@@ -492,7 +486,7 @@ function report(result::Result, str, doc::Documenter.Document)
         """
         doctest failure in $(Documenter.locrepr(result.file, lines))
 
-        ```$(result.block.language)
+        ```$(result.block.info)
         $(result.block.code)
         ```
 
@@ -585,7 +579,7 @@ end
 const PROMPT_REGEX = r"^julia> (.*)$"
 const SOURCE_REGEX = r"^       (.*)$"
 
-function repl_splitter(code)
+function repl_splitter(code, doc::Documenter.Document, file, src_lines)
     lines = split(string(code, "\n"), '\n')
     input = String[]
     raw_inputs = String[]
@@ -594,14 +588,30 @@ function repl_splitter(code)
     buffer = IOBuffer() # temporary buffer for doctest inputs and outputs
     raw_input_buffer = IOBuffer()
     found_first_prompt = false
+    last_was_prompt = false
     while !isempty(lines)
         line = popfirst!(lines)
-        prompt = match(PROMPT_REGEX, line)
         # We allow comments before the first julia> prompt
         if !found_first_prompt && startswith(line, '#')
             prefix.content *= line * "\n"
             continue
         end
+        # Empty lines before the first julia> prompt are forbidden
+        if !found_first_prompt && isempty(line)
+            @docerror(
+                doc, :doctest,
+                """
+                Unable to to evaluate doctest in $(Documenter.locrepr(file, src_lines))
+                No empty lines are allowed before first `julia>` prompt.
+
+                ```jldoctest
+                $(code)
+                ```
+                """
+            )
+            return prefix, zip(String[], String[], String[])
+        end
+        prompt = match(PROMPT_REGEX, line)
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
             if source === nothing
@@ -613,11 +623,27 @@ function repl_splitter(code)
                 println(buffer, source[1])
                 println(raw_input_buffer, line)
             end
+            last_was_prompt = false
         else
+            if last_was_prompt
+                @docerror(
+                    doc, :doctest,
+                    """
+                    Unable to to evaluate doctest in $(Documenter.locrepr(file, src_lines))
+                    Consecutive `julia>` prompts must be separated by an empty line.
+
+                    ```jldoctest
+                    $(code)
+                    ```
+                    """
+                )
+                return prefix, zip(String[], String[], String[])
+            end
             found_first_prompt = true
             savebuffer!(output, buffer)
             println(buffer, prompt[1])
             println(raw_input_buffer, line)
+            last_was_prompt = true
         end
     end
     savebuffer!(output, buffer)

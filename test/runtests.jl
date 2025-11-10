@@ -29,6 +29,10 @@ end
     @info "Building docsxref/make.jl"
     include("docsxref/make.jl")
 
+    # Warnings
+    @info "Building warnings/make.jl"
+    include("warnings/make.jl")
+
     # Error reporting.
     @info "Building errors/make.jl"
     @quietly include("errors/make.jl")

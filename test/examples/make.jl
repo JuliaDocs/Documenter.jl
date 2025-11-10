@@ -261,7 +261,7 @@ function html_doc(
         build_directory, mathengine;
         htmlkwargs = (;),
         image_assets = ("images/logo.png", "images/logo.jpg", "images/logo.gif"),
-        warnonly = true,
+        warnonly = (VERSION.major == 1 && VERSION.minor <= 10),
         kwargs...
     )
     return @quietly withassets(image_assets...) do
