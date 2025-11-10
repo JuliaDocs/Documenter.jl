@@ -224,8 +224,8 @@ end
         @test is_same_as_file(output, rfile(8))
     end
 
-    # Here we try the default (strict = false) -- output should say that doctest failed, but
-    # success should still be true.
+    # Here we try the former default (strict = false, now warnonly = true) --
+    # output should say that doctest failed, but success should still be true.
     run_makedocs(["working.md"]; warnonly = true) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(11))

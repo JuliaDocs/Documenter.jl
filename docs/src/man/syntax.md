@@ -485,6 +485,9 @@ println(a)
 
 The name can be any text, not just integers as in the example above, i.e. `@example foo`.
 
+All named `@eval`, `@example`, `@repl` and `@setup` blocks on a given page which have the same
+name also share the same evaluation context.
+
 To share a module between all unnamed blocks by default, say in a tutorial with many examples that are all connected, you can set `ShareDefaultModule = true` in a page's `@meta` block.
 
 Named `@example` blocks can be useful when generating documentation that requires
@@ -690,6 +693,8 @@ printstyled("hello, world"; color=:red, bold=true)
     ````
 
 Named `@repl <name>` blocks behave in the same way as named `@example <name>` blocks.
+All named `@eval`, `@example`, `@repl` and `@setup` blocks on a given page which have the same
+name also share the same evaluation context.
 
 !!! note
     The working directory, `pwd`, is set to the directory in `build` where the file
@@ -708,10 +713,13 @@ These are similar to `@example` blocks, but both the input and output are hidden
 final document. This can be convenient if there are several lines of setup code that need to be
 hidden.
 
+All named `@eval`, `@example`, `@repl` and `@setup` blocks on a given page which have the same
+name also share the same evaluation context.
+
 !!! note
 
-    Unlike `@example` and `@repl` blocks, `@setup` requires a `<name>` attribute to associate it
-    with downstream `@example <name>` and `@repl <name>` blocks.
+    Unlike `@eval`, `@example` and `@repl` blocks, `@setup` requires a `<name>` attribute to
+    associate it with downstream `@eval <name>`, `@example <name>` and `@repl <name>` blocks.
 
 ````markdown
 ```@setup abc
@@ -770,6 +778,10 @@ which will generate a markdown version of the CSV file table.csv and render it i
 The final expression in an `@eval` block must be either `nothing` or a valid `Markdown.MD`
 object. Other objects will generate a warning and will be rendered in text form as a code block,
 but this behavior can change and should not be relied upon.
+
+Named `@eval <name>` blocks behave in the same way as named `@example <name>` blocks.
+All named `@eval`, `@example`, `@repl` and `@setup` blocks on a given page which have the same
+name also share the same evaluation context.
 
 Note that each `@eval` block evaluates its contents within a separate module. When
 evaluating each block the present working directory, `pwd`, is set to the directory in

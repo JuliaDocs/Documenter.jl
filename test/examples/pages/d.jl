@@ -3,9 +3,9 @@
 
 Links:
 
-- [`ccall`](@ref)
+- [`deepcopy`](@ref)
 - [`while`](@ref)
-- [`@time`](@ref)
+- [`@eval`](@ref)
 - [`T`](@ref)
 - [`f`](@ref)
 - [`f(x)`](@ref)
@@ -21,9 +21,9 @@ mutable struct T end
 
 Links:
 
-- [`ccall`](@ref)
+- [`deepcopy`](@ref)
 - [`while`](@ref)
-- [`@time`](@ref)
+- [`@eval`](@ref)
 - [`T(x)`](@ref)
 - [`T(x, y)`](@ref)
 - [`T(x, y, z)`](@ref)
@@ -40,9 +40,9 @@ T(x) = T()
 
 Links:
 
-- [`ccall`](@ref)
+- [`deepcopy`](@ref)
 - [`while`](@ref)
-- [`@time`](@ref)
+- [`@eval`](@ref)
 - [`T()`](@ref)
 - [`T(x)`](@ref)
 - [`T(x, y)`](@ref)

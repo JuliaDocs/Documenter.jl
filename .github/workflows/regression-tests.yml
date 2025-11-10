@@ -48,8 +48,6 @@ jobs:
   test-documentation-build:
     name: doc-build-${{ matrix.package }}
     runs-on: ubuntu-latest
-    env:
-      PACKAGE: ${{ matrix.package }}
     strategy:
       fail-fast: false
       matrix:
@@ -65,15 +63,21 @@ jobs:
       - name: install-and-build-documentation
         shell: julia --color=yes {0}
         run: |
+          package = "${{ matrix.package }}"
           import Pkg
           # Install the PACKAGE into `Pkg.devdir()`
-          Pkg.develop(ENV["PACKAGE"])
+          Pkg.develop(package)
           # Assume that there is an docs/Project.toml
-          doc_path = joinpath(Pkg.devdir(), ENV["PACKAGE"], "docs")
+          doc_path = joinpath(Pkg.devdir(), package, "docs")
           Pkg.activate(doc_path)
           # Change the TOML to include the package and this version of Documenter
-          Pkg.develop(ENV["PACKAGE"])
+          Pkg.develop(package)
           Pkg.develop(Pkg.PackageSpec(path=pwd()))
+          # special hack to make OSCAR tests work *sigh*
+          if package == "Oscar"
+            #AbstractAlgebra, Nemo, Hecke, Singular, GAP, Polymake
+            Pkg.add("Hecke")
+          end
           # Install
           Pkg.instantiate()
           # Build the docs
