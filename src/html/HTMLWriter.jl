@@ -73,7 +73,7 @@ using SHA: SHA
 using CodecZlib: ZlibCompressorStream
 using ANSIColoredPrinters: ANSIColoredPrinters
 
-using ..Documenter: Documenter, Default, Remotes
+using ..Documenter: Documenter, Default, Remotes, locrepr
 using ...JSDependencies: JSDependencies
 using ...DOM: DOM, @tags
 using ...MDFlatten: mdflatten
@@ -707,6 +707,13 @@ struct DCtx
         droplinks = dctx.droplinks,
         footnotes = dctx.footnotes,
     ) = new(dctx.ctx, navnode, droplinks, footnotes)
+end
+
+function Documenter.locrepr(dctx::DCtx, lines = nothing)
+    doc = dctx.ctx.doc
+    src = dctx.navnode.page
+    page = doc.blueprint.pages[src]
+    return Documenter.locrepr(doc, page, lines)
 end
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing, category = "page", text = "")
@@ -2437,17 +2444,17 @@ function domify(dctx::DCtx, node::Node, t::MarkdownAST.Table)
 end
 
 function domify(dctx::DCtx, ::Node, e::MarkdownAST.JuliaValue)
-    message = """
-        Unexpected Julia interpolation in the Markdown. This probably means that you have an
-        unbalanced or un-escaped \$ in the text.
-
-        To write the dollar sign, escape it with `\\\$`
-
-        We don't have the file or line number available, but we got given the value:
-
-        `$(e.ref)` which is of type `$(typeof(e.ref))`
+    message =
     """
+    Unexpected Julia interpolation in the Markdown. This probably means that you have an
+    unbalanced or un-escaped \$ in the text.
 
+    To write the dollar sign, escape it with `\\\$`
+
+    This is in file $(locrepr(dctx)), and we were given the value:
+
+    `$(e.ref)` which is of type `$(typeof(e.ref))`
+    """
     if dctx.ctx.doc.user.treat_markdown_warnings_as_error
         error(message)
     else
@@ -2477,7 +2484,7 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     # TODO: this could be rearranged such that we push!() the DOM here into .footnotes, rather
     # than the Node objects.
     if isnothing(dctx.footnotes)
-        @error "Invalid nested footnote definition in $(Documenter.locrepr(dctx.navnode.page))" f.id
+        @error "Invalid nested footnote definition in $(Documenter.locrepr(dctx))" f.id
     else
         push!(dctx.footnotes, node)
     end

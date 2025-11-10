@@ -850,13 +850,14 @@ latex(io::Context, node::Node, ::Documenter.MetaNode) = _println(io, "\n")
 latex(io::Context, node::Node, ::Documenter.SetupNode) = nothing
 
 function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue)
-    message = """
-    Unexpected Julia interpolation in the Markdown. This probably means that you have an unbalanced
-    or un-escaped \$ in the text.
+    message =
+    """
+    Unexpected Julia interpolation in the Markdown. This probably means that you have an
+    unbalanced or un-escaped \$ in the text.
 
     To write the dollar sign, escape it with `\\\$`
 
-    We don't have the file or line number available, but we got given the value:
+    This is in file $(io.filename), and we were given the value:
 
     `$(value.ref)` which is of type `$(typeof(value.ref))`
     """

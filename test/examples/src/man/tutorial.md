@@ -66,12 +66,7 @@ julia> a / b
 
 ```@eval
 import Markdown
-code = string(sprint(Base.banner), "julia>")
-Markdown.MD([Markdown.Code(code)])
-```
-
-```@eval
-rand(20, 20)
+Markdown.MD("Hello")
 ```
 
 ```jldoctest

@@ -498,7 +498,7 @@ function version_tag_strip_build(tag; tag_prefix = "")
     return "$s0$s1$s2$s3$s4"
 end
 
-function post_status(cfg::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
+function post_status(gha::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
     try # make this non-fatal and silent
         # If we got this far it usually means everything is in
         # order so no need to check everything again.
@@ -518,25 +518,24 @@ function post_status(cfg::GitHubActions; type, repo::String, subfolder = nothing
             sha = get(ENV, "GITHUB_SHA", nothing)
         end
         sha === nothing && return
-        return post_github_status(cfg, type, repo, sha, subfolder)
+        return post_github_status(gha, type, repo, sha, subfolder)
     catch e
         @debug "Failed to post status" exception = e
     end
 end
 
-
-function post_github_status(cfg::GitHubActions, type::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
+function post_github_status(gha::GitHubActions, type::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
     try
         Sys.which("curl") === nothing && return
-        ## Extract owner and repository name
+        ## Extract owner and repository names
+        source_owner, source_repo = split(gha.github_repository, '/')
         m = match(r"^(?:https?://)?([^/]+)\\/(.+?)\\/(.+?)(.git)?$", deploydocs_repo)
         m === nothing && return
-        host = String(m.captures[1])
-        owner = String(m.captures[2])
-        repo = String(m.captures[3])
-
-        host != cfg.github_host && return
-
+    
+        deploy_host = String(m.captures[1])
+        deploy_owner = String(m.captures[2])
+        deploy_repo = String(m.captures[3])
+        deploy_host != gha.github_host && return
 
         ## Need an access token for this
         auth = get(ENV, "GITHUB_TOKEN", nothing)
@@ -551,7 +550,7 @@ function post_github_status(cfg::GitHubActions, type::S, deploydocs_repo::S, sha
             json["description"] = "Documentation build in progress"
         elseif type == "success"
             json["description"] = "Documentation build succeeded"
-            target_url = cfg.github_pages_url
+            target_url = gha.github_pages_url
             if !isempty(target_url) && subfolder !== nothing
                 target_url = rstrip(target_url, '/') * "/$(subfolder)/"
             end
@@ -564,7 +563,8 @@ function post_github_status(cfg::GitHubActions, type::S, deploydocs_repo::S, sha
             error("unsupported type: $type")
         end
         push!(cmd.exec, "-d", JSON.json(json))
-        push!(cmd.exec, "$(cfg.github_api)/repos/$(owner)/$(repo)/statuses/$(sha)")
+        ed_github
+        push!(cmd.exec, "$(cfg.github_api)/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
         res = run(pipeline(cmd; stdout = io, stderr = devnull))

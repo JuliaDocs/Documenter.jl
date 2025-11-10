@@ -3,9 +3,9 @@
 
 Links:
 
-- [`ccall`](@ref)
+- [`deepcopy`](@ref)
 - [`while`](@ref)
-- [`@time`](@ref)
+- [`@eval`](@ref)
 - [`T`](@ref)
 - [`f`](@ref)
 - [`f(::Any)`](@ref)

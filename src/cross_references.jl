@@ -80,7 +80,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         if node.element isa MarkdownAST.Image
             @docerror(
                 doc, :cross_references,
-                "invalid local image: path missing in $(Documenter.locrepr(page.source))",
+                "invalid local image: path missing in $(Documenter.locrepr(doc, page))",
                 link = node
             )
             return
@@ -90,7 +90,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
     elseif Sys.iswindows() && ':' in path
         @docerror(
             doc, :cross_references,
-            "invalid local link/image: colons not allowed in paths on Windows in $(Documenter.locrepr(page.source))",
+            "invalid local link/image: colons not allowed in paths on Windows in $(Documenter.locrepr(doc, page))",
             link = node
         )
         return
@@ -101,7 +101,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
     if startswith(path, "..")
         @docerror(
             doc, :cross_references,
-            "invalid local link/image: path pointing to a file outside of build directory in $(Documenter.locrepr(page.source))",
+            "invalid local link/image: path pointing to a file outside of build directory in $(Documenter.locrepr(doc, page))",
             link = node
         )
         return
@@ -116,7 +116,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
             if !isempty(fragment)
                 @docerror(
                     doc, :cross_references,
-                    "invalid local image: path contains a fragment in $(Documenter.locrepr(page.source))",
+                    "invalid local image: path contains a fragment in $(Documenter.locrepr(doc, page))",
                     link = node
                 )
             end
@@ -128,7 +128,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
     else
         @docerror(
             doc, :cross_references,
-            "invalid local link/image: file does not exist in $(Documenter.locrepr(page.source))",
+            "invalid local link/image: file does not exist in $(Documenter.locrepr(doc, page))",
             link = node
         )
         return
@@ -314,7 +314,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
     # finalizer
     if xref_unresolved(node)
         md_str = strip(Markdown.plain(_link_node_as_md(node)))
-        msg = "Cannot resolve @ref for md$(repr(md_str)) in $(Documenter.locrepr(page.source))."
+        msg = "Cannot resolve @ref for md$(repr(md_str)) in $(Documenter.locrepr(doc, page))."
         if (length(errors) > 0)
             msg *= ("\n" * join([string("- ", err) for err in errors], "\n"))
         end
@@ -375,7 +375,7 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
         page = doc.blueprint.pages[pagekey]
         node.element = Documenter.PageLink(page, anchor_label(anchor))
     else
-        push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).")
+        push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(doc, page)).")
     end
     return
 end
@@ -396,7 +396,7 @@ function docsxref(node::MarkdownAST.Node, code, meta, page, doc, errors)
         modules = [Main]
     end
     for (attempt, mod) in enumerate(modules)
-        docref = find_docref(code, mod, page)
+        docref = find_docref(code, mod, page, doc)
         if haskey(docref, :error)
             # We'll bail if the parsing of the docref wasn't successful
             msg = "Exception trying to find docref for `$code`: $(docref.error)"
@@ -432,7 +432,7 @@ function docsxref(node::MarkdownAST.Node, code, meta, page, doc, errors)
     return
 end
 
-function find_docref(code, mod, page)
+function find_docref(code, mod, page, doc)
     # Parse the link text and find current module.
     keyword = Symbol(strip(code))
     local ex
@@ -443,7 +443,7 @@ function find_docref(code, mod, page)
             ex = Meta.parse(code)
         catch err
             isa(err, Meta.ParseError) || rethrow(err)
-            return (error = "unable to parse the reference `$code` in $(Documenter.locrepr(page.source)).", exception = nothing)
+            return (error = "unable to parse the reference `$code` in $(Documenter.locrepr(doc, page)).", exception = nothing)
         end
     end
 
@@ -464,7 +464,7 @@ function find_docref(code, mod, page)
         typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
         return (
-            error = "unable to evaluate the type signature for `$code` in $(Documenter.locrepr(page.source)) in module $(mod)",
+            error = "unable to evaluate the type signature for `$code` in $(Documenter.locrepr(doc, page)) in module $(mod)",
             exception = (err, catch_backtrace()),
         )
     end
@@ -534,7 +534,7 @@ function issue_xref(node::MarkdownAST.Node, num, meta, page, doc, errors)
     # Update issue links starting with a hash, but only if our Remote supports it
     issue_url = isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
     if isnothing(issue_url)
-        push!(errors, "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
+        push!(errors, "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(doc, page)).")
     else
         node.element.destination = issue_url
     end

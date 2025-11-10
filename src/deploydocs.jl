@@ -110,7 +110,7 @@ Defaults to `"dev"`.
 **`forcepush`** a boolean that specifies the behavior of the git-deployment.
 The default (`forcepush = false`) is to push a new commit, but when
 `forcepush = true` the changes will be combined with the previous commit and
-force pushed, erasing the Git history on the deployment branch.
+force pushed (with lease), erasing the Git history on the deployment branch.
 
 **`versions`** determines content and order of the resulting version selector in
 the generated html. The following entries are valid in the `versions` vector:
@@ -436,7 +436,7 @@ function git_push(
                 run(`$(git()) archive -o $(archive) HEAD`)
             elseif forcepush
                 run(`$(git()) commit --amend --date=now -m "build based on $sha"`)
-                run(`$(git()) push -fq upstream HEAD:$branch`)
+                run(`$(git()) push -q --force-with-lease upstream HEAD:$branch`)
             else
                 run(`$(git()) commit -m "build based on $sha"`)
                 run(`$(git()) push -q upstream HEAD:$branch`)
