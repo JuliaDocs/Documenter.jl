@@ -6,7 +6,7 @@
 # Terminate the script early if we see any non-zero error codes
 set -e
 
-# Location if this bash script
+# Location of this bash script
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 DOCUMENTER_SRC=$(dirname $(dirname "$SCRIPT_DIR"))
 
