@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Improved several warning/error messages to (more accurately) report the location (filename, line range) in which the warning/error originated. ([#2426], [#2752], [#2793], [#2803], [#2809])
 * Warn/error if jldoctest starts with an empty line; or lacks empty line between two REPL prompts. ([#2031], [#2083], [#2679], [#2808])
 * The `forcepush=true` option to `deploydocs` now uses `--force-with-lease` instead of `--force`. ([#2817])
-* Improved hashing in `HTMLWriter` to use `mdflatten` instead of trying to compute the hash of the Julia native node structure. ([#2710])
+* Improved the generation of anchors for admonitions in HTML output to be more stable and e.g. not change due to changes of the internal representation across different Julia versions. ([#2710])
 
 ### Fixed
 
