@@ -44,7 +44,6 @@ function test_doctest_fix(dir)
     # fix up
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=:fix"
-    @show _Foo()
     @quietly makedocs(sitename = "-", modules = [_Foo()], source = srcdir, build = builddir, doctest = :fix)
 
     # check that the doctests are passing now
