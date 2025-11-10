@@ -297,7 +297,7 @@ end
 
 Implementation of `DeployConfig` for deploying from GitHub Actions.
 
-For self-hosted GitHub installation use `GitHubActions(host, pages_url)` constructor
+For self-hosted GitHub installation use the `GitHubActions(host, pages_url)` constructor
 to specify the host name and a **full path** to the GitHub pages location.
 
 The following environment variables influences the build
