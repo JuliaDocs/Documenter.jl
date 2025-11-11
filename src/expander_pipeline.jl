@@ -725,55 +725,56 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
         lines === nothing ? 0 : lines.first, basename(page.source)
     )
     @debug "Evaluating @eval block:\n$(x.code)"
-    result = nothing
-    for (ex, str) in Documenter.parseblock(
-            x.code, doc, page; keywords = false, linenumbernode, lines
-        )
-        try
-            cd(page.workdir) do
+    cd(page.workdir) do
+        result = nothing
+        for (ex, str) in Documenter.parseblock(
+                x.code, doc, page; keywords = false, linenumbernode, lines
+            )
+            try
                 result = Core.eval(sandbox, ex)
+            catch err
+                bt = Documenter.remove_common_backtrace(catch_backtrace())
+                @docerror(
+                    doc, :eval_block,
+                    """
+                    failed to evaluate `@eval` block in $(Documenter.locrepr(doc, page, lines))
+                    ```$(x.info)
+                    $(x.code)
+                    ```
+                    """, exception = (err, bt)
+                )
             end
-        catch err
-            bt = Documenter.remove_common_backtrace(catch_backtrace())
+        end
+        result = if isnothing(result)
+            nothing
+        elseif isa(result, Markdown.MD)
+            convert(Node, result)
+        else
+            # TODO: we could handle the cases where the user provides some of the Markdown library
+            # objects, like Paragraph.
             @docerror(
                 doc, :eval_block,
                 """
-                failed to evaluate `@eval` block in $(Documenter.locrepr(doc, page, lines))
+                Invalid type of object in @eval in $(Documenter.locrepr(doc, page, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
-                """, exception = (err, bt)
-            )
-        end
-    end
-    result = if isnothing(result)
-        nothing
-    elseif isa(result, Markdown.MD)
-        convert(Node, result)
-    else
-        # TODO: we could handle the cases where the user provides some of the Markdown library
-        # objects, like Paragraph.
-        @docerror(
-            doc, :eval_block, """
-            Invalid type of object in @eval in $(Documenter.locrepr(doc, page, lines))
-            ```$(x.info)
-            $(x.code)
-            ```
-            Evaluated to `$(typeof(result))`, but should be one of
-             - Nothing
-             - Markdown.MD
-            Falling back to textual code block representation.
+                Evaluated to `$(typeof(result))`, but should be one of
+                 - Nothing
+                 - Markdown.MD
+                Falling back to textual code block representation.
 
-            If you are seeing this warning/error after upgrading Documenter and this used to work,
-            please open an issue on the Documenter issue tracker.
-            """
-        )
-        MarkdownAST.@ast MarkdownAST.Document() do
-            MarkdownAST.CodeBlock("", sprint(show, MIME"text/plain"(), result))
+                If you are seeing this warning/error after upgrading Documenter and this used to work,
+                please open an issue on the Documenter issue tracker.
+                """
+            )
+            MarkdownAST.@ast MarkdownAST.Document() do
+                MarkdownAST.CodeBlock("", sprint(show, MIME"text/plain"(), result))
+            end
         end
+        # TODO: make result a child node
+        node.element = EvalNode(x, result)
     end
-    # TODO: make result a child node
-    node.element = EvalNode(x, result)
     return
 end
 
