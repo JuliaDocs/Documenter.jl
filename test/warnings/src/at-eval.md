@@ -19,3 +19,15 @@ or `Markdown.MD`).
 ```@eval
 "expanded_"*"eval"
 ```
+
+# Test other `@eval` block behavior
+
+Verify that `cd(path)` in an `@eval` block works as intended.
+```@eval
+using Test
+dir = Base.pwd()
+cd("..")
+rel = relpath(Base.pwd(),dir)
+@test rel == ".."
+nothing
+```
