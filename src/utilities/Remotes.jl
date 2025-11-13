@@ -167,7 +167,7 @@ struct GitHub <: Remote
 end
 function GitHub(remote::AbstractString)
     url_authority, url_path = parse_url(remote)
-    path = chopprefix(url_path, "/")
+    path = url_path[1] == '/' ? url_path[2:end] : url_path
 
     if occursin("/", path)
         user, repo = split(path, "/")
