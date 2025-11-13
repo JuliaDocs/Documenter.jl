@@ -3,6 +3,7 @@ Types and functions for handling repository remotes.
 """
 module Remotes
 
+using URIs: URI
 """
     abstract type Remote
 
@@ -93,7 +94,7 @@ issueurl(::Remote, ::Any) = nothing
 Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
 to the potentially user-defined `fileurl` implementations.
 """
-function repofile(remote::Remote, ref, filename, linerange=nothing)
+function repofile(remote::Remote, ref, filename, linerange = nothing)
     # sanitize the file name
     filename = replace(filename, '\\' => '/') # remove backslashes on Windows
     filename = lstrip(filename, '/') # remove leading spaces
@@ -105,12 +106,25 @@ end
 """
     parse_url(url)
 
-Return named tuple with values `scheme`, `authority`, `userinfo`, `username`, `password`, `hostname`, `port`, `path`, `query`, `fragment`.
-If certain value is not present in URL then it is omitted in return tuple.
+Return tuple with values `authority` and `path` fragments of the given URL string.
+This function is not strictly following URI specification as it will parse "github.com/user/repo" into `("github.com", "/user/repo")`
+    returning authority even if scheme is missing.
 """
-function parse_url(url)
-    m = match(r"^(?:(?P<scheme>https?\:)\/\/)?(?P<authority>(?:(?:(?P<userinfo>(?P<username>[^:]+)(?::(?P<password>[^@]+)?)?)@)?)(?P<hostname>[^:\/?#]*)(?:\:(?P<port>[0-9]+))?)(?P<path>[\/]{0,1}[^?#]*)(?P<query>\?[^#]*|)(?P<fragment>#.*|)$", url)
-    return NamedTuple((name => m[name] for name in (:scheme, :authority, :userinfo, :username, :password, :hostname, :port, :path, :query, :fragment)))
+function parse_url(url)::Tuple{String, String}
+    if contains(url, "://") == false
+        url = "https://$(url)"
+    end
+    u = URI(url)
+
+    authority = u.host
+    if u.userinfo != ""
+        authority = "$(u.userinfo)@$(authority)"
+    end
+
+    if u.port != ""
+        authority = "$(authority):$(u.port)"
+    end
+    return (authority, u.path)
 end
 
 """
@@ -123,7 +137,7 @@ If this variable is not set, return "github.com".
 function github_host()
     haskey(ENV, "GITHUB_SERVER_URL") || return "github.com"
     url = ENV["GITHUB_SERVER_URL"]
-    return parse_url(url)[:authority]
+    return parse_url(url)[1]
 end
 
 """
@@ -149,17 +163,17 @@ struct GitHub <: Remote
     repo::String
     host::String
 
-    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString=github_host()) = new(user, repo, host)
+    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = github_host()) = new(user, repo, host)
 end
 function GitHub(remote::AbstractString)
-    parsed = parse_url(remote)
-    path = chopprefix(parsed[:path], "/")
+    url_authority, url_path = parse_url(remote)
+    path = chopprefix(url_path, "/")
 
     if occursin("/", path)
         user, repo = split(path, "/")
-        return GitHub(user, repo, parsed[:hostname])
+        return GitHub(user, repo, url_authority)
     else
-        return GitHub(parsed[:hostname], path)
+        return GitHub(url_authority, path)
     end
 end
 repourl(remote::GitHub) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
@@ -245,8 +259,8 @@ configuring Documenter.
 """
 struct URL <: Remote
     urltemplate::String
-    repourl::Union{String,Nothing}
-    URL(urltemplate, repourl=nothing) = new(urltemplate, repourl)
+    repourl::Union{String, Nothing}
+    URL(urltemplate, repourl = nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl
 function fileurl(remote::URL, ref, filename, linerange)

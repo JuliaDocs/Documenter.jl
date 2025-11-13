@@ -297,8 +297,8 @@ end
 
 Implementation of `DeployConfig` for deploying from GitHub Actions.
 
-For self-hosted GitHub installation use the `GitHubActions(host, pages_url)` constructor
-to specify the host name and a **full path** to the GitHub pages location.
+For self-hosted GitHub installation use the `GitHubActions(pages_url)` constructor
+to specify the URL to the GitHub pages location.
 
 The following environment variables influences the build
 when using the `GitHubActions` configuration:
@@ -498,7 +498,7 @@ function version_tag_strip_build(tag; tag_prefix = "")
     return "$s0$s1$s2$s3$s4"
 end
 
-function post_status(gha::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
+function post_status(gha::GitHubActions; type, subfolder = nothing, kwargs...)
     try # make this non-fatal and silent
         # If we got this far it usually means everything is in
         # order so no need to check everything again.
@@ -518,24 +518,20 @@ function post_status(gha::GitHubActions; type, repo::String, subfolder = nothing
             sha = get(ENV, "GITHUB_SHA", nothing)
         end
         sha === nothing && return
-        return post_github_status(gha, type, repo, sha, subfolder)
+        return post_github_status(gha, type, sha, subfolder)
     catch e
         @debug "Failed to post status" exception = e
     end
 end
 
-function post_github_status(gha::GitHubActions, type::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
+function post_github_status(gha::GitHubActions, type::S, sha::S, subfolder = nothing) where {S <: String}
     try
-        Sys.which("curl") === nothing && return
+        if Sys.which("curl") === nothing
+            @warn "curl not found in PATH, cannot post status"
+            return
+        end
         ## Extract owner and repository names
         source_owner, source_repo = split(gha.github_repository, '/')
-        m = match(r"^(?:https?://)?([^/]+)\\/(.+?)\\/(.+?)(.git)?$", deploydocs_repo)
-        m === nothing && return
-    
-        deploy_host = String(m.captures[1])
-        deploy_owner = String(m.captures[2])
-        deploy_repo = String(m.captures[3])
-        deploy_host != gha.github_host && return
 
         ## Need an access token for this
         auth = get(ENV, "GITHUB_TOKEN", nothing)
@@ -563,8 +559,7 @@ function post_github_status(gha::GitHubActions, type::S, deploydocs_repo::S, sha
             error("unsupported type: $type")
         end
         push!(cmd.exec, "-d", JSON.json(json))
-        ed_github
-        push!(cmd.exec, "$(cfg.github_api)/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
+        push!(cmd.exec, "$(gha.github_api)/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
         res = run(pipeline(cmd; stdout = io, stderr = devnull))

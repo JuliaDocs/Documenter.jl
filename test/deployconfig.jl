@@ -140,7 +140,8 @@ end
     with_logger(NullLogger()) do
         # Regular tag build with GITHUB_TOKEN
         withenv(
-            "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -161,7 +162,8 @@ end
         end
         # Regular tag build with SSH deploy key (SSH key prioritized)
         withenv(
-            "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -182,7 +184,8 @@ end
         end
         # External Repo: Regular tag build with SSH deploy key (SSH key prioritized)
         withenv(
-            "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -223,7 +226,8 @@ end
         end
         # Regular tag build with GITHUB_TOKEN and with tag prefix
         withenv(
-            "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/MySubPackage-v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -245,7 +249,8 @@ end
         end
         # Broken tag build
         withenv(
-            "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/not-a-version",
             "GITHUB_ACTOR" => "github-actions",
@@ -261,7 +266,8 @@ end
         end
         # Regular devbranch build with GITHUB_TOKEN
         withenv(
-            "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/heads/master",
             "GITHUB_ACTOR" => "github-actions",
@@ -285,7 +291,8 @@ end
         end
         # Regular devbranch build with SSH deploy key (SSH key prioritized)
         withenv(
-            "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/heads/master",
             "GITHUB_ACTOR" => "github-actions",
@@ -479,7 +486,8 @@ end
         end
         # Missing environment variables
         withenv(
-            "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -1527,7 +1535,8 @@ end
             logger = SimpleLogger(buffer, Logging.Debug)
             with_logger(logger) do
                 withenv(
-                    "GITHUB_EVENT_NAME" => "push", "GITHUB_SERVER_URL" => "github.com",
+                    "GITHUB_EVENT_NAME" => "push",
+                    "GITHUB_SERVER_URL" => "github.com",
                     "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
                     "GITHUB_REF" => "refs/tags/v1.2.3",
                     "GITHUB_ACTOR" => "github-actions",
