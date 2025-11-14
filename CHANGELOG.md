@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added option `treat_markdown_warnings_as_error` which throws an error when encountering a markdown/interpolation warning ([#2792], [#2751])
 * Footnotes can now be previewed by hovering over the link. ([#2080])
+* The version selector now attempts to stay on the same page when switching between documentation versions. If the page doesn't exist in the target version, it falls back to the version homepage. ([#2801])
 * Allow named `@eval` blocks: such a block shares its execution context with all other `@eval`, `@example`, `@repl` and `@setup` blocks on the same page which use the same name. ([#2074], [#2812])
 
 ### Changed
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Improved several warning/error messages to (more accurately) report the location (filename, line range) in which the warning/error originated. ([#2426], [#2752], [#2793], [#2803], [#2809])
 * Warn/error if jldoctest starts with an empty line; or lacks empty line between two REPL prompts. ([#2031], [#2083], [#2679], [#2808])
 * The `forcepush=true` option to `deploydocs` now uses `--force-with-lease` instead of `--force`. ([#2817])
+* Improved the generation of anchors for admonitions in HTML output to be more stable and e.g. not change due to changes of the internal representation across different Julia versions. ([#2710])
 
 ### Fixed
 
@@ -2204,6 +2206,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
 [#2792]: https://github.com/JuliaDocs/Documenter.jl/issues/2792
 [#2793]: https://github.com/JuliaDocs/Documenter.jl/issues/2793
+[#2801]: https://github.com/JuliaDocs/Documenter.jl/issues/2801
 [#2803]: https://github.com/JuliaDocs/Documenter.jl/issues/2803
 [#2804]: https://github.com/JuliaDocs/Documenter.jl/issues/2804
 [#2808]: https://github.com/JuliaDocs/Documenter.jl/issues/2808

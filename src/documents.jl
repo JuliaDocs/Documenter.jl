@@ -77,7 +77,10 @@ Base.show(io::IO, page::Page) = print(
 
 
 # FIXME -- special overload for parseblock
-parseblock(code::AbstractString, doc, page::Documenter.Page; kwargs...) = parseblock(code, doc, page.source; kwargs...)
+function parseblock(code::AbstractString, doc, page::Documenter.Page; kwargs...)
+    file = joinpath(doc.user.root, page.source)
+    return parseblock(code, doc, file; kwargs...)
+end
 
 # Document blueprints.
 # --------------------
