@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Support self-hosted GitHub instances. ([#2755])
+
 * Added option `treat_markdown_warnings_as_error` which throws an error when encountering a markdown/interpolation warning ([#2792], [#2751])
 * Footnotes can now be previewed by hovering over the link. ([#2080])
 * The version selector now attempts to stay on the same page when switching between documentation versions. If the page doesn't exist in the target version, it falls back to the version homepage. ([#2801])
@@ -2196,6 +2198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2751]: https://github.com/JuliaDocs/Documenter.jl/issues/2751
 [#2752]: https://github.com/JuliaDocs/Documenter.jl/issues/2752
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
+[#2755]: https://github.com/JuliaDocs/Documenter.jl/issues/2755
 [#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
 [#2762]: https://github.com/JuliaDocs/Documenter.jl/issues/2762
 [#2772]: https://github.com/JuliaDocs/Documenter.jl/issues/2772
