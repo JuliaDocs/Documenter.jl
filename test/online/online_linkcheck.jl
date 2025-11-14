@@ -33,6 +33,8 @@ server = HTTP.serve!(lincheck_server_handler, PORT)
             [Requires GITHUB_TOKEN](https://raw.githubusercontent.com/JuliaDocs/Documenter.jl/v1.0.0/Project.toml)
             [Does not support GITHUB_TOKEN](https://github.com/JuliaDocs/Documenter.jl/pulls)
             [May require GITHUB_TOKEN](https://github.com/JuliaDocs/Documenter.jl/pull/2729)
+
+            Use [`getindex`](https://docs.julialang.org/en/v1.12.1/base/arrays/#Base.getindex-Tuple{AbstractArray,%20Vararg{Any}}) to get one element of an array.
             """
         )
         doc = Documenter.Document(; linkcheck = true, linkcheck_timeout = 20)
