@@ -15,7 +15,7 @@ on:
       - 'Project.toml'
 jobs:
   test-dependent-packages:
-    name: run-tests-${{ matrix.package }}
+    name: Tests / ${{ matrix.package }}
     runs-on: ubuntu-latest
     env:
       PACKAGE: ${{ matrix.package }}
@@ -44,8 +44,9 @@ jobs:
           Pkg.develop(Pkg.PackageSpec(; path = pwd()))
           Pkg.develop(ENV["PACKAGE"])
           Pkg.test(ENV["PACKAGE"])
+
   test-documentation-build:
-    name: doc-build-${{ matrix.package }}
+    name: "Docs / ${{ matrix.package }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -81,3 +82,19 @@ jobs:
           Pkg.instantiate()
           # Build the docs
           include(joinpath(doc_path, "make.jl"))
+
+  test-julia-manual-build:
+    name: "Julia Manual"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: 'nightly'
+      - uses: julia-actions/cache@v2
+      - name: "Regressions test"
+        run: julia ./.github/scripts/julia-manual-regression-test.jl .
+      - uses: actions/upload-artifact@v5
+        with:
+          name: "regression-tests-julia-manual"
+          path: julia/doc/_build/html
