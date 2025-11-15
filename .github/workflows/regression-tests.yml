@@ -93,4 +93,4 @@ jobs:
           version: 'nightly'
       - uses: julia-actions/cache@v2
       - name: "Regressions test"
-        run: ./.github/scripts/julia-manual-regression-test.sh
+        run: julia ./.github/scripts/julia-manual-regression-test.jl
