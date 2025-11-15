@@ -23,18 +23,16 @@ $(sprint(versioninfo))
 """
 
 function build_julia_manual(path::AbstractString)
-    julia_commit = Base.GIT_VERSION_INFO.commit
     julia_source_path = abspath(joinpath(path, "julia"))
 
     # Clone the Julia repository & check out the commit of the currently running Julia version.
     # Doing a shallow clone of the exact commit, to avoid unnecessary downloads.
-    cmd = `git clone --revision=$(Base.GIT_VERSION_INFO.branch) --depth=1 https://github.com/JuliaLang/julia.git $(julia_source_path)`
+    cmd = `git clone --revision=$(Base.GIT_VERSION_INFO.commit) --depth=1 https://github.com/JuliaLang/julia.git $(julia_source_path)`
     @info """
     Cloning JuliaLang/julia.git
     $(cmd)
     """
     run(cmd)
-    run(`git -C $julia_source_path checkout $(Base.GIT_VERSION_INFO.commit)`)
 
     # Use the local checkout of Documenter in the Julia docs building environment
     project_path = joinpath(julia_source_path, "deps", "jlutilities", "documenter")
@@ -54,15 +52,22 @@ function build_julia_manual(path::AbstractString)
         ```
     )
 
-    # Build the Julia manual
+    # Build the Julia manual. Apparently we need to build `julia-stdlib` first,
+    # to ensure that all the stdlib sources would be present (which the doc build
+    # depends on). This is relatively fast though, so not a problem.
     run(`make -C $(julia_source_path) julia-stdlib JULIA_EXECUTABLE=$(JULIA)`)
     return run(`make -C $(julia_source_path)/doc html JULIA_EXECUTABLE=$(JULIA)`)
 end
 
-# We'll clone the Julia nightly release etc into a temp directory
-mktempdir() do tmp
-    cd(tmp) do
-        @info "Running in $(tmp)"
-        build_julia_manual(tmp)
+# We'll clone the Julia nightly release etc into a temp directory, unless a path
+# is passed.
+cli_path = get(ARGS, 1, nothing)
+if isnothing(cli_path)
+    mktempdir(build_julia_manual)
+else
+    path = normpath(cli_path)
+    if !isdir(path)
+        error("not a directory: $(path)")
     end
+    build_julia_manual(path)
 end
