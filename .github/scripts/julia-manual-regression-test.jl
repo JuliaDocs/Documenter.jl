@@ -54,16 +54,18 @@ function build_julia_manual(path::AbstractString)
         end
     end
     @info "Update Documenter Julia doc environment" project_path
-    run(```
-    $(Base.julia_cmd())
-    --project=$(project_path)
-    -e 'using Pkg; Pkg.develop(path=ARGS[1])'
-    $(DOCUMENTER_ROOT)
-    ```)
+    run(
+        ```
+        $(Base.julia_cmd())
+        --project=$(project_path)
+        -e 'using Pkg; Pkg.develop(path=ARGS[1])'
+        $(DOCUMENTER_ROOT)
+        ```
+    )
 
     # Build the Julia manual
     run(`make -C $(julia_source_path) julia-deps JULIA_EXECUTABLE=$(JULIA)`)
-    run(`make -C $(julia_source_path)/doc html JULIA_EXECUTABLE=$(JULIA)`)
+    return run(`make -C $(julia_source_path)/doc html JULIA_EXECUTABLE=$(JULIA)`)
 end
 
 # We'll clone the Julia nightly release etc into a temp directory
