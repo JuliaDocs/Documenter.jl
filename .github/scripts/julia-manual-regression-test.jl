@@ -6,41 +6,70 @@
 
 using Dates, InteractiveUtils, Pkg
 
-# Location of this Julia script
-SCRIPT_DIR = @__DIR__
-DOCUMENTER_SRC = dirname(dirname(SCRIPT_DIR))
+const DOCUMENTER_ROOT = dirname(dirname(@__DIR__))
+const JULIA = joinpath(Sys.BINDIR, Base.julia_exename())
 
 # Figure out the Julia binary we use. This can be passed on the command line, but
 # should always be a recent master build. Otherwise, we'll likely fail to check out
 # the right commit in the shallow clone.
-JULIA = length(ARGS) >= 1 ? ARGS[1] : joinpath(Sys.BINDIR, Base.julia_exename())
-println("JULIA=$JULIA")
-println("julia --version:")
-println("  Julia Version $(VERSION)")
-println("  Commit $(Base.GIT_VERSION_INFO.commit_short) ($(Base.GIT_VERSION_INFO.date_string))")
-println("julia> versioninfo()")
-versioninfo()
+@info """
+JULIA=$JULIA
+Julia Version $(VERSION)
+Commit: $(Base.GIT_VERSION_INFO.commit) ($(Base.GIT_VERSION_INFO.date_string))
+Commit (short): $(Base.GIT_VERSION_INFO.commit_short)
+
+julia> versioninfo()
+$(sprint(versioninfo))
+"""
+
+function build_julia_manual(path::AbstractString)
+    julia_commit = Base.GIT_VERSION_INFO.commit
+    julia_source_path = abspath(joinpath(path, "julia"))
+
+    # Clone the Julia repository & check out the commit of the currently
+    # running Julia version.
+    cmd = if Base.GIT_VERSION_INFO.tagged_commit
+        println("Cloning JuliaLang/julia.git (--shallow-since), checkout $julia_commit")
+        `git clone --branch $(Base.GIT_VERSION_INFO.branch) --depth 1 https://github.com/JuliaLang/julia.git $(julia_source_path)`
+    else
+        # We'll shallow clone the repository going back no more than one week. This is just
+        # to make the clone go a bit faster on CI etc. We expect this to be fine, since this
+        # workflow will run on Julia nightly.
+        one_week_ago = Dates.format(now() - Week(1), dateformat"yyyy-mm-dd")
+        println("Cloning JuliaLang/julia.git (--shallow-since=$one_week_ago), checkout $julia_commit")
+        `git clone --branch $(Base.GIT_VERSION_INFO.branch) --shallow-since=$one_week_ago https://github.com/JuliaLang/julia.git $(julia_source_path)`
+    end
+    @info """
+    Cloning JuliaLang/julia.git
+    $(cmd)
+    """
+    run(cmd)
+    run(`git -C $julia_source_path checkout $(Base.GIT_VERSION_INFO.commit)`)
+
+    # Use the local checkout of Documenter in the Julia docs building environment
+    project_path = joinpath(julia_source_path, "deps", "jlutilities", "documenter")
+    let project_toml = joinpath(project_path, "Project.toml")
+        if !isfile(project_toml)
+            error("Unable to find julia Documenter env at $(project_toml)")
+        end
+    end
+    @info "Update Documenter Julia doc environment" project_path
+    run(```
+    $(Base.julia_cmd())
+    --project=$(project_path)
+    -e 'using Pkg; Pkg.develop(path=ARGS[1])'
+    $(DOCUMENTER_ROOT)
+    ```)
+
+    # Build the Julia manual
+    run(`make -C $(julia_source_path) julia-stdlib JULIA_EXECUTABLE=$(JULIA)`)
+    run(`make -C $(julia_source_path)/doc html JULIA_EXECUTABLE=$(JULIA)`)
+end
 
 # We'll clone the Julia nightly release etc into a temp directory
-TMP = mktempdir()
-cd(TMP)
-println("Running in: $(pwd())")
-# Julia's mktempdir() automatically cleans up on exit
-
-# Get the date one week ago, which we'll use for shallow-cloning the Git repo
-one_week_ago = Dates.format(now() - Week(1), dateformat"yyyy-mm-dd")
-julia_commit = Base.GIT_VERSION_INFO.commit
-
-# Clone the repo
-println("Cloning JuliaLang/julia.git (--shallow-since=$one_week_ago), checkout $julia_commit")
-run(`git clone --branch master --shallow-since=$one_week_ago https://github.com/JuliaLang/julia.git`)
-JULIA_SRC = realpath("julia")
-run(`git -C $JULIA_SRC checkout $julia_commit`)
-
-# Use the local checkout of Documenter
-project_path = joinpath(JULIA_SRC, "deps", "jlutilities", "documenter")
-Pkg.activate(project_path)
-Pkg.develop(path=DOCUMENTER_SRC)
-
-# Build the docs
-run(`make -C julia/doc html JULIA_EXECUTABLE=$JULIA`)
+mktempdir() do tmp
+    cd(tmp) do
+        @info "Running in $(tmp)"
+        build_julia_manual(tmp)
+    end
+end
