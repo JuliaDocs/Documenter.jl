@@ -97,4 +97,4 @@ jobs:
       - uses: actions/upload-artifact@v5
         with:
           name: "Regression Tests: Julia Manual"
-          path: julia/doc/build
+          path: julia/doc/_build/html
