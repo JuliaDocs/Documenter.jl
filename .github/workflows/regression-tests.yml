@@ -15,7 +15,7 @@ on:
       - 'Project.toml'
 jobs:
   test-dependent-packages:
-    name: run-tests-${{ matrix.package }}
+    name: Tests / ${{ matrix.package }}
     runs-on: ubuntu-latest
     env:
       PACKAGE: ${{ matrix.package }}
@@ -46,7 +46,7 @@ jobs:
           Pkg.test(ENV["PACKAGE"])
 
   test-documentation-build:
-    name: doc-build-${{ matrix.package }}
+    name: "Docs / ${{ matrix.package }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
