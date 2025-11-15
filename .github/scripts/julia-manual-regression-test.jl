@@ -62,7 +62,7 @@ function build_julia_manual(path::AbstractString)
     ```)
 
     # Build the Julia manual
-    run(`make -C $(julia_source_path) julia-stdlib JULIA_EXECUTABLE=$(JULIA)`)
+    run(`make -C $(julia_source_path) julia-deps JULIA_EXECUTABLE=$(JULIA)`)
     run(`make -C $(julia_source_path)/doc html JULIA_EXECUTABLE=$(JULIA)`)
 end
 
