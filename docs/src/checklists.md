@@ -7,7 +7,8 @@ In each case, copy the checklist into the description of the pull request.
 
 ## Making a release
 
-In preparation for a release, use the following checklist. These steps should be performed on a branch with an open pull request, either for a topic branch, or for a new branch `release-1.y.z` ("Release version 1.y.z") if multiple changes have accumulated on the `master` branch since the last release.
+In preparation for a release, use the following checklist. These steps should be performed on a branch with an open pull request.
+Simply copy & paste the checklist below into the pull request description, and tick the boxes as appropriate.
 
 ````
 ## Pre-release

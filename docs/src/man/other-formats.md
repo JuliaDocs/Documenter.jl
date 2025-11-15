@@ -42,7 +42,7 @@ The documentation can be also built using the
 [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. It is required to have a `tectonic`
 available in `PATH`, or to provide a path to the binary using the `tectonic` keyword:
 
-```
+```julia
 using Documenter
 
 # Executable `tectonic` is present in `PATH`
@@ -65,7 +65,7 @@ above. The only requirement for using the image is that `docker` is installed an
 the builder to call. You also need to tell Documenter to use the docker image, instead of natively
 installed tex which is the default. This is done with the `LaTeX` specifier:
 
-```
+```julia
 using Documenter
 makedocs(
     format = Documenter.LaTeX(platform = "docker"),
@@ -75,7 +75,7 @@ makedocs(
 
 If you build the documentation on Travis you need to add
 
-```
+```yaml
 services:
   - docker
 ```
@@ -87,7 +87,7 @@ to your `.travis.yml` file.
 There's a possibility to save only the `.tex` file and skip the PDF compilation.
 For this purpose use the `platform="none"` keyword:
 
-```
+```julia
 using Documenter
 makedocs(
     format = Documenter.LaTeX(platform = "none"),
