@@ -26,19 +26,9 @@ function build_julia_manual(path::AbstractString)
     julia_commit = Base.GIT_VERSION_INFO.commit
     julia_source_path = abspath(joinpath(path, "julia"))
 
-    # Clone the Julia repository & check out the commit of the currently
-    # running Julia version.
-    cmd = if Base.GIT_VERSION_INFO.tagged_commit
-        println("Cloning JuliaLang/julia.git (--shallow-since), checkout $julia_commit")
-        `git clone --branch $(Base.GIT_VERSION_INFO.branch) --depth 1 https://github.com/JuliaLang/julia.git $(julia_source_path)`
-    else
-        # We'll shallow clone the repository going back no more than one week. This is just
-        # to make the clone go a bit faster on CI etc. We expect this to be fine, since this
-        # workflow will run on Julia nightly.
-        one_week_ago = Dates.format(now() - Week(1), dateformat"yyyy-mm-dd")
-        println("Cloning JuliaLang/julia.git (--shallow-since=$one_week_ago), checkout $julia_commit")
-        `git clone --branch $(Base.GIT_VERSION_INFO.branch) --shallow-since=$one_week_ago https://github.com/JuliaLang/julia.git $(julia_source_path)`
-    end
+    # Clone the Julia repository & check out the commit of the currently running Julia version.
+    # Doing a shallow clone of the exact commit, to avoid unnecessary downloads.
+    cmd = `git clone --revision=$(Base.GIT_VERSION_INFO.branch) --depth=1 https://github.com/JuliaLang/julia.git $(julia_source_path)`
     @info """
     Cloning JuliaLang/julia.git
     $(cmd)
@@ -59,6 +49,7 @@ function build_julia_manual(path::AbstractString)
         $(Base.julia_cmd())
         --project=$(project_path)
         -e 'using Pkg; Pkg.develop(path=ARGS[1])'
+        --
         $(DOCUMENTER_ROOT)
         ```
     )
