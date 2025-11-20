@@ -321,7 +321,7 @@ function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, use
         push!(headers, "-H")
         push!(headers, "Authorization: Bearer $(ENV["GITHUB_TOKEN"])")
     end
-    return `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(headers) $(url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+    return `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps -g $(headers) $(url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 end
 
 # Automatic Pkg.add() GitHub remote check
