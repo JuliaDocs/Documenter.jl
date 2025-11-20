@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Fixed insufficient paragraph spacing in HTML output for `@docs` blocks. ([#2845])
+* Fixed insufficient paragraph spacing in HTML output for `@docs` blocks. ([#2845, #2847])
+* Don't expand `details` admonition by default. ([#2846, #2847])
 
 ## Version [v1.16.0] - 2025-11-14
 
@@ -2226,6 +2227,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2817]: https://github.com/JuliaDocs/Documenter.jl/issues/2817
 [#2827]: https://github.com/JuliaDocs/Documenter.jl/issues/2827
 [#2845]: https://github.com/JuliaDocs/Documenter.jl/issues/2845
+[#2846]: https://github.com/JuliaDocs/Documenter.jl/issues/2846
+[#2847]: https://github.com/JuliaDocs/Documenter.jl/issues/2847
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
