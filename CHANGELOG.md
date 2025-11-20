@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `-g` is now passed to `curl` when checking links, to disable globbing, which could cause undesirable behavior when checking links containing characters like for example `[`, `{`, `&` or `?`. ([#2839], [#2842])
 
+### Fixed
+
+* Fixed insufficient paragraph spacing in HTML output for `@docs` blocks. ([#2845])
+
 ## Version [v1.16.0] - 2025-11-14
 
 ### Added
@@ -2221,6 +2225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2816]: https://github.com/JuliaDocs/Documenter.jl/issues/2816
 [#2817]: https://github.com/JuliaDocs/Documenter.jl/issues/2817
 [#2827]: https://github.com/JuliaDocs/Documenter.jl/issues/2827
+[#2845]: https://github.com/JuliaDocs/Documenter.jl/issues/2845
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
