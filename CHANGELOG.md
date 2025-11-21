@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed insufficient paragraph spacing in HTML output for `@docs` blocks. ([#2845, #2847])
 * Don't expand `details` admonition by default. ([#2846, #2847])
+* Removed superfluous vertical space at end of `@docs` blocks.
 
 ## Version [v1.16.0] - 2025-11-14
 
