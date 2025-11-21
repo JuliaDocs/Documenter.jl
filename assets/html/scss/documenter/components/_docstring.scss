@@ -35,7 +35,7 @@ details.docstring {
     }
   }
 
-  >summary::before {
+  > summary::before {
     content: '\f054';  // fa-chevron-right
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
@@ -44,7 +44,7 @@ details.docstring {
     display: inline-block;
   }
 
-  > div {
+  > section {
     position: relative;
     padding: $documenter-docstring-body-padding;
 
@@ -69,19 +69,19 @@ details.docstring {
     }
   }
 
-  &:hover > div > a.docs-sourcelink {
+  &:hover > section > a.docs-sourcelink {
     opacity: 0.2;
   }
 
-  &:focus-within > div > a.docs-sourcelink {
+  &:focus-within > section > a.docs-sourcelink {
     opacity: 0.2;
   }
 
-  & > div:hover a.docs-sourcelink {
+  & > section:hover a.docs-sourcelink {
     opacity: 1;
   }
 }
 
-details.docstring[open]>summary::before {
+details.docstring[open] > summary::before {
   content: "\f078";  // fa-chevron-down
 }
