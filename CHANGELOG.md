@@ -3,14 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
-### Changed
-
-* The `-g` is now passed to `curl` when checking links, to disable globbing, which could cause undesirable behavior when checking links containing characters like for example `[`, `{`, `&` or `?`. ([#2839], [#2842])
+## Version [v1.16.1] - 2025-11-21
 
 ### Fixed
 
+* The `-g` is now passed to `curl` when checking links, to disable globbing, which could cause undesirable behavior when checking links containing characters like for example `[`, `{`, `&` or `?`. ([#2839], [#2842])
 * Fixed insufficient paragraph spacing in HTML output for `@docs` blocks. ([#2845, #2847])
 * Don't expand `details` admonition by default. ([#2846, #2847])
 
@@ -1615,6 +1612,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.14.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.14.1
 [v1.15.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.15.0
 [v1.16.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.16.0
+[v1.16.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.16.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -2226,9 +2224,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2816]: https://github.com/JuliaDocs/Documenter.jl/issues/2816
 [#2817]: https://github.com/JuliaDocs/Documenter.jl/issues/2817
 [#2827]: https://github.com/JuliaDocs/Documenter.jl/issues/2827
-[#2845]: https://github.com/JuliaDocs/Documenter.jl/issues/2845
-[#2846]: https://github.com/JuliaDocs/Documenter.jl/issues/2846
-[#2847]: https://github.com/JuliaDocs/Documenter.jl/issues/2847
+[#2839]: https://github.com/JuliaDocs/Documenter.jl/issues/2839
+[#2842]: https://github.com/JuliaDocs/Documenter.jl/issues/2842
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
