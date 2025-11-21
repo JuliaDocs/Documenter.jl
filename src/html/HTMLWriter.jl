@@ -1937,7 +1937,7 @@ function domify_doc(dctx::DCtx, node::Node)
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
     return map(zip(node.element.mdasts, node.element.results)) do (markdown, result)
-        ret = div(domify(dctx, markdown))
+        ret = section(div(domify(dctx, markdown)))
         # When a source link is available then print the link.
         if !ctx.settings.disable_git
             url = Documenter.source_url(ctx.doc, result)
