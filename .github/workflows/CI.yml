@@ -133,7 +133,7 @@ jobs:
           path-to-lcov: lcov.info
           flag-name: latex-${{ join(matrix.*, '-') }}
           parallel: true
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: "PDFs-${{ matrix.os }}"
           path: test/examples/builds/*/*.pdf
@@ -212,14 +212,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
           DOCUMENTER_LATEX_DEBUG: ${{ github.workspace }}/latex-debug-logs
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: ${{ always() && matrix.format == 'pdf' }}
         with:
           name: PDF build logs
           path: ${{ github.workspace }}/latex-debug-logs
       - name: Upload search index
         if: ${{ matrix.format == 'html' }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: search-index
           path: docs/build/search_index.js
@@ -253,7 +253,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload search benchmark results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: search-benchmark-results
           path: test/search/search_benchmark_results_*.txt

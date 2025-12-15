@@ -94,7 +94,7 @@ jobs:
       - uses: julia-actions/cache@v2
       - name: "Regressions test"
         run: julia ./.github/scripts/julia-manual-regression-test.jl .
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: "regression-tests-julia-manual"
           path: julia/doc/_build/html
