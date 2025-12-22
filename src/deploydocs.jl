@@ -379,7 +379,7 @@ function git_push(
     # Generate a closure with common commands for ssh and https
     function git_commands(sshconfig = nothing)
         # Setup git.
-        run(`$(git()) config --global set advice.defaultBranchName false`)
+        run(`$(git()) config --global advice.defaultBranchName false`)
         run(`$(git()) init`)
         run(`$(git()) config user.name "Documenter.jl"`)
         run(`$(git()) config user.email "documenter@juliadocs.github.io"`)
