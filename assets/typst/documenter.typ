@@ -1,3 +1,6 @@
+// Import mitex for LaTeX math rendering
+#import "@preview/mitex:0.2.6": *
+
 #let light-blue = rgb("6b85dd")
 #let dark-blue = rgb("4266d5")
 #let light-red = rgb("d66661")

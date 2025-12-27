@@ -82,11 +82,30 @@ mutable struct Context{I<:IO} <: IO
     depth::Int
     filename::String # currently active source file
     doc::Documenter.Document
+    page::Union{Documenter.Page, Nothing} # current page being rendered
 end
-Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc)
+Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc, nothing)
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
+
+# Generate a unique label ID: slugified readable prefix + hash for uniqueness
+function make_label_id(io::Context, page::Documenter.Page, fragment::String)
+    # Get the slugified pagekey for the file prefix (for readability)
+    pagekey_str = Documenter.pagekey(io.doc, page)
+    file_slug = Documenter.slugify(pagekey_str)
+    file_slug = replace(file_slug, "/" => "-")
+    file_slug = replace(file_slug, r"\.md$" => "")
+    
+    # Create readable part (lowercase for consistency)
+    readable_part = lowercase("$(file_slug)-$(fragment)")
+    
+    # Hash the full path+fragment for uniqueness guarantee
+    hash_part = string(hash(lowercase("$(pagekey_str)#$(fragment)")))
+    
+    # Combine: readable prefix + hash suffix
+    return "$(readable_part)-$(hash_part)"
+end
 
 # Labels in the TeX file are hashes of plain text labels.
 # To keep the plain text label (for debugging), say _hash(x) = x
@@ -132,6 +151,7 @@ function render(doc::Documenter.Document, settings::Typst=Typst())
                         else
                             path = normpath(filename)
                             page = doc.blueprint.pages[path]
+                            context.page = page  # Set current page
                             if get(page.globals.meta, :IgnorePage, :none) !== :Typst
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
@@ -295,11 +315,8 @@ const NoExtraTopLevelNewlines = Union{
 
 function typst(io::Context, node::Node, ah::Documenter.AnchoredHeader; toplevel=false, inblock=false)
     anchor = ah.anchor
-    # Use lowercase anchor.id directly as the label (no hash)
-    # Add file prefix to ensure uniqueness across pages
-    # anchor.id is already slugified, so no need to replace spaces
-    file_base = replace(basename(io.filename), r"\.md$" => "")
-    id = lowercase("$(file_base)-$(anchor.id)")
+    # Generate unique label with counter for duplicates
+    id = make_label_id(io, io.page, anchor.id)
     typst(io, node.children; toplevel=istoplevel(node), inblock=inblock)
     _println(io, " <", id, ">\n")
 end
@@ -533,16 +550,12 @@ function typst(io::Context, node::Node, e::MarkdownAST.ThematicBreak; toplevel=f
     _println(io, "#line(length: 1pt)")
 end
 
-#TODO: Math
 function typst(io::Context, node::Node, math::MarkdownAST.DisplayMath; toplevel=false, inblock=false)
-    # if occursin(r"^\\begin\{align\*?\}", math.math)
-    #     _print(io, math.math)
-    # else
-    #     _print(io, "\\begin{equation*}\n\\begin{split}")
-    #     _print(io, math.math)
-    #     _println(io, "\\end{split}\\end{equation*}")
-    # end
-    _print(io, " `", math.math, "` ")
+    _println(io)
+    _println(io, "#mitex(`")
+    _print(io, math.math)
+    _println(io, "`)")
+    _println(io)
 end
 
 function typst(io::Context, node::Node, table::MarkdownAST.Table; toplevel=false, inblock=false)
@@ -620,13 +633,9 @@ end
 # PageLink - internal cross-reference links resolved by Documenter
 function typst(io::Context, node::Node, link::Documenter.PageLink; toplevel=false, inblock=false)
     # PageLink represents a resolved @ref link within the documentation
-    # It contains the target page and anchor
     if link.fragment !== nothing && !isempty(link.fragment)
-        # Generate label with file prefix for uniqueness
-        # Use lowercase for case-insensitive matching
-        # fragment is already slugified by Documenter
-        file_base = replace(basename(link.page.source), r"\.md$" => "")
-        id = lowercase("$(file_base)-$(link.fragment)")
+        # Generate the same label ID as the target anchor (hash guarantees consistency)
+        id = make_label_id(io, link.page, link.fragment)
         _print(io, "#link(<", id, ">)[")
     else
         # Link to a page without fragment - just render the text
@@ -638,21 +647,30 @@ end
 
 function typst(io::Context, node::Node, link::MarkdownAST.Link; toplevel=false, inblock=false)
     # TODO: handle the .title attribute
+    # NOTE: Properly resolved internal links should already be converted to PageLink
+    # by the cross-reference pipeline. If we see a MarkdownAST.Link with .md# or #,
+    # it's likely an external link or a manual override by the user.
+    # We handle it without the counter system, as best-effort.
     if io.in_header
         typst(io, node.children; inblock=inblock)
     else
         if occursin(".md#", link.destination)
-            # Cross-file reference: other.md#section
+            # Cross-file reference: other.md#section or path/other.md#section
             file, target = split(link.destination, ".md#"; limit=2)
-            file_base = replace(basename(file * ".md"), r"\.md$" => "")
-            id = lowercase("$(file_base)-$(target)")
+            # Slugify the file path consistently
+            file_slug = Documenter.slugify(file)
+            file_slug = replace(file_slug, "/" => "-")
+            id = lowercase("$(file_slug)-$(target)")
             _print(io, "#link(<", id, ">)")
         elseif startswith(link.destination, "#")
             # Same-file reference: #section
-            # Add current file prefix for consistency
+            # Use pagekey for current file
             target = lstrip(link.destination, '#')
-            file_base = replace(basename(io.filename), r"\.md$" => "")
-            id = lowercase("$(file_base)-$(target)")
+            pagekey_str = Documenter.pagekey(io.doc, io.page)
+            file_slug = Documenter.slugify(pagekey_str)
+            file_slug = replace(file_slug, "/" => "-")
+            file_slug = replace(file_slug, r"\.md$" => "")
+            id = lowercase("$(file_slug)-$(target)")
             _print(io, "#link(<", id, ">)")
         else
             # External link or other format
@@ -660,13 +678,12 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link; toplevel=false, 
         end
         _print(io, "[")
         typst(io, node.children; inblock=inblock)
-        _print(io, "] ") # Add an extra space to avoid "]." issues
+        _print(io, "]")
     end
 end
 
-# TODO: Math
 function typst(io::Context, node::Node, math::MarkdownAST.InlineMath; toplevel=false, inblock=false)
-    _print(io, " `", math.math, "` ")
+    _print(io, "#mi(\"", math.math, "\")")
 end
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
