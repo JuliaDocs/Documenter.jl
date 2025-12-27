@@ -61,7 +61,7 @@ function remove_build_prefix(doc::Documenter.Document, path::AbstractString)
 end
 
 """
-    make_label_id(doc::Document, file::String, label::String) -> String
+    make_label_id(doc::Document, file::AbstractString, label::AbstractString) -> String
 
 Generate a Typst label ID using the label() function syntax.
 Returns the raw string (already escaped) ready to use in #label("...").
@@ -84,7 +84,7 @@ make_label_id(doc, "build-typst/cpp.md", "C++")
 # => "cpp.md#C++"
 ```
 """
-function make_label_id(doc::Documenter.Document, file::String, label::String)
+function make_label_id(doc::Documenter.Document, file::AbstractString, label::AbstractString)
     # Normalize path separators
     normalized_file = replace(file, "\\" => "/")
     
@@ -829,9 +829,10 @@ end
 
 function typst(io::Context, ::Node, math::MarkdownAST.DisplayMath)
     _println(io)
-    _println(io, "#mitex(`")
-    _print(io, math.math)
-    _println(io, "`)")
+    escaped_math = escape_for_typst_string(math.math)
+    _print(io, "#mitex(\"")
+    _print(io, escaped_math)
+    _println(io, "\")")
     _println(io)
 end
 
@@ -1013,7 +1014,11 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link)
     if io.in_header
         typst(io, node.children)
     else
-        if occursin(".md#", link.destination)
+        # Check if it's an external URL first (before checking for .md#)
+        # Use Documenter's isabsurl() which matches ^[[:alpha:]+-.]+://
+        is_external_url = Documenter.isabsurl(link.destination)
+        
+        if !is_external_url && occursin(".md#", link.destination)
             # Cross-file reference: other.md#section or path/other.md#section
             file, target = split(link.destination, ".md#"; limit=2)
             file = file * ".md"  # Add back the .md extension
@@ -1022,7 +1027,7 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link)
             # Generate label ID
             label_id = make_label_id(io.doc, full_path, target)
             _print(io, "#link(label(\"", label_id, "\"))")
-        elseif startswith(link.destination, "#")
+        elseif !is_external_url && startswith(link.destination, "#")
             # Same-file reference: #anchor-slug
             fragment = lstrip(link.destination, '#')
             # io.filename is relative path, need to add build prefix
@@ -1044,7 +1049,8 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link)
 end
 
 function typst(io::Context, ::Node, math::MarkdownAST.InlineMath)
-    _print(io, "#mi(\"", math.math, "\")")
+    escaped_math = escape_for_typst_string(math.math)
+    _print(io, "#mi(\"", escaped_math, "\")")
 end
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
