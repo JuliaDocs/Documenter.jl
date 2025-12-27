@@ -23,79 +23,89 @@ using Typst_jll: typst as typst_exe
 # ============================================================================
 
 """
-    canonical_path(doc::Document, path::AbstractString) -> String
+    escape_for_typst_string(s::String) -> String
 
-Normalize path separators to forward slashes for consistent hashing.
-Preserves the build prefix (e.g., "build-typst/").
+Escape special characters for use inside Typst string literals.
+Only backslash and double quote need to be escaped.
 
 # Examples
 ```julia
-canonical_path(doc, "build-typst/man/guide.md")  # => "build-typst/man/guide.md"
-canonical_path(doc, "build-typst\\lib\\internals.md")  # => "build-typst/lib/internals.md"
+escape_for_typst_string("test")                    # => "test"
+escape_for_typst_string("test\"quote\"")           # => "test\\\"quote\\\""
+escape_for_typst_string("C:\\\\path\\\\file.txt")  # => "C:\\\\\\\\path\\\\\\\\file.txt"
 ```
 """
-function canonical_path(doc::Documenter.Document, path::AbstractString)
-    # Only normalize path separators, keep build prefix
-    return replace(path, "\\" => "/")
+function escape_for_typst_string(s::String)
+    s = replace(s, "\\" => "\\\\")  # Backslash first
+    s = replace(s, "\"" => "\\\"")  # Then double quote
+    return s
 end
 
 """
-    AnchorKey
+    remove_build_prefix(doc::Document, path::AbstractString) -> String
 
-Unique identifier for an anchor, combining normalized path and label.
+Remove the build directory prefix from a path.
 
-# Fields
-- `file::String`: canonical path (includes build prefix, e.g., "build-typst/man/guide.md")
-- `label::String`: anchor label (includes -nth suffix for uniqueness)
-
-# Usage
-Used to generate label IDs and case-insensitive lookup keys.
+# Examples
+```julia
+remove_build_prefix(doc, "build-typst/man/guide.md")  # => "man/guide.md"
+remove_build_prefix(doc, "man/guide.md")              # => "man/guide.md"
+```
 """
-struct AnchorKey
-    file::String
-    label::String
+function remove_build_prefix(doc::Documenter.Document, path::AbstractString)
+    build_prefix = doc.user.build * "/"
+    if startswith(path, build_prefix)
+        return path[length(build_prefix)+1:end]
+    end
+    return path
 end
 
 """
-    AnchorKey(doc::Document, anchor::Anchor) -> AnchorKey
+    make_label_id(doc::Document, file::String, label::String) -> String
 
-Construct AnchorKey from a Documenter.Anchor.
+Generate a Typst label ID using the label() function syntax.
+Returns the raw string (already escaped) ready to use in #label("...").
+
+# Format
+- Remove build prefix from file
+- Combine as "file#label" (or just "label" if file is empty)
+- Escape quotes and backslashes
+- Returns string ready for: #label("...") and #link(label("..."))
+
+# Examples
+```julia
+make_label_id(doc, "build-typst/man/guide.md", "Installation")
+# => "man/guide.md#Installation"
+
+make_label_id(doc, "build-typst/api.md", "Documenter.makedocs")
+# => "api.md#Documenter.makedocs"
+
+make_label_id(doc, "build-typst/cpp.md", "C++")
+# => "cpp.md#C++"
+```
 """
-function AnchorKey(doc::Documenter.Document, anchor::Documenter.Anchor)
-    return AnchorKey(
-        canonical_path(doc, anchor.file),
-        Documenter.anchor_label(anchor)
-    )
+function make_label_id(doc::Documenter.Document, file::String, label::String)
+    # Normalize path separators
+    normalized_file = replace(file, "\\" => "/")
+    
+    # Remove build prefix
+    path = remove_build_prefix(doc, normalized_file)
+    
+    # Combine file#label (or just label if path is empty)
+    full_id = isempty(path) ? label : "$path#$label"
+    
+    # Escape for Typst string literal
+    return escape_for_typst_string(full_id)
 end
 
 """
-    make_label_id(key::AnchorKey) -> String
+    lowercase_key(file::String, label::String) -> String
 
-Generate label ID for Typst references.
+Generate lowercase lookup key for case-insensitive anchor matching.
 """
-make_label_id(key::AnchorKey) = string(hash("$(key.file)#$(key.label)"))
-
-"""
-    lowercase_key(key::AnchorKey) -> String
-
-Generate lowercase lookup key for case-insensitive matching.
-"""
-lowercase_key(key::AnchorKey) = "$(key.file)#$(lowercase(key.label))"
-
-# Legacy helpers - used in places that haven't been refactored yet
-_hash(x::AbstractString) = string(hash(x))
-function _hash(anchor::Documenter.Anchor)
-    # For legacy calls, we need to handle anchor.file which already includes build prefix
-    normalized = replace(anchor.file, "\\" => "/")
-    label = Documenter.anchor_label(anchor)
-    return string(hash(normalized * "#" * label))
-end
-
-# Add build prefix to relative paths - kept for compatibility during transition
-function with_build_prefix(doc::Documenter.Document, relative_path::AbstractString)
-    build_path = replace(doc.user.build, "\\" => "/")
-    rel_path = replace(relative_path, "\\" => "/")
-    return build_path * "/" * rel_path
+function lowercase_key(file::String, label::String)
+    normalized = replace(file, "\\" => "/")
+    return "$normalized#$(lowercase(label))"
 end
 
 # ============================================================================
@@ -172,10 +182,11 @@ writer_supports_ansicolor(::Typst) = false
     RenderState
 
 Immutable global state built once at the start of rendering.
-Contains lookup tables that don't change during the rendering process.
+Contains lookup tables and cached values that don't change during the rendering process.
 """
 struct RenderState
     lowercase_anchors::Dict{String,String}  # lowercase key -> original label
+    build_path::String  # Pre-normalized build path (for performance)
 end
 
 """
@@ -206,6 +217,35 @@ end
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
 
+# ============================================================================
+# Path utilities using RenderState
+# ============================================================================
+
+"""
+    with_build_prefix(state::RenderState, relative_path::AbstractString) -> String
+
+Add build prefix to relative paths using cached build_path from RenderState.
+This optimized version avoids repeated normalization of the build path.
+"""
+function with_build_prefix(state::RenderState, relative_path::AbstractString)
+    rel_path = replace(relative_path, "\\" => "/")
+    return state.build_path * "/" * rel_path
+end
+
+"""
+    with_build_prefix(doc::Document, relative_path::AbstractString) -> String
+
+Legacy version that normalizes build path every call.
+Kept for backward compatibility in places not yet refactored to use RenderState.
+"""
+function with_build_prefix(doc::Documenter.Document, relative_path::AbstractString)
+    build_path = replace(doc.user.build, "\\" => "/")
+    rel_path = replace(relative_path, "\\" => "/")
+    return build_path * "/" * rel_path
+end
+
+# ============================================================================
+
 # Collect all footnote definitions from a page's AST
 function collect_footnotes!(defs::Dict{String,Node}, node::Node)
     if node.element isa MarkdownAST.FootnoteDefinition
@@ -219,14 +259,6 @@ end
 
 
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "typst", "documenter.typ")
-
-hastypst() = (
-    try
-        success(`typst --version`)
-    catch
-        false
-    end
-)
 
 const DOCUMENT_STRUCTURE = (
     "part",
@@ -245,20 +277,27 @@ Build a case-insensitive anchor lookup map.
 
 Returns a dictionary mapping lowercase keys (file#label) to original anchor labels.
 This allows case-insensitive matching of anchor references while preserving the
-original case for Typst label generation.
+original case for label generation.
 
 # Implementation
 Iterates through all anchors in doc.internal.headers.map and creates entries
-using canonical paths and anchor labels (which include -nth suffixes for uniqueness).
+using normalized paths and anchor labels (which include -nth suffixes for uniqueness).
+
+Optimized to minimize function calls and string operations.
 """
 function build_anchor_lookup(doc::Documenter.Document)
     lookup = Dict{String, String}()
     
     for (_, filedict) in doc.internal.headers.map
         for (file, anchors) in filedict
+            # Normalize file path once per file
+            normalized_file = replace(file, "\\" => "/")
             for anchor in anchors
-                key = lowercase_key(AnchorKey(doc, anchor))
-                lookup[key] = Documenter.anchor_label(anchor)
+                # Get label once per anchor
+                label = Documenter.anchor_label(anchor)
+                # Build key directly without intermediate allocations
+                key = normalized_file * "#" * lowercase(label)
+                lookup[key] = label
             end
         end
     end
@@ -273,8 +312,9 @@ function render(doc::Documenter.Document, settings::Typst=Typst())
         cd(joinpath(path, "build")) do
             fileprefix = typst_fileprefix(doc, settings)
             open("$(fileprefix).typ", "w") do io
-                # Build global rendering state
-                state = RenderState(build_anchor_lookup(doc))
+                # Build global rendering state with cached build path
+                build_path = replace(doc.user.build, "\\" => "/")
+                state = RenderState(build_anchor_lookup(doc), build_path)
                 context = Context(io, doc, state)
                 
                 writeheader(context, doc, settings)
@@ -530,13 +570,13 @@ const NoExtraTopLevelNewlines = Union{
 
 function typst(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     anchor = ah.anchor
-    id = _hash(anchor)
+    label_id = make_label_id(io.doc, anchor.file, Documenter.anchor_label(anchor))
     if istoplevel(node)
         typst_toplevel(io, node.children)
     else
         typst(io, node.children)
     end
-    _println(io, " <", id, ">\n")
+    _println(io, " #label(\"", label_id, "\")\n")
 end
 
 ## Documentation Nodes.
@@ -551,11 +591,11 @@ end
 
 function typst(io::Context, node::Node, docs::Documenter.DocsNode)
     node, ast = docs, node
-    id = _hash(node.anchor)
+    label_id = make_label_id(io.doc, node.anchor.file, Documenter.anchor_label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
     _print(io, "#raw(\"")
     typstescstr(io, string(node.object.binding))
-    _print(io, "\", block: false) <", id, ">")
+    _print(io, "\", block: false) #label(\"", label_id, "\")")
     _println(io, " -- ", Documenter.doccat(node.object), ".\n")
     # Body. May contain several concatenated docstrings.
     _println(io, "#grid(columns: (2em, 1fr), [], [")
@@ -591,10 +631,10 @@ function typst(io::Context, node::Node, index::Documenter.IndexNode)
     _println(io, "\n")
     for (object, doc, page, mod, cat) in index.elements
         # doc is a DocsNode with an anchor field!
-        id = _hash(doc.anchor)
+        label_id = make_label_id(io.doc, doc.anchor.file, Documenter.anchor_label(doc.anchor))
         text = string(object.binding)
-        _print(io, "- #link(<")
-        _print(io, id, ">)[#raw(\"")
+        _print(io, "- #link(label(\"")
+        _print(io, label_id, "\"))[#raw(\"")
         typstescstr(io, text)
         _println(io, "\", block: false)]")
     end
@@ -624,8 +664,8 @@ function typst(io::Context, node::Node, contents::Documenter.ContentsNode)
         end
 
         # Print the corresponding item
-        id = _hash(anchor)
-        _print(io, repeat(" ", 2 * (level - 1)), "- #link(<", id, ">)[")
+        label_id = make_label_id(io.doc, anchor.file, Documenter.anchor_label(anchor))
+        _print(io, repeat(" ", 2 * (level - 1)), "- #link(label(\"", label_id, "\"))[")
         typst(io, header.children)
         _println(io, "]")
     end
@@ -905,16 +945,16 @@ function typst(io::Context, node::Node, link::Documenter.PageLink)
     if link.fragment !== nothing && !isempty(link.fragment)
         # pagekey is relative path without build prefix, need to add it
         pagekey = Documenter.pagekey(io.doc, link.page)
-        full_path = with_build_prefix(io.doc, pagekey)
+        full_path = with_build_prefix(io.state, pagekey)
         
         # Case-insensitive lookup: link.fragment might be lowercase, but we need actual case
         # The lowercase_anchors map key includes full build path: "build_path#lowercase_label"
         lookup_key = full_path * "#" * lowercase(link.fragment)
         anchor_label = get(io.state.lowercase_anchors, lookup_key, link.fragment)
         
-        # Generate hash: build_path#anchor_label
-        id = _hash(full_path * "#" * anchor_label)
-        _print(io, "#link(<", id, ">)[")
+        # Generate label ID using the new approach
+        label_id = make_label_id(io.doc, full_path, anchor_label)
+        _print(io, "#link(label(\"", label_id, "\"))[")
     else
         # Link to a page without fragment - just render the text
         _print(io, "[")
@@ -935,22 +975,23 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link)
         if occursin(".md#", link.destination)
             # Cross-file reference: other.md#section or path/other.md#section
             file, target = split(link.destination, ".md#"; limit=2)
-            # Slugify the file path consistently
-            file_slug = Documenter.slugify(file)
-            file_slug = replace(file_slug, "/" => "-")
-            id = lowercase("$(file_slug)-$(target)")
-            _print(io, "#link(<", id, ">)")
+            file = file * ".md"  # Add back the .md extension
+            # Convert to full path with build prefix
+            full_path = with_build_prefix(io.state, file)
+            # Generate label ID
+            label_id = make_label_id(io.doc, full_path, target)
+            _print(io, "#link(label(\"", label_id, "\"))")
         elseif startswith(link.destination, "#")
             # Same-file reference: #anchor-slug
             fragment = lstrip(link.destination, '#')
             # io.filename is relative path, need to add build prefix
-            full_path = with_build_prefix(io.doc, io.filename)
+            full_path = with_build_prefix(io.state, io.filename)
             # Case-insensitive lookup with full build path
             lookup_key = full_path * "#" * lowercase(fragment)
             anchor_label = get(io.state.lowercase_anchors, lookup_key, fragment)
-            # Generate hash
-            id = _hash(full_path * "#" * anchor_label)
-            _print(io, "#link(<", id, ">)")
+            # Generate label ID
+            label_id = make_label_id(io.doc, full_path, anchor_label)
+            _print(io, "#link(label(\"", label_id, "\"))")
         else
             # External link or other format
             _print(io, "#link(\"", link.destination, "\")")
