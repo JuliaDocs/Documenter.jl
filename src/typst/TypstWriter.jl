@@ -98,16 +98,6 @@ function make_label_id(doc::Documenter.Document, file::String, label::String)
     return escape_for_typst_string(full_id)
 end
 
-"""
-    lowercase_key(file::String, label::String) -> String
-
-Generate lowercase lookup key for case-insensitive anchor matching.
-"""
-function lowercase_key(file::String, label::String)
-    normalized = replace(file, "\\" => "/")
-    return "$normalized#$(lowercase(label))"
-end
-
 # ============================================================================
 
 """
@@ -225,23 +215,11 @@ _println(c::Context, args...) = Base.println(c.io, args...)
     with_build_prefix(state::RenderState, relative_path::AbstractString) -> String
 
 Add build prefix to relative paths using cached build_path from RenderState.
-This optimized version avoids repeated normalization of the build path.
+Optimized to avoid repeated normalization of the build path.
 """
 function with_build_prefix(state::RenderState, relative_path::AbstractString)
     rel_path = replace(relative_path, "\\" => "/")
     return state.build_path * "/" * rel_path
-end
-
-"""
-    with_build_prefix(doc::Document, relative_path::AbstractString) -> String
-
-Legacy version that normalizes build path every call.
-Kept for backward compatibility in places not yet refactored to use RenderState.
-"""
-function with_build_prefix(doc::Documenter.Document, relative_path::AbstractString)
-    build_path = replace(doc.user.build, "\\" => "/")
-    rel_path = replace(relative_path, "\\" => "/")
-    return build_path * "/" * rel_path
 end
 
 # ============================================================================
