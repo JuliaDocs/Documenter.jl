@@ -78,13 +78,14 @@ writer_supports_ansicolor(::Typst) = false
 mutable struct Context{I<:IO} <: IO
     io::I
     in_header::Bool
-    footnotes::Dict{String,Int}
+    footnotes::Dict{String,Int}  # footnote id -> number (for compatibility, not really used in Typst)
+    footnote_defs::Dict{String,Node}  # footnote id -> definition node (for Typst inline footnotes)
     depth::Int
     filename::String # currently active source file
     doc::Documenter.Document
     page::Union{Documenter.Page, Nothing} # current page being rendered
 end
-Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc, nothing)
+Context(io, doc) = Context{typeof(io)}(io, false, Dict(), Dict(), 1, "", doc, nothing)
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
@@ -110,6 +111,17 @@ end
 # Labels in the TeX file are hashes of plain text labels.
 # To keep the plain text label (for debugging), say _hash(x) = x
 _hash(x) = string(hash(x))
+
+# Collect all footnote definitions from a page's AST
+function collect_footnotes!(defs::Dict{String,Node}, node::Node)
+    if node.element isa MarkdownAST.FootnoteDefinition
+        defs[node.element.id] = node
+    end
+    for child in node.children
+        collect_footnotes!(defs, child)
+    end
+    return defs
+end
 
 
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "typst", "documenter.typ")
@@ -144,6 +156,7 @@ function render(doc::Documenter.Document, settings::Typst=Typst())
                 for (title, filename, depth) in files(doc.user.pages)
                     context.filename = filename
                     empty!(context.footnotes)
+                    empty!(context.footnote_defs)
                     if 1 <= depth <= length(DOCUMENT_STRUCTURE)
                         header_text = "#extended_heading(level: $(depth), within-block: false,  [$(title)])\n"
                         if isempty(filename)
@@ -153,6 +166,9 @@ function render(doc::Documenter.Document, settings::Typst=Typst())
                             page = doc.blueprint.pages[path]
                             context.page = page  # Set current page
                             if get(page.globals.meta, :IgnorePage, :none) !== :Typst
+                                # Pre-scan to collect footnote definitions
+                                collect_footnotes!(context.footnote_defs, page.mdast)
+                                
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
                                 typst(context, page.mdast.children; toplevel=true)
@@ -528,12 +544,10 @@ function typst(io::Context, node::Node, md::MarkdownAST.Admonition; toplevel=fal
     return
 end
 
-# TODO: footnote
 function typst(io::Context, node::Node, f::MarkdownAST.FootnoteDefinition; toplevel=false, inblock=false)
-    id = get(io.footnotes, f.id, 1)
-    # _print(io, "\\footnotetext[", id, "]{")
-    # typst(io, node.children; inblock=inblock)
-    # _println(io, "}")
+    # Footnote definitions are collected during pre-scan and rendered inline at FootnoteLink sites
+    # So we don't output anything here to avoid duplication
+    return nothing
 end
 
 function typst(io::Context, node::Node, list::MarkdownAST.List; toplevel=false, inblock=false)
@@ -546,11 +560,11 @@ function typst(io::Context, node::Node, list::MarkdownAST.List; toplevel=false, 
     end
 end
 
-function typst(io::Context, node::Node, e::MarkdownAST.ThematicBreak; toplevel=false, inblock=false)
+function typst(io::Context, ::Node, ::MarkdownAST.ThematicBreak; toplevel=false, inblock=false)
     _println(io, "#line(length: 1pt)")
 end
 
-function typst(io::Context, node::Node, math::MarkdownAST.DisplayMath; toplevel=false, inblock=false)
+function typst(io::Context, ::Node, math::MarkdownAST.DisplayMath; toplevel=false, inblock=false)
     _println(io)
     _println(io, "#mitex(`")
     _print(io, math.math)
@@ -624,10 +638,24 @@ function typst(io::Context, node::Node, image::MarkdownAST.Image; toplevel=false
     _println(io, "])]")
 end
 
-# TODO: footnote link
 function typst(io::Context, node::Node, f::MarkdownAST.FootnoteLink; toplevel=false, inblock=false)
-    # id = get!(io.footnotes, f.id, length(io.footnotes) + 1)
-    # _print(io, "\\footnotemark[", id, "]")
+    # Look up the footnote definition
+    if haskey(io.footnote_defs, f.id)
+        def_node = io.footnote_defs[f.id]
+        _print(io, "#footnote[")
+        # Render the footnote content inline
+        # If the content is a single paragraph, render its children directly to avoid extra newlines
+        if length(def_node.children) == 1 && first(def_node.children).element isa MarkdownAST.Paragraph
+            typst(io, first(def_node.children).children; inblock=true)
+        else
+            typst(io, def_node.children; inblock=true)
+        end
+        _print(io, "]")
+    else
+        # Footnote definition not found - output a warning marker
+        @warn "Footnote definition not found for [^$(f.id)] in $(Documenter.locrepr(io.filename))"
+        _print(io, "#footnote[Missing footnote: $(f.id)]")
+    end
 end
 
 # PageLink - internal cross-reference links resolved by Documenter
