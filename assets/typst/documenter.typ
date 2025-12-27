@@ -48,6 +48,7 @@
 #let admonition-title-size = 12pt
 #let metadata-size = 12pt
 
+#let text-font = ("Inter", "DejaVu Sans")
 #let code-font = ("JetBrains Mono", "DejaVu Sans Mono")
 
 #let partcounter = counter("part")
@@ -163,6 +164,7 @@
 ) = {
   set text(
     size: text-size,
+    font: text-font,
   )
 
   set heading(numbering: "1.1")

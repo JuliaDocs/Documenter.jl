@@ -60,7 +60,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
-            "Guide" => "man/guide.md",
+            "Guide"=>"man/guide.md",
             "man/examples.md",
             "man/syntax.md",
             "man/doctests.md",
@@ -70,16 +70,16 @@ makedocs(
         ],
         "showcase.md",
         "Reference" => Any[
-            "Public API" => "lib/public.md",
+            "Public API"=>"lib/public.md",
             "lib/remote-links.md",
-            "Semantic versioning" => "lib/semver.md",
+            "Semantic versioning"=>"lib/semver.md",
         ],
         "Developers" => [
             "contributing.md",
             "checklists.md",
             "Internals" => map(
                 s -> "lib/internals/$(s)",
-                sort(readdir(joinpath(@__DIR__, "src/lib/internals")))
+                sort(readdir(joinpath(@__DIR__, "src/lib/internals"))),
             ),
         ],
         "release-notes.md",
@@ -96,7 +96,7 @@ if "pdf" in ARGS
             if startswith(f, "Documenter.jl") && endswith(f, ".pdf")
                 mv(
                     joinpath(@__DIR__, "build-pdf", f),
-                    joinpath(@__DIR__, "build-pdf", "commit", f)
+                    joinpath(@__DIR__, "build-pdf", "commit", f),
                 )
             end
         end

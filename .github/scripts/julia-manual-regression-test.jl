@@ -42,15 +42,13 @@ function build_julia_manual(path::AbstractString)
         end
     end
     @info "Update Documenter Julia doc environment" project_path
-    run(
-        ```
+    run(```
         $(Base.julia_cmd())
         --project=$(project_path)
         -e 'using Pkg; Pkg.develop(path=ARGS[1])'
         --
         $(DOCUMENTER_ROOT)
-        ```
-    )
+        ```)
 
     # Build the Julia manual. Apparently we need to build `julia-stdlib` first,
     # to ensure that all the stdlib sources would be present (which the doc build
