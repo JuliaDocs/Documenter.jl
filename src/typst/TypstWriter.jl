@@ -224,11 +224,27 @@ end
 
 # ============================================================================
 
-# Collect all footnote definitions from a page's AST
+"""
+    collect_footnotes!(defs::Dict{String,Node}, node::Node) -> Dict{String,Node}
+
+Recursively collect all footnote definitions from an AST.
+
+Handles both regular AST nodes and special cases like `DocsNode`, which contains
+separate AST trees in its `mdasts` field that need to be scanned independently.
+"""
 function collect_footnotes!(defs::Dict{String,Node}, node::Node)
     if node.element isa MarkdownAST.FootnoteDefinition
         defs[node.element.id] = node
     end
+    
+    # Special handling for DocsNode which contains separate ASTs in .mdasts
+    # These ASTs are not in node.children, so we must scan them explicitly
+    if node.element isa Documenter.DocsNode
+        for docstringast in node.element.mdasts
+            collect_footnotes!(defs, docstringast)
+        end
+    end
+    
     for child in node.children
         collect_footnotes!(defs, child)
     end
@@ -446,7 +462,7 @@ function compile(c::DockerCompiler, fileprefix::String)
     end
 end
 
-function compile(c::NoOpCompiler, fileprefix::String)
+function compile(::NoOpCompiler, ::String)
     @info "TypstWriter: skipping compilation (platform=none)."
     return true
 end
@@ -457,7 +473,7 @@ end
 Main entry point for Typst compilation. 
 Selects the appropriate compiler and handles errors uniformly.
 """
-function compile_typ(doc::Documenter.Document, settings::Typst, fileprefix::String)
+function compile_typ(::Documenter.Document, settings::Typst, fileprefix::String)
     compiler = get_compiler(settings)
     
     try
@@ -581,11 +597,17 @@ function typst(io::Context, node::Node, docs::Documenter.DocsNode)
     _println(io, "])")
 end
 
+"""
+    typstdoc(io::Context, node::Node)
+
+Render the body of a docstring node, including all concatenated docstrings and source links.
+
+The `node.element.results` field contains a vector of `Docs.DocStr` objects associated with
+each markdown object, providing metadata such as file and line info needed for generating
+correct source links.
+"""
 function typstdoc(io::Context, node::Node)
     @assert node.element isa Documenter.DocsNode
-    # The `:results` field contains a vector of `Docs.DocStr` objects associated with
-    # each markdown object. The `DocStr` contains data such as file and line info that
-    # we need for generating correct source links.
     for (docstringast, result) in zip(node.element.mdasts, node.element.results)
         _println(io)
         typst(io, docstringast.children)
@@ -601,13 +623,13 @@ end
 
 ## Index, Contents, and Eval Nodes.
 
-function typst(io::Context, node::Node, index::Documenter.IndexNode)
+function typst(io::Context, ::Node, index::Documenter.IndexNode)
     # Having an empty itemize block in Typst throws an error, so we bail early
     # in that situation:
     isempty(index.elements) && (_println(io); return)
 
     _println(io, "\n")
-    for (object, doc, page, mod, cat) in index.elements
+    for (object, doc, _, _, _) in index.elements
         # doc is a DocsNode with an anchor field!
         label_id = make_label_id(io.doc, doc.anchor.file, Documenter.anchor_label(doc.anchor))
         text = string(object.binding)
@@ -619,7 +641,7 @@ function typst(io::Context, node::Node, index::Documenter.IndexNode)
     _println(io, "\n")
 end
 
-function typst(io::Context, node::Node, contents::Documenter.ContentsNode)
+function typst(io::Context, ::Node, contents::Documenter.ContentsNode)
     # Having an empty itemize block in LaTeX throws an error, so we bail early
     # in that situation:
     isempty(contents.elements) && (_println(io); return)
@@ -706,7 +728,7 @@ const LEXER = Set([
     "text",
 ])
 
-function typst(io::Context, node::Node, code::MarkdownAST.CodeBlock)
+function typst(io::Context, ::Node, code::MarkdownAST.CodeBlock)
     language = Documenter.codelang(code.info)
     if language == "julia-repl" || language == "@repl"
         language = "julia"
@@ -722,7 +744,7 @@ function typst(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     return
 end
 
-typst(io::Context, node::Node, mcb::Documenter.MultiCodeBlock) = typst(io, node, join_multiblock(node))
+typst(io::Context, node::Node, ::Documenter.MultiCodeBlock) = typst(io, node, join_multiblock(node))
 function join_multiblock(node::Node)
     @assert node.element isa Documenter.MultiCodeBlock
     io = IOBuffer()
@@ -739,7 +761,7 @@ function join_multiblock(node::Node)
     return MarkdownAST.CodeBlock(node.element.language, String(take!(io)))
 end
 
-function typst(io::Context, node::Node, code::MarkdownAST.Code)
+function typst(io::Context, ::Node, code::MarkdownAST.Code)
     _print(io, " #raw(\"")
     typstescstr(io, code.code)
     _print(io, "\", block: false) ")
@@ -750,14 +772,13 @@ function typst(io::Context, node::Node, ::MarkdownAST.Paragraph)
     _println(io, "\n")
 end
 
-#TODO: improve quote
 function typst(io::Context, node::Node, ::MarkdownAST.BlockQuote)
-    _print(io, "#[")
+    _println(io, "#quote(block: true)[")
     old_in_block = io.in_block
     io.in_block = true
     typst(io, node.children)
     io.in_block = old_in_block
-    _print(io, "]")
+    _println(io, "]")
 end
 
 function typst(io::Context, node::Node, md::MarkdownAST.Admonition)
@@ -775,9 +796,15 @@ function typst(io::Context, node::Node, md::MarkdownAST.Admonition)
     return
 end
 
-function typst(io::Context, node::Node, f::MarkdownAST.FootnoteDefinition)
-    # Footnote definitions are collected during pre-scan and rendered inline at FootnoteLink sites
-    # So we don't output anything here to avoid duplication
+"""
+    typst(::Context, ::Node, ::MarkdownAST.FootnoteDefinition)
+
+No-op for footnote definitions.
+
+Footnote definitions are collected during the pre-scan phase and rendered inline at
+FootnoteLink sites, so we don't output anything here to avoid duplication.
+"""
+function typst(::Context, ::Node, ::MarkdownAST.FootnoteDefinition)
     return nothing
 end
 
@@ -824,35 +851,48 @@ function typst(io::Context, node::Node, table::MarkdownAST.Table)
     _println(io, ")]")
 end
 
-function typst(io::Context, node::Node, raw::Documenter.RawNode)
+function typst(io::Context, ::Node, raw::Documenter.RawNode)
     raw.name === :typst || raw.name === :typ ? _println(io, "\n", raw.text, "\n") : nothing
 end
 
 # Inline Elements.
 
-function typst(io::Context, node::Node, e::MarkdownAST.Text)
+function typst(io::Context, ::Node, e::MarkdownAST.Text)
     typstesc(io, e.text)
 end
 
-function typst(io::Context, node::Node, e::MarkdownAST.Strong)
+function typst(io::Context, node::Node, ::MarkdownAST.Strong)
     _print(io, "#strong([")
     typst(io, node.children)
     _print(io, "])")
 end
 
-function typst(io::Context, node::Node, e::MarkdownAST.Emph)
+function typst(io::Context, node::Node, ::MarkdownAST.Emph)
     _print(io, "#emph([")
     typst(io, node.children)
     _print(io, "])")
 end
 
-#TODO: Images
+"""
+    typst(io::Context, node::Node, image::MarkdownAST.Image)
+
+Render a Markdown image as a Typst figure with centered alignment.
+
+# Accessibility Notes
+
+This implementation does NOT generate the `alt` parameter for figures because:
+1. The caption already provides an accessible description that screen readers will read
+2. In Markdown `![text](url)`, the text becomes the caption - duplicating it to `alt` causes redundancy
+3. Per W3C guidelines, figures with descriptive captions don't need separate alt text
+4. The `image.title` field is also unused because Julia's Markdown parser doesn't support
+   the `![alt](url "title")` syntax, and even if it did, HTML's title attribute is a hover
+   tooltip with no equivalent in PDF
+"""
 function typst(io::Context, node::Node, image::MarkdownAST.Image)
     _println(io, "#align(center)[")
     _println(io, "#figure(")
     _println(io, "image(")
     
-    # TODO: also print the .title field somehow
     url = if Documenter.isabsurl(image.destination)
         @warn "images with absolute URLs not supported in Typst output in $(Documenter.locrepr(io.filename))" url = image.destination
         image.destination
@@ -894,7 +934,7 @@ function typst(io::Context, node::Node, image::Documenter.LocalImage)
     _println(io, "])]")
 end
 
-function typst(io::Context, node::Node, f::MarkdownAST.FootnoteLink)
+function typst(io::Context, ::Node, f::MarkdownAST.FootnoteLink)
     # Look up the footnote definition
     if haskey(io.footnote_defs, f.id)
         def_node = io.footnote_defs[f.id]
@@ -941,12 +981,30 @@ function typst(io::Context, node::Node, link::Documenter.PageLink)
     _print(io, "]")
 end
 
+"""
+    typst(io::Context, node::Node, link::MarkdownAST.Link)
+
+Render a Markdown link as a Typst link or label reference.
+
+# Behavior
+
+Properly resolved internal links should already be converted to `PageLink` by the
+cross-reference pipeline. If we encounter a `MarkdownAST.Link` with `.md#` or `#` patterns,
+it's likely an external link or a manual override by the user, which we handle as best-effort.
+
+# Link Title Handling
+
+This implementation intentionally ignores the `link.title` field because:
+1. In HTML, the title attribute is a hover tooltip, not an accessibility feature
+2. W3C guidelines recommend against relying on title for conveying important information
+3. PDF/Typst has no hover mechanism, and `link()` doesn't support an `alt` parameter
+4. Screen readers inconsistently support the title attribute, and keyboard users can't access it
+5. Link text itself should be descriptive for proper accessibility
+
+If the title contains important context, it should be incorporated into the link text or
+surrounding prose instead.
+"""
 function typst(io::Context, node::Node, link::MarkdownAST.Link)
-    # TODO: handle the .title attribute
-    # NOTE: Properly resolved internal links should already be converted to PageLink
-    # by the cross-reference pipeline. If we see a MarkdownAST.Link with .md# or #,
-    # it's likely an external link or a manual override by the user.
-    # We handle it without the counter system, as best-effort.
     if io.in_header
         typst(io, node.children)
     else
@@ -980,26 +1038,32 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link)
     end
 end
 
-function typst(io::Context, node::Node, math::MarkdownAST.InlineMath)
+function typst(io::Context, ::Node, math::MarkdownAST.InlineMath)
     _print(io, "#mi(\"", math.math, "\")")
 end
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
 # rest of the build and so we just leave them in place and print a blank line in their place.
-typst(io::Context, node::Node, ::Documenter.MetaNode) = _println(io, "\n")
+typst(io::Context, ::Node, ::Documenter.MetaNode) = _println(io, "\n")
 
 # In the original AST, SetupNodes were just mapped to empty Markdown.MD() objects.
-typst(io::Context, node::Node, ::Documenter.SetupNode) = nothing
+typst(::Context, ::Node, ::Documenter.SetupNode) = nothing
 
-function typst(io::Context, node::Node, value::MarkdownAST.JuliaValue)
+function typst(io::Context, ::Node, value::MarkdownAST.JuliaValue)
     @warn """
     Unexpected Julia interpolation of type $(typeof(value.ref)) in the Markdown.
     """ value = value.ref
     typstesc(io, string(value.ref))
 end
 
-# TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
-typst(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io, "#linebreak()")
+# Line breaks and soft breaks
+# Note: SoftBreak and Backslash nodes don't appear in Julia's standard Markdown conversions.
+# - SoftBreak: represents a soft line break (single newline in source)
+# - Backslash: represents a literal backslash character (\\) after escaping
+# We implement them for completeness in case they're encountered from other Markdown parsers.
+typst(io::Context, ::Node, ::MarkdownAST.LineBreak) = _println(io, "#linebreak()")
+typst(io::Context, ::Node, ::MarkdownAST.SoftBreak) = _print(io, "#linebreak(weak: true)")  # Weak break - may or may not break
+typst(io::Context, ::Node, ::MarkdownAST.Backslash) = _print(io, "\\\\")  # Literal backslash: need \\ in Typst to display \
 
 const _typstescape_chars = Dict{Char,AbstractString}()
 for ch in "@#*_\$/`<>"

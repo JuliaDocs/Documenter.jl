@@ -1,5 +1,8 @@
 // Import mitex for LaTeX math rendering
 #import "@preview/mitex:0.2.6": *
+#import "@preview/itemize:0.2.0" as el
+#import "@preview/codly:1.3.0": *
+#import "@preview/codly-languages:0.1.1": *
 
 #let light-blue = rgb("6b85dd")
 #let dark-blue = rgb("4266d5")
@@ -30,6 +33,23 @@
   compat: "Compatibility",
 )
 
+// Font sizes
+#let text-size = 11pt
+#let code-size = 9pt
+#let heading-size-title = 24pt
+#let heading-size-part = 18pt
+#let heading-size-chapter = 18pt
+#let heading-size-part-label = 14pt
+#let heading-size-chapter-label = 14pt
+#let heading-size-section = 14pt
+#let heading-size-subsection = 13pt
+#let heading-size-subsubsection = 12pt
+#let header-size = 10pt
+#let admonition-title-size = 12pt
+#let metadata-size = 12pt
+
+#let code-font = ("JetBrains Mono", "DejaVu Sans Mono")
+
 #let partcounter = counter("part")
 #let chaptercounter = counter("chapter")
 
@@ -44,7 +64,7 @@
 
   rect(width: 100%, fill: color, radius: 5pt, inset: 5pt)[
     #h(1em)
-    #text(12pt, fill: white)[#strong(title)]
+    #text(admonition-title-size, fill: white)[#strong(title)]
     #v(-0.5em)
     #rect(width: 100%, fill: bgcolor, inset: 10pt)[
       #children
@@ -53,6 +73,7 @@
 }
 
 #let extended_heading(level: 0, outlined: true, within-block: false, body) = {
+  // Add pagebreak for level 1 and 2 headings, unless they are within a block (like admonition)
   if not within-block and level <= 2 {
     pagebreak(weak: true)
   }
@@ -77,7 +98,9 @@
       if el.level == 1 {
         numbering("I", ..counter(heading).at(el_loc))
       } else if el.level == 2 {
-        numbering("1.1", chaptercounter.at(el_loc).first() + 1)
+        // Chapter counter: .at() returns value after step() (0,1,2...)
+        // Display as 1,2,3... so add 1
+        numbering("1", chaptercounter.at(el_loc).first() + 1)
       } else {
         numbering("1.1", ..chaptercounter.at(el_loc), ..counter(heading).at(el_loc).slice(2))
       }
@@ -138,7 +161,13 @@
   linespacing: 1em,
   doc,
 ) = {
+  set text(
+    size: text-size,
+  )
+
   set heading(numbering: "1.1")
+
+  show: el.default-enum-list
 
   set list(
     marker: ([•], [--], [∗], [•], [--], [∗], [•], [--], [∗]),
@@ -184,9 +213,10 @@
       // 5. Display header if valid chapter found
       if current_chapter != none {
         align(center)[
-          #text(10pt)[
+          #text(header-size)[
             #if current_chapter.numbering != none {
               // Numbered chapter: show "CHAPTER X. TITLE"
+              // .at() returns value after step(), add 1 for display
               let chapter_num = chaptercounter.at(current_chapter.location()).first() + 1
               [CHAPTER #numbering("1", chapter_num). ]
             }
@@ -212,9 +242,9 @@
         return
       }
 
-      // Show page number
+      // Show page number (automatically uses current numbering style)
       align(center)[
-        #numbering("1", counter(page).get().first())
+        #counter(page).display()
       ]
     },
   )
@@ -230,13 +260,10 @@
     }
   }
 
-  show raw: it => if it.lang != none {
-    block(fill: codeblock-background, stroke: codeblock-border, width: 100%, inset: 5pt, radius: 5pt)[
-      #it
-    ]
-  } else {
-    it
-  }
+  show: codly-init.with()
+  codly(languages: codly-languages, number-format: none)
+  show raw: set text(font: code-font)
+  show raw.where(block: true): set text(size: code-size)
 
   show heading: it => context {
     let loc = here()
@@ -247,32 +274,36 @@
       }
 
       align(center + horizon)[
-        #text(14pt)[
+        #text(heading-size-part-label)[
           #strong([
             Part
             #numbering("I", counter(heading).get().first())
           ])] <__part__>
         #v(1em)
-        #text(18pt)[#strong(it.body)]
+        #text(heading-size-part)[#strong(it.body)]
       ]
     } else if it.level == 2 {
       align(left + top)[
         #if it.numbering != none {
+          // Get current value before stepping (for display)
+          let chapter_display = chaptercounter.get().first() + 1
           chaptercounter.step()
-          text(14pt)[
+          // Reset figure counter when entering a new chapter
+          counter(figure.where(kind: image)).update(0)
+          text(heading-size-chapter-label)[
             #strong([
               Chapter
-              #numbering("1", chaptercounter.get().first() + 1)
+              #numbering("1", chapter_display)
             ])]
           v(1em)
         }
-        #text(18pt)[#strong(it.body)] <__chapter__>
+        #text(heading-size-chapter)[#strong(it.body)] <__chapter__>
         #v(1em)
       ]
     } else {
       v(0.5em)
       if it.level == 3 {
-        text(14pt)[
+        text(heading-size-section)[
           #strong([
             #numbering("1.1", chaptercounter.get().first(), ..counter(heading).get().slice(2))
             #h(1em)
@@ -280,12 +311,12 @@
           ])
         ]
       } else if it.level == 4 {
-        text(13pt)[#strong(it.body)]
+        text(heading-size-subsection)[#strong(it.body)]
       } else if it.level <= 6 {
-        text(12pt)[#strong(it.body)]
+        text(heading-size-subsubsection)[#strong(it.body)]
       } else {
         h(2em)
-        text(12pt)[#strong(it.body)]
+        text(heading-size-subsubsection)[#strong(it.body)]
       }
       v(0.5em)
     }
@@ -293,21 +324,69 @@
 
   show list: set par(justify: false)
 
-  if title != none {
-    align(center + horizon)[
-      #text(24pt)[#strong[#title]]
-      #v(2em)
-      #if authors != none {
-        text(12pt)[#strong[#authors]]
-        v(2em)
-      }
-      #text(12pt)[#date]
-      #pagebreak()
+  // Custom quote styling
+  show quote: it => {
+    rect(
+      width: 100%,
+      fill: rgb("f8f8f8"),
+      stroke: (left: 4pt + rgb("cccccc")),
+      inset: (left: 15pt, right: 15pt, top: 10pt, bottom: 10pt),
+      radius: (right: 3pt),
+    )[
+      #it.body
     ]
   }
 
-  outline(depth: 3, indent: true)
-  pagebreak()
+  if title != none {
+    // Front matter: Roman numerals, simplified footer
+    set page(
+      numbering: "i",
+      footer: context {
+        let loc = here()
+        if loc.page() <= 1 { return }  // No footer on title page
+        align(center)[#counter(page).display("i")]
+      }
+    )
+    counter(page).update(1)
+    
+    align(center + horizon)[
+      #text(heading-size-title)[#strong[#title]]
+      #v(2em)
+      #if authors != none {
+        text(metadata-size)[#strong[#authors]]
+        v(2em)
+      }
+      #text(metadata-size)[#date]
+      #pagebreak()
+    ]
+    
+    outline(depth: 3, indent: true)
+    pagebreak()
+  } else {
+    outline(depth: 3, indent: true)
+    pagebreak()
+  }
+
+  // Main matter: Arabic numerals, restore header and footer
+  set page(
+    numbering: "1",
+    footer: context {
+      let loc = here()
+      // Part pages don't show footer
+      let parts_on_page = query(heading.where(level: 1)).filter(h => h.location().page() == loc.page())
+      if parts_on_page.len() > 0 { return }
+      // Show page number
+      align(center)[#counter(page).display("1")]
+    }
+  )
+  counter(page).update(1)
+
+  // Configure figure numbering to include chapter number
+  set figure(numbering: num => context {
+    let chapter_num = chaptercounter.get().first()
+    // Format as "Chapter.Figure" (e.g., "1.1", "2.3")
+    numbering("1.1", chapter_num, num)
+  })
 
   // Don't wrap doc in par() - it causes all content to be in one paragraph
   set par(justify: true)
