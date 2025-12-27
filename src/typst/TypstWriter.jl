@@ -721,14 +721,19 @@ function typst(io::Context, node::Node, heading::MarkdownAST.Heading)
     _println(io, "])")
 end
 
-# Whitelisted lexers.
-const LEXER = Set([
-    "julia",
-    "jlcon",
-    "text",
-])
-
 function typst(io::Context, ::Node, code::MarkdownAST.CodeBlock)
+    # Check for native Typst math BEFORE calling codelang
+    # because codelang only extracts the first word
+    if code.info == "math typst"
+        # Render a native Typst math block
+        _println(io)
+        _println(io, "\$")
+        _println(io, code.code)
+        _println(io, "\$")
+        _println(io)
+        return
+    end
+    
     language = Documenter.codelang(code.info)
     if language == "julia-repl" || language == "@repl"
         language = "julia"

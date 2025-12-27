@@ -83,6 +83,9 @@ end
     # LaTeXWriter
     include("latexwriter.jl")
 
+    # TypstWriter
+    include("typstwriter.jl")
+
     # Deployment configurations
     include("deployconfig.jl")
     include("deploydocs.jl")
