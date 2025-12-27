@@ -184,7 +184,7 @@
       // 5. Display header if valid chapter found
       if current_chapter != none {
         align(center)[
-          #text(10pt)[
+          #text(10pt, style: "italic")[
             #if current_chapter.numbering != none {
               // Numbered chapter: show "CHAPTER X. TITLE"
               let chapter_num = chaptercounter.at(current_chapter.location()).first() + 1
@@ -221,9 +221,8 @@
 
   // Set color for links
   show link: it => {
-    // Internal links use label (<...>) or location
-    // External links use string ("...")
-    if type(it.dest) == label or type(it.dest) == location {
+    // Internal links use label (<...>), external links use string ("...")
+    if type(it.dest) == label {
       text(fill: dark-blue)[#it]
     } else {
       text(fill: dark-purple)[#it]
