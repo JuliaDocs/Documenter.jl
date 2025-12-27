@@ -87,6 +87,7 @@ include("docchecks.jl")
 include("writers.jl")
 include("html/HTMLWriter.jl")
 include("latex/LaTeXWriter.jl")
+include("typst/TypstWriter.jl")
 
 # This is to keep DocumenterTools working:
 module Writers
@@ -96,6 +97,7 @@ end
 import .HTMLWriter: HTML, asset, RawHTMLHeadContent
 import .HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
 import .LaTeXWriter: LaTeX
+import .TypstWriter: Typst
 
 # User Interface.
 # ---------------
