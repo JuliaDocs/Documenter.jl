@@ -7,15 +7,56 @@ A module for rendering `Document` objects to Typst and PDF.
 [`makedocs`](@ref Documenter.makedocs): `authors`, `sitename`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
-navigation menu. It goes into the `\\title` Typst command.
+navigation menu. It goes into the Typst document title.
 
-**`authors`** can be used to specify the authors of. It goes into the `\\author` Typst command.
+**`authors`** can be used to specify the authors. It goes into the Typst document metadata.
 
 """
 module TypstWriter
 import ...Documenter: Documenter
 using Dates: Dates
 using MarkdownAST: MarkdownAST, Node
+using Typst_jll: typst as typst_exe
+
+# ============================================================================
+# Hash-based label ID generation
+# ============================================================================
+
+"""
+Generate hash-based label IDs for cross-references.
+
+Strategy:
+- Use `build_path#anchor_label` as the unique identifier
+- All paths are normalized to include the build directory prefix for consistency
+- anchor_label includes -nth suffix for uniqueness
+
+This ensures:
+1. Same-file same-name headers are distinguished by nth
+2. Cross-file same-name headers are distinguished by file path
+3. Case-insensitive matching via lowercase_anchors map
+"""
+_hash(x::AbstractString) = string(hash(x))
+
+function _hash(anchor::Documenter.Anchor)
+    # anchor.file already includes build prefix (e.g., "build-typst/man/doctests.md")
+    # Just normalize path separators
+    normalized_path = normalize_path(anchor.file)
+    label = Documenter.anchor_label(anchor)  # includes -nth if needed
+    return _hash(normalized_path * "#" * label)
+end
+
+# Normalize path separators for consistent hashing
+normalize_path(path::AbstractString) = replace(path, "\\" => "/")
+
+# Add build prefix to relative paths (pagekey, io.filename)
+function with_build_prefix(doc::Documenter.Document, relative_path::AbstractString)
+    # Normalize and combine with build directory
+    build_path = normalize_path(doc.user.build)
+    rel_path = normalize_path(relative_path)
+    return build_path * "/" * rel_path
+end
+
+# ============================================================================
 
 """
     Documenter.Typst(; kwargs...)
@@ -29,23 +70,29 @@ makedocs(
 )
 ```
 
-The `makedocs` argument `sitename` will be used for the `\\title` field in the tex document.
-The `authors` argument should also be specified and will be used for the `\\authors` field
-in the tex document. Finally, a version number can be specified with the `version` option to
-`Typst`, which will be printed in the document and also appended to the output PDF file name.
+The `makedocs` argument `sitename` will be used for the document title.
+The `authors` argument should also be specified and will be used for the document metadata.
+A version number can be specified with the `version` option to `Typst`, which will be 
+printed in the document and also appended to the output PDF file name.
 
 # Keyword arguments
 
-**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default),
-`"typst"`, `"docker"`, or "none" which doesn't compile the tex. The option `typst`
-requires a `typst` executable to be available in `PATH` or to be passed as the `typst`
-keyword.
+- **`platform`** sets the platform where the Typst file is compiled. Available options:
+    - `"typst"` (default): Uses Typst_jll, a Julia binary wrapper that automatically 
+      provides the Typst compiler across all platforms.
+    - `"native"`: Uses the system-installed `typst` executable found in `PATH`, or 
+      a custom path specified via the `typst` keyword argument.
+    - `"docker"`: Uses Docker to compile the Typst file. Requires `docker` to be 
+      available in `PATH`.
+    - `"none"`: Skips compilation and only generates the `.typ` source file in the 
+      build directory.
 
-**`version`** specifies the version number that gets printed on the title page of the manual.
-It defaults to the value in the `TRAVIS_TAG` environment variable (although this behaviour is
-considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
+- **`version`** specifies the version number printed on the title page of the manual.
+  Defaults to the value in the `TRAVIS_TAG` environment variable (although this behaviour 
+  is considered deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 
-**`typst`** path to a `typst` executable used for compilation.
+- **`typst`** allows specifying a custom path to a `typst` executable. Only used when 
+  `platform="native"`. Can be either a `String` path or a `Cmd` object.
 
 See [Other Output Formats](@ref) for more information.
 """
@@ -54,7 +101,7 @@ struct Typst <: Documenter.Writer
     version::String
     typst::Union{Cmd,String,Nothing}
     function Typst(;
-        platform="native",
+        platform="typst",
         version=get(ENV, "TRAVIS_TAG", ""),
         typst=nothing)
         platform ∈ ("native", "typst", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
@@ -84,33 +131,12 @@ mutable struct Context{I<:IO} <: IO
     filename::String # currently active source file
     doc::Documenter.Document
     page::Union{Documenter.Page, Nothing} # current page being rendered
+    lowercase_anchors::Dict{String,String}  # lowercase(anchor_id) -> anchor_id for case-insensitive lookup
 end
-Context(io, doc) = Context{typeof(io)}(io, false, Dict(), Dict(), 1, "", doc, nothing)
+Context(io, doc) = Context{typeof(io)}(io, false, Dict(), Dict(), 1, "", doc, nothing, Dict())
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
-
-# Generate a unique label ID: slugified readable prefix + hash for uniqueness
-function make_label_id(io::Context, page::Documenter.Page, fragment::String)
-    # Get the slugified pagekey for the file prefix (for readability)
-    pagekey_str = Documenter.pagekey(io.doc, page)
-    file_slug = Documenter.slugify(pagekey_str)
-    file_slug = replace(file_slug, "/" => "-")
-    file_slug = replace(file_slug, r"\.md$" => "")
-    
-    # Create readable part (lowercase for consistency)
-    readable_part = lowercase("$(file_slug)-$(fragment)")
-    
-    # Hash the full path+fragment for uniqueness guarantee
-    hash_part = string(hash(lowercase("$(pagekey_str)#$(fragment)")))
-    
-    # Combine: readable prefix + hash suffix
-    return "$(readable_part)-$(hash_part)"
-end
-
-# Labels in the TeX file are hashes of plain text labels.
-# To keep the plain text label (for debugging), say _hash(x) = x
-_hash(x) = string(hash(x))
 
 # Collect all footnote definitions from a page's AST
 function collect_footnotes!(defs::Dict{String,Node}, node::Node)
@@ -152,6 +178,22 @@ function render(doc::Documenter.Document, settings::Typst=Typst())
             fileprefix = typst_fileprefix(doc, settings)
             open("$(fileprefix).typ", "w") do io
                 context = Context(io, doc)
+                
+                # Build lowercase anchor lookup map for case-insensitive matching
+                # Must use anchor_label (not anchor.id) to include -nth suffixes
+                # Key format: "build_path#lowercase_label" to handle cross-file same-name anchors
+                for (anchor_id, filedict) in doc.internal.headers.map
+                    for (file, anchors) in filedict
+                        # file already includes build prefix
+                        normalized_file = normalize_path(file)
+                        for anchor in anchors
+                            label = Documenter.anchor_label(anchor)
+                            key = normalized_file * "#" * lowercase(label)
+                            context.lowercase_anchors[key] = label
+                        end
+                    end
+                end
+                
                 writeheader(context, doc, settings)
                 for (title, filename, depth) in files(doc.user.pages)
                     context.filename = filename
@@ -231,7 +273,16 @@ function compile_typ(doc::Documenter.Document, settings::Typst, fileprefix::Stri
             return false
         end
     elseif settings.platform == "typst"
-        # TODO: Use Typst_jll
+        @info "TypstWriter: using typst (via Typst_jll)."
+        try
+            piperun(`$(typst_exe()) compile $(fileprefix).typ`, clearlogs=true)
+            return true
+        catch err
+            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
+            @error "TypstWriter: failed to compile. " *
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
+            return false
+        end
     elseif settings.platform == "docker"
         Sys.which("docker") === nothing && (@error "TypstWriter: docker command not found."; return false)
         @info "TypstWriter: using docker to compile typ."
@@ -331,8 +382,7 @@ const NoExtraTopLevelNewlines = Union{
 
 function typst(io::Context, node::Node, ah::Documenter.AnchoredHeader; toplevel=false, inblock=false)
     anchor = ah.anchor
-    # Generate unique label with counter for duplicates
-    id = make_label_id(io, io.page, anchor.id)
+    id = _hash(anchor)
     typst(io, node.children; toplevel=istoplevel(node), inblock=inblock)
     _println(io, " <", id, ">\n")
 end
@@ -345,8 +395,7 @@ end
 
 function typst(io::Context, node::Node, docs::Documenter.DocsNode; toplevel=false, inblock=false)
     node, ast = docs, node
-    # typst(io::IO, node::Documenter.DocsNode, page, doc)
-    id = _hash(basename(io.filename) * "#" * node.anchor.id)
+    id = _hash(node.anchor)
     # Docstring header based on the name of the binding and it's category.
     _print(io, "#raw(\"")
     typstescstr(io, string(node.object.binding))
@@ -358,7 +407,7 @@ function typst(io::Context, node::Node, docs::Documenter.DocsNode; toplevel=fals
     _println(io, "])")
 end
 
-function typstdoc(io::IO, node::Node; inblock=inblock)
+function typstdoc(io::Context, node::Node; inblock=inblock)
     @assert node.element isa Documenter.DocsNode
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
@@ -368,7 +417,7 @@ function typstdoc(io::IO, node::Node; inblock=inblock)
         typst(io, docstringast.children; inblock=inblock)
         _println(io)
         # When a source link is available then print the link.
-        url = Documenter.source_url(io.doc.user.remote, result)
+        url = Documenter.source_url(io.doc, result)
         if url !== nothing
             link = "#link(\"$url\")[`source`]"
             _println(io, "\n", link, "\n")
@@ -384,10 +433,11 @@ function typst(io::Context, node::Node, index::Documenter.IndexNode; toplevel=fa
     isempty(index.elements) && (_println(io); return)
 
     _println(io, "\n")
-    for (object, _, page, mod, cat) in index.elements
-        id = _hash(basename(io.filename) * "#" * string(Documenter.slugify(object)))
+    for (object, doc, page, mod, cat) in index.elements
+        # doc is a DocsNode with an anchor field!
+        id = _hash(doc.anchor)
         text = string(object.binding)
-        _print(io, "#link(<")
+        _print(io, "- #link(<")
         _print(io, id, ">)[#raw(\"")
         typstescstr(io, text)
         _println(io, "\", block: false)]")
@@ -418,7 +468,7 @@ function typst(io::Context, node::Node, contents::Documenter.ContentsNode; tople
         end
 
         # Print the corresponding item
-        id = _hash(basename(anchor.file) * "#" * anchor.id)
+        id = _hash(anchor)
         _print(io, repeat(" ", 2 * (level - 1)), "- #link(<", id, ">)[")
         typst(io, header.children; inblock=inblock)
         _println(io, "]")
@@ -561,7 +611,7 @@ function typst(io::Context, node::Node, list::MarkdownAST.List; toplevel=false, 
 end
 
 function typst(io::Context, ::Node, ::MarkdownAST.ThematicBreak; toplevel=false, inblock=false)
-    _println(io, "#line(length: 1pt)")
+    _println(io, "#line(length: 100%)")
 end
 
 function typst(io::Context, ::Node, math::MarkdownAST.DisplayMath; toplevel=false, inblock=false)
@@ -638,6 +688,22 @@ function typst(io::Context, node::Node, image::MarkdownAST.Image; toplevel=false
     _println(io, "])]")
 end
 
+function typst(io::Context, node::Node, image::Documenter.LocalImage; toplevel=false, inblock=false)
+    # LocalImage is similar to MarkdownAST.Image but uses .path instead of .destination
+    _println(io, "#align(center)[")
+    _println(io, "#figure(")
+    _println(io, "image(")
+    
+    # Normalize path (convert backslashes to forward slashes for Typst)
+    url = replace(image.path, "\\" => "/")
+    
+    _print(io, "\"", url, "\", ")
+    _println(io, "width: 100%, fit: \"contain\"),")
+    _println(io, "caption: [")
+    typst(io, node.children; inblock=true, toplevel=false)
+    _println(io, "])]")
+end
+
 function typst(io::Context, node::Node, f::MarkdownAST.FootnoteLink; toplevel=false, inblock=false)
     # Look up the footnote definition
     if haskey(io.footnote_defs, f.id)
@@ -660,10 +726,19 @@ end
 
 # PageLink - internal cross-reference links resolved by Documenter
 function typst(io::Context, node::Node, link::Documenter.PageLink; toplevel=false, inblock=false)
-    # PageLink represents a resolved @ref link within the documentation
+    # PageLink represents a resolved @ref link or # same-file reference
     if link.fragment !== nothing && !isempty(link.fragment)
-        # Generate the same label ID as the target anchor (hash guarantees consistency)
-        id = make_label_id(io, link.page, link.fragment)
+        # pagekey is relative path without build prefix, need to add it
+        pagekey = Documenter.pagekey(io.doc, link.page)
+        full_path = with_build_prefix(io.doc, pagekey)
+        
+        # Case-insensitive lookup: link.fragment might be lowercase, but we need actual case
+        # The lowercase_anchors map key includes full build path: "build_path#lowercase_label"
+        lookup_key = full_path * "#" * lowercase(link.fragment)
+        anchor_label = get(io.lowercase_anchors, lookup_key, link.fragment)
+        
+        # Generate hash: build_path#anchor_label
+        id = _hash(full_path * "#" * anchor_label)
         _print(io, "#link(<", id, ">)[")
     else
         # Link to a page without fragment - just render the text
@@ -691,14 +766,15 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link; toplevel=false, 
             id = lowercase("$(file_slug)-$(target)")
             _print(io, "#link(<", id, ">)")
         elseif startswith(link.destination, "#")
-            # Same-file reference: #section
-            # Use pagekey for current file
-            target = lstrip(link.destination, '#')
-            pagekey_str = Documenter.pagekey(io.doc, io.page)
-            file_slug = Documenter.slugify(pagekey_str)
-            file_slug = replace(file_slug, "/" => "-")
-            file_slug = replace(file_slug, r"\.md$" => "")
-            id = lowercase("$(file_slug)-$(target)")
+            # Same-file reference: #anchor-slug
+            fragment = lstrip(link.destination, '#')
+            # io.filename is relative path, need to add build prefix
+            full_path = with_build_prefix(io.doc, io.filename)
+            # Case-insensitive lookup with full build path
+            lookup_key = full_path * "#" * lowercase(fragment)
+            anchor_label = get(io.lowercase_anchors, lookup_key, fragment)
+            # Generate hash
+            id = _hash(full_path * "#" * anchor_label)
             _print(io, "#link(<", id, ">)")
         else
             # External link or other format
@@ -732,7 +808,7 @@ end
 typst(io::Context, node::Node, ::MarkdownAST.LineBreak; toplevel=false, inblock=false) = _println(io, "#linebreak()")
 
 const _typstescape_chars = Dict{Char,AbstractString}()
-for ch in "@#*_\$/"
+for ch in "@#*_\$/`<>"
     _typstescape_chars[ch] = "\\$ch"
 end
 
