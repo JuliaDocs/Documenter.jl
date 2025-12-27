@@ -19,40 +19,82 @@ using MarkdownAST: MarkdownAST, Node
 using Typst_jll: typst as typst_exe
 
 # ============================================================================
-# Hash-based label ID generation
+# Path handling and anchor identification
 # ============================================================================
 
 """
-Generate hash-based label IDs for cross-references.
+    canonical_path(doc::Document, path::AbstractString) -> String
 
-Strategy:
-- Use `build_path#anchor_label` as the unique identifier
-- All paths are normalized to include the build directory prefix for consistency
-- anchor_label includes -nth suffix for uniqueness
+Normalize path separators to forward slashes for consistent hashing.
+Preserves the build prefix (e.g., "build-typst/").
 
-This ensures:
-1. Same-file same-name headers are distinguished by nth
-2. Cross-file same-name headers are distinguished by file path
-3. Case-insensitive matching via lowercase_anchors map
+# Examples
+```julia
+canonical_path(doc, "build-typst/man/guide.md")  # => "build-typst/man/guide.md"
+canonical_path(doc, "build-typst\\lib\\internals.md")  # => "build-typst/lib/internals.md"
+```
 """
-_hash(x::AbstractString) = string(hash(x))
-
-function _hash(anchor::Documenter.Anchor)
-    # anchor.file already includes build prefix (e.g., "build-typst/man/doctests.md")
-    # Just normalize path separators
-    normalized_path = normalize_path(anchor.file)
-    label = Documenter.anchor_label(anchor)  # includes -nth if needed
-    return _hash(normalized_path * "#" * label)
+function canonical_path(doc::Documenter.Document, path::AbstractString)
+    # Only normalize path separators, keep build prefix
+    return replace(path, "\\" => "/")
 end
 
-# Normalize path separators for consistent hashing
-normalize_path(path::AbstractString) = replace(path, "\\" => "/")
+"""
+    AnchorKey
 
-# Add build prefix to relative paths (pagekey, io.filename)
+Unique identifier for an anchor, combining normalized path and label.
+
+# Fields
+- `file::String`: canonical path (includes build prefix, e.g., "build-typst/man/guide.md")
+- `label::String`: anchor label (includes -nth suffix for uniqueness)
+
+# Usage
+Used to generate label IDs and case-insensitive lookup keys.
+"""
+struct AnchorKey
+    file::String
+    label::String
+end
+
+"""
+    AnchorKey(doc::Document, anchor::Anchor) -> AnchorKey
+
+Construct AnchorKey from a Documenter.Anchor.
+"""
+function AnchorKey(doc::Documenter.Document, anchor::Documenter.Anchor)
+    return AnchorKey(
+        canonical_path(doc, anchor.file),
+        Documenter.anchor_label(anchor)
+    )
+end
+
+"""
+    make_label_id(key::AnchorKey) -> String
+
+Generate label ID for Typst references.
+"""
+make_label_id(key::AnchorKey) = string(hash("$(key.file)#$(key.label)"))
+
+"""
+    lowercase_key(key::AnchorKey) -> String
+
+Generate lowercase lookup key for case-insensitive matching.
+"""
+lowercase_key(key::AnchorKey) = "$(key.file)#$(lowercase(key.label))"
+
+# Legacy helpers - used in places that haven't been refactored yet
+_hash(x::AbstractString) = string(hash(x))
+function _hash(anchor::Documenter.Anchor)
+    # For legacy calls, we need to handle anchor.file which already includes build prefix
+    normalized = replace(anchor.file, "\\" => "/")
+    label = Documenter.anchor_label(anchor)
+    return string(hash(normalized * "#" * label))
+end
+
+# Add build prefix to relative paths - kept for compatibility during transition
 function with_build_prefix(doc::Documenter.Document, relative_path::AbstractString)
-    # Normalize and combine with build directory
-    build_path = normalize_path(doc.user.build)
-    rel_path = normalize_path(relative_path)
+    build_path = replace(doc.user.build, "\\" => "/")
+    rel_path = replace(relative_path, "\\" => "/")
     return build_path * "/" * rel_path
 end
 
@@ -122,18 +164,44 @@ import ANSIColoredPrinters
 # Implement the writer interface for ANSI color support
 writer_supports_ansicolor(::Typst) = false
 
+# ============================================================================
+# Rendering state and context
+# ============================================================================
+
+"""
+    RenderState
+
+Immutable global state built once at the start of rendering.
+Contains lookup tables that don't change during the rendering process.
+"""
+struct RenderState
+    lowercase_anchors::Dict{String,String}  # lowercase key -> original label
+end
+
+"""
+    Context{I<:IO}
+
+Mutable rendering context that changes as we traverse the document.
+Implements the IO interface for convenient printing.
+"""
 mutable struct Context{I<:IO} <: IO
     io::I
-    in_header::Bool
-    footnotes::Dict{String,Int}  # footnote id -> number (for compatibility, not really used in Typst)
-    footnote_defs::Dict{String,Node}  # footnote id -> definition node (for Typst inline footnotes)
-    depth::Int
-    filename::String # currently active source file
     doc::Documenter.Document
-    page::Union{Documenter.Page, Nothing} # current page being rendered
-    lowercase_anchors::Dict{String,String}  # lowercase(anchor_id) -> anchor_id for case-insensitive lookup
+    state::RenderState
+    
+    # Current file state
+    filename::String  # Currently active source file
+    depth::Int        # Current heading depth
+    in_header::Bool   # Are we inside a header?
+    in_block::Bool    # Are we inside a block container (admonition, blockquote, etc)?
+    
+    # Per-page state (reset for each page)
+    footnote_defs::Dict{String,Node}  # Footnote id -> definition node
 end
-Context(io, doc) = Context{typeof(io)}(io, false, Dict(), Dict(), 1, "", doc, nothing, Dict())
+
+function Context(io::I, doc::Documenter.Document, state::RenderState) where I<:IO
+    Context{I}(io, doc, state, "", 1, false, false, Dict())
+end
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
@@ -170,6 +238,34 @@ const DOCUMENT_STRUCTURE = (
     "subparagraph",
 )
 
+"""
+    build_anchor_lookup(doc::Document) -> Dict{String,String}
+
+Build a case-insensitive anchor lookup map.
+
+Returns a dictionary mapping lowercase keys (file#label) to original anchor labels.
+This allows case-insensitive matching of anchor references while preserving the
+original case for Typst label generation.
+
+# Implementation
+Iterates through all anchors in doc.internal.headers.map and creates entries
+using canonical paths and anchor labels (which include -nth suffixes for uniqueness).
+"""
+function build_anchor_lookup(doc::Documenter.Document)
+    lookup = Dict{String, String}()
+    
+    for (_, filedict) in doc.internal.headers.map
+        for (file, anchors) in filedict
+            for anchor in anchors
+                key = lowercase_key(AnchorKey(doc, anchor))
+                lookup[key] = Documenter.anchor_label(anchor)
+            end
+        end
+    end
+    
+    return lookup
+end
+
 function render(doc::Documenter.Document, settings::Typst=Typst())
     @info "TypstWriter: creating the Typst file."
     mktempdir() do path
@@ -177,27 +273,13 @@ function render(doc::Documenter.Document, settings::Typst=Typst())
         cd(joinpath(path, "build")) do
             fileprefix = typst_fileprefix(doc, settings)
             open("$(fileprefix).typ", "w") do io
-                context = Context(io, doc)
-                
-                # Build lowercase anchor lookup map for case-insensitive matching
-                # Must use anchor_label (not anchor.id) to include -nth suffixes
-                # Key format: "build_path#lowercase_label" to handle cross-file same-name anchors
-                for (anchor_id, filedict) in doc.internal.headers.map
-                    for (file, anchors) in filedict
-                        # file already includes build prefix
-                        normalized_file = normalize_path(file)
-                        for anchor in anchors
-                            label = Documenter.anchor_label(anchor)
-                            key = normalized_file * "#" * lowercase(label)
-                            context.lowercase_anchors[key] = label
-                        end
-                    end
-                end
+                # Build global rendering state
+                state = RenderState(build_anchor_lookup(doc))
+                context = Context(io, doc, state)
                 
                 writeheader(context, doc, settings)
                 for (title, filename, depth) in files(doc.user.pages)
                     context.filename = filename
-                    empty!(context.footnotes)
                     empty!(context.footnote_defs)
                     if 1 <= depth <= length(DOCUMENT_STRUCTURE)
                         header_text = "#extended_heading(level: $(depth), within-block: false,  [$(title)])\n"
@@ -206,14 +288,13 @@ function render(doc::Documenter.Document, settings::Typst=Typst())
                         else
                             path = normpath(filename)
                             page = doc.blueprint.pages[path]
-                            context.page = page  # Set current page
                             if get(page.globals.meta, :IgnorePage, :none) !== :Typst
                                 # Pre-scan to collect footnote definitions
                                 collect_footnotes!(context.footnote_defs, page.mdast)
                                 
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
-                                typst(context, page.mdast.children; toplevel=true)
+                                typst_toplevel(context, page.mdast.children)
                             end
                         end
                     end
@@ -258,59 +339,116 @@ end
 
 const DOCKER_IMAGE_TAG = "0.1"
 
-function compile_typ(doc::Documenter.Document, settings::Typst, fileprefix::String)
+# ============================================================================
+# Typst compilation backends
+# ============================================================================
+
+"""
+Abstract base type for Typst compilation backends.
+Each concrete type implements a specific way to compile .typ files to PDF.
+"""
+abstract type TypstCompiler end
+
+"""Native system typst executable."""
+struct NativeCompiler <: TypstCompiler
+    typst_cmd::Cmd
+end
+
+"""Typst_jll Julia binary wrapper."""
+struct TypstJllCompiler <: TypstCompiler end
+
+"""Docker-based compilation."""
+struct DockerCompiler <: TypstCompiler
+    image_tag::String
+end
+
+"""No-op compiler (only generates .typ source)."""
+struct NoOpCompiler <: TypstCompiler end
+
+"""
+    get_compiler(settings::Typst) -> TypstCompiler
+
+Factory function to create the appropriate compiler based on settings.
+"""
+function get_compiler(settings::Typst)
     if settings.platform == "native"
-        # Use native typst
-        Sys.which("typst") === nothing && (@error "TypstWriter: typst command not found."; return false)
-        @info "TypstWriter: compile typ."
-        try
-            piperun(`typst.local compile $(fileprefix).typ`, clearlogs=true)
-            return true
-        catch err
-            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
-            @error "TypstWriter: failed to compile. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
-            return false
-        end
+        cmd = settings.typst === nothing ? `typst` : settings.typst
+        return NativeCompiler(cmd)
     elseif settings.platform == "typst"
-        @info "TypstWriter: using typst (via Typst_jll)."
-        try
-            piperun(`$(typst_exe()) compile $(fileprefix).typ`, clearlogs=true)
-            return true
-        catch err
-            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
-            @error "TypstWriter: failed to compile. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
-            return false
-        end
+        return TypstJllCompiler()
     elseif settings.platform == "docker"
-        Sys.which("docker") === nothing && (@error "TypstWriter: docker command not found."; return false)
-        @info "TypstWriter: using docker to compile typ."
-        script = """
-            mkdir /home/zeptodoctor/build
-            cd /home/zeptodoctor/build
-            cp -r /mnt/. .
-            typst compile $(fileprefix).typ
-            """
-        try
-            piperun(`docker run -itd -u zeptodoctor --name typst-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-Typst:$(DOCKER_IMAGE_TAG)`, clearlogs=true)
-            piperun(`docker exec -u zeptodoctor typst-container bash -c $(script)`)
-            piperun(`docker cp typst-container:/home/zeptodoctor/build/$(fileprefix).pdf .`)
-            return true
-        catch err
-            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
-            @error "TypstWriter: failed to compile typ with docker. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
-            return false
-        finally
-            try
-                piperun(`docker stop Typst-container`)
-            catch
-            end
-        end
+        return DockerCompiler(DOCKER_IMAGE_TAG)
     elseif settings.platform == "none"
-        @info "Skipping compiling typ file."
+        return NoOpCompiler()
+    else
+        error("Unknown platform: $(settings.platform)")
+    end
+end
+
+"""
+    compile(compiler::TypstCompiler, fileprefix::String) -> Bool
+
+Compile the .typ file using the given compiler backend.
+Returns true on success, throws on failure.
+"""
+function compile(c::NativeCompiler, fileprefix::String)
+    Sys.which("typst") === nothing && error("typst command not found")
+    @info "TypstWriter: using native typst."
+    piperun(`$(c.typst_cmd) compile $(fileprefix).typ`, clearlogs=true)
+    return true
+end
+
+function compile(c::TypstJllCompiler, fileprefix::String)
+    @info "TypstWriter: using typst (via Typst_jll)."
+    piperun(`$(typst_exe()) compile $(fileprefix).typ`, clearlogs=true)
+    return true
+end
+
+function compile(c::DockerCompiler, fileprefix::String)
+    Sys.which("docker") === nothing && error("docker command not found")
+    @info "TypstWriter: using docker to compile typ."
+    
+    script = """
+        mkdir /home/zeptodoctor/build
+        cd /home/zeptodoctor/build
+        cp -r /mnt/. .
+        typst compile $(fileprefix).typ
+        """
+    
+    try
+        piperun(`docker run -itd -u zeptodoctor --name typst-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-Typst:$(c.image_tag)`, clearlogs=true)
+        piperun(`docker exec -u zeptodoctor typst-container bash -c $(script)`)
+        piperun(`docker cp typst-container:/home/zeptodoctor/build/$(fileprefix).pdf .`)
         return true
+    finally
+        try
+            piperun(`docker stop typst-container`)
+        catch
+        end
+    end
+end
+
+function compile(c::NoOpCompiler, fileprefix::String)
+    @info "TypstWriter: skipping compilation (platform=none)."
+    return true
+end
+
+"""
+    compile_typ(doc::Document, settings::Typst, fileprefix::String) -> Bool
+
+Main entry point for Typst compilation. 
+Selects the appropriate compiler and handles errors uniformly.
+"""
+function compile_typ(doc::Documenter.Document, settings::Typst, fileprefix::String)
+    compiler = get_compiler(settings)
+    
+    try
+        return compile(compiler, fileprefix)
+    catch err
+        logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
+        @error "TypstWriter: compilation failed. " *
+               "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
+        return false
     end
 end
 
@@ -357,16 +495,26 @@ end
 # as the top-level blocks of a page, or somewhere deeper in the AST.
 istoplevel(n::Node) = !isnothing(n.parent) && isa(n.parent.element, MarkdownAST.Document)
 
-typst(io::Context, node::Node; toplevel=false, inblock=false) = typst(io, node, node.element; toplevel=toplevel, inblock=inblock)
-typst(io::Context, node::Node, e; toplevel=false, inblock=false) = error("$(typeof(e)) not implemented: $e")
+# Main typst rendering dispatch
+typst(io::Context, node::Node) = typst(io, node, node.element)
+typst(io::Context, node::Node, e) = error("$(typeof(e)) not implemented: $e")
 
-function typst(io::Context, children; toplevel=false, inblock=false)
+# Render children
+function typst(io::Context, children)
+    @assert eltype(children) <: MarkdownAST.Node
+    for node in children
+        typst(io, node)
+    end
+end
+
+# Render children at top level (with extra spacing for certain elements)
+function typst_toplevel(io::Context, children)
     @assert eltype(children) <: MarkdownAST.Node
     for node in children
         otherelement = !isa(node.element, NoExtraTopLevelNewlines)
-        toplevel && otherelement && _println(io)
-        typst(io, node; toplevel=toplevel, inblock=inblock)
-        toplevel && otherelement && _println(io)
+        otherelement && _println(io)
+        typst(io, node)
+        otherelement && _println(io)
     end
 end
 
@@ -380,20 +528,28 @@ const NoExtraTopLevelNewlines = Union{
     Documenter.MetaNode,
 }
 
-function typst(io::Context, node::Node, ah::Documenter.AnchoredHeader; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     anchor = ah.anchor
     id = _hash(anchor)
-    typst(io, node.children; toplevel=istoplevel(node), inblock=inblock)
+    if istoplevel(node)
+        typst_toplevel(io, node.children)
+    else
+        typst(io, node.children)
+    end
     _println(io, " <", id, ">\n")
 end
 
 ## Documentation Nodes.
 
-function typst(io::Context, node::Node, ::Documenter.DocsNodesBlock; toplevel=false, inblock=false)
-    typst(io, node.children; toplevel=istoplevel(node), inblock=inblock)
+function typst(io::Context, node::Node, ::Documenter.DocsNodesBlock)
+    if istoplevel(node)
+        typst_toplevel(io, node.children)
+    else
+        typst(io, node.children)
+    end
 end
 
-function typst(io::Context, node::Node, docs::Documenter.DocsNode; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, docs::Documenter.DocsNode)
     node, ast = docs, node
     id = _hash(node.anchor)
     # Docstring header based on the name of the binding and it's category.
@@ -403,18 +559,18 @@ function typst(io::Context, node::Node, docs::Documenter.DocsNode; toplevel=fals
     _println(io, " -- ", Documenter.doccat(node.object), ".\n")
     # Body. May contain several concatenated docstrings.
     _println(io, "#grid(columns: (2em, 1fr), [], [")
-    typstdoc(io, ast; inblock=inblock)
+    typstdoc(io, ast)
     _println(io, "])")
 end
 
-function typstdoc(io::Context, node::Node; inblock=inblock)
+function typstdoc(io::Context, node::Node)
     @assert node.element isa Documenter.DocsNode
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
     for (docstringast, result) in zip(node.element.mdasts, node.element.results)
         _println(io)
-        typst(io, docstringast.children; inblock=inblock)
+        typst(io, docstringast.children)
         _println(io)
         # When a source link is available then print the link.
         url = Documenter.source_url(io.doc, result)
@@ -427,7 +583,7 @@ end
 
 ## Index, Contents, and Eval Nodes.
 
-function typst(io::Context, node::Node, index::Documenter.IndexNode; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, index::Documenter.IndexNode)
     # Having an empty itemize block in Typst throws an error, so we bail early
     # in that situation:
     isempty(index.elements) && (_println(io); return)
@@ -445,7 +601,7 @@ function typst(io::Context, node::Node, index::Documenter.IndexNode; toplevel=fa
     _println(io, "\n")
 end
 
-function typst(io::Context, node::Node, contents::Documenter.ContentsNode; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, contents::Documenter.ContentsNode)
     # Having an empty itemize block in LaTeX throws an error, so we bail early
     # in that situation:
     isempty(contents.elements) && (_println(io); return)
@@ -470,24 +626,24 @@ function typst(io::Context, node::Node, contents::Documenter.ContentsNode; tople
         # Print the corresponding item
         id = _hash(anchor)
         _print(io, repeat(" ", 2 * (level - 1)), "- #link(<", id, ">)[")
-        typst(io, header.children; inblock=inblock)
+        typst(io, header.children)
         _println(io, "]")
     end
 end
 
-function typst(io::Context, node::Node, evalnode::Documenter.EvalNode; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, evalnode::Documenter.EvalNode)
     if evalnode.result !== nothing
-        typst(io, evalnode.result.children; toplevel=true, inblock=inblock)
+        typst_toplevel(io, evalnode.result.children)
     end
 end
 
 # Select the "best" representation for Typst output.
 using Base64: base64decode
-typst(io::Context, node::Node, ::Documenter.MultiOutput; toplevel=false, inblock=false) = typst(io, node.children; inblock=inblock)
-function typst(io::Context, node::Node, moe::Documenter.MultiOutputElement; toplevel=false, inblock=false)
-    Base.invokelatest(typst, io, node, moe.element; inblock=inblock)
+typst(io::Context, node::Node, ::Documenter.MultiOutput) = typst(io, node.children)
+function typst(io::Context, node::Node, moe::Documenter.MultiOutputElement)
+    Base.invokelatest(typst, io, node, moe.element)
 end
-function typst(io::Context, ::Node, d::Dict{MIME,Any}; toplevel=false, inblock=false)
+function typst(io::Context, ::Node, d::Dict{MIME,Any})
     filename = String(rand('a':'z', 7))
     if haskey(d, MIME"image/png"())
         write("$(filename).png", base64decode(d[MIME"image/png"()]))
@@ -498,14 +654,14 @@ function typst(io::Context, ::Node, d::Dict{MIME,Any}; toplevel=false, inblock=f
     elseif haskey(d, MIME"text/markdown"())
         md = Markdown.parse(d[MIME"text/markdown"()])
         ast = MarkdownAST.convert(MarkdownAST.Node, md)
-        typst(io, ast.children; inblock=inblock)
+        typst(io, ast.children)
     elseif haskey(d, MIME"text/plain"())
         text = d[MIME"text/plain"()]
         out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
         # We set a "fake" language as text/plain so that the writer knows how to
         # deal with it.
         codeblock = MarkdownAST.CodeBlock("text/plain", out)
-        typst(io, MarkdownAST.Node(codeblock); inblock=inblock)
+        typst(io, MarkdownAST.Node(codeblock))
     else
         error("this should never happen.")
     end
@@ -515,11 +671,12 @@ end
 
 ## Basic Nodes. AKA: any other content that hasn't been handled yet.
 
-function typst(io::Context, node::Node, heading::MarkdownAST.Heading; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, heading::MarkdownAST.Heading)
     N = heading.level
-    _print(io, "#extended_heading(level: $(min(io.depth + N - 1, length(DOCUMENT_STRUCTURE))), within-block: $(string(inblock)), [")
+    # Use io.in_block to determine if we're inside a container
+    _print(io, "#extended_heading(level: $(min(io.depth + N - 1, length(DOCUMENT_STRUCTURE))), within-block: $(string(io.in_block)), [")
     io.in_header = true
-    typst(io, node.children; inblock=inblock)
+    typst(io, node.children)
     io.in_header = false
     _println(io, "])")
 end
@@ -531,7 +688,7 @@ const LEXER = Set([
     "text",
 ])
 
-function typst(io::Context, node::Node, code::MarkdownAST.CodeBlock; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     language = Documenter.codelang(code.info)
     if language == "julia-repl" || language == "@repl"
         language = "julia"
@@ -547,7 +704,7 @@ function typst(io::Context, node::Node, code::MarkdownAST.CodeBlock; toplevel=fa
     return
 end
 
-typst(io::Context, node::Node, mcb::Documenter.MultiCodeBlock; toplevel=false, inblock=false) = typst(io, node, join_multiblock(node); inblock=inblock)
+typst(io::Context, node::Node, mcb::Documenter.MultiCodeBlock) = typst(io, node, join_multiblock(node))
 function join_multiblock(node::Node)
     @assert node.element isa Documenter.MultiCodeBlock
     io = IOBuffer()
@@ -564,57 +721,63 @@ function join_multiblock(node::Node)
     return MarkdownAST.CodeBlock(node.element.language, String(take!(io)))
 end
 
-function typst(io::Context, node::Node, code::MarkdownAST.Code; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, code::MarkdownAST.Code)
     _print(io, " #raw(\"")
     typstescstr(io, code.code)
     _print(io, "\", block: false) ")
 end
 
-function typst(io::Context, node::Node, ::MarkdownAST.Paragraph; toplevel=false, inblock=false)
-    typst(io, node.children; inblock=inblock)
+function typst(io::Context, node::Node, ::MarkdownAST.Paragraph)
+    typst(io, node.children)
     _println(io, "\n")
 end
 
 #TODO: improve quote
-function typst(io::Context, node::Node, ::MarkdownAST.BlockQuote; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, ::MarkdownAST.BlockQuote)
     _print(io, "#[")
-    typst(io, node.children; inblock=true)
+    old_in_block = io.in_block
+    io.in_block = true
+    typst(io, node.children)
+    io.in_block = old_in_block
     _print(io, "]")
 end
 
-function typst(io::Context, node::Node, md::MarkdownAST.Admonition; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, md::MarkdownAST.Admonition)
     type = "default"
     if md.category in ("danger", "warning", "note", "info", "tip", "compat")
         type = md.category
     end
 
     _println(io, "#admonition(type: \"$type\", title: \"$(md.title)\")[")
-    typst(io, node.children; inblock=true)
+    old_in_block = io.in_block
+    io.in_block = true
+    typst(io, node.children)
+    io.in_block = old_in_block
     _println(io, "]")
     return
 end
 
-function typst(io::Context, node::Node, f::MarkdownAST.FootnoteDefinition; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, f::MarkdownAST.FootnoteDefinition)
     # Footnote definitions are collected during pre-scan and rendered inline at FootnoteLink sites
     # So we don't output anything here to avoid duplication
     return nothing
 end
 
-function typst(io::Context, node::Node, list::MarkdownAST.List; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, list::MarkdownAST.List)
     symbol = list.type === :ordered ? '+' : '-'
     _println(io)
     for item in node.children
         _print(io, symbol, " ")
-        typst(io, item.children; inblock=inblock)
+        typst(io, item.children)
         _println(io)
     end
 end
 
-function typst(io::Context, ::Node, ::MarkdownAST.ThematicBreak; toplevel=false, inblock=false)
+function typst(io::Context, ::Node, ::MarkdownAST.ThematicBreak)
     _println(io, "#line(length: 100%)")
 end
 
-function typst(io::Context, ::Node, math::MarkdownAST.DisplayMath; toplevel=false, inblock=false)
+function typst(io::Context, ::Node, math::MarkdownAST.DisplayMath)
     _println(io)
     _println(io, "#mitex(`")
     _print(io, math.math)
@@ -622,48 +785,51 @@ function typst(io::Context, ::Node, math::MarkdownAST.DisplayMath; toplevel=fals
     _println(io)
 end
 
-function typst(io::Context, node::Node, table::MarkdownAST.Table; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, table::MarkdownAST.Table)
     rows = MarkdownAST.tablerows(node)
     cols = length(table.spec)
     _println(io, "#align(center)[")
     _println(io, "#table(")
     _println(io, "columns: (", repeat("auto,", cols), "),")
     _println(io, "align: (x, y) => ($(join(string.(table.spec), ",")),).at(x),")
+    old_in_block = io.in_block
+    io.in_block = true
     for (i, row) in enumerate(rows)
         for (j, cell) in enumerate(row.children)
             _print(io, " [")
-            typst(io, cell.children; toplevel=false, inblock=true)
+            typst(io, cell.children)
             _print(io, "],")
         end
         _println(io)
     end
+    io.in_block = old_in_block
     _println(io, ")]")
 end
 
-function typst(io::Context, node::Node, raw::Documenter.RawNode; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, raw::Documenter.RawNode)
     raw.name === :typst || raw.name === :typ ? _println(io, "\n", raw.text, "\n") : nothing
 end
 
 # Inline Elements.
 
-function typst(io::Context, node::Node, e::MarkdownAST.Text; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, e::MarkdownAST.Text)
     typstesc(io, e.text)
 end
 
-function typst(io::Context, node::Node, e::MarkdownAST.Strong; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, e::MarkdownAST.Strong)
     _print(io, "#strong([")
-    typst(io, node.children; inblock=inblock)
+    typst(io, node.children)
     _print(io, "])")
 end
 
-function typst(io::Context, node::Node, e::MarkdownAST.Emph; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, e::MarkdownAST.Emph)
     _print(io, "#emph([")
-    typst(io, node.children; inblock=inblock)
+    typst(io, node.children)
     _print(io, "])")
 end
 
 #TODO: Images
-function typst(io::Context, node::Node, image::MarkdownAST.Image; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, image::MarkdownAST.Image)
     _println(io, "#align(center)[")
     _println(io, "#figure(")
     _println(io, "image(")
@@ -684,11 +850,14 @@ function typst(io::Context, node::Node, image::MarkdownAST.Image; toplevel=false
     _print(io, "\"", url, "\", ")
     _println(io, "width: 100%, fit: \"contain\"),")
     _println(io, "caption: [")
-    typst(io, node.children; inblock=true, toplevel=false)
+    old_in_block = io.in_block
+    io.in_block = true
+    typst(io, node.children)
+    io.in_block = old_in_block
     _println(io, "])]")
 end
 
-function typst(io::Context, node::Node, image::Documenter.LocalImage; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, image::Documenter.LocalImage)
     # LocalImage is similar to MarkdownAST.Image but uses .path instead of .destination
     _println(io, "#align(center)[")
     _println(io, "#figure(")
@@ -700,22 +869,28 @@ function typst(io::Context, node::Node, image::Documenter.LocalImage; toplevel=f
     _print(io, "\"", url, "\", ")
     _println(io, "width: 100%, fit: \"contain\"),")
     _println(io, "caption: [")
-    typst(io, node.children; inblock=true, toplevel=false)
+    old_in_block = io.in_block
+    io.in_block = true
+    typst(io, node.children)
+    io.in_block = old_in_block
     _println(io, "])]")
 end
 
-function typst(io::Context, node::Node, f::MarkdownAST.FootnoteLink; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, f::MarkdownAST.FootnoteLink)
     # Look up the footnote definition
     if haskey(io.footnote_defs, f.id)
         def_node = io.footnote_defs[f.id]
         _print(io, "#footnote[")
+        old_in_block = io.in_block
+        io.in_block = true
         # Render the footnote content inline
         # If the content is a single paragraph, render its children directly to avoid extra newlines
         if length(def_node.children) == 1 && first(def_node.children).element isa MarkdownAST.Paragraph
-            typst(io, first(def_node.children).children; inblock=true)
+            typst(io, first(def_node.children).children)
         else
-            typst(io, def_node.children; inblock=true)
+            typst(io, def_node.children)
         end
+        io.in_block = old_in_block
         _print(io, "]")
     else
         # Footnote definition not found - output a warning marker
@@ -725,7 +900,7 @@ function typst(io::Context, node::Node, f::MarkdownAST.FootnoteLink; toplevel=fa
 end
 
 # PageLink - internal cross-reference links resolved by Documenter
-function typst(io::Context, node::Node, link::Documenter.PageLink; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, link::Documenter.PageLink)
     # PageLink represents a resolved @ref link or # same-file reference
     if link.fragment !== nothing && !isempty(link.fragment)
         # pagekey is relative path without build prefix, need to add it
@@ -735,7 +910,7 @@ function typst(io::Context, node::Node, link::Documenter.PageLink; toplevel=fals
         # Case-insensitive lookup: link.fragment might be lowercase, but we need actual case
         # The lowercase_anchors map key includes full build path: "build_path#lowercase_label"
         lookup_key = full_path * "#" * lowercase(link.fragment)
-        anchor_label = get(io.lowercase_anchors, lookup_key, link.fragment)
+        anchor_label = get(io.state.lowercase_anchors, lookup_key, link.fragment)
         
         # Generate hash: build_path#anchor_label
         id = _hash(full_path * "#" * anchor_label)
@@ -744,18 +919,18 @@ function typst(io::Context, node::Node, link::Documenter.PageLink; toplevel=fals
         # Link to a page without fragment - just render the text
         _print(io, "[")
     end
-    typst(io, node.children; inblock=inblock)
+    typst(io, node.children)
     _print(io, "]")
 end
 
-function typst(io::Context, node::Node, link::MarkdownAST.Link; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, link::MarkdownAST.Link)
     # TODO: handle the .title attribute
     # NOTE: Properly resolved internal links should already be converted to PageLink
     # by the cross-reference pipeline. If we see a MarkdownAST.Link with .md# or #,
     # it's likely an external link or a manual override by the user.
     # We handle it without the counter system, as best-effort.
     if io.in_header
-        typst(io, node.children; inblock=inblock)
+        typst(io, node.children)
     else
         if occursin(".md#", link.destination)
             # Cross-file reference: other.md#section or path/other.md#section
@@ -772,7 +947,7 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link; toplevel=false, 
             full_path = with_build_prefix(io.doc, io.filename)
             # Case-insensitive lookup with full build path
             lookup_key = full_path * "#" * lowercase(fragment)
-            anchor_label = get(io.lowercase_anchors, lookup_key, fragment)
+            anchor_label = get(io.state.lowercase_anchors, lookup_key, fragment)
             # Generate hash
             id = _hash(full_path * "#" * anchor_label)
             _print(io, "#link(<", id, ">)")
@@ -781,23 +956,23 @@ function typst(io::Context, node::Node, link::MarkdownAST.Link; toplevel=false, 
             _print(io, "#link(\"", link.destination, "\")")
         end
         _print(io, "[")
-        typst(io, node.children; inblock=inblock)
+        typst(io, node.children)
         _print(io, "]")
     end
 end
 
-function typst(io::Context, node::Node, math::MarkdownAST.InlineMath; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, math::MarkdownAST.InlineMath)
     _print(io, "#mi(\"", math.math, "\")")
 end
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
 # rest of the build and so we just leave them in place and print a blank line in their place.
-typst(io::Context, node::Node, ::Documenter.MetaNode; toplevel=false, inblock=false) = _println(io, "\n")
+typst(io::Context, node::Node, ::Documenter.MetaNode) = _println(io, "\n")
 
 # In the original AST, SetupNodes were just mapped to empty Markdown.MD() objects.
-typst(io::Context, node::Node, ::Documenter.SetupNode; toplevel=false, inblock=false) = nothing
+typst(io::Context, node::Node, ::Documenter.SetupNode) = nothing
 
-function typst(io::Context, node::Node, value::MarkdownAST.JuliaValue; toplevel=false, inblock=false)
+function typst(io::Context, node::Node, value::MarkdownAST.JuliaValue)
     @warn """
     Unexpected Julia interpolation of type $(typeof(value.ref)) in the Markdown.
     """ value = value.ref
@@ -805,7 +980,7 @@ function typst(io::Context, node::Node, value::MarkdownAST.JuliaValue; toplevel=
 end
 
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
-typst(io::Context, node::Node, ::MarkdownAST.LineBreak; toplevel=false, inblock=false) = _println(io, "#linebreak()")
+typst(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io, "#linebreak()")
 
 const _typstescape_chars = Dict{Char,AbstractString}()
 for ch in "@#*_\$/`<>"
@@ -839,18 +1014,9 @@ end
 
 typstescstr(s) = sprint(typstescstr, s)
 
-function wrapblock(f, io, env)
-    _println(io, "\\begin{", env, "}")
-    f()
-    _println(io, "\\end{", env, "}")
-end
-
-function wrapinline(f, io, cmd)
-    _print(io, "\\", cmd, "{")
-    f()
-    _print(io, "}")
-end
-
+# ============================================================================
+# Page structure helpers
+# ============================================================================
 
 function files!(out::Vector, v::Vector, depth)
     for each in v
@@ -863,7 +1029,7 @@ end
 # (visible, nothing,    page,         children) or
 # (visible, page.first, pages.second, children)
 function files!(out::Vector, v::Tuple, depth)
-    files!(out, v[2] == nothing ? v[3] : v[2] => v[3], depth)
+    files!(out, isnothing(v[2]) ? v[3] : v[2] => v[3], depth)
     files!(out, v[4], depth)
 end
 
