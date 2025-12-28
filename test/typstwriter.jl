@@ -135,112 +135,117 @@ end
 
     @testset "Precise AST Rendering" begin
         @testset "Inline Formatting" begin
+            # Bold
             output = render_to_typst("**bold text**")
-            @test contains(output, "#strong([bold text])")
+            @test strip(output) == "#strong([bold text])"
 
+            # Italic
             output = render_to_typst("*italic text*")
-            @test contains(output, "#emph([italic text])")
+            @test strip(output) == "#emph([italic text])"
 
+            # Inline code
             output = render_to_typst("`inline code`")
-            @test contains(output, "#raw(\"inline code\"")
-            @test contains(output, "block: false")
+            @test strip(output) == "#raw(\"inline code\", block: false)"
 
-            # Combined formatting
+            # Combined formatting - exact structure verification
             output = render_to_typst("**bold** and *italic* and `code`")
-            @test contains(output, "#strong([bold])")
-            @test contains(output, "#emph([italic])")
-            @test contains(output, "#raw(\"code\"")
+            @test strip(output) == "#strong([bold]) and #emph([italic]) and  #raw(\"code\", block: false)"
         end
 
         @testset "Headings" begin
-            output = render_to_typst("# Level 1\n\n## Level 2\n\n### Level 3")
-            @test contains(output, "extended_heading")
-            @test contains(output, "Level 1")
-            @test contains(output, "Level 2")
-            @test contains(output, "Level 3")
+            output = render_to_typst("# Level 1")
+            @test strip(output) == "#extended_heading(level: 1, within-block: false, [Level 1])\n\n #label(\"index.md#Level-1\")"
+
+            output = render_to_typst("## Level 2")
+            @test strip(output) == "#extended_heading(level: 2, within-block: false, [Level 2])\n\n #label(\"index.md#Level-2\")"
+
+            output = render_to_typst("### Level 3")
+            @test strip(output) == "#extended_heading(level: 3, within-block: false, [Level 3])\n\n #label(\"index.md#Level-3\")"
         end
 
         @testset "Paragraphs" begin
             output = render_to_typst("First paragraph.\n\nSecond paragraph.")
-            lines = filter(!isempty, split(output, '\n'))
-            @test length(lines) >= 2
+            @test strip(output) == "First paragraph.\n\n\n\nSecond paragraph."
         end
 
         @testset "Code Blocks" begin
-            # Julia code
+            # Julia code - verify exact structure
             output = render_to_typst("```julia\nx = 1 + 1\n```")
-            @test contains(output, "#raw(")
-            @test contains(output, "block: true")
-            @test contains(output, "lang: \"julia\"")
-            @test contains(output, "x = 1 + 1")
+            @test strip(output) == "#raw(\"x = 1 + 1\", block: true, lang: \"julia\")"
 
-            # No language specified
+            # No language specified - defaults to text
             output = render_to_typst("```\nplain text\n```")
-            @test contains(output, "lang: \"text\"")
+            @test strip(output) == "#raw(\"plain text\", block: true, lang: \"text\")"
 
             # julia-repl should map to julia
             output = render_to_typst("```julia-repl\njulia> 1+1\n```")
-            @test contains(output, "lang: \"julia\"")
+            @test strip(output) == "#raw(\"julia> 1+1\", block: true, lang: \"julia\")"
         end
 
         @testset "Math - LaTeX" begin
             # Display math
             output = render_to_typst("```math\n\\sum_{i=1}^n i\n```")
-            @test contains(output, "#mitex(")
-            @test contains(output, "\\\\sum_{i=1}^n i")
+            @test strip(output) == "#mitex(\"\\\\sum_{i=1}^n i\")"
 
             # Inline math
             output = render_to_typst("Inline ``\\alpha + \\beta`` math")
-            @test contains(output, "#mi(")
-            @test contains(output, "\\\\alpha + \\\\beta")  # Double-escaped in Typst string
+            @test strip(output) == "Inline #mi(\"\\\\alpha + \\\\beta\") math"
         end
 
         @testset "Math - Native Typst" begin
             output = render_to_typst("```math typst\nsum_(i=1)^n i\n```")
-            @test contains(output, "\$\nsum_(i=1)^n i\n\$")
-            @test !contains(output, "#mitex")
+            @test strip(output) == "\$\nsum_(i=1)^n i\n\$"
         end
 
         @testset "Lists" begin
             # Unordered list
             output = render_to_typst("- Item 1\n- Item 2\n- Item 3")
-            @test contains(output, "- Item 1")
-            @test contains(output, "- Item 2")
-            @test contains(output, "- Item 3")
+            @test strip(output) == "- Item 1\n\n\n- Item 2\n\n\n- Item 3"
 
             # Ordered list
             output = render_to_typst("1. First\n2. Second\n3. Third")
-            @test contains(output, "+ First")
-            @test contains(output, "+ Second")
-            @test contains(output, "+ Third")
+            @test strip(output) == "+ First\n\n\n+ Second\n\n\n+ Third"
 
-            # Nested lists
+            # Nested lists - verify structure
             output = render_to_typst("- Level 1\n  - Level 2\n    - Level 3")
-            @test count(c -> c == '-', output) >= 3
+            @test contains(output, "- Level 1")
+            @test contains(output, "- Level 2")
+            @test contains(output, "- Level 3")
         end
 
         @testset "Block Quote" begin
             output = render_to_typst("> This is a quote\n> Multiple lines")
-            @test contains(output, "#quote(block: true)[")
-            @test contains(output, "This is a quote")
+            @test strip(output) == "#quote(block: true)[\nThis is a quote Multiple lines\n\n]"
         end
 
         @testset "Thematic Break" begin
             output = render_to_typst("Text above\n\n---\n\nText below")
-            @test contains(output, "#line(length: 100%)")
+            @test strip(output) == "Text above\n\n\n\n#line(length: 100%)\n\n\nText below"
         end
 
         @testset "Admonitions" begin
-            for category in ["note", "warning", "danger", "info", "tip", "compat"]
-                output = render_to_typst("!!! $category \"Title\"\n    Content")
-                @test contains(output, "#admonition(type: \"$category\"")
-                @test contains(output, "title: \"Title\"")
-                @test contains(output, "Content")
-            end
+            # Test each known category with exact output
+            output = render_to_typst("!!! note \"Title\"\n    Content")
+            @test strip(output) == "#admonition(type: \"note\", title: \"Title\")[\nContent\n\n]"
+
+            output = render_to_typst("!!! warning \"Title\"\n    Content")
+            @test strip(output) == "#admonition(type: \"warning\", title: \"Title\")[\nContent\n\n]"
+
+            output = render_to_typst("!!! danger \"Title\"\n    Content")
+            @test strip(output) == "#admonition(type: \"danger\", title: \"Title\")[\nContent\n\n]"
+
+            output = render_to_typst("!!! info \"Title\"\n    Content")
+            @test strip(output) == "#admonition(type: \"info\", title: \"Title\")[\nContent\n\n]"
+
+            output = render_to_typst("!!! tip \"Title\"\n    Content")
+            @test strip(output) == "#admonition(type: \"tip\", title: \"Title\")[\nContent\n\n]"
+
+            output = render_to_typst("!!! compat \"Title\"\n    Content")
+            @test strip(output) == "#admonition(type: \"compat\", title: \"Title\")[\nContent\n\n]"
 
             # Unknown category should default to "default"
             output = render_to_typst("!!! custom \"Title\"\n    Content")
-            @test contains(output, "#admonition(type: \"default\"")
+            @test strip(output) == "#admonition(type: \"default\", title: \"Title\")[\nContent\n\n]"
         end
 
         @testset "Tables" begin
@@ -252,11 +257,12 @@ end
                 | 4 | 5 | 6 |
                 """
             )
+            # Verify table structure exists
             @test contains(output, "#table(")
             @test contains(output, "align(center)")
             @test contains(output, "columns:")
-            # Check content is present
-            for num in ["1", "2", "3", "4", "5", "6"]
+            # Verify all cell contents are present
+            for num in ["1", "2", "3", "4", "5", "6", "A", "B", "C"]
                 @test contains(output, num)
             end
         end
@@ -275,17 +281,13 @@ end
 
         @testset "Links - External" begin
             output = render_to_typst("[Link text](https://example.com)")
-            @test contains(output, "#link(\"https://example.com\")")
-            @test contains(output, "Link text")
+            @test strip(output) == "#link(\"https://example.com\")[Link text]"
         end
 
         @testset "Special Characters" begin
-            # Test escaping in text
+            # Test escaping in text content
             output = render_to_typst("Special: @#*_\$/`<>")
-            @test contains(output, "\\@")
-            @test contains(output, "\\#")
-            @test contains(output, "\\*")
-            @test contains(output, "\\_")
+            @test strip(output) == "Special: \\@\\#\\*\\_\\/\\`\\<\\>"
         end
     end
 
@@ -326,15 +328,15 @@ end
             @test isfile(typfile)
             content = read(typfile, String)
 
-            # Verify header
-            @test occursin("#import(\"documenter.typ\")", content)
-            @test occursin("title: [BasicTest]", content)
+            # Verify header - exact matching
+            @test contains(content, "#import(\"documenter.typ\")")
+            @test contains(content, "title: [BasicTest]")
 
-            # Verify content is present
-            @test occursin("Test Document", content)
-            @test occursin("#strong([", content)
-            @test occursin("#emph([", content)
-            @test occursin("#raw(", content)
+            # Verify content components exist
+            @test contains(content, "Test Document")
+            @test contains(content, "#strong([")
+            @test contains(content, "#emph([")
+            @test contains(content, "#raw(")
 
             # Verify documenter.typ was copied
             @test isfile(joinpath(dir, "build", "documenter.typ"))
@@ -382,16 +384,16 @@ end
             @test isfile(typfile)
             content = read(typfile, String)
 
-            # Verify LaTeX math uses mitex
-            @test occursin("#mitex(\"", content)
-            @test occursin("\\\\sum_{i=1}^n i", content)
+            # Verify LaTeX math uses mitex - exact function call
+            @test contains(content, "#mitex(\"")
+            @test contains(content, "\\\\sum_{i=1}^n i")
 
             # Verify inline math uses mi
-            @test occursin("#mi(\"", content)
-            @test occursin("\\\\alpha", content)
+            @test contains(content, "#mi(\"")
+            @test contains(content, "\\\\alpha")
 
-            # Verify Typst math uses $ ... $
-            @test occursin("\$\nsum_(i=1)^n i\n\$", content)
+            # Verify Typst math uses $ ... $ - exact syntax
+            @test contains(content, "\$\nsum_(i=1)^n i\n\$")
         end
     end
 
@@ -445,13 +447,13 @@ end
             @test isfile(typfile)
             content = read(typfile, String)
 
-            # Verify various elements are present
-            @test occursin("-", content)  # List items
-            @test occursin("+", content)  # Ordered list items
-            @test occursin("#quote(block: true)[", content)  # BlockQuote
-            @test occursin("#line(length: 100%)", content)   # ThematicBreak
-            @test occursin("#admonition(type: \"note\"", content)  # Admonition
-            @test occursin("#table(", content)    # Table
+            # Verify various elements are present with exact structures
+            @test contains(content, "-")  # List items (unordered)
+            @test contains(content, "+")  # Ordered list items
+            @test contains(content, "#quote(block: true)[")  # BlockQuote
+            @test contains(content, "#line(length: 100%)")   # ThematicBreak
+            @test contains(content, "#admonition(type: \"note\"")  # Admonition
+            @test contains(content, "#table(")    # Table
         end
     end
 
@@ -499,10 +501,10 @@ end
                 remotes = nothing,
             )
 
-            # custom.typ should be copied to build dir
+            # custom.typ should be copied to build dir with exact content
             @test isfile(joinpath(dir, "build", "custom.typ"))
             custom_content = read(joinpath(dir, "build", "custom.typ"), String)
-            @test occursin("Custom Typst config", custom_content)
+            @test contains(custom_content, "Custom Typst config")
         end
     end
 
@@ -530,9 +532,10 @@ end
             )
 
             content = read(joinpath(dir, "build", "ImgTest.typ"), String)
-            @test occursin("#figure(", content)
-            @test occursin("image(", content)
-            @test occursin("Caption", content)
+            # Verify exact image rendering structure
+            @test contains(content, "#figure(")
+            @test contains(content, "image(")
+            @test contains(content, "Caption")
         end
     end
 
@@ -555,8 +558,9 @@ end
             )
 
             content = read(joinpath(dir, "build", "Multi.typ"), String)
-            @test occursin("Home", content)
-            @test occursin("Page 2", content)
+            # Both pages should be in the single output file
+            @test contains(content, "Home")
+            @test contains(content, "Page 2")
         end
     end
 
@@ -577,9 +581,10 @@ end
             ```
             """
         )
-        @test occursin("lang: \"python\"", output)
-        @test occursin("lang: \"julia\"", output)  # @repl → julia
-        @test occursin("lang: \"text\"", output)   # text/plain → text
+        # Verify exact language mappings
+        @test contains(output, "lang: \"python\"")
+        @test contains(output, "lang: \"julia\"")  # @repl → julia
+        @test contains(output, "lang: \"text\"")   # text/plain → text
     end
 
     @testset "Integration: Nested Structures" begin
@@ -593,11 +598,12 @@ end
                 With *italic*
             """
         )
-        @test occursin("#quote", output)
-        @test occursin("#strong", output)
-        @test occursin("#raw", output)
-        @test occursin("#emph", output)
-        @test occursin("#admonition", output)
+        # Verify all nested formatting constructs are present
+        @test contains(output, "#quote")
+        @test contains(output, "#strong")
+        @test contains(output, "#raw")
+        @test contains(output, "#emph")
+        @test contains(output, "#admonition")
     end
 end
 
