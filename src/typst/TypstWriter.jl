@@ -1120,7 +1120,13 @@ function typstesc(io, s::AbstractString)
     return
 end
 
-typstesc(s) = sprint(typstesc, s)
+function typstesc(s::AbstractString)
+    io = IOBuffer()
+    for ch in s
+        print(io, get(_typstescape_chars, ch, ch))
+    end
+    return String(take!(io))
+end
 
 # Escape characters in string literals
 typstescstr(io, ch::AbstractChar) = _print(io, get(_typstescape_chars_in_string, ch, ch))
@@ -1132,7 +1138,13 @@ function typstescstr(io, s::AbstractString)
     return
 end
 
-typstescstr(s) = sprint(typstescstr, s)
+function typstescstr(s::AbstractString)
+    io = IOBuffer()
+    for ch in s
+        print(io, get(_typstescape_chars_in_string, ch, ch))
+    end
+    return String(take!(io))
+end
 
 # ============================================================================
 # Page structure helpers
