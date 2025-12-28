@@ -514,7 +514,8 @@ function writeheader(io::IO, doc::Documenter.Document, settings::Typst)
                    version: [$(settings.version)],
                    authors: [$(doc.user.authors)],
                    julia-version: [$(VERSION)],
-                   doc
+                   config: config,
+                   doc,
                )
                """
 
@@ -841,7 +842,8 @@ function typst(io::Context, node::Node, table::MarkdownAST.Table)
     cols = length(table.spec)
     _println(io, "#align(center)[")
     _println(io, "#table(")
-    _println(io, "columns: (", repeat("auto,", cols), "),")
+    # Use fractional units (1fr) to enable text wrapping in table cells
+    _println(io, "columns: (", repeat("1fr,", cols), "),")
     _println(io, "align: (x, y) => ($(join(string.(table.spec), ",")),).at(x),")
     old_in_block = io.in_block
     io.in_block = true

@@ -1,6 +1,33 @@
 using Documenter, DocumenterTools, Changelog
 include("DocumenterShowcase.jl")
 
+# Documentation builder for Documenter.jl
+#
+# Usage:
+#   julia --project=docs docs/make.jl [options]
+#
+# Options:
+#   typst           Build Typst format (PDF via Typst compiler)
+#   pdf             Build LaTeX format (PDF via LaTeX)
+#   (none)          Build HTML format (default)
+#
+#   For Typst builds, additional options:
+#     native        Use system-installed typst compiler
+#     docker        Use Docker to compile
+#     none          Generate .typ file only, skip compilation
+#
+#   Common options:
+#     local         Build locally without prettified URLs
+#     linkcheck     Check external links
+#     strict=false  Treat warnings as warnings (not errors)
+#     doctest=only  Only run doctests
+#
+# Examples:
+#   julia --project=docs docs/make.jl
+#   julia --project=docs docs/make.jl typst
+#   julia --project=docs docs/make.jl typst native
+#   julia --project=docs docs/make.jl pdf
+
 # The DOCSARGS environment variable can be used to pass additional arguments to make.jl.
 # This is useful on CI, if you need to change the behavior of the build slightly but you
 # can not change the .travis.yml or make.jl scripts any more (e.g. for a tag build).
@@ -34,9 +61,33 @@ if get(ENV, "GITHUB_ACTIONS", nothing) == "true"
     push!(linkcheck_ignore, "https://ctan.org/pkg/minted")
 end
 
+# Determine output format based on arguments
+output_format = if "typst" in ARGS
+    :typst
+elseif "pdf" in ARGS
+    :pdf
+else
+    :html
+end
+
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
-    format = if "pdf" in ARGS
+    format = if output_format == :typst
+        # Typst format: determine compilation platform
+        typst_platform = if "native" in ARGS
+            "native"
+        elseif "docker" in ARGS
+            "docker"
+        elseif "none" in ARGS
+            "none"
+        else
+            "typst"  # Default: use Typst_jll
+        end
+        Documenter.Typst(
+            platform = typst_platform,
+            version = string(Documenter.DOCUMENTER_VERSION),
+        )
+    elseif output_format == :pdf
         Documenter.LaTeX(platform = "docker")
     else
         Documenter.HTML(
@@ -51,8 +102,9 @@ makedocs(
             inventory_version = Documenter.DOCUMENTER_VERSION,
         )
     end,
-    build = ("pdf" in ARGS) ? "build-pdf" : "build",
-    debug = ("pdf" in ARGS),
+    build = output_format == :typst ? "build-typst" :
+            (output_format == :pdf ? "build-pdf" : "build"),
+    debug = (output_format == :pdf),
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     linkcheck = "linkcheck" in ARGS,
@@ -88,7 +140,26 @@ makedocs(
     doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 
-if "pdf" in ARGS
+if output_format == :typst
+    # Deploy Typst PDF similar to LaTeX PDF
+    mkpath(joinpath(@__DIR__, "build-typst", "commit"))
+    let files = readdir(joinpath(@__DIR__, "build-typst"))
+        for f in files
+            if startswith(f, "Documenter.jl") && endswith(f, ".pdf")
+                mv(
+                    joinpath(@__DIR__, "build-typst", f),
+                    joinpath(@__DIR__, "build-typst", "commit", f),
+                )
+            end
+        end
+    end
+    deploydocs(
+        repo = "github.com/JuliaDocs/Documenter.jl.git",
+        target = "pdf/build-typst/commit",
+        branch = "gh-pages-typst",
+        forcepush = true,
+    )
+elseif output_format == :pdf
     # hack to only deploy the actual pdf-file
     mkpath(joinpath(@__DIR__, "build-pdf", "commit"))
     let files = readdir(joinpath(@__DIR__, "build-pdf"))

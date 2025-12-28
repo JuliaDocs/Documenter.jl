@@ -13,5 +13,6 @@ builds/
 /test/quietly-logs/
 /docs/dev/
 /docs/build-pdf/
+/docs/build-typst/
 /docs/site/
 /docs/src/release-notes.md

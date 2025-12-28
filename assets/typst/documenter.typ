@@ -4,72 +4,153 @@
 #import "@preview/codly:1.3.0": *
 #import "@preview/codly-languages:0.1.1": *
 
-#let light-blue = rgb("6b85dd")
-#let dark-blue = rgb("4266d5")
-#let light-red = rgb("d66661")
-#let dark-red = rgb("c93d39")
-#let light-green = rgb("6bab5b")
-#let dark-green = rgb("3b972e")
-#let light-purple = rgb("aa7dc0")
-#let dark-purple = rgb("945bb0")
-#let codeblock-background = rgb("f6f6f6")
-#let codeblock-border = rgb("e6e6e6")
-#let admonition-colors = (
-  default: rgb("363636"),
-  danger: rgb("da0b00"),
-  warning: rgb("ffdd57"),
-  note: rgb("209cee"),
-  info: rgb("209cee"),
-  tip: rgb("22c35b"),
-  compat: rgb("1db5c9"),
+#let deep-merge-pair(dict1, dict2) = {
+  let final = (:) // Start with empty dictionary
+  // First copy all keys from dict1
+  for (k, v) in dict1 {
+    final.insert(k, v)
+  }
+  // Then merge dict2, recursively for nested dictionaries
+  for (k, v) in dict2 {
+    if (k in final) and (type(v) == dictionary) and (type(final.at(k)) == dictionary) {
+      // Both are dictionaries, merge recursively
+      final.insert(k, deep-merge-pair(final.at(k), v))
+    } else {
+      // Override with dict2's value
+      final.insert(k, v)
+    }
+  }
+  final
+}
+
+#let deep-merge(..args) = {
+  let dicts = args.pos()
+  if dicts.len() == 0 {
+    return (:) // Empty dictionary if no arguments
+  }
+  let final = dicts.first()
+  // Start from second dictionary to avoid duplicating first
+  for i in range(1, dicts.len()) {
+    final = deep-merge-pair(final, dicts.at(i))
+  }
+  final
+}
+
+// Default configuration dictionary
+#let default-config = (
+  // Colors
+  light-blue: rgb("6b85dd"),
+  dark-blue: rgb("4266d5"),
+  light-red: rgb("d66661"),
+  dark-red: rgb("c93d39"),
+  light-green: rgb("6bab5b"),
+  dark-green: rgb("3b972e"),
+  light-purple: rgb("aa7dc0"),
+  dark-purple: rgb("945bb0"),
+  codeblock-background: rgb("f6f6f6"),
+  codeblock-border: rgb("e6e6e6"),
+  // Admonition colors and titles
+  admonition-colors: (
+    default: rgb("363636"),
+    danger: rgb("da0b00"),
+    warning: rgb("ffdd57"),
+    note: rgb("209cee"),
+    info: rgb("209cee"),
+    tip: rgb("22c35b"),
+    compat: rgb("1db5c9"),
+  ),
+  admonition-titles: (
+    default: "Note",
+    danger: "Danger",
+    warning: "Warning",
+    note: "Note",
+    info: "Info",
+    tip: "Tip",
+    compat: "Compatibility",
+  ),
+  // Font sizes
+  text-size: 11pt,
+  code-size: 9pt,
+  heading-size-title: 24pt,
+  heading-size-part: 18pt,
+  heading-size-chapter: 18pt,
+  heading-size-part-label: 14pt,
+  heading-size-chapter-label: 14pt,
+  heading-size-section: 14pt,
+  heading-size-subsection: 13pt,
+  heading-size-subsubsection: 12pt,
+  header-size: 10pt,
+  admonition-title-size: 12pt,
+  metadata-size: 12pt,
+  // Fonts
+  text-font: ("Inter", "DejaVu Sans"),
+  code-font: ("JetBrains Mono", "DejaVu Sans Mono"),
+  // Spacing and layout
+  outline-number-spacing: 0.5em,
+  outline-indent-step: 1em,
+  outline-part-spacing: 0.5em,
+  outline-filler-spacing: 10pt,
+  outline-line-spacing: -0.2em,
+  // Admonition styling
+  admonition-title-inset: (left: 1em, right: 5pt, top: 5pt, bottom: 5pt),
+  admonition-title-radius: (top: 5pt),
+  admonition-title-color: white,
+  admonition-content-inset: 10pt,
+  admonition-content-radius: (bottom: 5pt),
+  // Table styling
+  table-stroke-width: 0.5pt,
+  table-stroke-color: rgb("cccccc"),
+  table-inset: 8pt,
+  // Quote styling
+  quote-background: rgb("f8f8f8"),
+  quote-border-color: rgb("cccccc"),
+  quote-border-width: 4pt,
+  quote-inset: (left: 15pt, right: 15pt, top: 10pt, bottom: 10pt),
+  quote-radius: (right: 3pt),
+  // Header styling
+  header-line-stroke: 0.5pt,
 )
-#let admonition-titles = (
-  default: "Note",
-  danger: "Danger",
-  warning: "Warning",
-  note: "Note",
-  info: "Info",
-  tip: "Tip",
-  compat: "Compatibility",
-)
+#let config = default-config
 
-// Font sizes
-#let text-size = 11pt
-#let code-size = 9pt
-#let heading-size-title = 24pt
-#let heading-size-part = 18pt
-#let heading-size-chapter = 18pt
-#let heading-size-part-label = 14pt
-#let heading-size-chapter-label = 14pt
-#let heading-size-section = 14pt
-#let heading-size-subsection = 13pt
-#let heading-size-subsubsection = 12pt
-#let header-size = 10pt
-#let admonition-title-size = 12pt
-#let metadata-size = 12pt
-
-#let text-font = ("Inter", "DejaVu Sans")
-#let code-font = ("JetBrains Mono", "DejaVu Sans Mono")
-
+// Use state to store runtime configuration that can be accessed by helper functions
+#let config-state = state("documenter-config", default-config)
 #let partcounter = counter("part")
 #let chaptercounter = counter("chapter")
 
 #let ceil(len, unit: 4pt) = calc.ceil(len / unit) * unit
 
-#let admonition(type: "info", title: none, children) = {
-  let color = admonition-colors.at(type)
+#let admonition(type: "info", title: none, children) = context {
+  let cfg = config-state.get()
+  let color = cfg.admonition-colors.at(type)
   let bgcolor = color.lighten(50%)
-  if title == none {
-    title = admonition-titles.at(type)
+  let adm-title = if title == none {
+    cfg.admonition-titles.at(type)
+  } else {
+    title
   }
 
-  rect(width: 100%, fill: color, radius: 5pt, inset: 5pt)[
-    #h(1em)
-    #text(admonition-title-size, fill: white)[#strong(title)]
-    #v(-0.5em)
-    #rect(width: 100%, fill: bgcolor, inset: 10pt)[
-      #children
-    ]
+  // Title bar: non-breakable, zero spacing below
+  block(
+    width: 100%,
+    breakable: false,
+    fill: color,
+    inset: cfg.admonition-title-inset,
+    radius: cfg.admonition-title-radius,
+    below: 0pt,
+  )[
+    #text(cfg.admonition-title-size, fill: cfg.admonition-title-color)[#strong(adm-title)]
+  ]
+
+  // Content area: breakable, zero spacing above
+  block(
+    width: 100%,
+    breakable: true,
+    fill: bgcolor,
+    inset: cfg.admonition-content-inset,
+    radius: cfg.admonition-content-radius,
+    above: 0pt,
+  )[
+    #children
   ]
 }
 
@@ -83,6 +164,7 @@
 }
 
 #let outline(title: "Contents", indent: true, depth: 3) = context {
+  let cfg = config-state.get()
   let loc = here()
   partcounter.step()
   counter(page).update(1)
@@ -105,15 +187,15 @@
       } else {
         numbering("1.1", ..chaptercounter.at(el_loc), ..counter(heading).at(el_loc).slice(2))
       }
-      h(0.5em)
+      h(cfg.outline-number-spacing)
     }
 
     if indent {
-      h(1em * (el.level - 1))
+      h(cfg.outline-indent-step * (el.level - 1))
     }
 
     if el.level == 1 {
-      v(0.5em, weak: true)
+      v(cfg.outline-part-spacing, weak: true)
     }
 
     if maybe_number != none {
@@ -134,9 +216,9 @@
 
     // Filler dots
     if el.level == 1 {
-      box(width: 1fr, h(10pt) + box(width: 1fr) + h(10pt))
+      box(width: 1fr, h(cfg.outline-filler-spacing) + box(width: 1fr) + h(cfg.outline-filler-spacing))
     } else {
-      box(width: 1fr, h(10pt) + box(width: 1fr, repeat[.]) + h(10pt))
+      box(width: 1fr, h(cfg.outline-filler-spacing) + box(width: 1fr, repeat[.]) + h(cfg.outline-filler-spacing))
     }
 
     // Page number
@@ -149,7 +231,7 @@
     })
 
     linebreak()
-    v(-0.2em)
+    v(cfg.outline-line-spacing)
   }
 }
 
@@ -160,11 +242,16 @@
   authors: none,
   julia-version: none,
   linespacing: 1em,
+  config: config, // Accept config parameter, default to global config
   doc,
 ) = {
+  // Set config state at the start so helper functions can access it
+  let cfg = deep-merge(default-config, config)
+  config-state.update(cfg)
+
   set text(
-    size: text-size,
-    font: text-font,
+    size: cfg.text-size,
+    font: cfg.text-font,
   )
 
   set heading(numbering: "1.1")
@@ -215,7 +302,7 @@
       // 5. Display header if valid chapter found
       if current_chapter != none {
         align(center)[
-          #text(header-size)[
+          #text(cfg.header-size)[
             #if current_chapter.numbering != none {
               // Numbered chapter: show "CHAPTER X. TITLE"
               // .at() returns value after step(), add 1 for display
@@ -226,7 +313,7 @@
             #upper(current_chapter.body)
           ]
         ]
-        line(length: 100%, stroke: 0.5pt)
+        line(length: 100%, stroke: cfg.header-line-stroke)
       }
     },
     footer: context {
@@ -256,16 +343,41 @@
     // Internal links use label (<...>) or location
     // External links use string ("...")
     if type(it.dest) == label or type(it.dest) == location {
-      text(fill: dark-blue)[#it]
+      text(fill: cfg.dark-blue)[#it]
     } else {
-      text(fill: dark-purple)[#it]
+      text(fill: cfg.dark-purple)[#it]
     }
   }
 
   show: codly-init.with()
-  codly(languages: codly-languages, number-format: none)
-  show raw: set text(font: code-font)
-  show raw.where(block: true): set text(size: code-size)
+  codly(
+    languages: codly-languages,
+    number-format: none,
+    zebra-fill: none,
+    inset: 5pt,
+    fill: cfg.codeblock-background,
+    stroke: 1pt + cfg.codeblock-border,
+  )
+  show raw: set text(font: cfg.code-font)
+  show raw.where(block: true): set text(size: cfg.code-size)
+
+  // Configure table styling for better readability
+  set table(
+    stroke: cfg.table-stroke-width + cfg.table-stroke-color,
+    inset: cfg.table-inset,
+  )
+  // Enable text wrapping in table cells (inspired by LaTeX's tabulary package)
+  show table.cell: it => {
+    // Optimize line breaking and enable hyphenation for long words
+    set par(justify: false, linebreaks: "optimized")
+    set text(hyphenate: true, lang: "en", overhang: false)
+    // Allow long words (>10 chars) to break by inserting zero-width spaces
+    // This works for both regular text and link text, keeping links clickable
+    show regex("\w{10,}"): it => {
+      it.text.codepoints().join(sym.zws)
+    }
+    it
+  }
 
   show heading: it => context {
     let loc = here()
@@ -276,13 +388,13 @@
       }
 
       align(center + horizon)[
-        #text(heading-size-part-label)[
+        #text(cfg.heading-size-part-label)[
           #strong([
             Part
             #numbering("I", counter(heading).get().first())
           ])] <__part__>
         #v(1em)
-        #text(heading-size-part)[#strong(it.body)]
+        #text(cfg.heading-size-part)[#strong(it.body)]
       ]
     } else if it.level == 2 {
       align(left + top)[
@@ -292,20 +404,20 @@
           chaptercounter.step()
           // Reset figure counter when entering a new chapter
           counter(figure.where(kind: image)).update(0)
-          text(heading-size-chapter-label)[
+          text(cfg.heading-size-chapter-label)[
             #strong([
               Chapter
               #numbering("1", chapter_display)
             ])]
           v(1em)
         }
-        #text(heading-size-chapter)[#strong(it.body)] <__chapter__>
+        #text(cfg.heading-size-chapter)[#strong(it.body)] <__chapter__>
         #v(1em)
       ]
     } else {
       v(0.5em)
       if it.level == 3 {
-        text(heading-size-section)[
+        text(cfg.heading-size-section)[
           #strong([
             #numbering("1.1", chaptercounter.get().first(), ..counter(heading).get().slice(2))
             #h(1em)
@@ -313,12 +425,12 @@
           ])
         ]
       } else if it.level == 4 {
-        text(heading-size-subsection)[#strong(it.body)]
+        text(cfg.heading-size-subsection)[#strong(it.body)]
       } else if it.level <= 6 {
-        text(heading-size-subsubsection)[#strong(it.body)]
+        text(cfg.heading-size-subsubsection)[#strong(it.body)]
       } else {
         h(2em)
-        text(heading-size-subsubsection)[#strong(it.body)]
+        text(cfg.heading-size-subsubsection)[#strong(it.body)]
       }
       v(0.5em)
     }
@@ -330,10 +442,10 @@
   show quote: it => {
     rect(
       width: 100%,
-      fill: rgb("f8f8f8"),
-      stroke: (left: 4pt + rgb("cccccc")),
-      inset: (left: 15pt, right: 15pt, top: 10pt, bottom: 10pt),
-      radius: (right: 3pt),
+      fill: cfg.quote-background,
+      stroke: (left: cfg.quote-border-width + cfg.quote-border-color),
+      inset: cfg.quote-inset,
+      radius: cfg.quote-radius,
     )[
       #it.body
     ]
@@ -345,23 +457,23 @@
       numbering: "i",
       footer: context {
         let loc = here()
-        if loc.page() <= 1 { return }  // No footer on title page
+        if loc.page() <= 1 { return } // No footer on title page
         align(center)[#counter(page).display("i")]
-      }
+      },
     )
     counter(page).update(1)
-    
+
     align(center + horizon)[
-      #text(heading-size-title)[#strong[#title]]
+      #text(cfg.heading-size-title)[#strong[#title]]
       #v(2em)
       #if authors != none {
-        text(metadata-size)[#strong[#authors]]
+        text(cfg.metadata-size)[#strong[#authors]]
         v(2em)
       }
-      #text(metadata-size)[#date]
+      #text(cfg.metadata-size)[#date]
       #pagebreak()
     ]
-    
+
     outline(depth: 3, indent: true)
     pagebreak()
   } else {
@@ -379,7 +491,7 @@
       if parts_on_page.len() > 0 { return }
       // Show page number
       align(center)[#counter(page).display("1")]
-    }
+    },
   )
   counter(page).update(1)
 

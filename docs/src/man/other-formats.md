@@ -152,130 +152,197 @@ template, which provides the default styling and configuration for the PDF outpu
 
 Users can override default settings and add custom configuration by adding a
 `custom.typ` file to the `assets/` source directory. The custom file will be imported
-right after the default template, allowing you to override constants and add custom styling.
+right after the default template, allowing you to override settings using deep merge.
 
-#### Overriding font settings
+#### Quick start
 
-You can customize fonts by redefining the font constants:
-
-```typst
-// custom.typ - Override default fonts
-#let text-font = ("Noto Sans", "Arial")
-#let code-font = ("Fira Code", "JetBrains Mono", "Courier New")
-```
-
-#### Overriding font sizes
-
-Font sizes can be customized by redefining size constants:
+Create `docs/src/assets/custom.typ` and define only the settings you want to override:
 
 ```typst
-// custom.typ - Use larger fonts
-#let text-size = 12pt
-#let code-size = 10pt
-#let heading-size-section = 16pt
-```
-
-Available size constants include:
-- `text-size` - Body text (default: 11pt)
-- `code-size` - Code blocks (default: 9pt)
-- `heading-size-title` - Document title (default: 24pt)
-- `heading-size-part` - Part headings (default: 18pt)
-- `heading-size-chapter` - Chapter headings (default: 18pt)
-- `heading-size-section` - Section headings (default: 14pt)
-- `heading-size-subsection` - Subsection headings (default: 13pt)
-- `heading-size-subsubsection` - Subsubsection headings (default: 12pt)
-- `header-size` - Page header text (default: 10pt)
-- `admonition-title-size` - Admonition titles (default: 12pt)
-- `metadata-size` - Title page metadata (default: 12pt)
-
-#### Overriding colors
-
-Colors can be customized by redefining color constants:
-
-```typst
-// custom.typ - Custom color scheme
-#let dark-blue = rgb("0066cc")
-#let dark-purple = rgb("663399")
-#let codeblock-background = rgb("f0f0f0")
-```
-
-Available color constants include:
-- `light-blue`, `dark-blue` - Link colors and accents
-- `light-red`, `dark-red` - Error and warning colors
-- `light-green`, `dark-green` - Success colors
-- `light-purple`, `dark-purple` - External link colors
-- `codeblock-background` - Code block background (default: `rgb("f6f6f6")`)
-- `codeblock-border` - Code block border (default: `rgb("e6e6e6")`)
-- Admonition colors: `admonition-colors.default`, `admonition-colors.danger`, 
-  `admonition-colors.warning`, `admonition-colors.note`, `admonition-colors.info`, 
-  `admonition-colors.tip`, `admonition-colors.compat`
-
-#### Adding custom show rules
-
-You can add custom styling rules that will apply throughout the document:
-
-```typst
-// custom.typ - Custom styling
-#show strong: set text(fill: rgb("cc0000"))
-#show link: underline
-#show raw.where(block: false): box.with(
-  fill: rgb("f0f0f0"),
-  inset: (x: 3pt, y: 0pt),
-  outset: (y: 3pt),
-  radius: 2pt,
+// Only define what you want to change
+#let config = (
+  text-size: 13pt,
+  dark-blue: rgb("1e40af"),
+  admonition-colors: (
+    info: rgb("0066cc"),
+  )
 )
 ```
 
-#### Adding custom functions
+That's it! The system automatically deep-merges your configuration with the defaults, 
+preserving all unspecified settings.
 
-You can define custom functions for use in your documentation:
+#### How deep merge works
 
+The configuration system uses intelligent deep merging:
+
+**Your config:**
 ```typst
-// custom.typ - Custom admonition
-#let my-custom-box(title: "Note", body) = {
-  rect(
-    width: 100%,
-    fill: rgb("e3f2fd"),
-    stroke: 2pt + rgb("2196f3"),
-    radius: 5pt,
-    inset: 10pt
-  )[
-    *#title:* #body
-  ]
-}
+#let config = (
+  text-size: 15pt,
+  admonition-colors: (
+    info: rgb("00ff00"),
+  )
+)
 ```
 
-!!! note
-    The `custom.typ` file is imported after `documenter.typ`, so any constants you redefine
-    will override the defaults. However, you cannot modify the core `documenter()` function
-    itself, as it is invoked automatically by the generated template.
+**Final effective config:**
+- `text-size`: `15pt` (your value)
+- `code-size`: `9pt` (default preserved)
+- `dark-blue`: `rgb("4266d5")` (default preserved)
+- `admonition-colors.info`: `rgb("00ff00")` (your value)
+- `admonition-colors.danger`: `rgb("da0b00")` (default preserved)
+- `admonition-colors.warning`: `rgb("ffdd57")` (default preserved)
+- ... all other settings preserved
 
-!!! tip "Example: Complete custom styling"
-    Here's a complete example of a `custom.typ` file that customizes the look of your documentation:
-    
-    ```typst
-    // docs/src/assets/custom.typ
-    
-    // Use a custom font family
-    #let text-font = ("Libertinus Serif", "Georgia", "Times New Roman")
-    #let code-font = ("Fira Code", "Consolas")
-    
-    // Slightly larger text for better readability
-    #let text-size = 12pt
-    #let code-size = 10pt
-    
-    // Custom color scheme (blue theme)
-    #let dark-blue = rgb("0066cc")
-    #let dark-purple = rgb("6633cc")
-    
-    // Style inline code with a subtle background
-    #show raw.where(block: false): box.with(
-      fill: rgb("f5f5f5"),
-      inset: (x: 3pt, y: 0pt),
-      outset: (y: 3pt),
-      radius: 2pt,
-    )
-    ```
+#### Available configuration options
+
+##### Font settings
+
+```typst
+text-size: 11pt,                    // Body text size
+code-size: 9pt,                     // Code block text size
+text-font: ("Inter", "DejaVu Sans"),
+code-font: ("JetBrains Mono", "DejaVu Sans Mono"),
+
+// Heading sizes
+heading-size-title: 24pt,           // Document title
+heading-size-part: 18pt,            // Part headings
+heading-size-chapter: 18pt,         // Chapter headings
+heading-size-section: 14pt,         // Section headings
+heading-size-subsection: 13pt,      // Subsection headings
+heading-size-subsubsection: 12pt,   // Subsubsection headings
+```
+
+##### Color scheme
+
+```typst
+// Link and accent colors
+light-blue: rgb("6b85dd"),
+dark-blue: rgb("4266d5"),
+light-red: rgb("d66661"),
+dark-red: rgb("c93d39"),
+light-green: rgb("6bab5b"),
+dark-green: rgb("3b972e"),
+light-purple: rgb("aa7dc0"),
+dark-purple: rgb("945bb0"),
+
+// Code block styling
+codeblock-background: rgb("f6f6f6"),
+codeblock-border: rgb("e6e6e6"),
+
+// Admonition colors (nested dictionary)
+admonition-colors: (
+  default: rgb("363636"),
+  danger: rgb("da0b00"),
+  warning: rgb("ffdd57"),
+  note: rgb("209cee"),
+  info: rgb("209cee"),
+  tip: rgb("22c35b"),
+  compat: rgb("1db5c9"),
+),
+```
+
+##### Layout settings
+
+```typst
+// Table of contents
+outline-number-spacing: 0.5em,
+outline-indent-step: 1em,
+outline-part-spacing: 0.5em,
+outline-filler-spacing: 10pt,
+outline-line-spacing: -0.2em,
+
+// Tables
+table-stroke-width: 0.5pt,
+table-stroke-color: rgb("cccccc"),
+table-inset: 8pt,
+
+// Quote blocks
+quote-background: rgb("f8f8f8"),
+quote-border-color: rgb("cccccc"),
+quote-border-width: 4pt,
+quote-inset: (left: 15pt, right: 15pt, top: 10pt, bottom: 10pt),
+quote-radius: (right: 3pt),
+
+// Headers and footers
+header-line-stroke: 0.5pt,
+```
+
+##### Admonition styling
+
+```typst
+admonition-title-size: 12pt,
+admonition-title-color: white,
+admonition-title-inset: (left: 1em, right: 5pt, top: 5pt, bottom: 5pt),
+admonition-title-radius: (top: 5pt),
+admonition-content-inset: 10pt,
+admonition-content-radius: (bottom: 5pt),
+
+// Customize admonition titles (nested dictionary)
+admonition-titles: (
+  default: "Note",
+  danger: "Danger",
+  warning: "Warning",
+  note: "Note",
+  info: "Info",
+  tip: "Tip",
+  compat: "Compatibility",
+),
+```
+
+#### Configuration examples
+
+##### Academic paper style
+
+```typst
+#let config = (
+  text-size: 12pt,
+  text-font: ("Times New Roman", "DejaVu Serif"),
+  code-font: ("Courier New", "DejaVu Sans Mono"),
+  heading-size-chapter: 16pt,
+  heading-size-section: 14pt,
+)
+```
+
+##### Large fonts for accessibility
+
+```typst
+#let config = (
+  text-size: 14pt,
+  code-size: 12pt,
+  heading-size-chapter: 22pt,
+  heading-size-section: 18pt,
+)
+```
+
+##### Custom brand colors (using deep merge)
+
+```typst
+#let config = (
+  dark-blue: rgb("1e40af"),      // Brand primary
+  dark-purple: rgb("7c3aed"),    // Brand secondary
+  
+  // Override only specific admonition colors
+  admonition-colors: (
+    info: rgb("1e40af"),         // Use brand color
+    tip: rgb("059669"),          // Custom green
+    // danger, warning, note, etc. keep defaults
+  ),
+)
+```
+
+!!! note "Deep merge vs shallow merge"
+    Unlike traditional dictionary spreading (`..default-config`), deep merge intelligently
+    handles nested dictionaries. When you override `admonition-colors.info`, other admonition
+    colors are preserved. With shallow merge, the entire `admonition-colors` dictionary would
+    be replaced, losing all other colors.
+
+!!! warning "Limitations"
+    The `custom.typ` file is used for configuration only. You can override settings via the
+    `config` dictionary, but you **cannot** add custom show rules or functions, as they will
+    be overridden by the `documenter()` function. For complete customization, you would need
+    to modify the `documenter.typ` template itself.
 
 ## [PDF Output via LaTeX](@id pdf-output)
 
