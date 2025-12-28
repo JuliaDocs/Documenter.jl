@@ -97,23 +97,23 @@ function Base.show(io, ::MIME"image/svg+xml", c::SVGCircle)
     write(
         io,
         """
-    <svg width="50" height="50">
-      <g style="stroke-width: 3">
-        <circle cx="25" cy="25" r="24" stroke-width="2" style="stroke: #$(c.stroke); fill: #$(c.fill)" />
-      </g>
-    </svg>
-    """,
+        <svg width="50" height="50">
+          <g style="stroke-width: 3">
+            <circle cx="25" cy="25" r="24" stroke-width="2" style="stroke: #$(c.stroke); fill: #$(c.fill)" />
+          </g>
+        </svg>
+        """,
     )
     return
 end
 
 "The type definition."
-struct Foo{T,S} end
+struct Foo{T, S} end
 
 "Constructor `Foo()` with no arguments."
-Foo() = Foo{Nothing,Nothing}()
+Foo() = Foo{Nothing, Nothing}()
 
 "Constructor `Foo{T}()` with one parametric argument."
-Foo{T}() where {T} = Foo{T,Nothing}()
+Foo{T}() where {T} = Foo{T, Nothing}()
 
 end # module

@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+* Experimental Typst backend for PDF generation, offering significantly faster compilation times compared to LaTeX while maintaining high-quality output. The backend supports both LaTeX math (via mitex) and native Typst math syntax for backward compatibility. ([#2855])
+
 ## Version [v1.16.1] - 2025-11-21
 
 ### Fixed

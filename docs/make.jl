@@ -103,7 +103,7 @@ makedocs(
         )
     end,
     build = output_format == :typst ? "build-typst" :
-            (output_format == :pdf ? "build-pdf" : "build"),
+        (output_format == :pdf ? "build-pdf" : "build"),
     debug = (output_format == :pdf),
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
@@ -112,7 +112,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
-            "Guide"=>"man/guide.md",
+            "Guide" => "man/guide.md",
             "man/examples.md",
             "man/syntax.md",
             "man/doctests.md",
@@ -122,9 +122,9 @@ makedocs(
         ],
         "showcase.md",
         "Reference" => Any[
-            "Public API"=>"lib/public.md",
+            "Public API" => "lib/public.md",
             "lib/remote-links.md",
-            "Semantic versioning"=>"lib/semver.md",
+            "Semantic versioning" => "lib/semver.md",
         ],
         "Developers" => [
             "contributing.md",

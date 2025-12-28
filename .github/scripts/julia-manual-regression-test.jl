@@ -27,7 +27,8 @@ function build_julia_manual(path::AbstractString)
 
     # Clone the Julia repository & check out the commit of the currently running Julia version.
     # Doing a shallow clone of the exact commit, to avoid unnecessary downloads.
-    cmd = `git clone --revision=$(Base.GIT_VERSION_INFO.commit) --depth=1 https://github.com/JuliaLang/julia.git $(julia_source_path)`
+    cmd =
+        `git clone --revision=$(Base.GIT_VERSION_INFO.commit) --depth=1 https://github.com/JuliaLang/julia.git $(julia_source_path)`
     @info """
     Cloning JuliaLang/julia.git
     $(cmd)
@@ -42,13 +43,15 @@ function build_julia_manual(path::AbstractString)
         end
     end
     @info "Update Documenter Julia doc environment" project_path
-    run(```
+    run(
+        ```
         $(Base.julia_cmd())
         --project=$(project_path)
         -e 'using Pkg; Pkg.develop(path=ARGS[1])'
         --
         $(DOCUMENTER_ROOT)
-        ```)
+        ```
+    )
 
     # Build the Julia manual. Apparently we need to build `julia-stdlib` first,
     # to ensure that all the stdlib sources would be present (which the doc build
