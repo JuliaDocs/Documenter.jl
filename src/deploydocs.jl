@@ -379,7 +379,7 @@ function git_push(
     # Generate a closure with common commands for ssh and https
     function git_commands(sshconfig = nothing)
         # Setup git.
-        run(`$(git()) init --initial-branch=master`) # specify initial branch just to turn off the advice in the deploy logs
+        run(`$(git()) init --initial-branch=main`) # specify initial branch just to turn off the advice in the deploy logs
         run(`$(git()) config user.name "Documenter.jl"`)
         run(`$(git()) config user.email "documenter@juliadocs.github.io"`)
         run(`$(git()) config commit.gpgsign false`)
