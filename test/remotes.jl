@@ -1,7 +1,7 @@
 module RemoteTests
 using Test
 using Documenter
-using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab
+using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab, Forgejo
 
 @testset "RepositoryRemote" begin
     let r = URL("https://github.com/FOO/BAR/blob/{commit}{path}#{line}")
@@ -94,6 +94,25 @@ using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab
         @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
         @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5-L8"
         @test issueurl(r, "123") == "https://gitlab.com/JuliaDocs/Documenter.jl/-/issues/123"
+    end
+
+    # Forgejo remote
+    let r = Forgejo("git.mydomain.tld", "JuliaDocs", "Documenter.jl")
+        @test repourl(r) == "https://git.mydomain.tld/JuliaDocs/Documenter.jl"
+        @test repofile(r, "mybranch", "src/foo.jl") == "https://git.mydomain.tld/JuliaDocs/Documenter.jl/src/commit/mybranch/src/foo.jl"
+        @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://git.mydomain.tld/JuliaDocs/Documenter.jl/src/commit/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://git.mydomain.tld/JuliaDocs/Documenter.jl/src/commit/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://git.mydomain.tld/JuliaDocs/Documenter.jl/src/commit/mybranch/src/foo.jl#L5-L8"
+        @test issueurl(r, "123") == "https://git.mydomain.tld/JuliaDocs/Documenter.jl/issues/123"
+    end
+
+    let r = Forgejo("codeberg.org/JuliaDocs/Documenter.jl")
+        @test repourl(r) == "https://codeberg.org/JuliaDocs/Documenter.jl"
+        @test repofile(r, "mybranch", "src/foo.jl") == "https://codeberg.org/JuliaDocs/Documenter.jl/src/commit/mybranch/src/foo.jl"
+        @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://codeberg.org/JuliaDocs/Documenter.jl/src/commit/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://codeberg.org/JuliaDocs/Documenter.jl/src/commit/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://codeberg.org/JuliaDocs/Documenter.jl/src/commit/mybranch/src/foo.jl#L5-L8"
+        @test issueurl(r, "123") == "https://codeberg.org/JuliaDocs/Documenter.jl/issues/123"
     end
 end
 
