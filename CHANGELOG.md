@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added `Remotes.Forgejo` for specifying a `Remote` hosted on a Forgejo instance (such as codeberg.org). ([#2857])
 
+### Changed
+
+* Git no longer displays a message about the default branch name when calling `deploydocs()`. ([#2854])
+
 ## Version [v1.16.1] - 2025-11-21
 
 ### Fixed
