@@ -173,6 +173,53 @@ function fileurl(remote::GitLab, ref::AbstractString, filename::AbstractString, 
 end
 issueurl(remote::GitLab, issuenumber) = "$(repourl(remote))/-/issues/$issuenumber"
 
+"""
+    Forgejo(host, user, repo)
+    Forgejo(remote)
+
+Represents a remote Git repository hosted on Forgejo (for example,
+[Codeberg](https://codeberg.org)). The repository is
+identified by the host, name of the user (or organization), and the
+repository. For example:
+
+```julia
+makedocs(
+    repo = Forgejo("codeberg.org", "JuliaDocs", "Documenter.jl")
+)
+```
+
+The single argument constructor assumes that the host, end user and
+repository parts are separated by a slash (e.g.,
+`codeberg.org/JuliaDocs/Documenter.jl`).
+"""
+struct Forgejo <: Remotes.Remote
+    host::String
+    user::String
+    repo::String
+end
+function Forgejo(remote::AbstractString)
+    host, user, repo = split(remote, '/')
+    return Forgejo(host, user, repo)
+end
+repourl(
+    remote::Forgejo,
+) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
+function fileurl(
+        remote::Forgejo,
+        ref::AbstractString,
+        filename::AbstractString,
+        linerange,
+    )
+    url = "$(repourl(remote))/src/commit/$(ref)/$(filename)"
+    isnothing(linerange) && return url
+    lstart, lend = first(linerange), last(linerange)
+    return (lstart == lend) ? "$(url)#L$(lstart)" : "$(url)#L$(lstart)-L$(lend)"
+end
+issueurl(
+    remote::Forgejo,
+    issuenumber,
+) = "$(repourl(remote))/issues/$issuenumber"
+
 ############################################################################
 # Handling of URL string templates (deprecated, for backwards compatibility)
 #
