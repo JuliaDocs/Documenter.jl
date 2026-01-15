@@ -1,6 +1,8 @@
 using Documenter, DocumenterTools, Changelog
 include("DocumenterShowcase.jl")
 
+println("Hello Eigenvalues")
+
 # The DOCSARGS environment variable can be used to pass additional arguments to make.jl.
 # This is useful on CI, if you need to change the behavior of the build slightly but you
 # can not change the .travis.yml or make.jl scripts any more (e.g. for a tag build).
@@ -115,4 +117,3 @@ else
     )
 end
 
-#the make.jl that was forked by me
