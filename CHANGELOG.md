@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Git no longer displays a message about the default branch name when calling `deploydocs()`. ([#2854])
+* Don't escape characters (such as ~) in URLs when writing LaTeX. ([#2210])
 
 ## Version [v1.16.1] - 2025-11-21
 
@@ -2064,6 +2065,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2204]: https://github.com/JuliaDocs/Documenter.jl/issues/2204
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
 [#2206]: https://github.com/JuliaDocs/Documenter.jl/issues/2206
+[#2210]: https://github.com/JuliaDocs/Documenter.jl/issues/2210
 [#2211]: https://github.com/JuliaDocs/Documenter.jl/issues/2211
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
 [#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
