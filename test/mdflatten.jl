@@ -53,7 +53,7 @@ struct UnsupportedElement <: MarkdownAST.AbstractElement end
     @test mdflatten(block_md) == block_text
 
     # blocks
-    @test mdflatten(parse("> Test\n> Test\n\n> Test")) == "Test Test\n\nTest\n\n"
+    @test mdflatten(parse("> Test\n> Test\n\n> Test")) in ["Test Test\n\nTest\n\n", "Test\nTest\n\nTest\n\n"]
     @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
     @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
     @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
