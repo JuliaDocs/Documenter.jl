@@ -4,8 +4,7 @@ This page showcases the various page elements that are supported by Documenter.
 
 ## Table of contents
 
-A table of contents can be generated with an [`@contents` block](@ref).
-The one for this page renders as
+A table of contents can be generated with an [`@contents` block](@ref). The one for this page renders as
 
 ```@contents
 Pages = ["showcase.md"]
@@ -13,8 +12,7 @@ Pages = ["showcase.md"]
 
 ## Basic Markdown
 
-Documenter can render all the [Markdown syntax supported by the Julia Markdown parser](https://docs.julialang.org/en/v1/stdlib/Markdown/).
-You can use all the usual markdown syntax, such as **bold text** and _italic text_ and `print("inline code")`.
+Documenter can render all the [Markdown syntax supported by the Julia Markdown parser](https://docs.julialang.org/en/v1/stdlib/Markdown/). You can use all the usual markdown syntax, such as **bold text** and _italic text_ and `print("inline code")`.
 
 ## Code blocks
 
@@ -35,10 +33,7 @@ end
 
 ## Mathematics
 
-For mathematics, both inline and display equations are available.
-Inline equations should be written as LaTeX between two backticks,
-e.g. ``` ``A x^2 + B x + C = 0`` ```.
-It will render as ``A x^2 + B x + C = 0``.
+For mathematics, both inline and display equations are available. Inline equations should be written as LaTeX between two backticks, e.g. ``` ``A x^2 + B x + C = 0`` ```. It will render as ``A x^2 + B x + C = 0``.
 
 The LaTeX for display equations must be wrapped in a ````` ```math ````` code block and will render like
 
@@ -49,9 +44,7 @@ x_{1,2} = \frac{-B \pm \sqrt{B^2 - 4 A C}}{2A}
 By default, the HTML output renders equations with [KaTeX](https://katex.org/), but [MathJax](https://www.mathjax.org/) can optionally be used as well.
 
 !!! warning
-    Similar to LaTeX, using `$` and `$$` to escape inline and display equations
-    also works. However, doing so is deprecated and this functionality may be
-    removed in a future release.
+    Similar to LaTeX, using `$` and `$$` to escape inline and display equations also works. However, doing so is deprecated and this functionality may be removed in a future release.
 
 ## Images
 
@@ -59,16 +52,13 @@ Include images using basic Markdown syntax:
 
 ![Enter a descriptive caption for the image](logo.png)
 
-The path should be relative to the directory of the current file. Alternatively,
-use `./` to begin a path relative to the `src` of the documents, e.g.,
-`./logo.png`.
+The path should be relative to the directory of the current file. Alternatively, use `./` to begin a path relative to the `src` of the documents, e.g., `./logo.png`.
 
 ## Admonitions
 
 Admonitions are colorful boxes used to highlight parts of the documentation.
 
-Each admonition begins with three `!!!`, and then the content is indented
-underneath with four spaces:
+Each admonition begins with three `!!!`, and then the content is indented underneath with four spaces:
 ```
 !!! note "An optional title"
     Here is something you should pay attention to.
@@ -80,8 +70,7 @@ Documenter supports a range of admonition types for different circumstances.
 !!! note "'note' admonition"
     Admonitions look like this. This is a `!!! note`-type admonition.
 
-    Note that admonitions themselves can contain other block-level elements too,
-    such as code blocks. E.g.
+    Note that admonitions themselves can contain other block-level elements too, such as code blocks. E.g.
 
     ```julia
     f(x) = x^2
@@ -317,8 +306,7 @@ Script-style doctests are supported too:
 
 ## Running interactive code
 
-[`@example` block](@ref) run a code snippet and insert the output into the document.
-E.g. the following Markdown
+[`@example` block](@ref) run a code snippet and insert the output into the document. E.g. the following Markdown
 
 ````markdown
 ```@example
@@ -393,8 +381,7 @@ x + 1
 
 ### Color output
 
-Output from [`@repl` block](@ref)s and [`@example` block](@ref)s support colored output,
-transforming ANSI color codes to HTML.
+Output from [`@repl` block](@ref)s and [`@example` block](@ref)s support colored output, transforming ANSI color codes to HTML.
 
 #### Colored `@repl` block output
 
@@ -422,8 +409,7 @@ printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
 
 #### Raw ANSI code output
 
-Regardless of the color setting, when you print the ANSI escape codes directly, coloring is
-enabled.
+Regardless of the color setting, when you print the ANSI escape codes directly, coloring is enabled.
 ```@example
 for color in 0:15
     print("\e[38;5;$color;48;5;$(color)m  ")
@@ -435,8 +421,7 @@ print("\e[m")
 
 ## Doctest showcase
 
-Currently exists just so that there would be doctests to run in manual pages of Documenter's
-manual. This page does not show up in navigation.
+Currently exists just so that there would be doctests to run in manual pages of Documenter's manual. This page does not show up in navigation.
 
 ```jldoctest
 julia> 2 + 2
@@ -480,8 +465,7 @@ bar
 
 ## Cross-references
 
-Here we link to the heading [Cross-references](@ref).
-[This](@ref "Cross-references") also links there.
+Here we link to the heading [Cross-references](@ref). [This](@ref "Cross-references") also links there.
 
 We can also link to other pages, such as: [An index of docstrings](@ref).
 

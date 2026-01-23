@@ -1,7 +1,6 @@
 # Simple LaTeX build
 
-This build only contains a single paragraph of text to make sure that a
-near-empty LaTeX builds passes.
+This build only contains a single paragraph of text to make sure that a near-empty LaTeX builds passes.
 
 ```julia-repl
 julia> 127 % Int8
@@ -71,21 +70,12 @@ Table()
 
 _Note: this should render as just text, not as a table._
 
-\begin{tabular}{r|ccc}
-        & i & y & z\\
-        \hline
-        & Int64 & Char & Int64\\
-        \hline
-        1 & 1 & 'A' & 5 \\
-        2 & 2 & 'B' & 6 \\
-        3 & 3 & 'C' & 7 \\
-        4 & 4 & 'D' & 8 \\
+\begin{tabular}{r|ccc} & i & y & z\\
 \end{tabular}
 
 ## Printing LaTeX from Julia
 
-To pretty-print LaTeX from Julia, overload `Base.show` for the
-`MIME"text/latex"` type. For example:
+To pretty-print LaTeX from Julia, overload `Base.show` for the `MIME"text/latex"` type. For example:
 ```@example
 struct LaTeXEquation
     content::String

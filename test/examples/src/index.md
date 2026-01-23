@@ -521,8 +521,7 @@ julia> function foo end;
 
 # Issue #890
 
-I will pay \$1 if $x^2$ is displayed correctly. People may also write \$s or
-even money bag\$\$.
+I will pay \$1 if $x^2$ is displayed correctly. People may also write \$s or even money bag\$\$.
 
 # Module scrubbing from `@repl` and `@example`
 
