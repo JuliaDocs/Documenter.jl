@@ -4,6 +4,8 @@
 # Missing docstrings.
 # -------------------
 
+using Downloads
+
 """
 $(SIGNATURES)
 
@@ -219,16 +221,19 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
     end
 
     if !haskey(doc.internal.locallinks, link)
-        cmd = _linkcheck_curl(method, link.destination; timeout = doc.user.linkcheck_timeout, useragent = doc.user.linkcheck_useragent)
+        response = _linkcheck_request(
+            method, 
+            link.destination; 
+            timeout = doc.user.linkcheck_timeout, 
+            useragent = doc.user.linkcheck_useragent
+        )
 
-        local result
-        try
-            # interpolating into backticks escapes spaces so constructing a Cmd is necessary
-            result = read(cmd, String)
-        catch err
-            @docerror(doc, :linkcheck, "$cmd failed:", exception = err)
+        if isnothing(response)
+            @docerror(doc, :linkcheck, "failed to connect to $(link.destination)")
             return false
         end
+
+        result = "$(response.status) $(response.url) "
         STATUS_REGEX = r"^(\d+) (\w+)://(?:\S+) (\S+)?$"m
         matched = match(STATUS_REGEX, result)
         if matched !== nothing
@@ -299,9 +304,9 @@ function _url_requires_github_token(url::AbstractString)
     return match(r"http(s?)://github.com", url) !== nothing
 end
 
-function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, useragent::Union{AbstractString, Nothing})
-    null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
-    headers = String[]
+function _linkcheck_request(method::Symbol, url::AbstractString; timeout::Real, useragent::Union{AbstractString, Nothing})
+    headers = Dict{String, String}()
+
     # In some cases, web servers (e.g. docs.github.com as of 2022) will reject requests
     # that declare a non-browser user agent (curl specifically passes 'curl/X.Y'). In
     # case of docs.github.com, the server returns a 403 with a page saying "The request
@@ -310,18 +315,32 @@ function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, use
     # Mozilla developer docs, but only is it's a HTTP(S) request.
     #
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
+
     if startswith(uppercase(url), "HTTP")
-        push!(headers, "-H")
-        push!(headers, "accept-encoding: gzip, deflate, br")
+        headers["accept-encoding"] = "gzip, deflate, br"
         if !isnothing(useragent)
-            push!(headers, "--user-agent", useragent)
+            headers["User-Agent"] = useragent
         end
     end
+
+    # If a GITHUB_TOKEN is available, we use it for authenticated requests to avoid 
+    # rate-limiting on GitHub-hosted resources.
+
     if haskey(ENV, "GITHUB_TOKEN") && _url_requires_github_token(url)
-        push!(headers, "-H")
-        push!(headers, "Authorization: Bearer $(ENV["GITHUB_TOKEN"])")
+        headers["Authorization"] = "Bearer $(ENV["GITHUB_TOKEN"])"
     end
-    return `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps -g $(headers) $(url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+
+    try
+        return Downloads.request(
+            url;
+            method = method === :HEAD ? "HEAD" : "GET",
+            timeout = timeout,
+            headers = headers,
+            throw = false # Crucial: return a 404 response instead of throwing an error
+        )
+    catch err
+        return nothing
+    end
 end
 
 # Automatic Pkg.add() GitHub remote check
