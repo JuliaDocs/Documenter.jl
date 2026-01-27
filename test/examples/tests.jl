@@ -479,6 +479,49 @@ end
         @test examples_html_sizethreshold_ignore_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
     end
 
+    @testset "HTML: top_menu" begin
+        doc = Main.examples_html_topmenu_doc
+        @test isa(doc, Documenter.Documenter.Document)
+
+        # Verify top_menu_sections were created
+        @test length(doc.internal.top_menu_sections) == 2
+        @test doc.internal.top_menu_sections[1].title == "Getting Started"
+        @test doc.internal.top_menu_sections[2].title == "User Guide"
+
+        # Verify each section has its own navlist
+        @test length(doc.internal.top_menu_sections[1].navlist) == 2
+        @test length(doc.internal.top_menu_sections[2].navlist) == 2
+
+        # Verify first_page is set correctly
+        @test doc.internal.top_menu_sections[1].first_page == "getting-started/index.md"
+        @test doc.internal.top_menu_sections[2].first_page == "guide/index.md"
+
+        let build_dir = joinpath(examples_root, "builds", "html-topmenu")
+            # Check that HTML files were generated
+            @test joinpath(build_dir, "getting-started", "index.html") |> isfile
+            @test joinpath(build_dir, "getting-started", "install", "index.html") |> isfile
+            @test joinpath(build_dir, "guide", "index.html") |> isfile
+            @test joinpath(build_dir, "guide", "advanced", "index.html") |> isfile
+
+            # Check that redirect index.html was generated at root
+            @test joinpath(build_dir, "index.html") |> isfile
+            redirect_content = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("getting-started", redirect_content)
+            @test occursin("Redirecting", redirect_content)
+
+            # Check that top menu is present in generated HTML
+            page_content = read(joinpath(build_dir, "getting-started", "index.html"), String)
+            @test occursin("docs-top-menu", page_content)
+            @test occursin("Getting Started", page_content)
+            @test occursin("User Guide", page_content)
+            @test occursin("has-top-menu", page_content)
+
+            # Check that different sections show different sidebar content
+            guide_content = read(joinpath(build_dir, "guide", "index.html"), String)
+            @test occursin("docs-top-menu", guide_content)
+        end
+    end
+
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
         @test isa(doc, Documenter.Documenter.Document)
