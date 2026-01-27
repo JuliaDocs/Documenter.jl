@@ -58,15 +58,15 @@ end
         "page1.md" => nothing,
         "page2.md" => nothing,
     )
-    
+
     custom_navlist = NavNode[]
-    navtree = Documenter.walk_navpages(pages, nothing, doc; navlist=custom_navlist)
-    
+    navtree = Documenter.walk_navpages(pages, nothing, doc; navlist = custom_navlist)
+
     @test length(custom_navlist) == 2
     @test custom_navlist[1].page == "page1.md"
     @test custom_navlist[2].page == "page2.md"
     @test custom_navlist[2].title_override == "Page2"
-    
+
     # When using custom navlist, doc.internal.navlist should be empty
     @test isempty(doc.internal.navlist)
 end
@@ -82,9 +82,9 @@ end
         "page1.md" => nothing,
         "page2.md" => nothing,
     )
-    
+
     navtree = Documenter.walk_navpages(pages, nothing, doc)
-    
+
     # Default behavior: nodes should be in doc.internal.navlist
     @test length(doc.internal.navlist) == 2
     @test doc.internal.navlist[1].page == "page1.md"
