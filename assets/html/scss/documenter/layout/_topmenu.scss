@@ -1,0 +1,163 @@
+// Top Menu Navigation Bar
+// This provides the top-level section navigation when top_menu is configured
+// Uses the same color scheme as the sidebar for consistency across themes
+
+// Variables for top menu - derived from sidebar variables for theme consistency
+$documenter-topmenu-height: 2.75rem !default;
+$documenter-topmenu-background: $documenter-sidebar-background !default;
+$documenter-topmenu-color: $documenter-sidebar-color !default;
+$documenter-topmenu-hover-background: $documenter-sidebar-menu-hover-background !default;
+$documenter-topmenu-hover-color: $documenter-sidebar-menu-hover-color !default;
+$documenter-topmenu-active-background: $documenter-sidebar-menu-active-background !default;
+$documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default;
+
+// Top menu navigation bar
+.docs-top-menu {
+  background-color: $documenter-topmenu-background;
+  height: $documenter-topmenu-height;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100; // Above sidebar and main content
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid $border;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .container {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .docs-top-menu-list {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    overflow-x: auto;
+    height: 100%;
+    align-items: stretch;
+
+    // Hide scrollbar but keep functionality
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    > li {
+      flex-shrink: 0;
+      display: flex;
+      align-items: stretch;
+
+      &.is-active {
+        .docs-top-menu-link {
+          background-color: $documenter-topmenu-active-background;
+          color: $documenter-topmenu-active-color;
+          font-weight: 700;
+          border-bottom: 3px solid $primary;
+        }
+      }
+    }
+  }
+
+  .docs-top-menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.5rem;
+    color: $documenter-topmenu-color;
+    text-decoration: none;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    height: $documenter-topmenu-height;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    border-bottom: 3px solid transparent;
+
+    &:hover {
+      background-color: $documenter-topmenu-hover-background;
+      color: $documenter-topmenu-hover-color;
+      text-decoration: none;
+    }
+  }
+}
+
+// Adjustments when top menu is present
+#documenter.has-top-menu {
+  // Content wrapper to hold sidebar and main content
+  .docs-content-wrapper {
+    display: flex;
+    padding-top: $documenter-topmenu-height;
+    min-height: 100vh;
+  }
+
+  // Adjust sidebar position
+  .docs-sidebar {
+    top: $documenter-topmenu-height;
+    height: calc(100vh - #{$documenter-topmenu-height});
+
+    @include desktop {
+      top: $documenter-topmenu-height;
+    }
+  }
+
+  // Adjust main content area
+  .docs-main {
+    flex: 1;
+    min-width: 0;
+
+    @include desktop {
+      // Adjust for sidebar width when visible
+      margin-left: $documenter-sidebar-width + $documenter-sidebar-main-gap;
+    }
+  }
+}
+
+// Mobile adjustments
+@include touch {
+  .docs-top-menu {
+    // Slightly smaller on mobile
+    height: 2.5rem;
+    
+    .docs-top-menu-list {
+      // Allow horizontal scrolling on mobile
+      justify-content: flex-start;
+      padding-left: 0.5rem;
+    }
+
+    .docs-top-menu-link {
+      padding: 0 1rem;
+      font-size: 0.875rem;
+      height: 2.5rem;
+    }
+  }
+
+  #documenter.has-top-menu {
+    .docs-content-wrapper {
+      padding-top: 2.5rem;
+    }
+
+    .docs-sidebar {
+      // On mobile, sidebar is overlay, needs to account for top menu
+      top: 2.5rem;
+      height: calc(100vh - 2.5rem);
+    }
+
+    .docs-main {
+      margin-left: 0;
+
+      > header.docs-navbar {
+        // Sticky navbar on mobile needs to account for top menu
+        top: 2.5rem;
+      }
+    }
+  }
+}
+

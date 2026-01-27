@@ -21,7 +21,7 @@ else
         "html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
         "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
         "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail", "html-sizethreshold-ignore-success", "html-sizethreshold-ignore-fail",
-        "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly",
+        "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly", "html-topmenu",
     ]
 end
 
@@ -489,6 +489,33 @@ examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: HTML/pagesonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# HTML: top_menu
+examples_html_topmenu_doc = if "html-topmenu" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / top_menu build")
+    @quietly makedocs(
+        debug = true,
+        root = examples_root,
+        build = "builds/html-topmenu",
+        source = "src.topmenu",
+        sitename = "Documenter TopMenu Example",
+        top_menu = [
+            "Getting Started" => [
+                "Home" => "getting-started/index.md",
+                "Installation" => "getting-started/install.md",
+            ],
+            "User Guide" => [
+                "Overview" => "guide/index.md",
+                "Advanced" => "guide/advanced.md",
+            ],
+        ],
+        warnonly = true,
+    )
+else
+    @info "Skipping build: HTML/topmenu"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
