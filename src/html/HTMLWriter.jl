@@ -825,7 +825,7 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
     if isempty(doc.blueprint.pages)
         error("Aborting HTML build: no pages under src/")
-    elseif !haskey(doc.blueprint.pages, "index.md")
+    elseif !haskey(doc.blueprint.pages, "index.md") && isempty(doc.internal.top_menu_sections)
         @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
     end
 
@@ -938,6 +938,29 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     end
 
     write_inventory(doc, ctx)
+
+    # Generate redirect index.html for top_menu builds (landing page is in a subdirectory)
+    if !isempty(doc.internal.top_menu_sections)
+        first_section = first(doc.internal.top_menu_sections)
+        first_page_path = Documenter.pretty_url(ctx.settings, Documenter.pagekey(doc, first_section.first_page))
+        # Only generate redirect if first page is not at root (i.e., not index.html)
+        if first_page_path != "index.html" && !haskey(doc.blueprint.pages, "index.md")
+            redirect_path = joinpath(doc.user.build, "index.html")
+            open(redirect_path, "w") do io
+                println(io, """<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="0; url=$(first_page_path)">
+    <title>Redirecting...</title>
+</head>
+<body>
+    <p>Redirecting to <a href="$(first_page_path)">$(first_section.title)</a>...</p>
+</body>
+</html>""")
+            end
+        end
+    end
 
     return generate_siteinfo_json(doc.user.build)
 end
