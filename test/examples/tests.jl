@@ -492,9 +492,9 @@ end
         @test length(doc.internal.top_menu_sections[1].navlist) == 2
         @test length(doc.internal.top_menu_sections[2].navlist) == 2
 
-        # Verify first_page is set correctly
-        @test doc.internal.top_menu_sections[1].first_page == "getting-started/index.md"
-        @test doc.internal.top_menu_sections[2].first_page == "guide/index.md"
+        # Verify first_page is set correctly (use joinpath for cross-platform compatibility)
+        @test doc.internal.top_menu_sections[1].first_page == joinpath("getting-started", "index.md")
+        @test doc.internal.top_menu_sections[2].first_page == joinpath("guide", "index.md")
 
         let build_dir = joinpath(examples_root, "builds", "html-topmenu")
             # Check that HTML files were generated
