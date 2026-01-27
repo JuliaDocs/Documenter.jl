@@ -947,17 +947,19 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
         if first_page_path != "index.html" && !haskey(doc.blueprint.pages, "index.md")
             redirect_path = joinpath(doc.user.build, "index.html")
             open(redirect_path, "w") do io
-                println(io, """<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="refresh" content="0; url=$(first_page_path)">
-    <title>Redirecting...</title>
-</head>
-<body>
-    <p>Redirecting to <a href="$(first_page_path)">$(first_section.title)</a>...</p>
-</body>
-</html>""")
+                println(
+                    io, """<!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <meta http-equiv="refresh" content="0; url=$(first_page_path)">
+                        <title>Redirecting...</title>
+                    </head>
+                    <body>
+                        <p>Redirecting to <a href="$(first_page_path)">$(first_section.title)</a>...</p>
+                    </body>
+                    </html>"""
+                )
             end
         end
     end
@@ -1019,7 +1021,7 @@ function render_page(ctx, navnode)
     footer = render_footer(ctx, navnode)
     extras = render_extras(ctx, navnode)
     top_menu = render_top_menu(ctx, navnode)
-    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras; top_menu=top_menu)
+    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras; top_menu = top_menu)
     return write_html(ctx, navnode, htmldoc)
 end
 
@@ -1117,7 +1119,7 @@ end
 """
 Renders the main `<html>` tag.
 """
-function render_html(ctx, head, sidebar, navbar, article, footer, extras; top_menu=nothing)
+function render_html(ctx, head, sidebar, navbar, article, footer, extras; top_menu = nothing)
     @tags html body div
     main_content = if isnothing(top_menu)
         div["#documenter"](

@@ -144,7 +144,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
             section_navlist = Documenter.NavNode[]
 
             # Walk through the section's pages
-            for navnode in walk_navpages(section_pages, nothing, doc; navlist=section_navlist)
+            for navnode in walk_navpages(section_pages, nothing, doc; navlist = section_navlist)
                 push!(section_navtree, navnode)
             end
 
@@ -152,7 +152,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
             for navnode in section_navlist
                 if navnode.page in all_section_pages
                     @warn "Page '$(navnode.page)' appears in multiple top_menu sections. " *
-                          "Each page should belong to only one section for proper navigation."
+                        "Each page should belong to only one section for proper navigation."
                 end
                 push!(all_section_pages, navnode.page)
             end
@@ -255,7 +255,7 @@ This implementation is the de facto specification for the `.user.pages` field.
 The optional `navlist` keyword argument allows specifying an alternative navlist
 to populate (used for top_menu sections).
 """
-function walk_navpages(visible, title, src, children, parent, doc; navlist=nothing)
+function walk_navpages(visible, title, src, children, parent, doc; navlist = nothing)
     # parent can also be nothing (for top-level elements)
     parent_visible = (parent === nothing) || parent.visible
     if src !== nothing
@@ -269,21 +269,21 @@ function walk_navpages(visible, title, src, children, parent, doc; navlist=nothi
         push!(target_navlist, nn)
     end
     nn.visible = parent_visible && visible
-    nn.children = walk_navpages(children, nn, doc; navlist=navlist)
+    nn.children = walk_navpages(children, nn, doc; navlist = navlist)
     return nn
 end
 
-function walk_navpages(hps::Tuple, parent, doc; navlist=nothing)
+function walk_navpages(hps::Tuple, parent, doc; navlist = nothing)
     @assert length(hps) == 4
-    return walk_navpages(hps..., parent, doc; navlist=navlist)
+    return walk_navpages(hps..., parent, doc; navlist = navlist)
 end
 
-walk_navpages(title::String, children::Vector, parent, doc; navlist=nothing) = walk_navpages(true, title, nothing, children, parent, doc; navlist=navlist)
-walk_navpages(title::String, page, parent, doc; navlist=nothing) = walk_navpages(true, title, page, [], parent, doc; navlist=navlist)
+walk_navpages(title::String, children::Vector, parent, doc; navlist = nothing) = walk_navpages(true, title, nothing, children, parent, doc; navlist = navlist)
+walk_navpages(title::String, page, parent, doc; navlist = nothing) = walk_navpages(true, title, page, [], parent, doc; navlist = navlist)
 
-walk_navpages(p::Pair, parent, doc; navlist=nothing) = walk_navpages(p.first, p.second, parent, doc; navlist=navlist)
-walk_navpages(ps::Vector, parent, doc; navlist=nothing) = [walk_navpages(p, parent, doc; navlist=navlist)::Documenter.NavNode for p in ps]
-walk_navpages(src::String, parent, doc; navlist=nothing) = walk_navpages(true, nothing, src, [], parent, doc; navlist=navlist)
+walk_navpages(p::Pair, parent, doc; navlist = nothing) = walk_navpages(p.first, p.second, parent, doc; navlist = navlist)
+walk_navpages(ps::Vector, parent, doc; navlist = nothing) = [walk_navpages(p, parent, doc; navlist = navlist)::Documenter.NavNode for p in ps]
+walk_navpages(src::String, parent, doc; navlist = nothing) = walk_navpages(true, nothing, src, [], parent, doc; navlist = navlist)
 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
     if doc.user.doctest in [:fix, :only, true]
