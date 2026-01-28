@@ -526,7 +526,7 @@ end
         using Documenter
         import Markdown
         # Helper to create a temp doc source dir with a minimal index.md
-        function makedocs_with_topmenu(top_menu; extra_kwargs=Dict())
+        function makedocs_with_topmenu(top_menu; extra_kwargs = Dict())
             tempdir = mktempdir()
             srcdir = joinpath(tempdir, "src")
             mkpath(srcdir)
@@ -538,7 +538,7 @@ end
                 :sitename => "TopMenu EdgeCase",
                 :top_menu => top_menu,
                 :pages => ["index.md"],
-                :format => Documenter.HTML(prettyurls=false),
+                :format => Documenter.HTML(prettyurls = false),
                 :warnonly => true,
                 :remotes => nothing,
             )
@@ -583,7 +583,7 @@ end
                 sitename = "TopMenu EdgeCase",
                 top_menu = top_menu,
                 pages = ["index.md"],
-                format = Documenter.HTML(prettyurls=false),
+                format = Documenter.HTML(prettyurls = false),
                 warnonly = true,
                 remotes = nothing,
             )
@@ -595,7 +595,7 @@ end
                 sitename = "TopMenu EdgeCase",
                 top_menu = top_menu,
                 pages = ["index.md"],
-                format = Documenter.HTML(prettyurls=false),
+                format = Documenter.HTML(prettyurls = false),
                 warnonly = true,
                 remotes = nothing,
             )
