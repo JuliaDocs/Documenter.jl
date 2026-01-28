@@ -522,19 +522,27 @@ end
         end
 
         # --- Additional edge case tests for top_menu ---
+
         using Documenter
-        # Helper to build a Document with custom top_menu
-        function build_topmenu_doc(top_menu)
-            return Documenter.Document(
-                root = pwd(),
-                build = mktempdir(),
-                source = pwd(),
-                sitename = "TopMenu EdgeCase",
-                top_menu = top_menu,
-                pages = ["index.md"],
-                format = Documenter.HTML(prettyurls = false),
-                warnonly = true,
+        import Markdown
+        # Helper to create a temp doc source dir with a minimal index.md
+        function makedocs_with_topmenu(top_menu; extra_kwargs=Dict())
+            tempdir = mktempdir()
+            srcdir = joinpath(tempdir, "src")
+            mkpath(srcdir)
+            write(joinpath(srcdir, "index.md"), "# Index\n\nSome content.")
+            kwargs = Dict(
+                :root => tempdir,
+                :source => srcdir,
+                :build => joinpath(tempdir, "build"),
+                :sitename => "TopMenu EdgeCase",
+                :top_menu => top_menu,
+                :pages => ["index.md"],
+                :format => Documenter.HTML(prettyurls=false),
+                :warnonly => true,
             )
+            merge!(kwargs, extra_kwargs)
+            return Documenter.makedocs(; kwargs...)
         end
 
         # 1. Duplicate page in different sections triggers warning
@@ -543,11 +551,10 @@ end
                 "Section 1" => ["index.md"],
                 "Section 2" => ["index.md"],
             ]
-            # Capture warnings
             io = IOBuffer()
             got_warn = false
             with_logger(ConsoleLogger(io, Logging.Warn)) do
-                build_topmenu_doc(top_menu)
+                makedocs_with_topmenu(top_menu)
                 got_warn = occursin("appears in multiple top_menu sections", String(take!(io)))
             end
             @test got_warn
@@ -556,13 +563,39 @@ end
         # 2. Invalid top_menu entry (not a Pair)
         @testset "top_menu invalid entry error" begin
             top_menu = [["not a pair"]]
-            @test_throws "top_menu entries must be Pairs" build_topmenu_doc(top_menu)
+            @test_throws "top_menu entries must be Pairs" makedocs_with_topmenu(top_menu)
         end
 
         # 3. top_menu with an empty section
         @testset "top_menu empty section" begin
             top_menu = ["Empty Section" => []]
-            doc = build_topmenu_doc(top_menu)
+            # makedocs returns nothing, so check the build output
+            tempdir = mktempdir()
+            srcdir = joinpath(tempdir, "src")
+            mkpath(srcdir)
+            write(joinpath(srcdir, "index.md"), "# Index\n\nSome content.")
+            builddir = joinpath(tempdir, "build")
+            makedocs(
+                root = tempdir,
+                source = srcdir,
+                build = builddir,
+                sitename = "TopMenu EdgeCase",
+                top_menu = top_menu,
+                pages = ["index.md"],
+                format = Documenter.HTML(prettyurls=false),
+                warnonly = true,
+            )
+            # Reconstruct the Document to inspect internals
+            doc = Documenter.Document(
+                root = tempdir,
+                source = srcdir,
+                build = builddir,
+                sitename = "TopMenu EdgeCase",
+                top_menu = top_menu,
+                pages = ["index.md"],
+                format = Documenter.HTML(prettyurls=false),
+                warnonly = true,
+            )
             @test length(doc.internal.top_menu_sections) == 1
             section = doc.internal.top_menu_sections[1]
             @test section.title == "Empty Section"
