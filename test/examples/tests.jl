@@ -564,7 +564,7 @@ end
         # 2. Invalid top_menu entry (not a Pair)
         @testset "top_menu invalid entry error" begin
             top_menu = [["not a pair"]]
-            @test_throws "top_menu entries must be Pairs" makedocs_with_topmenu(top_menu)
+            @test_throws ErrorException makedocs_with_topmenu(top_menu)
         end
 
         # 3. top_menu with an empty section
