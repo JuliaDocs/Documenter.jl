@@ -540,6 +540,7 @@ end
                 :pages => ["index.md"],
                 :format => Documenter.HTML(prettyurls=false),
                 :warnonly => true,
+                :remotes => nothing,
             )
             merge!(kwargs, extra_kwargs)
             return Documenter.makedocs(; kwargs...)
@@ -584,6 +585,7 @@ end
                 pages = ["index.md"],
                 format = Documenter.HTML(prettyurls=false),
                 warnonly = true,
+                remotes = nothing,
             )
             # Reconstruct the Document to inspect internals
             doc = Documenter.Document(
@@ -595,6 +597,7 @@ end
                 pages = ["index.md"],
                 format = Documenter.HTML(prettyurls=false),
                 warnonly = true,
+                remotes = nothing,
             )
             @test length(doc.internal.top_menu_sections) == 1
             section = doc.internal.top_menu_sections[1]
