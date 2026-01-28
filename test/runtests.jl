@@ -55,6 +55,9 @@ end
     # NavNode tests.
     include("navnode.jl")
 
+    # TopMenu tests.
+    include("topmenu.jl")
+
     # DocSystem unit tests.
     include("docsystem.jl")
 

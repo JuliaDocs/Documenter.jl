@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `top_menu` keyword argument to `makedocs` for multi-section documentation with a top navigation bar. This enables upper-level organization above the sidebar, with each section maintaining its own sidebar navigation tree. ([#2866])
+
 * Added `Remotes.Forgejo` for specifying a `Remote` hosted on a Forgejo instance (such as codeberg.org). ([#2857])
 
 ### Changed
