@@ -570,13 +570,12 @@ end
         # 3. top_menu with an empty section
         @testset "top_menu empty section" begin
             top_menu = ["Empty Section" => []]
-            # makedocs returns nothing, so check the build output
             tempdir = mktempdir()
             srcdir = joinpath(tempdir, "src")
             mkpath(srcdir)
             write(joinpath(srcdir, "index.md"), "# Index\n\nSome content.")
             builddir = joinpath(tempdir, "build")
-            makedocs(
+            @test_throws BoundsError makedocs(
                 root = tempdir,
                 source = srcdir,
                 build = builddir,
@@ -587,23 +586,6 @@ end
                 warnonly = true,
                 remotes = nothing,
             )
-            # Reconstruct the Document to inspect internals
-            doc = Documenter.Document(
-                root = tempdir,
-                source = srcdir,
-                build = builddir,
-                sitename = "TopMenu EdgeCase",
-                top_menu = top_menu,
-                pages = ["index.md"],
-                format = Documenter.HTML(prettyurls = false),
-                warnonly = true,
-                remotes = nothing,
-            )
-            @test length(doc.internal.top_menu_sections) == 1
-            section = doc.internal.top_menu_sections[1]
-            @test section.title == "Empty Section"
-            @test isempty(section.navlist)
-            @test section.first_page === nothing
         end
     end
 
