@@ -827,7 +827,7 @@ function latex(io::Context, node::Node, link::MarkdownAST.Link)
     # This branch is the normal case, when we're not in a header.
     # TODO: handle the .title attribute
     wrapinline(io, "href") do
-        latexesc(io, link.destination)
+        _print(io, link.destination)
     end
     _print(io, "{")
     latex(io, node.children)

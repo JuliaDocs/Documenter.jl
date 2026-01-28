@@ -128,6 +128,10 @@ This sentence\
 should be over **multiple\
 lines**.
 
+## Issue 2210
+
+[Description with ~](https://link.with/~tilde)
+
 ## Issue 2300
 
 You Shall Not Break! You Shall Not Break! You Shall Not Break!
