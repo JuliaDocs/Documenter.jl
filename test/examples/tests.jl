@@ -532,7 +532,7 @@ end
                 sitename = "TopMenu EdgeCase",
                 top_menu = top_menu,
                 pages = ["index.md"],
-                format = Documenter.HTML(prettyurls=false),
+                format = Documenter.HTML(prettyurls = false),
                 warnonly = true,
             )
         end
@@ -541,7 +541,7 @@ end
         @testset "top_menu duplicate page warning" begin
             top_menu = [
                 "Section 1" => ["index.md"],
-                "Section 2" => ["index.md"]
+                "Section 2" => ["index.md"],
             ]
             # Capture warnings
             io = IOBuffer()
@@ -555,13 +555,13 @@ end
 
         # 2. Invalid top_menu entry (not a Pair)
         @testset "top_menu invalid entry error" begin
-            top_menu = [ ["not a pair"] ]
+            top_menu = [["not a pair"]]
             @test_throws "top_menu entries must be Pairs" build_topmenu_doc(top_menu)
         end
 
         # 3. top_menu with an empty section
         @testset "top_menu empty section" begin
-            top_menu = [ "Empty Section" => [] ]
+            top_menu = ["Empty Section" => []]
             doc = build_topmenu_doc(top_menu)
             @test length(doc.internal.top_menu_sections) == 1
             section = doc.internal.top_menu_sections[1]
