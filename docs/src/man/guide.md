@@ -464,3 +464,26 @@ There's a `sidebar_sitename` keyword option for
 [`Documenter.HTML`](@ref) that lets you hide the sitename
 that's usually displayed below a logo. This is useful if the
 logo already contains the name.
+
+## Troubleshooting
+
+### Missing `[source]` links
+If the `[source]` links next to your docstrings are missing in the deployed
+documentation, it is likely because the package was not installed in
+"development mode" during the build process.
+
+When Documenter runs, it needs access to the local `.git` directory to determine
+the commit hash and remote URL. If a package is installed via `Pkg.add`, it is
+placed in a read-only cache without the `.git` metadata. 
+
+**The Fix:**
+Ensure your Continuous Integration (CI) script or `docs/make.jl` file uses
+`Pkg.develop` instead of `Pkg.add`.
+
+```@example
+# This block is for illustration and is not executed during tests.
+# In a real setup, MyPackage would be your actual package name.
+using Pkg
+Pkg.activate("..")
+# Pkg.develop(PackageSpec(path=pwd())) 
+# using MyPackage
