@@ -2,7 +2,7 @@
 \newcommand{\DocMainTitle}{Documenter LaTeX Simple Non-Docker}
 \newcommand{\DocVersion}{1.2.3}
 \newcommand{\DocAuthors}{}
-\newcommand{\JuliaVersion}{1.11.4}
+\newcommand{\JuliaVersion}{1.12.4}
 
 % ---- Insert preamble
 \input{preamble.tex}
@@ -46,19 +46,19 @@ julia> 127 % Int8
 
 
 
-\section{Escaping: {\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.}
+\section{Escaping: {\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.}
 
 
 
-\label{13534704973354818981}{}
+\label{15800401813860054712}{}
 
 
-{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.
+{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.
 
 
 
-\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-info!50!white,colframe=admonition-info,title=\textbf{{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.}]
-{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-info!50!white,colframe=admonition-info,title=\textbf{{\textasciitilde}, {\textasciicircum}, {\textbackslash}{\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.}]
+{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.
 
 \end{tcolorbox}
 
@@ -240,6 +240,17 @@ LaTeXEquation2(raw"""
 This sentence\\
 should be over \textbf{multiple\\
 lines}.
+
+
+
+\section{Issue 2210}
+
+
+
+\label{13046111893413805288}{}
+
+
+\href{https://link.with/~tilde}{Description with {\textasciitilde}}
 
 
 
