@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Git no longer displays a message about the default branch name when calling `deploydocs()`. ([#2854])
 * Don't escape characters (such as ~) in URLs when writing LaTeX. ([#2210])
+* Added a `make prettier` command and `package.json` to manage non-Julia formatting ([#2529]).
 
 ## Version [v1.16.1] - 2025-11-21
 
