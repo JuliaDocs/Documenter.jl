@@ -15,3 +15,7 @@ test/
 *.scss
 # And the GitHub workflows, but we should also format those eventually
 .github/**/*.yml
+
+# Build and dependencies
+build/
+deps/

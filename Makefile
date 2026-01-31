@@ -1,6 +1,8 @@
 JULIA:=julia
 RUNIC:=@runic
 
+.PHONY: prettier install-prettier
+
 default: help
 
 docs/Manifest.toml: docs/Project.toml
@@ -28,6 +30,12 @@ format-julia:
 
 install-runic:
 	julia --project=$(RUNIC) -e 'using Pkg; Pkg.add("Runic")'
+
+install-prettier:
+	npm install
+
+prettier:
+	npx prettier --write .
 
 test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
@@ -66,9 +74,11 @@ help:
 	@echo " - make docs-instantiate: instantiate the docs/ Julia environment"
 	@echo " - make format-julia: formats the Julia source code with Runic"
 	@echo " - make install-runic: installs Runic.jl into the @runic shared Julia environment (for make format)"
+	@echo " - make install-prettier: installs Prettier using npm"
+	@echo " - make prettier: formats files with Prettier"
 	@echo " - make test: run the tests"
 	@echo " - make search-benchmarks: run search functionality benchmarks"
 	@echo " - make themes: compile Documenter's native CSS themes"
 	@echo " - make clean: remove generated files"
 
-.PHONY: default docs-instantiate themes help changelog docs test format-julia install-runic search-benchmarks
+.PHONY: default docs-instantiate themes help changelog docs test format-julia install-runic search-benchmarks install-prettier prettier
