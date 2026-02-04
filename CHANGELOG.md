@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* reduced time complexity from O(n^2) to O(n) to improve the initial load time for search ([#2875])
 * Git no longer displays a message about the default branch name when calling `deploydocs()`. ([#2854])
 * Don't escape characters (such as ~) in URLs when writing LaTeX. ([#2210])
 
