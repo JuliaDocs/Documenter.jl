@@ -21,8 +21,16 @@ julia> result = @label myblock begin
 ## Verifying syntax version with @VERSION
 
 ```jldoctest; syntax = v"1.14"
-julia> using Base.Experimental: @VERSION
+julia> (Base.Experimental.@VERSION).syntax == v"1.14"
+true
+```
 
-julia> (@VERSION).syntax == v"1.14"
+## Negative test: syntax version 1.13
+
+This verifies that setting `syntax = v"1.13"` actually uses the 1.13 parser,
+not the default one.
+
+```jldoctest; syntax = v"1.13"
+julia> (Base.Experimental.@VERSION).syntax == v"1.13"
 true
 ```

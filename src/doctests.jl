@@ -8,8 +8,8 @@ struct DocTestContext
     file::String
     doc::Documenter.Document
     meta::Dict{Symbol, Any}
-    mod::Union{Module, Nothing}  # Source module for parser selection
-    DocTestContext(file::String, doc::Documenter.Document, mod::Union{Module, Nothing}=nothing) = new(file, doc, copy(doc.user.meta), mod)
+    mod::Union{Module, Nothing}
+    DocTestContext(file::String, doc::Documenter.Document, mod::Union{Module, Nothing} = nothing) = new(file, doc, copy(doc.user.meta), mod)
 end
 
 """

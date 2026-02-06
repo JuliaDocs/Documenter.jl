@@ -9,69 +9,54 @@ using Test
 using Documenter
 import IOCapture
 
+function run_doctest(; modules = Module[], mdfiles = String[])
+    builds_directory = mktempdir()
+    srcdir = joinpath(builds_directory, "src")
+    mkpath(srcdir)
+    touch(joinpath(srcdir, "index.md"))
+    for mdfile in mdfiles
+        cp(joinpath(@__DIR__, "src", mdfile), joinpath(srcdir, mdfile))
+    end
+    c = IOCapture.capture(rethrow = InterruptException) do
+        withenv("JULIA_DEBUG" => "") do
+            makedocs(
+                sitename = " ",
+                format = Documenter.HTML(edit_link = nothing),
+                root = builds_directory,
+                modules = modules,
+                pages = isempty(mdfiles) ? Documenter.Page[] : mdfiles,
+                remotes = nothing,
+                checkdocs = :none,
+                doctest = true,
+                warnonly = false,
+            )
+        end
+    end
+    if c.error
+        @error "Doctest failed" output = c.output
+    end
+    return @test !c.error
+end
+
 # Only run these tests on Julia 1.14+ where syntax versioning is available
 @testset "Syntax Versioning" begin
     if !isdefined(Base, :VersionedParse)
         @info "Skipping syntax versioning tests: requires Julia 1.14+"
         @test_skip false
     else
-        @testset "Module with @set_syntax_version" begin
-            # Include the test module that has @set_syntax_version v"1.14"
-            include("src/SyntaxVersioning.jl")
+        include("src/SyntaxVersioning.jl")
+        include("src/SyntaxVersioning13.jl")
 
-            builds_directory = mktempdir()
-            srcdir = joinpath(builds_directory, "src")
-            mkpath(srcdir)
-            touch(joinpath(srcdir, "index.md"))
+        @testset "Module with @set_syntax_version v\"1.14\"" begin
+            run_doctest(modules = [SyntaxVersioning])
+        end
 
-            c = IOCapture.capture(rethrow = InterruptException) do
-                withenv("JULIA_DEBUG" => "") do
-                    makedocs(
-                        sitename = "SyntaxVersioningTest",
-                        format = Documenter.HTML(edit_link = nothing),
-                        root = builds_directory,
-                        modules = [SyntaxVersioning],
-                        remotes = nothing,
-                        checkdocs = :none,
-                        doctest = true,
-                        warnonly = false,
-                    )
-                end
-            end
-
-            if c.error
-                @error "Doctest failed" output=c.output
-            end
-            @test !c.error
+        @testset "Module with @set_syntax_version v\"1.13\" (negative)" begin
+            run_doctest(modules = [SyntaxVersioning13])
         end
 
         @testset "Markdown with syntax= attribute" begin
-            builds_directory = mktempdir()
-            srcdir = joinpath(builds_directory, "src")
-            mkpath(srcdir)
-
-            cp(joinpath(@__DIR__, "src", "syntax_versioning.md"), joinpath(srcdir, "syntax_versioning.md"))
-            touch(joinpath(srcdir, "index.md"))
-
-            c = IOCapture.capture(rethrow = InterruptException) do
-                withenv("JULIA_DEBUG" => "") do
-                    makedocs(
-                        sitename = "SyntaxVersioningMDTest",
-                        format = Documenter.HTML(edit_link = nothing),
-                        root = builds_directory,
-                        pages = ["syntax_versioning.md"],
-                        remotes = nothing,
-                        checkdocs = :none,
-                        doctest = true,
-                        warnonly = false,
-                    )
-                end
-            end
-
-            if c.error
-                @error "Doctest failed" output=c.output
-            end
-            @test !c.error
+            run_doctest(mdfiles = ["syntax_versioning.md"])
         end
     end
 end

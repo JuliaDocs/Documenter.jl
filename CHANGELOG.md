@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Added `Remotes.Forgejo` for specifying a `Remote` hosted on a Forgejo instance (such as codeberg.org). ([#2857])
+* Doctests now default to the `parser_for_module` of the module that the docstring appears in, allowing modules that set their syntax version via `Base.Experimental.@set_syntax_version` to have their doctests parsed with the correct syntax automatically. Also added support for `DocTestSyntax` metadata and per-block `syntax=` attributes to explicitly specify a syntax version. ([#2874])
 
 ### Changed
 

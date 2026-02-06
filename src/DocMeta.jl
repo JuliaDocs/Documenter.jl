@@ -32,7 +32,7 @@ const METATYPE = Dict{Symbol, Any}
 const VALIDMETA = Dict{Symbol, Type}(
     :DocTestSetup => Union{Expr, Symbol},
     :DocTestTeardown => Union{Expr, Symbol},
-    :DocTestSyntax => VersionNumber
+    :DocTestSyntax => VersionNumber,
 )
 
 """
