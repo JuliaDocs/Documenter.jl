@@ -905,7 +905,12 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     input = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
+   output = try
+        Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
+    catch err
+        @error "Problem displaying result on page $(page.source): $(err)"
+        Dict(MIME"text/plain"(), "Error displaying result")
+    end
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
