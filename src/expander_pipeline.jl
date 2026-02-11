@@ -905,7 +905,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     input = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-   output = try
+    output = try
         Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
     catch err
         @error "Problem displaying result on page $(page.source): $(err)"

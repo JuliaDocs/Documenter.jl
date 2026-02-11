@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added `Remotes.Forgejo` for specifying a `Remote` hosted on a Forgejo instance (such as codeberg.org). ([#2857])
 
+### Fixed
+
+* Added error handling for `@example` block result display to avoid crashing when `display_dict` fails. ([#2876])
+
 ### Changed
 
 * reduced time complexity from O(n^2) to O(n) to improve the initial load time for search ([#2875])
