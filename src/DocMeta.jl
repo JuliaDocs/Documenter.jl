@@ -13,6 +13,7 @@ module — a special variable is created in each module that has documentation m
 
 * `DocTestSetup`: contains the doctest setup code for doctests in the module.
 * `DocTestTeardown`: contains the doctest teardown code for doctests in the module.
+* `DocTestSyntax`: specifies the Julia syntax version for parsing doctests in the module (requires Julia 1.14+).
 """
 module DocMeta
 import ..Documenter
@@ -30,7 +31,8 @@ const METATYPE = Dict{Symbol, Any}
 "Dictionary of all valid metadata keys and their types."
 const VALIDMETA = Dict{Symbol, Type}(
     :DocTestSetup => Union{Expr, Symbol},
-    :DocTestTeardown => Union{Expr, Symbol}
+    :DocTestTeardown => Union{Expr, Symbol},
+    :DocTestSyntax => VersionNumber,
 )
 
 """
