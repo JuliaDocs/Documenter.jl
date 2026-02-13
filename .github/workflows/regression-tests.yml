@@ -87,6 +87,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: TeX-Live/setup-texlive-action@v3
+        with:
+          packages: |
+            scheme-basic
+            adjustbox
+            amsmath
+            amssymb
+            fontspec
+            booktabs
+            graphicx
+            hyperref
+            minted
+            newunicodechar
+            polyglossia
+            tabulary
+            tcolorbox
+            xcolor
+            anyfontsize
+            background
+            geometry
       - uses: julia-actions/setup-julia@v2
         with:
           version: 'nightly'
