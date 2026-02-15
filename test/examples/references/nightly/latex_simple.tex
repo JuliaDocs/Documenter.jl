@@ -1,0 +1,295 @@
+% Useful variables
+\newcommand{\DocMainTitle}{Documenter LaTeX Simple Non-Docker}
+\newcommand{\DocVersion}{1.2.3}
+\newcommand{\DocAuthors}{}
+\newcommand{\JuliaVersion}{1.14.0-DEV.1708}
+
+% ---- Insert preamble
+\input{preamble.tex}
+
+
+\part{Main section}
+
+
+\chapter{Simple LaTeX build}
+
+
+
+\label{14824493170983545055}{}
+
+
+This build only contains a single paragraph of text to make sure that a
+near-empty LaTeX builds passes.
+
+
+
+
+\begin{minted}{jlcon}
+julia> 127 % Int8
+127
+\end{minted}
+
+
+
+\section{Issue 1119}
+
+
+
+\label{9207617723157778715}{}
+
+
+
+\begin{minted}[escapeinside=\#\%]{julia}
+1 #%% 2
+1 #\unicodeveebar% 2
+1 | 2
+\end{minted}
+
+
+
+\section{Escaping: {\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.}
+
+
+
+\label{759454356122440183}{}
+
+
+{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.
+
+
+
+\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,colback=admonition-info!50!white,colframe=admonition-info,title=\textbf{{\textasciitilde}, {\textasciicircum}, {\textbackslash}{\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.}]
+{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.
+
+\end{tcolorbox}
+
+
+\section{Issue 1392}
+
+
+
+\label{126240678836585045}{}
+
+
+
+\begin{minted}{jlcon}
+julia> function foo end;
+\end{minted}
+
+
+
+\section{Issue 1401: rendering custom LaTeX}
+
+
+
+\label{16729107124711032682}{}
+
+
+\subsection{@example block / show with \texttt{text/latex} MIME}
+
+
+
+\label{3426876613775016555}{}
+
+
+
+\begin{minted}{julia}
+struct Table end
+
+Base.show(io, ::MIME"text/latex", ::Table) = write(io, raw"""
+\begin{tabular}{r|ccc}
+        & i & y & z\\
+        \hline
+        & Int64 & Char & Int64\\
+        \hline
+        1 & 1 & 'A' & 5 \\
+        2 & 2 & 'B' & 6 \\
+        3 & 3 & 'C' & 7 \\
+        4 & 4 & 'D' & 8 \\
+\end{tabular}
+""")
+
+Table()
+\end{minted}
+
+\begin{table}[h]
+\centering
+\adjustbox{max width=\linewidth}{
+\begin{tabular}{r|ccc}
+        & i & y & z\\
+        \hline
+        & Int64 & Char & Int64\\
+        \hline
+        1 & 1 & 'A' & 5 \\
+        2 & 2 & 'B' & 6 \\
+        3 & 3 & 'C' & 7 \\
+        4 & 4 & 'D' & 8 \\
+\end{tabular}
+}\end{table}
+
+
+\subsection{@raw block}
+
+
+
+\label{242231064951882573}{}
+
+
+
+\begin{tabular}{r|ccc}
+        & i & y & z\\
+        \hline
+        & Int64 & Char & Int64\\
+        \hline
+        1 & 1 & 'A' & 5 \\
+        2 & 2 & 'B' & 6 \\
+        3 & 3 & 'C' & 7 \\
+        4 & 4 & 'D' & 8 \\
+\end{tabular}
+
+
+
+\subsection{Inline LaTeX}
+
+
+
+\label{13671591622472767230}{}
+
+
+\emph{Note: this should render as just text, not as a table.}
+
+
+
+{\textbackslash}begin\{tabular\}\{r|ccc\}
+        \& i \& y \& z{\textbackslash}
+        {\textbackslash}hline
+        \& Int64 \& Char \& Int64{\textbackslash}
+        {\textbackslash}hline
+        1 \& 1 \& {\textquotesingle}A{\textquotesingle} \& 5 {\textbackslash}
+        2 \& 2 \& {\textquotesingle}B{\textquotesingle} \& 6 {\textbackslash}
+        3 \& 3 \& {\textquotesingle}C{\textquotesingle} \& 7 {\textbackslash}
+        4 \& 4 \& {\textquotesingle}D{\textquotesingle} \& 8 {\textbackslash}
+{\textbackslash}end\{tabular\}
+
+
+
+\section{Printing LaTeX from Julia}
+
+
+
+\label{5228730505895189776}{}
+
+
+To pretty-print LaTeX from Julia, overload \texttt{Base.show} for the
+\texttt{MIME{\textquotedbl}text/latex{\textquotedbl}} type. For example:
+
+
+
+
+\begin{minted}{julia}
+struct LaTeXEquation
+    content::String
+end
+
+function Base.show(io::IO, ::MIME"text/latex", x::LaTeXEquation)
+    # Wrap in $$ for display math printing
+    return print(io, "\$\$ " * x.content * " \$\$")
+end
+
+LaTeXEquation(raw"""
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+""")
+\end{minted}
+
+$$     \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+ $$
+
+
+\begin{minted}{julia}
+struct LaTeXEquation2
+    content::String
+end
+
+function Base.show(io::IO, ::MIME"text/latex", x::LaTeXEquation2)
+    # Wrap in \[...\] for display math printing
+    return print(io, "\\[ " * x.content * " \\]")
+end
+
+LaTeXEquation2(raw"""
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+""")
+\end{minted}
+
+\[     \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+ \]
+
+\section{\texttt{LineBreak} node}
+
+
+
+\label{17897388775242405248}{}
+
+
+This sentence\\
+should be over \textbf{multiple\\
+lines}.
+
+
+
+\section{Issue 2210}
+
+
+
+\label{6190121468141467671}{}
+
+
+\href{https://link.with/~tilde}{Description with {\textasciitilde}}
+
+
+
+\section{Issue 2300}
+
+
+
+\label{2544901485667472756}{}
+
+
+You~Shall~Not~Break!~You~Shall~Not~Break!~You~Shall~Not~Break!
+
+
+
+\section{PR 2056}
+
+
+
+\label{13699755364361795477}{}
+
+
+Issues: \texttt{\#1521}, \texttt{\#2054}, \texttt{\#2399}
+
+
+
+
+\begin{minted}{jlcon}
+julia> println(x)
+2
+
+julia> x
+2
+\end{minted}
+
+
+
+\end{document}
