@@ -2,7 +2,7 @@
 \newcommand{\DocMainTitle}{Documenter LaTeX Simple Non-Docker}
 \newcommand{\DocVersion}{1.2.3}
 \newcommand{\DocAuthors}{}
-\newcommand{\JuliaVersion}{1.12.4}
+\newcommand{\JuliaVersion}{1.14.0-DEV.1708}
 
 % ---- Insert preamble
 \input{preamble.tex}
@@ -15,10 +15,11 @@
 
 
 
-\label{12986824182765986604}{}
+\label{14824493170983545055}{}
 
 
-This build only contains a single paragraph of text to make sure that a near-empty LaTeX builds passes.
+This build only contains a single paragraph of text to make sure that a
+near-empty LaTeX builds passes.
 
 
 
@@ -34,7 +35,7 @@ julia> 127 % Int8
 
 
 
-\label{496847156375218796}{}
+\label{9207617723157778715}{}
 
 
 
@@ -50,7 +51,7 @@ julia> 127 % Int8
 
 
 
-\label{15800401813860054712}{}
+\label{759454356122440183}{}
 
 
 {\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, \$, \#, \{ and \}.
@@ -67,7 +68,7 @@ julia> 127 % Int8
 
 
 
-\label{987107409634109244}{}
+\label{126240678836585045}{}
 
 
 
@@ -81,14 +82,14 @@ julia> function foo end;
 
 
 
-\label{1766923436598802013}{}
+\label{16729107124711032682}{}
 
 
 \subsection{@example block / show with \texttt{text/latex} MIME}
 
 
 
-\label{12212591717920375664}{}
+\label{3426876613775016555}{}
 
 
 
@@ -131,7 +132,7 @@ Table()
 
 
 
-\label{12968435574917214693}{}
+\label{242231064951882573}{}
 
 
 
@@ -152,14 +153,22 @@ Table()
 
 
 
-\label{7647595013011656041}{}
+\label{13671591622472767230}{}
 
 
 \emph{Note: this should render as just text, not as a table.}
 
 
 
-{\textbackslash}begin\{tabular\}\{r|ccc\} \& i \& y \& z{\textbackslash}
+{\textbackslash}begin\{tabular\}\{r|ccc\}
+        \& i \& y \& z{\textbackslash}
+        {\textbackslash}hline
+        \& Int64 \& Char \& Int64{\textbackslash}
+        {\textbackslash}hline
+        1 \& 1 \& {\textquotesingle}A{\textquotesingle} \& 5 {\textbackslash}
+        2 \& 2 \& {\textquotesingle}B{\textquotesingle} \& 6 {\textbackslash}
+        3 \& 3 \& {\textquotesingle}C{\textquotesingle} \& 7 {\textbackslash}
+        4 \& 4 \& {\textquotesingle}D{\textquotesingle} \& 8 {\textbackslash}
 {\textbackslash}end\{tabular\}
 
 
@@ -168,10 +177,11 @@ Table()
 
 
 
-\label{10914504187442884412}{}
+\label{5228730505895189776}{}
 
 
-To pretty-print LaTeX from Julia, overload \texttt{Base.show} for the \texttt{MIME{\textquotedbl}text/latex{\textquotedbl}} type. For example:
+To pretty-print LaTeX from Julia, overload \texttt{Base.show} for the
+\texttt{MIME{\textquotedbl}text/latex{\textquotedbl}} type. For example:
 
 
 
@@ -229,7 +239,7 @@ LaTeXEquation2(raw"""
 
 
 
-\label{18112929726868774212}{}
+\label{17897388775242405248}{}
 
 
 This sentence\\
@@ -242,7 +252,7 @@ lines}.
 
 
 
-\label{13046111893413805288}{}
+\label{6190121468141467671}{}
 
 
 \href{https://link.with/~tilde}{Description with {\textasciitilde}}
@@ -253,7 +263,7 @@ lines}.
 
 
 
-\label{5494601647308340695}{}
+\label{2544901485667472756}{}
 
 
 You~Shall~Not~Break!~You~Shall~Not~Break!~You~Shall~Not~Break!
@@ -264,7 +274,7 @@ You~Shall~Not~Break!~You~Shall~Not~Break!~You~Shall~Not~Break!
 
 
 
-\label{1659457410429464311}{}
+\label{13699755364361795477}{}
 
 
 Issues: \texttt{\#1521}, \texttt{\#2054}, \texttt{\#2399}

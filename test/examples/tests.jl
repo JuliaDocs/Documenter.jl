@@ -118,9 +118,10 @@ end
             @test occursin("documenter-example-output", index_html)
             @test occursin("1392-test-language", index_html)
             @test !occursin("1392-extra-info", index_html)
+            index_html_normalized = replace(index_html, r"\s+" => " ")
             @test occursin(
-                raw"<p>I will pay <span>$</span>1 if <span>$x^2$</span> is displayed correctly. People may also write <span>$</span>s or even money bag<span>$</span><span>$</span>.</p>",
-                index_html,
+                "I will pay <span>\$</span>1 if <span>\$x^2\$</span> is displayed correctly. People may also write <span>\$</span>s or even money bag<span>\$</span><span>\$</span>.",
+                index_html_normalized,
             )
 
             example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
