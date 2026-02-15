@@ -37,33 +37,40 @@ function maybeAddWarning() {
   closer.addEventListener("click", function () {
     document.body.removeChild(div);
   });
-  const href = window.documenterBaseURL + "/../" + window.DOCUMENTER_STABLE;
+  var target_href =
+    window.documenterBaseURL + "/../" + window.DOCUMENTER_STABLE;
 
-  // Try to stay on the same page when linking to the stable version
-  var current_hash = window.location.hash;
-  var page_path = "";
-  var target_url = href;
+  // try to stay on the same page when linking to the stable version
+  // get the current page path relative to the version root
+  var current_page = window.location.pathname;
 
-  if (typeof window.documenterBaseURL !== "undefined") {
-    var current_page = window.location.pathname;
-    var base_url_absolute = new URL(
-      window.documenterBaseURL,
-      window.location.href,
-    ).pathname;
-    if (!base_url_absolute.endsWith("/")) {
-      base_url_absolute = base_url_absolute + "/";
-    }
-    if (current_page.startsWith(base_url_absolute)) {
-      page_path = current_page.substring(base_url_absolute.length);
-    }
-    if (page_path && page_path !== "" && page_path !== "index.html") {
-      var stable_base = href;
-      if (stable_base.endsWith("/")) {
-        stable_base = stable_base.slice(0, -1);
-      }
-      target_url = stable_base + "/" + page_path;
-    }
+  // resolve the documenterBaseURL to an absolute path
+  // documenterBaseURL is a relative path (usually "."), so we need to resolve it
+  var base_url_absolute = new URL(documenterBaseURL, window.location.href)
+    .pathname;
+  if (!base_url_absolute.endsWith("/")) {
+    base_url_absolute = base_url_absolute + "/";
   }
+
+  // extract the page path after the version directory
+  // e.g., if we're on /stable/man/guide.html, we want "man/guide.html"
+  var page_path = "";
+  if (current_page.startsWith(base_url_absolute)) {
+    page_path = current_page.substring(base_url_absolute.length);
+  }
+
+  // construct the target URL with the same page path
+  var target_url = target_href;
+  if (page_path && page_path !== "" && page_path !== "index.html") {
+    // ensure target_href ends with a slash before appending page path
+    if (!target_url.endsWith("/")) {
+      target_url = target_url + "/";
+    }
+    target_url = target_url + page_path;
+  }
+
+  // preserve the anchor (hash) from the current page
+  var current_hash = window.location.hash;
 
   // Determine if this is a development version or an older release
   let warningMessage = "";
@@ -87,16 +94,19 @@ function maybeAddWarning() {
   if (page_path && page_path !== "" && page_path !== "index.html") {
     link.addEventListener("click", function (e) {
       e.preventDefault();
+      // check if the target page exists, fallback to homepage if it doesn't
       fetch(target_url, { method: "HEAD" })
         .then(function (response) {
           if (response.ok) {
             window.location.href = target_url + current_hash;
           } else {
-            window.location.href = href;
+            // page doesn't exist in the target version, go to homepage
+            window.location.href = target_href;
           }
         })
-        .catch(function () {
-          window.location.href = href;
+        .catch(function (error) {
+          // network error or other failure - use homepage
+          window.location.href = target_href;
         });
     });
   }
