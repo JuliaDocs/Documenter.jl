@@ -8,11 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Added `top_menu` keyword argument to `makedocs` for multi-section documentation with a top navigation bar. This enables upper-level organization above the sidebar, with each section maintaining its own sidebar navigation tree. ([#2866])
-
+* The version selector now also preserves the anchor (hash) when switching between documentation versions. Additionally, the outdated/dev version warning banner now also tries to keep you on the same page (and position) when linking to the latest stable release. ([#2880])
 * Added `Remotes.Forgejo` for specifying a `Remote` hosted on a Forgejo instance (such as codeberg.org). ([#2857])
+* Doctests now default to the `parser_for_module` of the module that the docstring appears in, allowing modules that set their syntax version via `Base.Experimental.@set_syntax_version` to have their doctests parsed with the correct syntax automatically. Also added support for `DocTestSyntax` metadata and per-block `syntax=` attributes to explicitly specify a syntax version. ([#2874])
 
 ### Changed
 
+* reduced time complexity from O(n^2) to O(n) to improve the initial load time for search ([#2875])
 * Git no longer displays a message about the default branch name when calling `deploydocs()`. ([#2854])
 * Don't escape characters (such as ~) in URLs when writing LaTeX. ([#2210])
 

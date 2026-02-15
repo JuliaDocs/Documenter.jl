@@ -26,7 +26,7 @@ Packages that have tagged versions available in the general Registry:
 - [InvertibleNetworks.jl](https://slimgroup.github.io/InvertibleNetworks.jl/stable/)
 - [JUDI.jl](https://slimgroup.github.io/JUDI.jl/stable/)
 - [JuliaGrid.jl](https://mcosovic.github.io/JuliaGrid.jl/stable/)
-- [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
+- [Luxor.jl](https://juliagraphics.github.io/LuxorManual/stable/)
 - [Mimi.jl](https://www.mimiframework.org/Mimi.jl/stable/)
 - [Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/)
 - [OhMyREPL.jl](https://kristofferc.github.io/OhMyREPL.jl/stable/)
@@ -45,7 +45,7 @@ Packages that have tagged versions available in the general Registry:
 Some projects or organizations maintain dedicated documentation repositories that are
 separate from specific packages.
 
-- [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/)
+- [DifferentialEquations.jl](https://docs.sciml.ai/DiffEqDocs/dev/)
 - [JuliaDocs landing page](https://juliadocs.org/)
 - [JuliaImages](https://juliaimages.org)
 - [JuliaMusic](https://juliamusic.github.io/JuliaMusic_documentation.jl/dev/)

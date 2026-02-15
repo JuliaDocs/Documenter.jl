@@ -70,6 +70,7 @@ end
     include("doctests/doctestapi.jl")
     include("doctests/doctests.jl")
     include("doctests/fix/tests.jl")
+    include("doctests/syntax_versioning.jl")
 
     # DOM Tests.
     include("dom.jl")
