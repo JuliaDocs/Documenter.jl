@@ -122,6 +122,13 @@ function slugify(s::AbstractString)
 end
 slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 
+# Render doc bindings with syntax that can be copy-pasted as valid Julia code.
+function bindingstring(binding::Binding)
+    s = string(binding)
+    op_prefix = string(binding.mod, ".:")
+    return startswith(s, op_prefix) ? string(binding.mod, ".", sprint(show, binding.var)) : s
+end
+
 # Parse code blocks.
 
 """
@@ -309,7 +316,7 @@ function object(qn::QuoteNode, str::AbstractString)
 end
 
 function Base.print(io::IO, obj::Object)
-    print(io, obj.binding)
+    print(io, bindingstring(obj.binding))
     print_signature(io, obj.signature)
     print_extra(io, obj.noncanonical_extra)
     return
