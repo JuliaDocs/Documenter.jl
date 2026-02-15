@@ -95,6 +95,19 @@ makedocs(
 )
 ```
 
+If you are building in CI and want compiler logs printed directly to the job output on
+failures, you can enable:
+
+```julia
+makedocs(format = Documenter.LaTeX(show_log = true), ...)
+```
+
+You can also force this behavior via environment variable:
+
+```bash
+export DOCUMENTER_LATEX_SHOW_LOGS=1
+```
+
 ## [Custom LaTeX style](@id custom-latex)
 
 The PDF/LaTeX backend works by generating a TeX file based on the input Markdown files.

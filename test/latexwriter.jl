@@ -1,6 +1,7 @@
 module LaTeXWriterTests
 
 using Test
+import IOCapture
 import Documenter
 import Documenter.LaTeXWriter
 
@@ -65,6 +66,46 @@ end
     tex = "\\href{https://github.com/JuliaDocs/DocumenterCitations.jl#readme}{DocumenterCitations.jl}"
     @test _md_to_latex(md) == tex
 
+end
+
+@testset "LaTeX show_log option" begin
+    @test !LaTeXWriter.LaTeX().show_log
+    @test LaTeXWriter.LaTeX(show_log = true).show_log
+    withenv("DOCUMENTER_LATEX_SHOW_LOGS" => "1") do
+        @test LaTeXWriter.LaTeX().show_log
+        @test LaTeXWriter.LaTeX(show_log = false).show_log
+    end
+end
+
+@testset "dump latex log" begin
+    mktempdir() do tmp
+        output = cd(tmp) do
+            open("manual.log", "w") do io
+                write(io, "latex failure details\n")
+            end
+            open("LaTeXWriter.stdout", "w") do io
+                write(io, "stdout details\n")
+            end
+            c = IOCapture.capture() do
+                LaTeXWriter.dump_latex_log("manual")
+            end
+            c.output
+        end
+        @test occursin("BEGIN manual.log", output)
+        @test occursin("latex failure details", output)
+        @test occursin("BEGIN LaTeXWriter.stdout", output)
+        @test occursin("stdout details", output)
+    end
+
+    mktempdir() do tmp
+        output = cd(tmp) do
+            c = IOCapture.capture() do
+                LaTeXWriter.dump_latex_log("manual")
+            end
+            c.output
+        end
+        @test occursin("show_log=true but no log files were found", output)
+    end
 end
 
 
