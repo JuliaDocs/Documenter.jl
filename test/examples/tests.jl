@@ -37,6 +37,11 @@ function onormalize_tex(s)
     s = replace(s, r"\\newcommand{\\JuliaVersion}{[A-Za-z0-9+.-]+}" => "\\newcommand{\\JuliaVersion}{}")
     # Remove CR parts of newlines, to make Windows happy
     s = replace(s, '\r' => "")
+    # Normalize whitespace-only line wrapping differences from Markdown parser output.
+    s = replace(s, r"[ \t]+" => " ")
+    s = replace(s, r"(?m) +$" => "")
+    s = replace(s, r"(?<=\S)\n(?=\S)" => " ")
+    s = replace(s, r"\n{3,}" => "\n\n")
     return s
 end
 function printdiff(s1, s2)
