@@ -91,7 +91,7 @@ jobs:
       - uses: zauguin/install-texlive@v4
         with:
           packages: |
-            latexmk
+            scheme-medium
             adjustbox
             amsmath
             amssymb
