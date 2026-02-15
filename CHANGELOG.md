@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Doctests now default to the `parser_for_module` of the module that the docstring appears in, allowing modules that set their syntax version via `Base.Experimental.@set_syntax_version` to have their doctests parsed with the correct syntax automatically. Also added support for `DocTestSyntax` metadata and per-block `syntax=` attributes to explicitly specify a syntax version. ([#2874])
 * Added a `show_log` keyword for `Documenter.LaTeX` to print LaTeX compiler logs to stdout when PDF compilation fails, and support for forcing this via `DOCUMENTER_LATEX_SHOW_LOGS` in CI environments. ([#1697])
 
+### Fixed
+
+* Added error handling for `@example` block result display to avoid crashing when `display_dict` fails. ([#2876])
+
 ### Changed
 
 * reduced time complexity from O(n^2) to O(n) to improve the initial load time for search ([#2875])
