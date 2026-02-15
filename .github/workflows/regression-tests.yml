@@ -93,7 +93,7 @@ jobs:
           TEXLIVE_INSTALL_ENV_NOCHECK: 1
         with:
           packages: |
-            scheme-medium
+            scheme-basic
             adjustbox
             amsmath
             amssymb
