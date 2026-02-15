@@ -112,6 +112,8 @@ jobs:
           version: 'nightly'
       - uses: julia-actions/cache@v2
       - name: "Regressions test"
+        env:
+          DOCUMENTER_LATEX_SHOW_LOGS: 1
         run: julia ./.github/scripts/julia-manual-regression-test.jl .
       - uses: actions/upload-artifact@v6
         with:
