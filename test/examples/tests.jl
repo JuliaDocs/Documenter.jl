@@ -53,15 +53,23 @@ function printdiff(s1, s2)
         end
     end
 end
-function compare_files(a, b)
-    if haskey(ENV, "DOCUMENTER_FIXTESTS")
-        @info "Updating reference file: $(b)"
-        cp(a, b, force = true)
+function resolve_tex_reference(path::AbstractString)
+    nightly_path = joinpath(dirname(path), "nightly", basename(path))
+    if VERSION >= v"1.14.0-DEV" && isfile(nightly_path)
+        return nightly_path
     end
-    a_str, b_str = read(a, String), read(b, String)
+    return path
+end
+function compare_files(a, b)
+    reference = resolve_tex_reference(b)
+    if haskey(ENV, "DOCUMENTER_FIXTESTS")
+        @info "Updating reference file: $(reference)"
+        cp(a, reference, force = true)
+    end
+    a_str, b_str = read(a, String), read(reference, String)
     a_str_normalized, b_str_normalized = onormalize_tex(a_str), onormalize_tex(b_str)
     a_str_normalized == b_str_normalized && return true
-    @error "Generated files did not agree with reference, diff follows." a b
+    @error "Generated files did not agree with reference, diff follows." a reference
     printdiff(a_str_normalized, b_str_normalized)
     println('='^40, " end of diff ", '='^40)
     return false
