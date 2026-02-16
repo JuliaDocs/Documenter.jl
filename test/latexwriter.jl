@@ -90,7 +90,7 @@ end
 @testset "latex optional MarkdownAST nodes" begin
     strikethrough = Documenter.MarkdownAST.Node(Documenter.MarkdownAST.Strikethrough())
     push!(strikethrough.children, Documenter.MarkdownAST.Node(Documenter.MarkdownAST.Text("gone")))
-    @test _node_to_latex(strikethrough) == "\\sout{gone}"
+    @test _node_to_latex(strikethrough) == "gone"
 
     htmlinline = Documenter.MarkdownAST.Node(Documenter.MarkdownAST.HTMLInline("<span>x</span>"))
     @test _node_to_latex(htmlinline) == "x"

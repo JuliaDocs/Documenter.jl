@@ -762,9 +762,8 @@ function latex(io::Context, node::Node, e::MarkdownAST.Emph)
 end
 
 function latex(io::Context, node::Node, ::MarkdownAST.Strikethrough)
-    wrapinline(io, "sout") do
-        latex(io, node.children)
-    end
+    # TODO: use a LaTeX package like soul or ulem to render strike through
+    latex(io, node.children)
     return
 end
 
