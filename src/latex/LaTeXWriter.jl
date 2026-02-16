@@ -858,7 +858,10 @@ function latex(io::Context, node::Node, link::MarkdownAST.Link)
     # This branch is the normal case, when we're not in a header.
     # TODO: handle the .title attribute
     wrapinline(io, "href") do
-        _print(io, link.destination)
+        # Keep URL characters such as '~' unescaped, while escaping '#'
+        # which otherwise breaks \href argument handling in some contexts
+        # (e.g. tabulary table cells).
+        _print(io, replace(link.destination, "#" => "\\#"))
     end
     _print(io, "{")
     latex(io, node.children)
