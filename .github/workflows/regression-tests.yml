@@ -36,7 +36,6 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-buildpkg@v1
       - name: Test
         shell: julia --color=yes {0}
         run: |
