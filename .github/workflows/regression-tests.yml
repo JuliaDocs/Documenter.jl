@@ -90,10 +90,12 @@ jobs:
       - uses: TeX-Live/setup-texlive-action@v3
         with:
           packages: |
-            scheme-medium
+            scheme-basic
+            afterpage
             adjustbox
             amsmath
             amssymb
+            everypage
             fontspec
             booktabs
             graphicx
