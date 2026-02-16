@@ -158,7 +158,7 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
         end
         ctx.meta[:LocalDocTestArguments] = d
 
-        for expr in [get(ctx.meta, :DocTestSetup, []); get(ctx.meta[:LocalDocTestArguments], :setup, [])]
+        for expr in [get(ctx.meta, :DocTestSetup, []); get(d, :setup, [])]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             try
                 Core.eval(sandbox, expr)
@@ -219,7 +219,7 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
                 """
             )
         end
-        for expr in [get(ctx.meta, :DocTestTeardown, []); get(ctx.meta[:LocalDocTestArguments], :teardown, [])]
+        for expr in [get(ctx.meta, :DocTestTeardown, []); get(d, :teardown, [])]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             try
                 Core.eval(sandbox, expr)
