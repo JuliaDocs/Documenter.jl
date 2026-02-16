@@ -52,7 +52,6 @@ jobs:
           arch: ${{ matrix.arch }}
           show-versioninfo: true
       - uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -236,7 +235,6 @@ jobs:
           version: 1
           show-versioninfo: true
       - uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-buildpkg@v1
       - name: Instantiate main project environment
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
       - name: Download search index
