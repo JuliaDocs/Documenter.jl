@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * reduced time complexity from O(n^2) to O(n) to improve the initial load time for search ([#2875])
 * Git no longer displays a message about the default branch name when calling `deploydocs()`. ([#2854])
 * Don't escape characters (such as ~) in URLs when writing LaTeX. ([#2210])
+* Tweak the layout of the table of contents in LaTeX / PDF output so that for a document with 8 or more parts, the part number (VIII) does not overlap with the part title. ([#2871])
 
 ## Version [v1.16.1] - 2025-11-21
 
@@ -2244,6 +2245,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2827]: https://github.com/JuliaDocs/Documenter.jl/issues/2827
 [#2839]: https://github.com/JuliaDocs/Documenter.jl/issues/2839
 [#2842]: https://github.com/JuliaDocs/Documenter.jl/issues/2842
+[#2871]: https://github.com/JuliaDocs/Documenter.jl/issues/2871
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
