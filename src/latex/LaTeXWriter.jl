@@ -761,6 +761,24 @@ function latex(io::Context, node::Node, e::MarkdownAST.Emph)
     return
 end
 
+function latex(io::Context, node::Node, ::MarkdownAST.Strikethrough)
+    wrapinline(io, "sout") do
+        latex(io, node.children)
+    end
+    return
+end
+
+function latex(io::Context, ::Node, html::MarkdownAST.HTMLBlock)
+    latexesc(io, replace(html.html, r"<[^>]+>" => ""))
+    _println(io)
+    return
+end
+
+function latex(io::Context, ::Node, html::MarkdownAST.HTMLInline)
+    latexesc(io, replace(html.html, r"<[^>]+>" => ""))
+    return
+end
+
 function latex(io::Context, node::Node, image::Documenter.LocalImage)
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
