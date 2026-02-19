@@ -62,7 +62,7 @@ end
     @test _md_to_latex(md) == tex
 
     md = "[DocumenterCitations.jl](https://github.com/JuliaDocs/DocumenterCitations.jl#readme)"
-    tex = "\\href{https://github.com/JuliaDocs/DocumenterCitations.jl\\#readme}{DocumenterCitations.jl}"
+    tex = "\\href{https://github.com/JuliaDocs/DocumenterCitations.jl#readme}{DocumenterCitations.jl}"
     @test _md_to_latex(md) == tex
 
 end

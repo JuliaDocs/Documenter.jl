@@ -15,13 +15,13 @@ julia> 127 % Int8
 1 | 2
 ```
 
-## Escaping: ~, ^, \, ', ", _, &, %, \, $, #, { and }.
+## Escaping: ~, ^, \\, ', ", _, &, %, $, #, { and }.
 
-~, ^, \, ', ", _, &, %, \, $, #, { and }.
+~, ^, \\, ', ", _, &, %, $, #, { and }.
 
-!!! info "~, ^, \, ', ", _, &, %, \, $, #, { and }."
+!!! info "~, ^, \\, ', ", _, &, %, $, #, { and }."
 
-    ~, ^, \, ', ", _, &, %, \, $, #, { and }.
+    ~, ^, \\, ', ", _, &, %, $, #, { and }.
 
 ## Issue 1392
 
@@ -127,6 +127,10 @@ LaTeXEquation2(raw"""
 This sentence\
 should be over **multiple\
 lines**.
+
+## Issue 2210
+
+[Description with ~](https://link.with/~tilde)
 
 ## Issue 2300
 

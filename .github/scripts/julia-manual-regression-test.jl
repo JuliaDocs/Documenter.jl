@@ -56,7 +56,7 @@ function build_julia_manual(path::AbstractString)
     # to ensure that all the stdlib sources would be present (which the doc build
     # depends on). This is relatively fast though, so not a problem.
     run(`make -C $(julia_source_path) julia-stdlib JULIA_EXECUTABLE=$(JULIA)`)
-    return run(`make -C $(julia_source_path)/doc html JULIA_EXECUTABLE=$(JULIA)`)
+    return run(`make -C $(julia_source_path)/doc html pdf JULIA_EXECUTABLE=$(JULIA)`)
 end
 
 # We'll clone the Julia nightly release etc into a temp directory, unless a path
