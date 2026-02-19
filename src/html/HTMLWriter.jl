@@ -1029,6 +1029,19 @@ end
 # ------------------------------------------------------------------------------
 
 """
+Find the first descendant NavNode that has an associated page, or the node itself
+if it has a page. Returns `nothing` if no such node exists in the subtree.
+"""
+function first_page_navnode(nn::Documenter.NavNode)
+    nn.page !== nothing && return nn
+    for child in nn.children
+        result = first_page_navnode(child)
+        result !== nothing && return result
+    end
+    return nothing
+end
+
+"""
 Renders the top navigation bar when `top_menu` is configured.
 Returns `nothing` if `top_menu` is not being used.
 """
@@ -1061,8 +1074,25 @@ function render_top_menu(ctx, navnode)
         else
             "#"
         end
-        li[is_active ? ".is-active" : ""](
-            a[".docs-top-menu-link", :href => href](section.title)
+
+        # Build dropdown items from the section's top-level navtree entries
+        dropdown_items = DOM.Node[]
+        for nn in section.navtree
+            target_nn = first_page_navnode(nn)
+            target_nn === nothing && continue
+            item_href = navhref(ctx, target_nn, navnode)
+            dctx_nn = DCtx(ctx, nn, true)
+            item_title = domify(dctx_nn, pagetitle(dctx_nn))
+            push!(dropdown_items, li(a[".docs-top-dropdown-item", :href => item_href](item_title)))
+        end
+
+        li_class = is_active ? ".docs-top-dropdown.is-active" : ".docs-top-dropdown"
+        li[li_class](
+            a[".docs-top-menu-link", :href => href](
+                section.title,
+                span[".docs-top-dropdown-caret"]("▾"),
+            ),
+            ul[".docs-top-dropdown-menu"](dropdown_items...),
         )
     end
 

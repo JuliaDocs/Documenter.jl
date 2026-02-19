@@ -39,16 +39,11 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
     margin: 0;
     padding: 0;
     gap: 0;
-    overflow-x: auto;
+    // Keep overflow visible so absolutely-positioned dropdown menus are not clipped.
+    // Horizontal scrolling for overflow is handled only on touch (see below).
+    overflow: visible;
     height: 100%;
     align-items: stretch;
-
-    // Hide scrollbar but keep functionality
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
 
     > li {
       flex-shrink: 0;
@@ -85,6 +80,56 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
       background-color: $documenter-topmenu-hover-background;
       color: $documenter-topmenu-hover-color;
       text-decoration: none;
+    }
+
+    .docs-top-dropdown-caret {
+      margin-left: 0.35em;
+      font-size: 0.75em;
+      opacity: 0.6;
+      line-height: 1;
+    }
+  }
+
+  // Dropdown menu for each top-menu item
+  .docs-top-dropdown {
+    position: relative;
+
+    .docs-top-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 14rem;
+      background-color: $documenter-topmenu-background;
+      border: 1px solid $border;
+      border-radius: 0 0 4px 4px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+      z-index: 200;
+      padding: 0.3rem 0;
+      list-style: none;
+      margin: 0;
+
+      > li > .docs-top-dropdown-item {
+        display: block;
+        padding: 0.45rem 1rem;
+        color: $documenter-topmenu-color;
+        text-decoration: none;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        transition: background-color 0.1s ease, color 0.1s ease;
+
+        &:hover {
+          background-color: $documenter-topmenu-hover-background;
+          color: $documenter-topmenu-hover-color;
+          text-decoration: none;
+        }
+      }
+    }
+
+    // Show dropdown on hover (desktop) and when focus is inside (keyboard navigation)
+    &:hover > .docs-top-dropdown-menu,
+    &:focus-within > .docs-top-dropdown-menu {
+      display: block;
     }
   }
 }
@@ -127,7 +172,13 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
     height: 2.5rem;
     
     .docs-top-menu-list {
-      // Allow horizontal scrolling on mobile
+      // Allow horizontal scrolling on mobile (no dropdowns on touch)
+      overflow-x: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
       justify-content: flex-start;
       padding-left: 0.5rem;
     }

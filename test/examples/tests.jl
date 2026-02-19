@@ -516,9 +516,23 @@ end
             @test occursin("User Guide", page_content)
             @test occursin("has-top-menu", page_content)
 
+            # Check dropdown structure is present
+            @test occursin("docs-top-dropdown", page_content)
+            @test occursin("docs-top-dropdown-menu", page_content)
+            @test occursin("docs-top-dropdown-item", page_content)
+            @test occursin("docs-top-dropdown-caret", page_content)
+
+            # Check that the dropdown items link to section pages
+            # "Getting Started" section has "Home" (getting-started/index.md) and "Installation"
+            @test occursin("getting-started", page_content)
+            @test occursin("install", page_content)
+
             # Check that different sections show different sidebar content
             guide_content = read(joinpath(build_dir, "guide", "index.html"), String)
             @test occursin("docs-top-menu", guide_content)
+            # Dropdown for "User Guide" section should contain its pages
+            @test occursin("docs-top-dropdown-menu", guide_content)
+            @test occursin("docs-top-dropdown-item", guide_content)
         end
 
         # --- Additional edge case tests for top_menu ---

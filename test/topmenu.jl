@@ -3,6 +3,7 @@ module TopMenuTests
 using Test
 
 import Documenter: Documenter, Builder, NavNode, TopMenuSection
+import Documenter.HTMLWriter: first_page_navnode
 
 # FakeDocument structure to test top_menu functionality
 mutable struct FakeDocumentBlueprint
@@ -89,6 +90,36 @@ end
     @test length(doc.internal.navlist) == 2
     @test doc.internal.navlist[1].page == "page1.md"
     @test doc.internal.navlist[2].page == "page2.md"
+end
+
+@testset "first_page_navnode" begin
+    # Node with a page returns itself
+    leaf = NavNode("page.md", nothing, nothing)
+    @test first_page_navnode(leaf) === leaf
+
+    # Header node with no page and no children returns nothing
+    header = NavNode(nothing, "Section", nothing)
+    @test first_page_navnode(header) === nothing
+
+    # Header node whose first child has a page returns that child
+    child1 = NavNode("child1.md", nothing, nothing)
+    child2 = NavNode("child2.md", nothing, nothing)
+    header_with_children = NavNode(nothing, "Section", nothing)
+    push!(header_with_children.children, child1, child2)
+    @test first_page_navnode(header_with_children) === child1
+
+    # Nested: header → header → page
+    inner_header = NavNode(nothing, "Inner", nothing)
+    deep_leaf = NavNode("deep.md", nothing, nothing)
+    push!(inner_header.children, deep_leaf)
+    outer_header = NavNode(nothing, "Outer", nothing)
+    push!(outer_header.children, inner_header)
+    @test first_page_navnode(outer_header) === deep_leaf
+
+    # Node with a page is returned directly even if it also has children
+    node_with_page_and_children = NavNode("parent.md", nothing, nothing)
+    push!(node_with_page_and_children.children, NavNode("child.md", nothing, nothing))
+    @test first_page_navnode(node_with_page_and_children) === node_with_page_and_children
 end
 
 end # module
