@@ -93,10 +93,10 @@ end
     @test _node_to_latex(strikethrough) == "gone"
 
     htmlinline = Documenter.MarkdownAST.Node(Documenter.MarkdownAST.HTMLInline("<span>x</span>"))
-    @test _node_to_latex(htmlinline) == "x"
+    @test_logs (:warn, r"Raw HTML inline is not supported in LaTeX output") _node_to_latex(htmlinline) == "x"
 
     htmlblock = Documenter.MarkdownAST.Node(Documenter.MarkdownAST.HTMLBlock("<div>y</div>"))
-    @test _node_to_latex(htmlblock) == "y\n"
+    @test_logs (:warn, r"Raw HTML block is not supported in LaTeX output") _node_to_latex(htmlblock) == "y\n"
 end
 
 @testset "latex table link fragment PDF regression reproducer" begin

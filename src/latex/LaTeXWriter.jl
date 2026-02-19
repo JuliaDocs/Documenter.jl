@@ -767,13 +767,21 @@ function latex(io::Context, node::Node, ::MarkdownAST.Strikethrough)
     return
 end
 
+function _warn_raw_html_in_latex(io::Context, kind::AbstractString)
+    source = isempty(io.filename) ? "(unknown source)" : Documenter.locrepr(io.filename)
+    @warn "Raw HTML $kind is not supported in LaTeX output in $(source); stripping tags."
+    return
+end
+
 function latex(io::Context, ::Node, html::MarkdownAST.HTMLBlock)
+    _warn_raw_html_in_latex(io, "block")
     latexesc(io, replace(html.html, r"<[^>]+>" => ""))
     _println(io)
     return
 end
 
 function latex(io::Context, ::Node, html::MarkdownAST.HTMLInline)
+    _warn_raw_html_in_latex(io, "inline")
     latexesc(io, replace(html.html, r"<[^>]+>" => ""))
     return
 end
