@@ -513,7 +513,7 @@ function find_object(binding, typesig)
     end
 end
 function find_object(λ::Union{Function, DataType}, binding, typesig)
-    if hasmethod(λ, typesig)
+    if isa(typesig, DataType) && hasmethod(λ, typesig)
         signature = getsig(λ, typesig)
         return Documenter.Object(binding, signature)
     else
