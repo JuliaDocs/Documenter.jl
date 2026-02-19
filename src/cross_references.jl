@@ -498,6 +498,16 @@ function find_object(doc::Documenter.Document, binding, typesig)
                 # We've found an actual match out of the possible choices! Use it.
                 return candidate
             else
+                # Special case: UnionAll signature might be equivalent to an existing object, but not identical
+                if isa(typesig, UnionAll) 
+                    for object in objects
+                        if object.binding === candidate.binding &&
+                           object.signature == candidate.signature && # equality, not identity!
+                           object.noncanonical_extra === candidate.noncanonical_extra
+                           return object
+                        end
+                    end
+                end
                 # No match in the possible choices. Use the one that was first included.
                 return objects[1]
             end
