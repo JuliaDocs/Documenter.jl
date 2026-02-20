@@ -128,7 +128,7 @@ slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 # has been fixed in <https://github.com/JuliaLang/julia/pull/61043> but until
 # this fix is available in Julia versions, we replace calls to `string` on
 # bindings by `Documenter.bindingstring`. In the future, we may be able to
-# get rid of this again. 
+# get rid of this again.
 function bindingstring(binding::Binding)
     if VERSION < v"1.14.0-DEV.1731"
         s = string(binding)
