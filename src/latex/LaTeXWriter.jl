@@ -761,6 +761,31 @@ function latex(io::Context, node::Node, e::MarkdownAST.Emph)
     return
 end
 
+function latex(io::Context, node::Node, ::MarkdownAST.Strikethrough)
+    # TODO: use a LaTeX package like soul or ulem to render strike through
+    latex(io, node.children)
+    return
+end
+
+function _warn_raw_html_in_latex(io::Context, kind::AbstractString)
+    source = isempty(io.filename) ? "(unknown source)" : Documenter.locrepr(io.filename)
+    @warn "Raw HTML $kind is not supported in LaTeX output in $(source); stripping tags."
+    return
+end
+
+function latex(io::Context, ::Node, html::MarkdownAST.HTMLBlock)
+    _warn_raw_html_in_latex(io, "block")
+    latexesc(io, replace(html.html, r"<[^>]+>" => ""))
+    _println(io)
+    return
+end
+
+function latex(io::Context, ::Node, html::MarkdownAST.HTMLInline)
+    _warn_raw_html_in_latex(io, "inline")
+    latexesc(io, replace(html.html, r"<[^>]+>" => ""))
+    return
+end
+
 function latex(io::Context, node::Node, image::Documenter.LocalImage)
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
