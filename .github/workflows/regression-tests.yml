@@ -90,7 +90,7 @@ jobs:
       - uses: TeX-Live/setup-texlive-action@v3
         with:
           packages: |
-            scheme-basic
+            scheme-medium
             afterpage
             adjustbox
             amsmath
