@@ -365,7 +365,7 @@ function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     id = _hash(Documenter.anchor_label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
-    latexesc(io, string(node.object.binding))
+    latexesc(io, Documenter.bindingstring(node.object.binding))
     _print(io, "}} ")
     _println(io, " -- {", Documenter.doccat(node.object), ".}\n")
     # # Body. May contain several concatenated docstrings.
@@ -404,7 +404,7 @@ function latex(io::Context, node::Node, index::Documenter.IndexNode)
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
         id = _hash(string(Documenter.slugify(object)))
-        text = string(object.binding)
+        text = Documenter.bindingstring(object.binding)
         _print(io, "\\item \\hyperlinkref{")
         _print(io, id, "}{\\texttt{")
         latexesc(io, text)
