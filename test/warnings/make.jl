@@ -33,8 +33,10 @@ end
 
 ###########################################################################################
 
+# the `filter` below adjusts for minor output difference between Julia 1.10 and 1.12
+# for the UndefVarError
 @doc raw"""
-```jldoctest; setup=:(using ..WarningTests)
+```jldoctest; setup=:(using ..WarningTests), filter = r".*(exception =|UndefVarError|spelling errors).*\n"
 julia> WarningTests.run_warnings_test("at-docs")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.

@@ -14,7 +14,30 @@ From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 pkg> add Documenter
 ```
 
-For package documentation, the standard approach is to install Documenter into a documentation-specific project stored in the `docs/` subdirectory of your package.
+For package documentation, the standard approach is to add a documentation-specific project stored in the `docs/` subdirectory of your package.
+
+### Julia v1.12 and later
+On Julia v1.12+, the [workspace](https://pkgdocs.julialang.org/v1/toml-files/#The-[workspace]-section) feature of your package's `Project.toml` makes it easy to add a `docs` workspace that includes `Documenter`.
+To do this, first edit the package's top-level `Project.toml` file to have a `docs` workspace:
+```
+# The top-level Project.toml may already have other projects listed here as workspaces,
+# simply append "docs" to the end of the list if it already exists.
+[workspace]
+projects = ["docs"]
+```
+
+Next, open up a Julia REPL in the `docs` subdirectory, enter `pkg>` mode with the `]` key and install `Documenter` and the top-level package (here called `PkgName`) with:
+
+```
+$ julia --project=docs
+(PkgName/docs) pkg> add Documenter PkgName
+```
+
+This will create `Project.toml` file in the `docs/` subdirectory and add `Documenter` and the top-level package as available packages.
+See also the [Pkg.jl](https://github.com/JuliaLang/Pkg.jl/) documentation on working with [project workspaces](https://pkgdocs.julialang.org/v1/toml-files/#The-[workspace]-section) and [environments](https://pkgdocs.julialang.org/v1/environments/).
+
+### Julia v1.11 and earlier
+For Julia versions v1.11 and earlier, creating a separate project in `docs/` is the standard approach.
 To do this, navigate to your package's root folder and do
 
 ```
@@ -24,9 +47,7 @@ pkg> activate docs/
 ```
 
 This will create `Project.toml` and `Manifest.toml` files in the `docs/` subdirectory.
-
 Note that for packages, you also likely need to have your package that you are documenting as a  ["dev dependency"](https://pkgdocs.julialang.org/v1/managing-packages/#developing) of the `docs/` environment.
-
 See also [the Pkg.jl documentation on working with project environments](https://pkgdocs.julialang.org/v1/environments/).
 
 ## Setting up the Folder Structure

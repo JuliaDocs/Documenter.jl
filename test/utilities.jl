@@ -100,6 +100,27 @@ end
     @test Documenter.doccat(UnitTests.TB) == "Type"
     @test Documenter.doccat(UnitTests.TC) == "Type"
 
+    let b = Base.Docs.Binding(Base, Symbol(":")), obj = Documenter.Object(b, Union{})
+        @test Documenter.bindingstring(b) == "Base.:(:)"
+        @test string(obj) == "Base.:(:)"
+        @test Documenter.slugify(obj) == "Base.:(:)"
+    end
+    let b = Base.Docs.Binding(Base, Symbol("==")), obj = Documenter.Object(b, Union{})
+        @test Documenter.bindingstring(b) == "Base.:(==)"
+        @test string(obj) == "Base.:(==)"
+        @test Documenter.slugify(obj) == "Base.:(==)"
+    end
+    let b = Base.Docs.Binding(Base, Symbol("+")), obj = Documenter.Object(b, Union{})
+        @test Documenter.bindingstring(b) == "Base.:+"
+        @test string(obj) == "Base.:+"
+        @test Documenter.slugify(obj) == "Base.:+"
+    end
+    let b = Base.Docs.Binding(Base, :sin), obj = Documenter.Object(b, Union{})
+        @test Documenter.bindingstring(b) == "Base.sin"
+        @test string(obj) == "Base.sin"
+        @test Documenter.slugify(obj) == "Base.sin"
+    end
+
     # repo type
     @test Documenter.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.RepoBitbucket
     @test Documenter.repo_host_from_url("https://www.bitbucket.org/somerepo") == Documenter.RepoBitbucket

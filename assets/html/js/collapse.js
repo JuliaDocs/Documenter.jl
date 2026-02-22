@@ -23,13 +23,13 @@ window.addEventListener("load", openTarget);
 
 function accordion() {
   document.body
-    .querySelectorAll("details")
+    .querySelectorAll("details.docstring")
     .forEach((e) => e.setAttribute("open", "true"));
 }
 
 function noccordion() {
   document.body
-    .querySelectorAll("details")
+    .querySelectorAll("details.docstring")
     .forEach((e) => e.removeAttribute("open"));
 }
 

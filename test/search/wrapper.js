@@ -33,6 +33,7 @@ const index = new MiniSearch({
     },
     tokenize: (string) => {
         const tokens = [];
+        const tokenSet = new Set();
         let remaining = string;
   
         // julia specific patterns
@@ -59,8 +60,9 @@ const index = new MiniSearch({
           let match;
           while ((match = pattern.exec(remaining)) != null) {
             const token = match[0].trim();
-            if (token && !tokens.includes(token)) {
+            if (token && !tokenSet.has(token)) {
               tokens.push(token);
+              tokenSet.add(token);
             }
           }
         }
@@ -70,8 +72,9 @@ const index = new MiniSearch({
           .split(/[\s\-,;()[\]{}]+/)
           .filter((t) => t.trim());
         for (const token of basicTokens) {
-          if (token && !tokens.includes(token)) {
+          if (token && !tokenSet.has(token)) {
             tokens.push(token);
+            tokenSet.add(token);
           }
         }
   

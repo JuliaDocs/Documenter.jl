@@ -15,7 +15,7 @@ on:
       - 'Project.toml'
 jobs:
   test-dependent-packages:
-    name: run-tests-${{ matrix.package }}
+    name: Tests / ${{ matrix.package }}
     runs-on: ubuntu-latest
     env:
       PACKAGE: ${{ matrix.package }}
@@ -31,12 +31,11 @@ jobs:
           - package: 'DocumenterDescriptions'
           - package: 'DocumenterVitepress'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-buildpkg@v1
       - name: Test
         shell: julia --color=yes {0}
         run: |
@@ -44,8 +43,9 @@ jobs:
           Pkg.develop(Pkg.PackageSpec(; path = pwd()))
           Pkg.develop(ENV["PACKAGE"])
           Pkg.test(ENV["PACKAGE"])
+
   test-documentation-build:
-    name: doc-build-${{ matrix.package }}
+    name: "Docs / ${{ matrix.package }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -54,7 +54,7 @@ jobs:
           - package: 'MathOptInterface'
           - package: 'Oscar'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -81,3 +81,43 @@ jobs:
           Pkg.instantiate()
           # Build the docs
           include(joinpath(doc_path, "make.jl"))
+
+  test-julia-manual-build:
+    name: "Julia Manual"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: TeX-Live/setup-texlive-action@v3
+        with:
+          packages: |
+            scheme-medium
+            afterpage
+            adjustbox
+            amsmath
+            amssymb
+            everypage
+            fontspec
+            booktabs
+            graphicx
+            hyperref
+            minted
+            newunicodechar
+            polyglossia
+            tabulary
+            tcolorbox
+            xcolor
+            anyfontsize
+            background
+            geometry
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: 'nightly'
+      - uses: julia-actions/cache@v2
+      - name: "Regressions test"
+        env:
+          DOCUMENTER_LATEX_SHOW_LOGS: 1
+        run: julia ./.github/scripts/julia-manual-regression-test.jl .
+      - uses: actions/upload-artifact@v6
+        with:
+          name: "regression-tests-julia-manual"
+          path: julia/doc/_build/html

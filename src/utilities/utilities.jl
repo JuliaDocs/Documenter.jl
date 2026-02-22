@@ -122,6 +122,23 @@ function slugify(s::AbstractString)
 end
 slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 
+# Render doc bindings with syntax that can be copy-pasted as valid Julia code.
+# Workaround for <https://github.com/JuliaDocs/Documenter.jl/issues/2844>: in
+# the Julia documentation, `Base.:(:)` was being displayed as `Base.::`. This
+# has been fixed in <https://github.com/JuliaLang/julia/pull/61043> but until
+# this fix is available in Julia versions, we replace calls to `string` on
+# bindings by `Documenter.bindingstring`. In the future, we may be able to
+# get rid of this again.
+function bindingstring(binding::Binding)
+    if VERSION < v"1.14.0-DEV.1731"
+        s = string(binding)
+        op_prefix = string(binding.mod, ".:")
+        return startswith(s, op_prefix) ? string(binding.mod, ".", sprint(show, binding.var)) : s
+    else
+        return string(binding)
+    end
+end
+
 # Parse code blocks.
 
 """
@@ -139,10 +156,17 @@ returns this expression normally and it must be handled appropriately by the cal
 
 The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
 and starting line number of the block (requires Julia 1.6 or higher).
+
+The `syntax_version` can be passed as a `VersionNumber` to parse the code using a specific
+Julia syntax version. This requires Julia 1.14 or higher.
+
+The `mod` can be passed as a `Module` to use that module's parser (via `Meta.parser_for_module`).
+If not specified, the default parser is used. When both `syntax_version` and `mod` are specified,
+`syntax_version` takes precedence.
 """
 function parseblock(
         code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
-        linenumbernode = nothing, lines = nothing
+        linenumbernode = nothing, lines = nothing, syntax_version = nothing, mod = nothing
     )
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
@@ -150,6 +174,16 @@ function parseblock(
     endofstr = lastindex(code)
     results = []
     cursor = 1
+    # Determine which parser to use:
+    # 1. If syntax_version is specified and VersionedParse exists, use versioned parser
+    # 2. Otherwise, use the module's parser via parser_for_module (defaults to Core._parse)
+    _parse = if syntax_version !== nothing && isdefined(Base, :VersionedParse)
+        Base.VersionedParse(syntax_version)
+    elseif isdefined(Meta, :parser_for_module)
+        Meta.parser_for_module(mod)
+    else
+        nothing
+    end
     while cursor < endofstr
         # Check for keywords first since they will throw parse errors if we `parse` them.
         line = match(r"^(.*)\r?\n"m, SubString(code, cursor)).match
@@ -159,7 +193,11 @@ function parseblock(
             (QuoteNode(keyword), cursor + lastindex(line))
         else
             try
-                Meta.parse(code, cursor; raise = raise)
+                if _parse !== nothing
+                    Meta.parse(code, cursor; raise = raise, _parse = _parse)
+                else
+                    Meta.parse(code, cursor; raise = raise)
+                end
             catch err
                 @docerror(doc, :parse_error, "failed to parse code block in $(locrepr(file, lines))", exception = err)
                 return []
@@ -172,7 +210,8 @@ function parseblock(
         cursor = ncursor
     end
     if linenumbernode isa LineNumberNode
-        exs = Meta.parseall(code; filename = linenumbernode.file).args
+        parseall_kwargs = _parse !== nothing ? (; filename = linenumbernode.file, _parse = _parse) : (; filename = linenumbernode.file)
+        exs = Meta.parseall(code; parseall_kwargs...).args
         if isempty(results) && length(exs) == 1 && exs[1] isa LineNumberNode
             # block was empty or consisted of just comments
             empty!(exs)
@@ -287,7 +326,7 @@ function object(qn::QuoteNode, str::AbstractString)
 end
 
 function Base.print(io::IO, obj::Object)
-    print(io, obj.binding)
+    print(io, bindingstring(obj.binding))
     print_signature(io, obj.signature)
     print_extra(io, obj.noncanonical_extra)
     return
