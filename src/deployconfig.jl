@@ -358,7 +358,7 @@ function GitHubActions()
             owner, repo = parts
             return GitHubActions("https://$(owner).github.io/$(repo)/")
         else
-            return GitHubActions("")
+            error("Can not construct GitHubActinos - GitHub API failed and ENV['GITHUB_REPOSITORY'] is mallformed")
         end
     end
 end

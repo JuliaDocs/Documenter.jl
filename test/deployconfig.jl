@@ -524,6 +524,25 @@ end
             @test Documenter.authentication_method(cfg) === Documenter.HTTPS
             @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.selfhosted/JuliaDocs/Documenter.jl.git"
         end
+        # Self-hosted GitHub installation but can't deduce anything
+        withenv(
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_API_URL" => "github.selfhosted",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl/that_is_not_correct",
+            "GITHUB_REF" => "refs/tags/v1.2.3",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+            @test_throws ErrorException Documenter.GitHubActions()
+        end
+
+        # Check post_github_status
+        withenv(
+            "PATH" => "" # this shall make all executable discovery fail
+        ) do
+            @test_logs (:warn, "curl not found in PATH, cannot post status") Documenter.post_github_status(Documenter.GitHubActions("pages.selfhosted/something/JuliaDocs/Documenter.jl"), "type", "sha")
+        end
     end
 end
 
