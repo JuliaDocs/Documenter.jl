@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+* Support self-hosted GitHub instances. ([#2755])
+
+
 ## Version [v1.17.0] - 2026-02-20
 
 ### Added
@@ -36,8 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version [v1.16.0] - 2025-11-14
 
 ### Added
-
-* Support self-hosted GitHub instances. ([#2755])
 
 * Added option `treat_markdown_warnings_as_error` which throws an error when encountering a markdown/interpolation warning ([#2792], [#2751])
 * Footnotes can now be previewed by hovering over the link. ([#2080])
