@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Don't escape characters (such as ~) in URLs when writing LaTeX. ([#2210])
 * Tweak the layout of the table of contents in LaTeX / PDF output so that for a document with 8 or more parts, the part number (VIII) does not overlap with the part title. ([#2871])
 
+### Fixed
+
+* During cross-referencing `find_object` correctly locates the `Documenter.Object` associated with UnionAll method signatures. ([#2889])
+
 ## Version [v1.16.1] - 2025-11-21
 
 ### Fixed
