@@ -1887,7 +1887,7 @@ function domify(dctx::DCtx, ::Node, indexnode::Documenter.IndexNode)
         path = joinpath(navnode_dir, path) # links in IndexNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
         url = string(path, "#", Documenter.slugify(object))
-        li(a[:href => url](code("$(object.binding)")))
+        li(a[:href => url](code(Documenter.bindingstring(object.binding))))
     end
     return ul(lis)
 end
@@ -1902,7 +1902,7 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
     rec = SearchRecord(
         ctx, navnode;
         fragment = Documenter.anchor_fragment(docsnode.anchor),
-        title = string(docsnode.object.binding),
+        title = Documenter.bindingstring(docsnode.object.binding),
         category = Documenter.doccat(docsnode.object),
         text = mdflatten(mdast_node)
     )
@@ -1913,7 +1913,7 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
             summary[
                 :id => docsnode.anchor.id,
             ](
-                a[".docstring-binding", :href => "#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
+                a[".docstring-binding", :href => "#$(docsnode.anchor.id)"](code(Documenter.bindingstring(docsnode.object.binding))),
                 " — ", # &mdash;
                 span[".docstring-category"]("$(Documenter.doccat(docsnode.object))")
             ),
@@ -2299,6 +2299,10 @@ domify(dctx::DCtx, node::Node, ::MarkdownAST.BlockQuote) = DOM.Tag(:blockquote)(
 
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Strong) = DOM.Tag(:strong)(domify(dctx, node.children))
 
+domify(dctx::DCtx, node::Node, ::MarkdownAST.Emph) = DOM.Tag(:em)(domify(dctx, node.children))
+
+domify(dctx::DCtx, node::Node, ::MarkdownAST.Strikethrough) = DOM.Tag(:del)(domify(dctx, node.children))
+
 function domify(dctx::DCtx, ::Node, c::MarkdownAST.CodeBlock)
     ctx = dctx.ctx
     settings = ctx.settings
@@ -2381,11 +2385,13 @@ function domify(dctx::DCtx, node::Node, i::ImageElements)
     end
 end
 
-domify(dctx::DCtx, node::Node, ::MarkdownAST.Emph) = DOM.Tag(:em)(domify(dctx, node.children))
-
 domify(::DCtx, ::Node, m::MarkdownAST.DisplayMath) = DOM.Tag(:p)[".math-container"](string("\\[", m.math, "\\]"))
 
 domify(::DCtx, ::Node, m::MarkdownAST.InlineMath) = DOM.Tag(:span)(string('$', m.math, '$'))
+
+domify(::DCtx, ::Node, html::MarkdownAST.HTMLBlock) = DOM.Tag(Symbol("#RAW#"))(html.html)
+
+domify(::DCtx, ::Node, html::MarkdownAST.HTMLInline) = DOM.Tag(Symbol("#RAW#"))(html.html)
 
 domify(::DCtx, ::Node, m::MarkdownAST.LineBreak) = DOM.Tag(:br)()
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)

@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.17.0] - 2026-02-20
 
 ### Added
 
@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `Remotes.Forgejo` for specifying a `Remote` hosted on a Forgejo instance (such as codeberg.org). ([#2857])
 * Doctests now default to the `parser_for_module` of the module that the docstring appears in, allowing modules that set their syntax version via `Base.Experimental.@set_syntax_version` to have their doctests parsed with the correct syntax automatically. Also added support for `DocTestSyntax` metadata and per-block `syntax=` attributes to explicitly specify a syntax version. ([#2874])
 * Added a `show_log` keyword for `Documenter.LaTeX` to print LaTeX compiler logs to stdout when PDF compilation fails, and support for forcing this via `DOCUMENTER_LATEX_SHOW_LOGS` in CI environments. ([#1697])
+* Added support for new features of the Markdown stdlib introduced in Julia 1.14, namely strike through, HTML blocks and inline HTML (this requires Julia 1.14+ and `MarkdownAST` 0.1.3).
 
 ### Changed
 
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * During cross-referencing `find_object` correctly locates the `Documenter.Object` associated with UnionAll method signatures. ([#2889])
+* Fixed rendering of operator docstring bindings such as `Base.:(:)` and `Base.:(==)` in doc headers and indices. ([#2844])
 
 ## Version [v1.16.1] - 2025-11-21
 
@@ -2249,7 +2251,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2827]: https://github.com/JuliaDocs/Documenter.jl/issues/2827
 [#2839]: https://github.com/JuliaDocs/Documenter.jl/issues/2839
 [#2842]: https://github.com/JuliaDocs/Documenter.jl/issues/2842
+[#2844]: https://github.com/JuliaDocs/Documenter.jl/issues/2844
+[#2849]: https://github.com/JuliaDocs/Documenter.jl/issues/2849
+[#2854]: https://github.com/JuliaDocs/Documenter.jl/issues/2854
+[#2857]: https://github.com/JuliaDocs/Documenter.jl/issues/2857
 [#2871]: https://github.com/JuliaDocs/Documenter.jl/issues/2871
+[#2874]: https://github.com/JuliaDocs/Documenter.jl/issues/2874
+[#2875]: https://github.com/JuliaDocs/Documenter.jl/issues/2875
+[#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
