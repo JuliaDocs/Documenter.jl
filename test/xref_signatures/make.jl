@@ -75,15 +75,22 @@ end
     @test isfile(index_html)
     if isfile(index_html)
         html = read(index_html, String)
+
+        # Find anchor name for docstring containing AbstractArray (this differs between Julia 1.6 and 1.12!)
+        array_anchor_pattern = r"""<a\s+class="docstring-binding"\s+href="([^"]*AbstractArray[^"]*)"[^>]*>\s*<code>Main\.XRefSignaturesMain\.g</code>\s*</a>"""x
+        array_anchor_rx = match(array_anchor_pattern, html)
+        @test !isnothing(array_anchor_rx)
+        array_anchor = array_anchor_rx.captures[1]
+
         # Body -> API xref
         @test contains(html, """<a href="index.html#Main.XRefSignaturesMain.g-Tuple{Float64}">specialized methods</a>""")
         @test contains(html, """<a href="index.html#Main.XRefSignaturesMain.g-Tuple{X} where X">parametric methods</a>""")
-        @test contains(html, """<a href="index.html#Main.XRefSignaturesMain.g-Union{Tuple{AbstractArray{T}}, Tuple{T}} where T&lt;:Number">constrained parametric methods</a>""")
+        @test contains(html, """<a href="index.html$(array_anchor)">constrained parametric methods</a>""")
         @test contains(html, """<a href="index.html#Main.XRefSignaturesMain.g-Tuple{X} where X"><code>g(::Y) where Y</code></a>""")
 
         # API -> API xref
         @test contains(html, """See also <a href="index.html#Main.XRefSignaturesMain.g-Tuple{X} where X">parametric <code>g</code></a>""")
-        @test contains(html, """See also <a href="index.html#Main.XRefSignaturesMain.g-Union{Tuple{AbstractArray{T}}, Tuple{T}} where T&lt;:Number">parametric array <code>g</code></a>""")
+        @test contains(html, """See also <a href="index.html$(array_anchor)">parametric array <code>g</code></a>""")
         @test contains(html, """See also <a href="index.html#Main.XRefSignaturesMain.g-Tuple{Float64}">specialized <code>g</code></a>""")
         @test contains(html, """See also <a href="index.html#Main.XRefSignaturesMain.g-Tuple{X} where X">plain parametric <code>g</code></a>""")
     end
