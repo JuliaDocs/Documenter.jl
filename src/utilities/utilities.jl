@@ -122,6 +122,23 @@ function slugify(s::AbstractString)
 end
 slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 
+# Render doc bindings with syntax that can be copy-pasted as valid Julia code.
+# Workaround for <https://github.com/JuliaDocs/Documenter.jl/issues/2844>: in
+# the Julia documentation, `Base.:(:)` was being displayed as `Base.::`. This
+# has been fixed in <https://github.com/JuliaLang/julia/pull/61043> but until
+# this fix is available in Julia versions, we replace calls to `string` on
+# bindings by `Documenter.bindingstring`. In the future, we may be able to
+# get rid of this again.
+function bindingstring(binding::Binding)
+    if VERSION < v"1.14.0-DEV.1731"
+        s = string(binding)
+        op_prefix = string(binding.mod, ".:")
+        return startswith(s, op_prefix) ? string(binding.mod, ".", sprint(show, binding.var)) : s
+    else
+        return string(binding)
+    end
+end
+
 # Parse code blocks.
 
 """
@@ -309,7 +326,7 @@ function object(qn::QuoteNode, str::AbstractString)
 end
 
 function Base.print(io::IO, obj::Object)
-    print(io, obj.binding)
+    print(io, bindingstring(obj.binding))
     print_signature(io, obj.signature)
     print_extra(io, obj.noncanonical_extra)
     return

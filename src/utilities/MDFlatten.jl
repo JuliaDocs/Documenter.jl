@@ -40,6 +40,7 @@ function mdflatten(io, node::Node, ::T) where {
         T <: Union{
             MarkdownAST.Document, MarkdownAST.Heading, MarkdownAST.Paragraph,
             MarkdownAST.BlockQuote, MarkdownAST.Link, MarkdownAST.Strong, MarkdownAST.Emph,
+            MarkdownAST.Strikethrough,
         },
     }
     return mdflatten(io, node.children)
@@ -75,6 +76,10 @@ function mdflatten(io, node::Node, e::MarkdownAST.Image)
     print(io, ")")
     return
 end
+
+mdflatten(io, node::Node, html::MarkdownAST.HTMLBlock) = print(io, replace(html.html, r"<[^>]+>" => ""))
+mdflatten(io, node::Node, html::MarkdownAST.HTMLInline) = print(io, replace(html.html, r"<[^>]+>" => ""))
+
 mdflatten(io, node::Node, m::Union{MarkdownAST.InlineMath, MarkdownAST.DisplayMath}) = print(io, replace(m.math, r"[^()+\-*^=\w\s]" => ""))
 mdflatten(io, node::Node, e::MarkdownAST.LineBreak) = print(io, '\n')
 mdflatten(io, node::Node, ::MarkdownAST.ThematicBreak) = nothing

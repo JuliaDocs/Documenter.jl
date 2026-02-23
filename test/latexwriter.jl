@@ -63,6 +63,12 @@ function _mdblocks_to_latex(mdstr)
     return String(take!(lctx.io))
 end
 
+function _node_to_latex(node)
+    lctx = _dummy_lctx()
+    LaTeXWriter.latex(lctx, node)
+    return String(take!(lctx.io))
+end
+
 
 @testset "latex escapes" begin
 
@@ -79,6 +85,18 @@ end
     tex = "\\href{https://link.with/~tilde}{Description with {\\textasciitilde}}"
     @test _md_to_latex(md) == tex
 
+end
+
+@testset "latex optional MarkdownAST nodes" begin
+    strikethrough = Documenter.MarkdownAST.Node(Documenter.MarkdownAST.Strikethrough())
+    push!(strikethrough.children, Documenter.MarkdownAST.Node(Documenter.MarkdownAST.Text("gone")))
+    @test _node_to_latex(strikethrough) == "gone"
+
+    htmlinline = Documenter.MarkdownAST.Node(Documenter.MarkdownAST.HTMLInline("<span>x</span>"))
+    @test_logs (:warn, r"Raw HTML inline is not supported in LaTeX output") _node_to_latex(htmlinline) == "x"
+
+    htmlblock = Documenter.MarkdownAST.Node(Documenter.MarkdownAST.HTMLBlock("<div>y</div>"))
+    @test_logs (:warn, r"Raw HTML block is not supported in LaTeX output") _node_to_latex(htmlblock) == "y\n"
 end
 
 @testset "latex table link fragment PDF regression reproducer" begin

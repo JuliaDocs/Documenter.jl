@@ -365,7 +365,7 @@ function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     id = _hash(Documenter.anchor_label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
-    latexesc(io, string(node.object.binding))
+    latexesc(io, Documenter.bindingstring(node.object.binding))
     _print(io, "}} ")
     _println(io, " -- {", Documenter.doccat(node.object), ".}\n")
     # # Body. May contain several concatenated docstrings.
@@ -404,7 +404,7 @@ function latex(io::Context, node::Node, index::Documenter.IndexNode)
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
         id = _hash(string(Documenter.slugify(object)))
-        text = string(object.binding)
+        text = Documenter.bindingstring(object.binding)
         _print(io, "\\item \\hyperlinkref{")
         _print(io, id, "}{\\texttt{")
         latexesc(io, text)
@@ -758,6 +758,31 @@ function latex(io::Context, node::Node, e::MarkdownAST.Emph)
     wrapinline(io, "emph") do
         latex(io, node.children)
     end
+    return
+end
+
+function latex(io::Context, node::Node, ::MarkdownAST.Strikethrough)
+    # TODO: use a LaTeX package like soul or ulem to render strike through
+    latex(io, node.children)
+    return
+end
+
+function _warn_raw_html_in_latex(io::Context, kind::AbstractString)
+    source = isempty(io.filename) ? "(unknown source)" : Documenter.locrepr(io.filename)
+    @warn "Raw HTML $kind is not supported in LaTeX output in $(source); stripping tags."
+    return
+end
+
+function latex(io::Context, ::Node, html::MarkdownAST.HTMLBlock)
+    _warn_raw_html_in_latex(io, "block")
+    latexesc(io, replace(html.html, r"<[^>]+>" => ""))
+    _println(io)
+    return
+end
+
+function latex(io::Context, ::Node, html::MarkdownAST.HTMLInline)
+    _warn_raw_html_in_latex(io, "inline")
+    latexesc(io, replace(html.html, r"<[^>]+>" => ""))
     return
 end
 
