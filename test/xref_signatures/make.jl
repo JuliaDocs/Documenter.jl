@@ -1,7 +1,7 @@
 module XRefSignatures
 
-# Testing the fallback behavior implemented in
-# https://github.com/JuliaDocs/Documenter.jl/pull/2470
+# Testing the method signature lookup behaviour (with UnionAll) as described in
+# https://github.com/JuliaDocs/Documenter.jl/pull/2889
 
 using Test
 using Documenter
