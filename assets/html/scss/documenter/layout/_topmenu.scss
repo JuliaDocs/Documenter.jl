@@ -188,6 +188,14 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
       font-size: 0.875rem;
       height: 2.5rem;
     }
+
+    // Hide dropdowns on touch devices — they don't work with hover-only interaction
+    .docs-top-dropdown-menu {
+      display: none !important;
+    }
+    .docs-top-dropdown-caret {
+      display: none;
+    }
   }
 
   #documenter.has-top-menu {
