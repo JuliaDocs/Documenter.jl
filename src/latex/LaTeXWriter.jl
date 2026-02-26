@@ -46,19 +46,26 @@ considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 
 **`tectonic`** path to a `tectonic` executable used for compilation.
 
+**`show_log`** if `true`, dump the generated LaTeX log files to stdout when PDF compilation
+fails. This can be useful in CI where temporary build directories are not preserved. If
+the environment variable `DOCUMENTER_LATEX_SHOW_LOGS` is set, log dumping is always enabled.
+
 See [Other Output Formats](@ref) for more information.
 """
 struct LaTeX <: Documenter.Writer
     platform::String
     version::String
     tectonic::Union{Cmd, String, Nothing}
+    show_log::Bool
     function LaTeX(;
             platform = "native",
             version = get(ENV, "TRAVIS_TAG", ""),
-            tectonic = nothing
+            tectonic = nothing,
+            show_log = false,
         )
         platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
-        return new(platform, string(version), tectonic)
+        show_log = show_log || haskey(ENV, "DOCUMENTER_LATEX_SHOW_LOGS")
+        return new(platform, string(version), tectonic, show_log)
     end
 end
 
@@ -193,6 +200,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
             piperun(`latexmk -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
+            settings.show_log && dump_latex_log(fileprefix)
             logs = cp(pwd(), mktempdir(; cleanup = false); force = true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
                 "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
@@ -206,6 +214,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
             piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
+            settings.show_log && dump_latex_log(fileprefix)
             logs = cp(pwd(), mktempdir(; cleanup = false); force = true)
             @error "LaTeXWriter: failed to compile tex with tectonic. " *
                 "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
@@ -226,6 +235,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
             piperun(`docker cp latex-container:/home/zeptodoctor/build/$(fileprefix).pdf .`)
             return true
         catch err
+            settings.show_log && dump_latex_log(fileprefix)
             logs = cp(pwd(), mktempdir(; cleanup = false); force = true)
             @error "LaTeXWriter: failed to compile tex with docker. " *
                 "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
@@ -240,6 +250,27 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         @info "Skipping compiling tex file."
         return true
     end
+end
+
+function dump_latex_log(fileprefix::String)
+    logfiles = String[]
+    for logfile in ("$(fileprefix).log", "LaTeXWriter.stdout", "LaTeXWriter.stderr")
+        isfile(logfile) && push!(logfiles, logfile)
+    end
+
+    if isempty(logfiles)
+        println(stdout, "LaTeXWriter: show_log=true but no log files were found in $(pwd())")
+        return
+    end
+
+    println(stdout, "LaTeXWriter: show_log=true, dumping LaTeX logs.")
+    for logfile in logfiles
+        println(stdout, "========== BEGIN $logfile ==========")
+        print(stdout, read(logfile, String))
+        println(stdout)
+        println(stdout, "========== END $logfile ==========")
+    end
+    return
 end
 
 function piperun(cmd; clearlogs = false)
@@ -334,7 +365,7 @@ function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     id = _hash(Documenter.anchor_label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
-    latexesc(io, string(node.object.binding))
+    latexesc(io, Documenter.bindingstring(node.object.binding))
     _print(io, "}} ")
     _println(io, " -- {", Documenter.doccat(node.object), ".}\n")
     # # Body. May contain several concatenated docstrings.
@@ -373,7 +404,7 @@ function latex(io::Context, node::Node, index::Documenter.IndexNode)
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
         id = _hash(string(Documenter.slugify(object)))
-        text = string(object.binding)
+        text = Documenter.bindingstring(object.binding)
         _print(io, "\\item \\hyperlinkref{")
         _print(io, id, "}{\\texttt{")
         latexesc(io, text)
@@ -730,6 +761,31 @@ function latex(io::Context, node::Node, e::MarkdownAST.Emph)
     return
 end
 
+function latex(io::Context, node::Node, ::MarkdownAST.Strikethrough)
+    # TODO: use a LaTeX package like soul or ulem to render strike through
+    latex(io, node.children)
+    return
+end
+
+function _warn_raw_html_in_latex(io::Context, kind::AbstractString)
+    source = isempty(io.filename) ? "(unknown source)" : Documenter.locrepr(io.filename)
+    @warn "Raw HTML $kind is not supported in LaTeX output in $(source); stripping tags."
+    return
+end
+
+function latex(io::Context, ::Node, html::MarkdownAST.HTMLBlock)
+    _warn_raw_html_in_latex(io, "block")
+    latexesc(io, replace(html.html, r"<[^>]+>" => ""))
+    _println(io)
+    return
+end
+
+function latex(io::Context, ::Node, html::MarkdownAST.HTMLInline)
+    _warn_raw_html_in_latex(io, "inline")
+    latexesc(io, replace(html.html, r"<[^>]+>" => ""))
+    return
+end
+
 function latex(io::Context, node::Node, image::Documenter.LocalImage)
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
@@ -827,7 +883,10 @@ function latex(io::Context, node::Node, link::MarkdownAST.Link)
     # This branch is the normal case, when we're not in a header.
     # TODO: handle the .title attribute
     wrapinline(io, "href") do
-        _print(io, link.destination)
+        # Keep URL characters such as '~' unescaped, while escaping '#'
+        # which otherwise breaks \href argument handling in some contexts
+        # (e.g. tabulary table cells).
+        _print(io, replace(link.destination, "#" => "\\#"))
     end
     _print(io, "{")
     latex(io, node.children)

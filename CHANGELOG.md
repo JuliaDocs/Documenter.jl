@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.17.0] - 2026-02-20
 
 ### Added
 
@@ -11,12 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The version selector now also preserves the anchor (hash) when switching between documentation versions. Additionally, the outdated/dev version warning banner now also tries to keep you on the same page (and position) when linking to the latest stable release. ([#2880])
 * Added `Remotes.Forgejo` for specifying a `Remote` hosted on a Forgejo instance (such as codeberg.org). ([#2857])
 * Doctests now default to the `parser_for_module` of the module that the docstring appears in, allowing modules that set their syntax version via `Base.Experimental.@set_syntax_version` to have their doctests parsed with the correct syntax automatically. Also added support for `DocTestSyntax` metadata and per-block `syntax=` attributes to explicitly specify a syntax version. ([#2874])
+* Added a `show_log` keyword for `Documenter.LaTeX` to print LaTeX compiler logs to stdout when PDF compilation fails, and support for forcing this via `DOCUMENTER_LATEX_SHOW_LOGS` in CI environments. ([#1697])
+* Added support for new features of the Markdown stdlib introduced in Julia 1.14, namely strike through, HTML blocks and inline HTML (this requires Julia 1.14+ and `MarkdownAST` 0.1.3).
 
 ### Changed
 
 * reduced time complexity from O(n^2) to O(n) to improve the initial load time for search ([#2875])
 * Git no longer displays a message about the default branch name when calling `deploydocs()`. ([#2854])
 * Don't escape characters (such as ~) in URLs when writing LaTeX. ([#2210])
+* Tweak the layout of the table of contents in LaTeX / PDF output so that for a document with 8 or more parts, the part number (VIII) does not overlap with the part title. ([#2871])
+
+### Fixed
+
+* Fixed rendering of operator docstring bindings such as `Base.:(:)` and `Base.:(==)` in doc headers and indices. ([#2844])
 
 ## Version [v1.16.1] - 2025-11-21
 
@@ -1918,6 +1925,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1693]: https://github.com/JuliaDocs/Documenter.jl/issues/1693
 [#1695]: https://github.com/JuliaDocs/Documenter.jl/issues/1695
 [#1696]: https://github.com/JuliaDocs/Documenter.jl/issues/1696
+[#1697]: https://github.com/JuliaDocs/Documenter.jl/issues/1697
 [#1698]: https://github.com/JuliaDocs/Documenter.jl/issues/1698
 [#1699]: https://github.com/JuliaDocs/Documenter.jl/issues/1699
 [#1704]: https://github.com/JuliaDocs/Documenter.jl/issues/1704
@@ -2243,6 +2251,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2827]: https://github.com/JuliaDocs/Documenter.jl/issues/2827
 [#2839]: https://github.com/JuliaDocs/Documenter.jl/issues/2839
 [#2842]: https://github.com/JuliaDocs/Documenter.jl/issues/2842
+[#2844]: https://github.com/JuliaDocs/Documenter.jl/issues/2844
+[#2849]: https://github.com/JuliaDocs/Documenter.jl/issues/2849
+[#2854]: https://github.com/JuliaDocs/Documenter.jl/issues/2854
+[#2857]: https://github.com/JuliaDocs/Documenter.jl/issues/2857
+[#2871]: https://github.com/JuliaDocs/Documenter.jl/issues/2871
+[#2874]: https://github.com/JuliaDocs/Documenter.jl/issues/2874
+[#2875]: https://github.com/JuliaDocs/Documenter.jl/issues/2875
+[#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

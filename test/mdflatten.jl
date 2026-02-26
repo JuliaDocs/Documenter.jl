@@ -73,6 +73,16 @@ struct UnsupportedElement <: MarkdownAST.AbstractElement end
     # symbols in markdown
     @test mdflatten(parse("A \$B C")) == "A B C\n\n"
 
+    strikethrough = MarkdownAST.Node(MarkdownAST.Strikethrough())
+    push!(strikethrough.children, MarkdownAST.Node(MarkdownAST.Text("deleted")))
+    @test mdflatten(strikethrough) == "deleted"
+
+    htmlinline = MarkdownAST.Node(MarkdownAST.HTMLInline("<span>inline</span>"))
+    @test mdflatten(htmlinline) == "inline"
+
+    htmlblock = MarkdownAST.Node(MarkdownAST.HTMLBlock("<div>block <b>html</b></div>"))
+    @test mdflatten(htmlblock) == "block html"
+
     # linebreaks
     @test mdflatten(parse("A\\\nB")) == "A\nB\n\n"
 

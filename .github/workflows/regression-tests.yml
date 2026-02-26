@@ -36,7 +36,6 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-buildpkg@v1
       - name: Test
         shell: julia --color=yes {0}
         run: |
@@ -88,11 +87,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: TeX-Live/setup-texlive-action@v3
+        with:
+          packages: |
+            scheme-medium
+            afterpage
+            adjustbox
+            amsmath
+            amssymb
+            everypage
+            fontspec
+            booktabs
+            graphicx
+            hyperref
+            minted
+            newunicodechar
+            polyglossia
+            tabulary
+            tcolorbox
+            xcolor
+            anyfontsize
+            background
+            geometry
       - uses: julia-actions/setup-julia@v2
         with:
           version: 'nightly'
       - uses: julia-actions/cache@v2
       - name: "Regressions test"
+        env:
+          DOCUMENTER_LATEX_SHOW_LOGS: 1
         run: julia ./.github/scripts/julia-manual-regression-test.jl .
       - uses: actions/upload-artifact@v6
         with:
