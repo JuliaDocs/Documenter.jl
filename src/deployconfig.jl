@@ -297,6 +297,9 @@ end
 
 Implementation of `DeployConfig` for deploying from GitHub Actions.
 
+For self-hosted GitHub installation use the `GitHubActions(pages_url)` constructor
+to specify the URL to the GitHub pages location.
+
 The following environment variables influences the build
 when using the `GitHubActions` configuration:
 
@@ -311,6 +314,12 @@ when using the `GitHubActions` configuration:
  - `GITHUB_TOKEN` or `DOCUMENTER_KEY`: used for authentication with GitHub,
    see the manual section for [GitHub Actions](@ref) for more information.
 
+ - `GITHUB_API_URL`: specifies the GitHub API URL, which generally is `https://api.github.com`,
+   but may be different for self-hosted GitHub instances.
+
+ - `GITHUB_ACTOR`: name of the person or app that initiated the workflow. For
+   example, `octocat`. This is used to construct API calls.
+
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
 [documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/variables#default-environment-variables).
 """
@@ -318,12 +327,48 @@ struct GitHubActions <: DeployConfig
     github_repository::String
     github_event_name::String
     github_ref::String
+    github_host::String
+    github_api::String
+    github_pages_url::String
 end
+
 function GitHubActions()
+    # Try to deduce GitHub Pages URL using GitHub API
+    github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
+    github_api = get(ENV, "GITHUB_API_URL", "") # https://api.github.com
+    github_token = get(ENV, "GITHUB_TOKEN", "")
+
+    try
+        # Construct the curl call
+        cmd = `curl -s`
+        push!(cmd.exec, "-H", "Authorization: token $(github_token)")
+        push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
+        push!(cmd.exec, "--fail")
+        push!(cmd.exec, "$(github_api)/repos/$(github_repository)/pages")
+
+        # Run the command (silently)
+        response = run_and_capture(cmd)
+        response = JSON.parse(response.stdout)
+
+        return GitHubActions(response["html_url"])
+    catch
+        @warn "Unable to deduce GitHub Pages URL using GitHub API; falling back guess from the repository name."
+        parts = split(github_repository, "/")
+        if length(parts) == 2
+            owner, repo = parts
+            return GitHubActions("https://$(owner).github.io/$(repo)/")
+        else
+            error("Can not construct GitHubActinos - GitHub API failed and ENV['GITHUB_REPOSITORY'] is mallformed")
+        end
+    end
+end
+
+function GitHubActions(pages_url)
     github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
     github_event_name = get(ENV, "GITHUB_EVENT_NAME", "") # "push", "pull_request" or "cron" (?)
     github_ref = get(ENV, "GITHUB_REF", "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
-    return GitHubActions(github_repository, github_event_name, github_ref)
+    github_api = get(ENV, "GITHUB_API_URL", "") # https://api.github.com
+    return GitHubActions(github_repository, github_event_name, github_ref, Remotes.github_host(), github_api, pages_url)
 end
 
 # Check criteria for deployment
@@ -393,7 +438,7 @@ function deploy_folder(
         all_ok &= pr_ok
         println(io, "- $(marker(pr_ok)) ENV[\"GITHUB_REF\"] corresponds to a PR number")
         if pr_ok
-            pr_origin_matches_repo = verify_github_pull_repository(cfg.github_repository, pr_number)
+            pr_origin_matches_repo = verify_github_pull_repository(cfg, pr_number)
             all_ok &= pr_origin_matches_repo
             println(io, "- $(marker(pr_origin_matches_repo)) PR originates from the same repository")
         end
@@ -452,7 +497,7 @@ end
 
 authentication_method(::GitHubActions) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
 function authenticated_repo_url(cfg::GitHubActions)
-    return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
+    return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@$(cfg.github_host)/$(cfg.github_repository).git"
 end
 
 function version_tag_strip_build(tag; tag_prefix = "")
@@ -469,7 +514,7 @@ function version_tag_strip_build(tag; tag_prefix = "")
     return "$s0$s1$s2$s3$s4"
 end
 
-function post_status(gha::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
+function post_status(gha::GitHubActions; type, subfolder = nothing, kwargs...)
     try # make this non-fatal and silent
         # If we got this far it usually means everything is in
         # order so no need to check everything again.
@@ -489,21 +534,20 @@ function post_status(gha::GitHubActions; type, repo::String, subfolder = nothing
             sha = get(ENV, "GITHUB_SHA", nothing)
         end
         sha === nothing && return
-        return post_github_status(type, gha.github_repository, repo, sha, subfolder)
-    catch
-        @debug "Failed to post status"
+        return post_github_status(gha, type, sha, subfolder)
+    catch e
+        @debug "Failed to post status" exception = e
     end
 end
 
-function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
+function post_github_status(gha::GitHubActions, type::S, sha::S, subfolder = nothing) where {S <: String}
     try
-        Sys.which("curl") === nothing && return
+        if Sys.which("curl") === nothing
+            @warn "curl not found in PATH, cannot post status"
+            return
+        end
         ## Extract owner and repository names
-        source_owner, source_repo = split(source, '/')
-        m = match(r"^github.com\/(.+?)\/(.+?)(.git)?$", deploydocs_repo)
-        m === nothing && return
-        deploy_owner = String(m.captures[1])
-        deploy_repo = String(m.captures[2])
+        source_owner, source_repo = split(gha.github_repository, '/')
 
         ## Need an access token for this
         auth = get(ENV, "GITHUB_TOKEN", nothing)
@@ -518,9 +562,9 @@ function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subf
             json["description"] = "Documentation build in progress"
         elseif type == "success"
             json["description"] = "Documentation build succeeded"
-            target_url = "https://$(deploy_owner).github.io/$(deploy_repo)/"
-            if subfolder !== nothing
-                target_url *= "$(subfolder)/"
+            target_url = gha.github_pages_url
+            if !isempty(target_url) && subfolder !== nothing
+                target_url = rstrip(target_url, '/') * "/$(subfolder)/"
             end
             json["target_url"] = target_url
         elseif type == "error"
@@ -531,18 +575,19 @@ function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subf
             error("unsupported type: $type")
         end
         push!(cmd.exec, "-d", JSON.json(json))
-        push!(cmd.exec, "https://api.github.com/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
+        push!(cmd.exec, "$(gha.github_api)/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
         res = run(pipeline(cmd; stdout = io, stderr = devnull))
         @debug "Response of curl POST request" response = String(take!(io))
-    catch
-        @debug "Failed to post status"
+    catch e
+        @debug "Failed to post status" exception = e
     end
     return nothing
 end
 
-function verify_github_pull_repository(repo, prnr)
+function verify_github_pull_repository(cfg::GitHubActions, prnr)
+    repo = cfg.github_repository
     github_token = get(ENV, "GITHUB_TOKEN", nothing)
     if github_token === nothing
         @warn "GITHUB_TOKEN is missing, unable to verify if PR comes from destination repository -- assuming it doesn't."
@@ -553,7 +598,7 @@ function verify_github_pull_repository(repo, prnr)
     push!(cmd.exec, "-H", "Authorization: token $(github_token)")
     push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
     push!(cmd.exec, "--fail")
-    push!(cmd.exec, "https://api.github.com/repos/$(repo)/pulls/$(prnr)")
+    push!(cmd.exec, "$(cfg.github_api)/repos/$(repo)/pulls/$(prnr)")
     try
         # Run the command (silently)
         response = run_and_capture(cmd)

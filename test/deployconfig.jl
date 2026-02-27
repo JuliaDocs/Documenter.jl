@@ -141,6 +141,7 @@ end
         # Regular tag build with GITHUB_TOKEN
         withenv(
             "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -162,6 +163,7 @@ end
         # Regular tag build with SSH deploy key (SSH key prioritized)
         withenv(
             "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -183,6 +185,7 @@ end
         # External Repo: Regular tag build with SSH deploy key (SSH key prioritized)
         withenv(
             "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -224,6 +227,7 @@ end
         # Regular tag build with GITHUB_TOKEN and with tag prefix
         withenv(
             "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/MySubPackage-v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -246,6 +250,7 @@ end
         # Broken tag build
         withenv(
             "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/not-a-version",
             "GITHUB_ACTOR" => "github-actions",
@@ -262,6 +267,7 @@ end
         # Regular devbranch build with GITHUB_TOKEN
         withenv(
             "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/heads/master",
             "GITHUB_ACTOR" => "github-actions",
@@ -286,6 +292,7 @@ end
         # Regular devbranch build with SSH deploy key (SSH key prioritized)
         withenv(
             "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/heads/master",
             "GITHUB_ACTOR" => "github-actions",
@@ -480,6 +487,7 @@ end
         # Missing environment variables
         withenv(
             "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.com",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
             "GITHUB_ACTOR" => "github-actions",
@@ -492,6 +500,48 @@ end
                 devbranch = "master", devurl = "hello-world", push_preview = true
             )
             @test !d.all_ok
+        end
+        # Self-hosted GitHub installation
+        # Regular tag build with GITHUB_TOKEN
+        withenv(
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_SERVER_URL" => "github.selfhosted",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/tags/v1.2.3",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+            cfg = Documenter.GitHubActions("pages.selfhosted/something/JuliaDocs/Documenter.jl")
+            d = Documenter.deploy_folder(
+                cfg; repo = "github.selfhosted/JuliaDocs/Documenter.jl.git",
+                devbranch = "master", devurl = "dev", push_preview = true
+            )
+            @test d.all_ok
+            @test d.subfolder == "v1.2.3"
+            @test d.repo == "github.selfhosted/JuliaDocs/Documenter.jl.git"
+            @test d.branch == "gh-pages"
+            @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+            @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.selfhosted/JuliaDocs/Documenter.jl.git"
+        end
+        # Self-hosted GitHub installation but can't deduce anything
+        withenv(
+            "GITHUB_EVENT_NAME" => "push",
+            "GITHUB_API_URL" => "github.selfhosted",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl/that_is_not_correct",
+            "GITHUB_REF" => "refs/tags/v1.2.3",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+            @test_throws ErrorException Documenter.GitHubActions()
+        end
+
+        # Check post_github_status
+        withenv(
+            "PATH" => "" # this shall make all executable discovery fail
+        ) do
+            @test_logs (:warn, "curl not found in PATH, cannot post status") Documenter.post_github_status(Documenter.GitHubActions("pages.selfhosted/something/JuliaDocs/Documenter.jl"), "type", "sha")
         end
     end
 end
@@ -1396,7 +1446,7 @@ end
         "CI" => "woodpecker",
         "GITHUB_REPOSITORY" => nothing
     ) do
-        @test_throws KeyError  cfg = Documenter.auto_detect_deploy_system()
+        @test_throws KeyError cfg = Documenter.auto_detect_deploy_system()
     end
     # Drone compatibility ends post-1.0.0
     withenv(
@@ -1492,5 +1542,94 @@ end
         @test haskey(r, :stderr)
         @test r.stdout isa String
         @test length(r.stdout) > 0
+    end
+end
+
+@testset "post_status" begin
+    if Sys.which("curl") === nothing
+        @warn "'curl' binary not found, skipping related tests."
+    else
+        @testset "Default GitHubActions push" begin
+            buffer = IOBuffer()
+            logger = SimpleLogger(buffer, Logging.Debug)
+            with_logger(logger) do
+                withenv(
+                    "GITHUB_EVENT_NAME" => "push",
+                    "GITHUB_SERVER_URL" => "github.com",
+                    "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                    "GITHUB_REF" => "refs/tags/v1.2.3",
+                    "GITHUB_ACTOR" => "github-actions",
+                    "GITHUB_SHA" => "407d4b94",
+                    "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+                    "GITHUB_API_URL" => "badurl://api.github.com" # use bad url protocol to trigger CURL failure
+                ) do
+                    cfg = Documenter.GitHubActions()
+                    Documenter.post_status(cfg; type = "success", repo = "github.com/JuliaDocs/Documenter.jl")
+                end
+            end
+            logged = read(seek(buffer, 0), String)
+            @test occursin(r"""`curl -sX POST -H 'Authorization: token SGVsbG8sIHdvcmxkLg==' -H 'User-Agent: Documenter.jl' -H 'Content-Type: application/json' -d '{.+?}' badurl://api.github.com/repos/JuliaDocs/Documenter.jl/statuses/407d4b94`""", logged)
+            @test occursin(r"""`.+?{.*?\"target_url":"https://JuliaDocs.github.io/Documenter.jl/".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"context\":\"documenter/deploy\".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"description\":\"Documentation build succeeded\".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"state\":\"success\".*?}'.+?`""", logged)
+        end
+
+        @testset "Default GitHubActions pull_request" begin
+            buffer = IOBuffer()
+            logger = SimpleLogger(buffer, Logging.Debug)
+            with_logger(logger) do
+                mktemp() do path, io
+                    write(io, """{"pull_request":{"head":{"sha":"407d4b94"}}}""")
+                    close(io)
+                    withenv(
+                        "GITHUB_EVENT_NAME" => "pull_request",
+                        "GITHUB_EVENT_PATH" => path,
+                        "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                        "GITHUB_REF" => "refs/tags/v1.2.3",
+                        "GITHUB_ACTOR" => "github-actions",
+                        "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+                        "GITHUB_API_URL" => "badurl://api.github.com" # use bad url protocol to trigger CURL failure
+                    ) do
+                        cfg = Documenter.GitHubActions()
+                        Documenter.post_status(cfg; type = "success", repo = "github.com/JuliaDocs/Documenter.jl")
+                    end
+                end
+            end
+            logged = read(seek(buffer, 0), String)
+            @test occursin(r"""`curl -sX POST -H 'Authorization: token SGVsbG8sIHdvcmxkLg==' -H 'User-Agent: Documenter.jl' -H 'Content-Type: application/json' -d '{.+?}' badurl://api.github.com/repos/JuliaDocs/Documenter.jl/statuses/407d4b94`""", logged)
+            @test occursin(r"""`.+?{.*?\"target_url":"https://JuliaDocs.github.io/Documenter.jl/".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"context\":\"documenter/deploy\".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"description\":\"Documentation build succeeded\".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"state\":\"success\".*?}'.+?`""", logged)
+        end
+
+        @testset "Self-hosted GitHubActions" begin
+            buffer = IOBuffer()
+            logger = SimpleLogger(buffer, Logging.Debug)
+            with_logger(logger) do
+                withenv(
+                    "GITHUB_EVENT_NAME" => "push",
+                    "GITHUB_SERVER_URL" => "github.selfhosted",
+                    "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                    "GITHUB_REF" => "refs/tags/v1.2.3",
+                    "GITHUB_ACTOR" => "github-actions",
+                    "GITHUB_SHA" => "407d4b94",
+                    "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+                    "GITHUB_API_URL" => "badurl://api.github.selfhosted" # use bad url protocol to trigger CURL failure
+                ) do
+                    cfg = Documenter.GitHubActions("pages.selfhosted/pages/JuliaDocs/Documenter.jl")
+                    Documenter.post_status(cfg; type = "success", repo = "github.selfhosted/JuliaDocs/Documenter.jl")
+                end
+            end
+            logged = read(seek(buffer, 0), String)
+            @test occursin(r"""`curl -sX POST -H 'Authorization: token SGVsbG8sIHdvcmxkLg==' -H 'User-Agent: Documenter.jl' -H 'Content-Type: application/json' -d '{.+?}' badurl://api.github.selfhosted/repos/JuliaDocs/Documenter.jl/statuses/407d4b94`""", logged)
+            @test occursin(r"""`.+?{.*?\"target_url\":\"pages.selfhosted/pages/JuliaDocs/Documenter.jl\".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"context\":\"documenter/deploy\".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"description\":\"Documentation build succeeded\".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"state\":\"success\".*?}'.+?`""", logged)
+
+        end
+
     end
 end

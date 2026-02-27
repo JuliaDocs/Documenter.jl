@@ -1,7 +1,8 @@
 module UtilitiesTests
 using Test
 using Logging: Info
-include("TestUtilities.jl"); using Main.TestUtilities
+include("TestUtilities.jl")
+using Main.TestUtilities
 
 import Documenter
 using Documenter: git
@@ -464,12 +465,12 @@ end
         ]
         @test mdparse("x\n\ny", mode = :blocks) == [
             MarkdownAST.@ast(
-                MarkdownAST.Paragraph() do;
+                MarkdownAST.Paragraph() do
                     "x"
                 end
             ),
             MarkdownAST.@ast(
-                MarkdownAST.Paragraph() do;
+                MarkdownAST.Paragraph() do
                     "y"
                 end
             ),
@@ -765,6 +766,19 @@ end
             ]
             @test Documenter.slugify(test) == answer
         end
+    end
+
+    @testset "GitHub constructors" begin
+        gh = Documenter.Remotes.GitHub("user/project")
+        @test gh.user == "user"
+        @test gh.repo == "project"
+        @test gh.host == "github.com"
+
+
+        gh = Documenter.Remotes.GitHub("selfhosted.com/user/project")
+        @test gh.user == "user"
+        @test gh.repo == "project"
+        @test gh.host == "selfhosted.com"
     end
 end
 

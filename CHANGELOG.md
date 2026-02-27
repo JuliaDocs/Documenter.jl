@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+* Support self-hosted GitHub instances. ([#2755])
+
+
 ## Version [v1.17.0] - 2026-02-20
 
 ### Added
@@ -2229,6 +2236,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2751]: https://github.com/JuliaDocs/Documenter.jl/issues/2751
 [#2752]: https://github.com/JuliaDocs/Documenter.jl/issues/2752
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
+[#2755]: https://github.com/JuliaDocs/Documenter.jl/issues/2755
 [#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
 [#2762]: https://github.com/JuliaDocs/Documenter.jl/issues/2762
 [#2772]: https://github.com/JuliaDocs/Documenter.jl/issues/2772
