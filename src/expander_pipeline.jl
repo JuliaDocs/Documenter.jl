@@ -191,7 +191,7 @@ module Expanders
     abstract type AutoDocsBlocks <: ExpanderPipeline end
 
     """
-    Parses each code block where the language is `@eval` and evaluates it's content. Replaces
+    Parses each code block where the language is `@eval` and evaluates its content. Replaces
     the block with the value resulting from the evaluation. This can be useful for inserting
     generated content into a document such as plots.
 
@@ -208,6 +208,17 @@ module Expanders
     """
     abstract type EvalBlocks <: NestedExpanderPipeline end
 
+    """
+    Parses each code block where the language is `@raw`.
+
+    ````markdown
+    ```@raw html
+    <svg style="display: block; margin: 0 auto;" width="5em" height="5em">
+        <circle cx="2.5em" cy="2.5em" r="2em" stroke="black" stroke-width=".1em" fill="red" />
+    </svg>
+    ```
+    ````
+    """
     abstract type RawBlocks <: NestedExpanderPipeline end
 
     """
@@ -256,11 +267,25 @@ module Expanders
     """
     Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
     toplevel expression in the final document.
+
+    ````markdown
+    ```@repl
+    a = 1
+    b = 2
+    a + b
+    ```
+    ````
     """
     abstract type REPLBlocks <: NestedExpanderPipeline end
 
     """
     Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
+
+    ````markdown
+    ```@setup
+    using MyExamplePackage
+    ```
+    ````
     """
     abstract type SetupBlocks <: NestedExpanderPipeline end
 end
