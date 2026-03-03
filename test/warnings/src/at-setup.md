@@ -1,5 +1,9 @@
 # Test warnings in `@setup` block
 
+Missing name should warn.
+```@setup
+```
+
 Unsupported keyword arguments should warn and be ignored.
 ```@setup shared ; typo = true
 ```
