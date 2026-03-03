@@ -759,7 +759,18 @@ function lt_remotepair(r1::RemoteRepository, r2::RemoteRepository)
 end
 
 function build_dep_info_dicts(doc::Document)
-    for (uuid, dep) in pairs(Pkg.dependencies())
+    deps = try
+        Pkg.dependencies()
+    catch err
+        if err isa Pkg.Types.PkgError
+            @debug "Failed to collect package dependency info; skipping source mapping." exception = (err, catch_backtrace())
+            return
+        end
+        rethrow(err)
+    end
+
+    for (uuid, dep) in pairs(deps)
+        dep.source === nothing && continue
         doc.internal.src_to_uuid[dep.source] = uuid
         if dep.version === nothing || dep.tree_hash === nothing
             continue
