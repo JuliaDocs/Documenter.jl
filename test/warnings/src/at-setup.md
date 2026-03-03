@@ -1,8 +1,17 @@
 # Test warnings in `@setup` block
 
-The name is required, so this should produce a warning.
-TODO/FIXME: it currently does NOT warn
-```@setup
+Empty `@repl` block should not result in an assertion
+```@setup empty
+```
+
+Same if it consists of only a comment.
+```@setup just-comment
+# comment
+```
+
+Unsupported keyword arguments should warn and be ignored.
+```@setup shared ; typo = true
+x = 1
 ```
 
 Syntax errors in blocks should be a `@docerror`, not an exception (issue #2731).

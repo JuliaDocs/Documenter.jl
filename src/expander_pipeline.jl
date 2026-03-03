@@ -306,7 +306,7 @@ Selectors.matcher(::Type{Expanders.TrackHeaders}, node, page, doc) = isa(node.el
 Selectors.matcher(::Type{Expanders.MetaBlocks}, node, page, doc) = iscode(node, "@meta")
 Selectors.matcher(::Type{Expanders.DocsBlocks}, node, page, doc) = iscode(node, r"^@docs")
 Selectors.matcher(::Type{Expanders.AutoDocsBlocks}, node, page, doc) = iscode(node, r"^@autodocs")
-Selectors.matcher(::Type{Expanders.EvalBlocks}, node, page, doc) = iscode(node, "@eval")
+Selectors.matcher(::Type{Expanders.EvalBlocks}, node, page, doc) = iscode(node, r"^@eval")
 Selectors.matcher(::Type{Expanders.IndexBlocks}, node, page, doc) = iscode(node, "@index")
 Selectors.matcher(::Type{Expanders.ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
 Selectors.matcher(::Type{Expanders.ExampleBlocks}, node, page, doc) = iscode(node, r"^@example")
@@ -395,20 +395,6 @@ end
 # @docs / @autodocs utils
 # -----------------------
 
-function parse_docs_args(tag, info)
-    matched = match(Regex("^@$tag\\s*(;.*)?\$"), info)
-    matched === nothing && error("invalid '@$tag' syntax: $(info)")
-    kwargs = matched.captures[1]
-    is_canonical = true
-    if kwargs !== nothing
-        matched = match(r"\bcanonical\s*=\s*(true|false)\b", kwargs)
-        if matched !== nothing
-            is_canonical = matched[1] == "true"
-        end
-    end
-    return is_canonical
-end
-
 function slugify_pagekey(page_ref)
     page_ref = slugify(page_ref)
     page_ref = replace(page_ref, "/" => "-")
@@ -442,7 +428,16 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
-    is_canonical = parse_docs_args("docs", x.info)
+    success, name, d = parse_codeblock_args(
+        "@docs", x, doc, source;
+        allow_name = false,
+        allowed_kwargs = [:canonical],
+        bool_kwargs = [:canonical],
+    )
+    success || return
+
+    is_canonical = get(d, :canonical, true)
+
     docsnodes = Node[]
     curmod = get(page.globals.meta, :CurrentModule, Main)
 
@@ -567,7 +562,16 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
-    is_canonical = parse_docs_args("autodocs", x.info)
+    success, name, d = parse_codeblock_args(
+        "@autodocs", x, doc, source;
+        allow_name = false,
+        allowed_kwargs = [:canonical],
+        bool_kwargs = [:canonical],
+    )
+    success || return
+
+    is_canonical = get(d, :canonical, true)
+
     curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
     @debug "Evaluating @autodocs block:\n$(x.code)"
@@ -737,9 +741,13 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
-    matched = match(r"^@eval(?:\s+([^\s;]+))?\s*$", x.info)
-    matched === nothing && error("invalid '@eval <name>' syntax: $(x.info)")
-    name = matched[1]
+    # parse codelang first, even in draft mode, to catch syntax errors
+    success, name, d = parse_codeblock_args(
+        "@eval", x, doc, source;
+        allow_name = true,
+        allowed_kwargs = Symbol[],
+    )
+    success || return
 
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
@@ -862,9 +870,14 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
-    matched = match(r"^@example(?:\s+([^\s;]+))?\s*(;.*)?$", x.info)
-    matched === nothing && error("invalid '@example' syntax: $(x.info)")
-    name, kwargs = matched.captures
+    # parse codelang first, even in draft mode, to catch syntax errors
+    success, name, d = parse_codeblock_args(
+        "@example", x, doc, source;
+        allow_name = true,
+        allowed_kwargs = [:continued, :ansicolor],
+        bool_kwargs = [:continued, :ansicolor],
+    )
+    success || return
 
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
@@ -878,14 +891,10 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     sym = nameof(sandbox)
 
     # "parse" keyword arguments to example
-    continued = false
-    ansicolor = _any_color_fmt(doc)
-    if kwargs !== nothing
-        continued = occursin(r"\bcontinued\s*=\s*true\b", kwargs)
-        matched = match(r"\bansicolor\s*=\s*(true|false)\b", kwargs)
-        if matched !== nothing
-            ansicolor = matched[1] == "true"
-        end
+    continued = get(d, :continued, false)
+    ansicolor = get(d, :ansicolor, nothing)
+    if ansicolor === nothing
+        ansicolor = _any_color_fmt(doc)
     end
 
     @debug "Evaluating @example block:\n$(x.code)"
@@ -972,9 +981,13 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
-    matched = match(r"^@repl(?:\s+([^\s;]+))?\s*(;.*)?$", x.info)
-    matched === nothing && error("invalid '@repl' syntax: $(x.info)")
-    name, kwargs = matched.captures
+    success, name, d = parse_codeblock_args(
+        "@repl", x, doc, source;
+        allow_name = true,
+        allowed_kwargs = [:ansicolor],
+        bool_kwargs = [:ansicolor],
+    )
+    success || return
 
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
@@ -987,12 +1000,9 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     sandbox = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
 
     # "parse" keyword arguments to repl
-    ansicolor = _any_color_fmt(doc)
-    if kwargs !== nothing
-        matched = match(r"\bansicolor\s*=\s*(true|false)\b", kwargs)
-        if matched !== nothing
-            ansicolor = matched[1] == "true"
-        end
+    ansicolor = get(d, :ansicolor, nothing)
+    if ansicolor === nothing
+        ansicolor = _any_color_fmt(doc)
     end
 
     multicodeblock = MarkdownAST.CodeBlock[]
@@ -1051,9 +1061,13 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
-    matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", x.info)
-    matched === nothing && error("invalid '@setup <name>' syntax: $(x.info)")
-    name = matched[1]
+    # parse codelang first, even in draft mode, to catch syntax errors
+    success, name, d = parse_codeblock_args(
+        "@setup", x, doc, source;
+        allow_name = true,
+        allowed_kwargs = Symbol[],
+    )
+    success || return
 
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
@@ -1092,10 +1106,17 @@ end
 function Selectors.runner(::Type{Expanders.RawBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
+    lines = Documenter.find_block_in_file(x.code, page.source)
+    source = Documenter.locrepr(doc, page, lines)
 
-    m = match(r"@raw[ ](.+)$", x.info)
-    m === nothing && error("invalid '@raw <name>' syntax: $(x.info)")
-    node.element = Documenter.RawNode(Symbol(m[1]), x.code)
+    success, name, d = parse_codeblock_args(
+        "@raw", x, doc, source;
+        allow_name = true,
+        allowed_kwargs = Symbol[],
+    )
+    success || return
+    name === nothing && error("invalid '@raw <name>' syntax: $(x.info)")
+    node.element = Documenter.RawNode(Symbol(name), x.code)
     return
 end
 
