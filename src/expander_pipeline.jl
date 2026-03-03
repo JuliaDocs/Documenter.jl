@@ -1109,10 +1109,17 @@ end
 function Selectors.runner(::Type{Expanders.RawBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
+    lines = Documenter.find_block_in_file(x, page.source)
+    source = Documenter.locrepr(doc, page, lines)
 
-    m = match(r"@raw[ ](.+)$", x.info)
-    m === nothing && error("invalid '@raw <name>' syntax: $(x.info)")
-    node.element = Documenter.RawNode(Symbol(m[1]), x.code)
+    success, name, d = parse_codeblock_args(
+        "@raw", x, doc, source;
+        allow_name = true,
+        allowed_kwargs = Symbol[],
+    )
+    success || return
+    name === nothing && error("invalid '@raw <name>' syntax: $(x.info)")
+    node.element = Documenter.RawNode(Symbol(name), x.code)
     return
 end
 
