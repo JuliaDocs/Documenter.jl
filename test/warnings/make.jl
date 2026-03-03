@@ -101,7 +101,9 @@ julia> WarningTests.run_warnings_test("at-eval")
 │    1 !in 2
 │    #└────┘ ── extra tokens after end of expression
 └ @ Documenter
-┌ Warning: Invalid type of object in @eval in src/at-eval.md:19-21
+┌ Warning: In src/at-eval.md:18-20: `@eval` block has an unsupported keyword argument: typo
+└ @ Documenter
+┌ Warning: Invalid type of object in @eval in src/at-eval.md:24-26
 │ ```@eval
 │ "expanded_"*"eval"
 │ ```
@@ -136,6 +138,10 @@ julia> WarningTests.run_warnings_test("at-example")
 │    # Error @ none:1:2
 │    1 !in 2
 │    #└────┘ ── extra tokens after end of expression
+└ @ Documenter
+┌ Warning: In src/at-example.md:18-19: `@example` block has an unsupported keyword argument: typo
+└ @ Documenter
+┌ Warning: In src/at-example.md:18-19: `@example` block keyword argument `ansicolor` must be `true` or `false`; ignoring :blue
 └ @ Documenter
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
@@ -195,7 +201,9 @@ julia> WarningTests.run_warnings_test("at-setup")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
-┌ Warning: failed to run `@setup` block in src/at-setup.md:9-11
+┌ Warning: In src/at-setup.md:4-5: `@setup` block has an unsupported keyword argument: typo
+└ @ Documenter
+┌ Warning: failed to run `@setup` block in src/at-setup.md:8-10
 │ ```@setup
 │ 1 !in 2
 │ ```

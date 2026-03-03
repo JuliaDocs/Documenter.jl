@@ -110,51 +110,22 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
         lines = Documenter.find_block_in_file(block, file)
         source = Documenter.locrepr(file, lines)
 
-        # Define new module or reuse an old one from this page if we have a named doctest.
-        name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
-        sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
+        success, name, d = parse_codeblock_args(
+            "jldoctest", block, ctx.doc, source;
+            allow_name = true,
+            allowed_kwargs = [:setup, :teardown, :filter, :syntax],
+        )
+        success || return false
 
         # Normalise line endings.
         block.code = replace(block.code, "\r\n" => "\n")
 
-        # parse keyword arguments to doctest
-        d = Dict()
-        idx = findfirst(c -> c == ';', lang)
-        if idx !== nothing
-            kwargs = try
-                Meta.parse("($(lang[nextind(lang, idx):end]),)")
-            catch e
-                e isa Meta.ParseError || rethrow(e)
-                @docerror(
-                    ctx.doc, :doctest,
-                    """
-                    Unable to parse doctest keyword arguments in $(source)
-                    Use ```jldoctest name; key1 = value1, key2 = value2
+        # Define new module or reuse an old one from this page if we have a named doctest.
+        sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
 
-                    ```$(lang)
-                    $(block.code)
-                    ```
-                    """, parse_error = e
-                )
-                return false
-            end
-            for kwarg in kwargs.args
-                if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
-                    @docerror(
-                        ctx.doc, :doctest,
-                        """
-                        invalid syntax for doctest keyword arguments in $(source)
-                        Use ```jldoctest name; key1 = value1, key2 = value2
-
-                        ```$(lang)
-                        $(block.code)
-                        ```
-                        """
-                    )
-                    return false
-                end
-                d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
-            end
+        # evaluate the values in the sandbox environment
+        for (k,v) in d
+            d[k] = Core.eval(sandbox, v)
         end
         ctx.meta[:LocalDocTestArguments] = d
 
