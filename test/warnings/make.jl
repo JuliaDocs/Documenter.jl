@@ -204,7 +204,7 @@ julia> WarningTests.run_warnings_test("at-setup")
 ┌ Warning: In src/at-setup.md:13-15: `@setup` block has an unsupported keyword argument: typo
 └ @ Documenter
 ┌ Warning: failed to run `@setup` block in src/at-setup.md:18-20
-│ ```@setup
+│ ```@setup with-error
 │ 1 !in 2
 │ ```
 │   exception =
@@ -213,6 +213,8 @@ julia> WarningTests.run_warnings_test("at-setup")
 │    1 !in 2
 │    #└────┘ ── extra tokens after end of expression
 │    in expression starting at string:1
+└ @ Documenter
+┌ Warning: In src/at-setup.md:23-25: `@setup` block requires a name.
 └ @ Documenter
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.

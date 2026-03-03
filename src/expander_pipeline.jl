@@ -1068,6 +1068,9 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
         allowed_kwargs = Symbol[],
     )
     success || return
+    if name === nothing
+        @warn "In $source: `@setup` block requires a name."
+    end
 
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
