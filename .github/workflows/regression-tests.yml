@@ -89,7 +89,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: zauguin/install-texlive@v4
         with:
-          texlive_version: 2025
           packages: |
             scheme-medium
             afterpage

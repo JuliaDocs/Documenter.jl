@@ -98,7 +98,6 @@ jobs:
         if: matrix.os == 'windows-latest'
       - uses: zauguin/install-texlive@v4
         with:
-          texlive_version: 2025
           packages: |
             scheme-medium
             hyperref
