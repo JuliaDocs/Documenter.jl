@@ -87,9 +87,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: TeX-Live/setup-texlive-action@v3
+      - uses: zauguin/install-texlive@v4
         with:
-          version: 2025
+          texlive_version: 2025
           packages: |
             scheme-medium
             afterpage

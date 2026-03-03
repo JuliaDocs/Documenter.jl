@@ -96,9 +96,9 @@ jobs:
       - name: "install pygments for tectonic"
         run: pip install pygments
         if: matrix.os == 'windows-latest'
-      - uses: TeX-Live/setup-texlive-action@v3
+      - uses: zauguin/install-texlive@v4
         with:
-          version: 2025
+          texlive_version: 2025
           packages: |
             scheme-medium
             hyperref
