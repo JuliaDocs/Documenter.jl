@@ -53,8 +53,9 @@ end
         makedocs(; kwargs...)
     end
     @test isnothing(captured.value)
+    output = replace(captured.output, "test/docsxref/" => "docsxref/")
     @test contains(
-        replace(captured.output, "\\src\\index" => "/src/index"),
+        replace(output, "\\src\\index" => "/src/index"),
         """
         ┌ Warning: Cannot resolve @ref for md"[`AbstractSelector`](@ref)" in docsxref/src/index.md.
         │ - No docstring found in doc for binding `Main.DocsReferencingMain.AbstractSelector`.
@@ -62,7 +63,7 @@ end
         """
     )
     @test contains(
-        replace(captured.output, "\\src\\page" => "/src/page"),
+        replace(output, "\\src\\page" => "/src/page"),
         """
         ┌ Warning: Cannot resolve @ref for md"[`DocsReferencingMain.f`](@ref)" in docsxref/src/page.md.
         │ - Exception trying to find docref for `DocsReferencingMain.f`: unable to get the binding for `DocsReferencingMain.f` in module Documenter.Selectors
