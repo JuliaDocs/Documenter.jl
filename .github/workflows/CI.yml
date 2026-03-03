@@ -97,8 +97,8 @@ jobs:
         run: pip install pygments
         if: matrix.os == 'windows-latest'
       - uses: TeX-Live/setup-texlive-action@v3
-        version: 2025
         with:
+          version: 2025
           packages: |
             scheme-medium
             hyperref

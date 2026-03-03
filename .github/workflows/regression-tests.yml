@@ -88,8 +88,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: TeX-Live/setup-texlive-action@v3
-        version: 2025
         with:
+          version: 2025
           packages: |
             scheme-medium
             afterpage
