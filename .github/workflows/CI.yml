@@ -97,6 +97,7 @@ jobs:
         run: pip install pygments
         if: matrix.os == 'windows-latest'
       - uses: TeX-Live/setup-texlive-action@v3
+        version: 2025
         with:
           packages: |
             scheme-medium
