@@ -357,7 +357,7 @@ end
 function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-    lines = Documenter.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
     meta = page.globals.meta
@@ -439,7 +439,7 @@ end
 function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-    lines = Documenter.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
     is_canonical = parse_docs_args("docs", x.info)
@@ -564,7 +564,7 @@ const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-    lines = Documenter.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
     is_canonical = parse_docs_args("autodocs", x.info)
@@ -734,7 +734,7 @@ end
 function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-    lines = Documenter.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
     matched = match(r"^@eval(?:\s+([^\s;]+))?\s*$", x.info)
@@ -859,7 +859,7 @@ writer_supports_ansicolor(::Writer) = false
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-    lines = Documenter.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
     matched = match(r"^@example(?:\s+([^\s;]+))?\s*(;.*)?$", x.info)
@@ -969,7 +969,7 @@ end
 function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-    lines = Documenter.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
     matched = match(r"^@repl(?:\s+([^\s;]+))?\s*(;.*)?$", x.info)
@@ -1048,7 +1048,7 @@ end
 function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-    lines = Documenter.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
     matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", x.info)

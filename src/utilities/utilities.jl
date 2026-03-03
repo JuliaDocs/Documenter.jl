@@ -56,18 +56,32 @@ end
 regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
 
 # helper to display linerange for error printing
-function find_block_in_file(code, file)
+function find_block_in_file(block::MarkdownAST.CodeBlock, file)
     source_file = Base.find_source_file(file)
     source_file === nothing && return nothing
     isfile(source_file) || return nothing
     content = read(source_file, String)
     content = replace(content, "\r\n" => "\n")
-    # make a regex of the code that matches leading whitespace
-    rcode = "\\h*" * replace(regex_escape(code), "\\n" => "\\n\\h*")
+
+    rblock = if isempty(block.code)
+        "```" * regex_escape(block.info) * "\\n\\h*```"
+    else
+        "```" * regex_escape(block.info) * "\\n\\h*" *
+            replace(regex_escape(block.code), "\\n" => "\\n\\h*") * "\\n\\h*```"
+    end
+    blockidx = findfirst(Regex(rblock), content)
+    if blockidx !== nothing
+        startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))])) + 1
+        endline = startline + countlines(IOBuffer(block.code)) + 1
+        return startline => endline
+    end
+
+    # Fallback: match the code body with optional leading indentation.
+    rcode = "\\h*" * replace(regex_escape(block.code), "\\n" => "\\n\\h*")
     blockidx = findfirst(Regex(rcode), content)
     blockidx === nothing && return nothing
     startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
-    endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
+    endline = startline + countlines(IOBuffer(block.code)) + 1 # +1 to include the closing ```
     return startline => endline
 end
 

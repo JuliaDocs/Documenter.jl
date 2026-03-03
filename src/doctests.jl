@@ -107,7 +107,7 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
     lang = block.info
     if startswith(lang, "jldoctest")
         file = ctx.meta[:CurrentFile]
-        lines = Documenter.find_block_in_file(block.code, file)
+        lines = Documenter.find_block_in_file(block, file)
         source = Documenter.locrepr(file, lines)
 
         # Define new module or reuse an old one from this page if we have a named doctest.
@@ -258,7 +258,7 @@ end
 
 function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page; syntax_version = nothing, mod = nothing)
     file = meta[:CurrentFile]
-    lines = Documenter.find_block_in_file(block.code, file)
+    lines = Documenter.find_block_in_file(block, file)
     source = Documenter.locrepr(file, lines)
 
     (prefix, split) = repl_splitter(block.code, doc, file, lines)
@@ -412,7 +412,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
 end
 
 function debug_report(; result, expected_filtered, evaluated, evaluated_filtered, filters)
-    lines = Documenter.find_block_in_file(result.block.code, result.file)
+    lines = Documenter.find_block_in_file(result.block, result.file)
     r = """
     Verifying doctest at $(Documenter.locrepr(result.file, lines))
 
@@ -492,7 +492,7 @@ import .Documenter.TextDiff
 
 function report(result::Result, str, doc::Documenter.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
-    lines = Documenter.find_block_in_file(result.block.code, result.file)
+    lines = Documenter.find_block_in_file(result.block, result.file)
     line = lines === nothing ? nothing : first(lines)
     @error(
         """
