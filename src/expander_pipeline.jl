@@ -909,7 +909,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
         Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
     catch err
         @error "Problem displaying result on page $(page.source): $(err)"
-        Dict(MIME"text/plain"(), "Error displaying result")
+        Dict(MIME"text/plain"() => "Error displaying result")
     end
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
