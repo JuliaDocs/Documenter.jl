@@ -30,9 +30,9 @@ const headroom_jquery = RemoteLibrary(
 # highlight.js
 "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
 function highlightjs!(r::RequireJS, languages = String[])
-    # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
-    # When updating this dependency, it is also necessary to update the the CSS
-    # files the CSS files in assets/html/scss/highlightjs
+    # NOTE: the CSS themes for highlightjs are compiled into the Documenter CSS
+    # When updating this dependency, it is also necessary to update the CSS
+    # files in assets/html/scss/highlightjs
     hljs_version = "11.8.0"
     push!(
         r,
