@@ -566,8 +566,9 @@ draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
 
 **Color output**
 
-`@example` blocks support colored text output by mapping [ANSI escape codes]
-(https://en.wikipedia.org/wiki/ANSI_escape_code) to HTML. For example, this block:
+`@example` blocks support colored text output by mapping [ANSI escape
+codes](https://en.wikipedia.org/wiki/ANSI_escape_code)
+to HTML. For example, this block:
 ````markdown
 ```@example
 printstyled("Here are some colors:\n"; color=:red, bold=true)
