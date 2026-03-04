@@ -46,7 +46,7 @@ include("../repolink_helpers.jl")
         doc, html = render_expand_doc(src)
 
         # Links to repo
-        re = r"<a[^>]+ href=['\"]?https://github.com/GunnarFarneback/RegistryInstances.jl"
+        re = r"<a[^>]+ href=['\"]?https://github.com/JuliaRegistries/RegistryInstances.jl"
         @test occursin(re, string(html))
 
         # Gets an error on check
