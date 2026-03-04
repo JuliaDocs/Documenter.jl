@@ -135,7 +135,9 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
         # Populating top_menu_sections with their navtrees and navlists
         for section_entry in doc.user.top_menu
             section_title, section_pages = if section_entry isa Pair
-                section_entry.first, section_entry.second
+                pages = section_entry.second
+                pages = pages isa AbstractString ? [pages] : pages
+                section_entry.first, pages
             else
                 error("top_menu entries must be Pairs of \"Title\" => pages_array, got: $(typeof(section_entry))")
             end
