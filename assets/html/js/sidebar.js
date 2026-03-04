@@ -42,6 +42,23 @@ $(document).ready(function () {
   $(window).on("orientationchange", resize);
 });
 
+// Dynamically update --topmenu-height so that the sidebar, content wrapper, and
+// sticky navbar all stay correctly positioned when top menu items wrap to a new line.
+$(document).ready(function () {
+  var topMenu = $("#documenter .docs-top-menu");
+  if (topMenu.length === 0) return;
+  var documenter = document.getElementById("documenter");
+  function updateTopMenuHeight() {
+    documenter.style.setProperty(
+      "--topmenu-height",
+      topMenu[0].offsetHeight + "px"
+    );
+  }
+  updateTopMenuHeight();
+  $(window).resize(updateTopMenuHeight);
+  $(window).on("orientationchange", updateTopMenuHeight);
+});
+
 // Scroll the navigation bar to the currently selected menu item
 $(document).ready(function () {
   var sidebar = $("#documenter .docs-menu").get(0);

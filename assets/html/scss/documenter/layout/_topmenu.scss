@@ -14,14 +14,14 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
 // Top menu navigation bar
 .docs-top-menu {
   background-color: $documenter-topmenu-background;
-  height: $documenter-topmenu-height;
+  min-height: $documenter-topmenu-height; // Allow growing when items wrap
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100; // Above sidebar and main content
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   border-bottom: 1px solid $border;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -35,15 +35,14 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
   .docs-top-menu-list {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap; // Allow items to wrap to a new line when space is tight
     list-style: none;
     margin: 0;
     padding: 0;
     gap: 0;
     // Keep overflow visible so absolutely-positioned dropdown menus are not clipped.
-    // Horizontal scrolling for overflow is handled only on touch (see below).
     overflow: visible;
-    height: 100%;
-    align-items: stretch;
+    height: auto;
 
     > li {
       flex-shrink: 0;
@@ -139,17 +138,17 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
   // Content wrapper to hold sidebar and main content
   .docs-content-wrapper {
     display: flex;
-    padding-top: $documenter-topmenu-height;
+    padding-top: var(--topmenu-height, #{$documenter-topmenu-height});
     min-height: 100vh;
   }
 
   // Adjust sidebar position
   .docs-sidebar {
-    top: $documenter-topmenu-height;
-    height: calc(100vh - #{$documenter-topmenu-height});
+    top: var(--topmenu-height, #{$documenter-topmenu-height});
+    height: calc(100vh - var(--topmenu-height, #{$documenter-topmenu-height}));
 
     @include desktop {
-      top: $documenter-topmenu-height;
+      top: var(--topmenu-height, #{$documenter-topmenu-height});
     }
   }
 
@@ -168,19 +167,13 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
 // Mobile adjustments
 @include touch {
   .docs-top-menu {
-    // Slightly smaller on mobile
-    height: 2.5rem;
-    
+    min-height: 2.5rem; // Slightly smaller on mobile; auto-grows when items wrap
+
     .docs-top-menu-list {
-      // Allow horizontal scrolling on mobile (no dropdowns on touch)
-      overflow-x: auto;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-      &::-webkit-scrollbar {
-        display: none;
-      }
+      // Allow wrapping on narrow screens instead of hiding items off-screen
+      flex-wrap: wrap;
       justify-content: flex-start;
-      padding-left: 0.5rem;
+      padding: 0 0.5rem;
     }
 
     .docs-top-menu-link {
@@ -200,13 +193,13 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
 
   #documenter.has-top-menu {
     .docs-content-wrapper {
-      padding-top: 2.5rem;
+      padding-top: var(--topmenu-height, 2.5rem);
     }
 
     .docs-sidebar {
       // On mobile, sidebar is overlay, needs to account for top menu
-      top: 2.5rem;
-      height: calc(100vh - 2.5rem);
+      top: var(--topmenu-height, 2.5rem);
+      height: calc(100vh - var(--topmenu-height, 2.5rem));
     }
 
     .docs-main {
@@ -214,9 +207,8 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
 
       > header.docs-navbar {
         // Sticky navbar on mobile needs to account for top menu
-        top: 2.5rem;
+        top: var(--topmenu-height, 2.5rem);
       }
     }
   }
 }
-
