@@ -438,6 +438,61 @@ Using the `pages` argument you can organize your pages into subsections and hide
 from the sidebar with the help of the [`hide`](@ref) functions.
 
 
+## Top Menu for Multi-Section Documentation
+
+For larger documentation projects, you can create a top-level navigation bar using the
+`top_menu` argument to [`makedocs`](@ref). This allows you to organize your documentation
+into multiple distinct sections, each with its own sidebar navigation.
+
+```julia
+makedocs(
+    ...,
+    top_menu = [
+        "Getting Started" => [
+            "Home" => "index.md",
+            "Installation" => "getting-started/install.md",
+            "Quick Start" => "getting-started/quickstart.md",
+        ],
+        "User Guide" => [
+            "Overview" => "guide/index.md",
+            "Basic Usage" => "guide/basics.md",
+            "Advanced Topics" => [
+                "guide/advanced.md",
+                "guide/tips.md",
+            ],
+        ],
+        "API Reference" => [
+            "Public API" => "api/public.md",
+            "Internals" => "api/internals.md",
+        ],
+    ],
+)
+```
+
+When `top_menu` is specified:
+
+- A horizontal navigation bar appears at the top of the page with the section titles
+- Each section has its own sidebar navigation showing only the pages in that section
+- Clicking a section title navigates to the first page of that section
+- The sidebar's previous/next navigation stays within each section
+
+Each entry in `top_menu` must be a `"Section Title" => pages_array` pair, where `pages_array`
+follows the same format as the `pages` argument (supporting nested subsections, page titles, etc.).
+
+!!! note "Landing page"
+    The section containing `index.md` will be displayed first when the documentation is
+    opened, since `index.md` becomes the landing page. Make sure to place your main entry
+    point in the appropriate section.
+
+!!! warning "Unique pages across sections"
+    Each page should appear in only one section. Having the same page in multiple sections
+    will cause navigation issues, as a single page can only belong to one section's
+    navigation tree.
+
+If `top_menu` is not specified (the default), Documenter uses the standard single-sidebar
+behavior controlled by the `pages` argument.
+
+
 ## Adding a logo or icon
 
 You can easily add a logo or icon to your documentation which
