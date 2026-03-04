@@ -51,7 +51,7 @@ $(document).ready(function () {
   function updateTopMenuHeight() {
     documenter.style.setProperty(
       "--topmenu-height",
-      topMenu[0].offsetHeight + "px"
+      topMenu[0].offsetHeight + "px",
     );
   }
   updateTopMenuHeight();
