@@ -1,7 +1,8 @@
 module RemoteTests
 using Test
 using Documenter
-using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab, Forgejo
+
+using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab, Forgejo, parse_url
 
 @testset "RepositoryRemote" begin
     let r = URL("https://github.com/FOO/BAR/blob/{commit}{path}#{line}")
@@ -68,6 +69,17 @@ using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab, Forgejo
         @test issueurl(r, "123") == "https://github.com/JuliaDocs/Documenter.jl/issues/123"
     end
 
+    withenv("GITHUB_SERVER_URL" => "github.selfhosted") do
+        let r = GitHub("JuliaDocs/Documenter.jl")
+            @test repourl(r) == "https://github.selfhosted/JuliaDocs/Documenter.jl"
+            @test repofile(r, "mybranch", "src/foo.jl") == "https://github.selfhosted/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl"
+            @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://github.selfhosted/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
+            @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://github.selfhosted/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
+            @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://github.selfhosted/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5-L8"
+            @test issueurl(r, "123") == "https://github.selfhosted/JuliaDocs/Documenter.jl/issues/123"
+        end
+    end
+
     # GitLab remote
     let r = GitLab("JuliaDocs", "Documenter.jl")
         @test repourl(r) == "https://gitlab.com/JuliaDocs/Documenter.jl"
@@ -95,6 +107,12 @@ using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab, Forgejo
         @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5-L8"
         @test issueurl(r, "123") == "https://gitlab.com/JuliaDocs/Documenter.jl/-/issues/123"
     end
+
+    @test parse_url("github.com") == ("github.com", "")
+    @test parse_url("a:b@github.com") == ("a:b@github.com", "")
+    @test parse_url("a:b@github.com:5") == ("a:b@github.com:5", "")
+    @test parse_url("github.com/page/subpage") == ("github.com", "/page/subpage")
+    @test parse_url("http://github.com/page/subpage") == ("github.com", "/page/subpage")
 
     # Forgejo remote
     let r = Forgejo("git.mydomain.tld", "JuliaDocs", "Documenter.jl")

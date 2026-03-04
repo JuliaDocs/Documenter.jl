@@ -194,28 +194,18 @@ GitHub.
 function deploydocs(;
         root = currentdir(),
         target = "build",
-        dirname = "",
-
-        repo = error("no 'repo' keyword provided."),
+        dirname = "", repo = error("no 'repo' keyword provided."),
         branch = "gh-pages",
-        deploy_repo = nothing,
-
-        repo_previews = nothing,
-        branch_previews = branch,
-
-        deps = nothing,
-        make = nothing,
-
-        cname = nothing,
+        deploy_repo = nothing, repo_previews = nothing,
+        branch_previews = branch, deps = nothing,
+        make = nothing, cname = nothing,
         devbranch = nothing,
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview::Bool = false,
-        tag_prefix = "",
-
-        archive = nothing, # experimental and undocumented
+        tag_prefix = "", archive = nothing, # experimental and undocumented
     )
 
     # Try to figure out default branch (see #1443 and #1727)
@@ -493,10 +483,10 @@ function git_push(
                     cd(() -> git_commands(sshconfig), temp)
                 end
             end
-            post_status(deploy_config; repo = repo, type = "success", subfolder = subfolder)
+            post_status(deploy_config; type = "success", subfolder = subfolder)
         catch e
             @error "Failed to push:" exception = (e, catch_backtrace())
-            post_status(deploy_config; repo = repo, type = "error")
+            post_status(deploy_config; type = "error")
             rethrow(e)
         finally
             # Remove the unencrypted private key.
@@ -507,10 +497,10 @@ function git_push(
         upstream = authenticated_repo_url(deploy_config)
         try
             cd(() -> withenv(git_commands, NO_KEY_ENV...), temp)
-            post_status(deploy_config; repo = repo, type = "success", subfolder = subfolder)
+            post_status(deploy_config; type = "success", subfolder = subfolder)
         catch e
             @error "Failed to push:" exception = (e, catch_backtrace())
-            post_status(deploy_config; repo = repo, type = "error")
+            post_status(deploy_config; type = "error")
             rethrow(e)
         end
     end
