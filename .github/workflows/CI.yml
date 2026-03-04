@@ -192,6 +192,9 @@ jobs:
   docs:
     name: 'Documentation: ${{ matrix.format }}'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      statuses: write
     strategy:
       fail-fast: false
       matrix:
