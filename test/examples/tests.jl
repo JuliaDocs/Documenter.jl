@@ -549,7 +549,7 @@ end
         using Documenter
         import Markdown
         # Helper to create a temp doc source dir with a minimal index.md
-        function makedocs_with_topmenu(top_menu; extra_kwargs = Dict())
+        function makedocs_with_topmenu(top_menu_pages; extra_kwargs = Dict())
             tempdir = mktempdir()
             srcdir = joinpath(tempdir, "src")
             mkpath(srcdir)
@@ -559,8 +559,8 @@ end
                 :source => srcdir,
                 :build => joinpath(tempdir, "build"),
                 :sitename => "TopMenu EdgeCase",
-                :top_menu => top_menu,
-                :pages => ["index.md"],
+                :top_menu => true,
+                :pages => top_menu_pages,
                 :format => Documenter.HTML(prettyurls = false),
                 :warnonly => true,
                 :remotes => nothing,
@@ -571,14 +571,14 @@ end
 
         # 1. Duplicate page in different sections triggers warning
         @testset "top_menu duplicate page warning" begin
-            top_menu = [
+            pages = [
                 "Section 1" => ["index.md"],
                 "Section 2" => ["index.md"],
             ]
             io = IOBuffer()
             got_warn = false
             with_logger(ConsoleLogger(io, Logging.Warn)) do
-                makedocs_with_topmenu(top_menu)
+                makedocs_with_topmenu(pages)
                 got_warn = occursin("appears in multiple top_menu sections", String(take!(io)))
             end
             @test got_warn
@@ -586,13 +586,13 @@ end
 
         # 2. Invalid top_menu entry (not a Pair)
         @testset "top_menu invalid entry error" begin
-            top_menu = [["not a pair"]]
-            @test_throws ErrorException makedocs_with_topmenu(top_menu)
+            pages = [["not a pair"]]
+            @test_throws ErrorException makedocs_with_topmenu(pages)
         end
 
         # 3. top_menu with an empty section
         @testset "top_menu empty section" begin
-            top_menu = ["Empty Section" => []]
+            pages = ["Empty Section" => []]
             tempdir = mktempdir()
             srcdir = joinpath(tempdir, "src")
             mkpath(srcdir)
@@ -603,8 +603,8 @@ end
                 source = srcdir,
                 build = builddir,
                 sitename = "TopMenu EdgeCase",
-                top_menu = top_menu,
-                pages = ["index.md"],
+                top_menu = true,
+                pages = pages,
                 format = Documenter.HTML(prettyurls = false),
                 warnonly = true,
                 remotes = nothing,

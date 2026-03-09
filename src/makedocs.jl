@@ -151,34 +151,37 @@ The `pages` keyword must be a list where each element must be one of the followi
 
 See also [`hide`](@ref), which can be used to hide certain pages in the navigation menu.
 
-**`top_menu`** can be used to create a top-level navigation bar above the sidebar navigation,
-enabling a multi-section documentation structure. When `top_menu` is specified, each entry
-creates a separate section with its own sidebar navigation. If `top_menu` is empty (the default),
-the standard single-sidebar behavior is preserved.
+**`top_menu`** (Boolean, default: `false`) enables building a top-level navigation bar
+above the sidebar navigation. When set to `true`, the first layer of the `pages` argument
+is used as the top menu (each entry becomes a section with its own sidebar navigation).
+When `top_menu` is `false`, only the `pages` section is processed and the top menu is ignored.
 
 ```julia
-top_menu = [
-    "Getting Started" => [
-        "Home" => "index.md",
-        "Installation" => "install.md",
-    ],
-    "User Guide" => [
-        "Guide" => "guide/index.md",
-        "Advanced Topics" => [
-            "guide/advanced.md",
-            "guide/tips.md",
+makedocs(
+    top_menu = true,
+    pages = [
+        "Getting Started" => [
+            "Home" => "index.md",
+            "Installation" => "install.md",
+        ],
+        "User Guide" => [
+            "Guide" => "guide/index.md",
+            "Advanced Topics" => [
+                "guide/advanced.md",
+                "guide/tips.md",
+            ],
+        ],
+        "API Reference" => [
+            "Public API" => "api/public.md",
+            "Internals" => "api/internals.md",
         ],
     ],
-    "API Reference" => [
-        "Public API" => "api/public.md",
-        "Internals" => "api/internals.md",
-    ],
-]
+)
 ```
 
-Each entry in `top_menu` must be a `"Section Title" => pages_array` pair, where `pages_array`
-follows the same format as the `pages` keyword. The first page in each section will be used
-as the link destination when clicking the section title in the top bar.
+Each entry in the first layer of `pages` must be a `"Section Title" => pages_array` pair,
+where `pages_array` follows the same format as the `pages` keyword. The first page in each
+section will be used as the link destination when clicking the section title in the top bar.
 
 !!! note "Landing page and unique pages"
     The section containing `index.md` will be displayed first when the documentation is opened,
