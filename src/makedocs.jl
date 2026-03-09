@@ -13,12 +13,9 @@
         sitename = "",
         expandfirst = [],
         draft = false,
-        top_menu::Bool = false,
+        top_menu = false,
         others...
     )
-# Keywords
-
-**`top_menu`** (Boolean, default: `false`) enables building a top-level navigation bar above the sidebar navigation. When set to `true`, the first layer of the `pages` argument is used as the top menu (each entry becomes a section). The `pages` section is still interpreted for sidebar navigation within each section. When `top_menu` is `false`, only the `pages` section is processed and the top menu is ignored.
 
 Combines markdown files and inline docstrings into an interlinked document.
 In most cases [`makedocs`](@ref) should be run from a `make.jl` file:
@@ -319,7 +316,7 @@ function makedocs(; debug = false, format = HTML(), kwargs...)
     filtered_kwargs = (; (k => v for (k, v) in kwargs if k != :top_menu)...)
     pages_vec = get(filtered_kwargs, :pages, Any[])
     top_menu_vec = top_menu_flag ? pages_vec : Any[]
-    document = Documenter.Document(; format = format, top_menu=top_menu_vec, filtered_kwargs...)
+    document = Documenter.Document(; format = format, top_menu = top_menu_vec, filtered_kwargs...)
     # Before starting the build pipeline, we empty out the subtype cache used by
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
