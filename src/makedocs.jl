@@ -312,10 +312,11 @@ in the [setup guide in the manual](@ref Package-Guide).
 function makedocs(; debug = false, format = HTML(), kwargs...)
     # Extract top_menu keyword argument (boolean)
     top_menu_flag = get(kwargs, :top_menu, false)
-    kwargs = Base.structdiff(kwargs, (:top_menu,))
-    pages_vec = get(kwargs, :pages, Any[])
+    # Remove :top_menu from kwargs (works for NamedTuple and Pairs)
+    filtered_kwargs = (; (k => v for (k, v) in kwargs if k != :top_menu)...)
+    pages_vec = get(filtered_kwargs, :pages, Any[])
     top_menu_vec = top_menu_flag ? pages_vec : Any[]
-    document = Documenter.Document(; format = format, top_menu=top_menu_vec, kwargs...)
+    document = Documenter.Document(; format = format, top_menu=top_menu_vec, filtered_kwargs...)
     # Before starting the build pipeline, we empty out the subtype cache used by
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
