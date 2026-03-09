@@ -3,7 +3,7 @@
 
 // Manages the showing and hiding of the sidebar.
 $(document).ready(function () {
-  var sidebar = $("#documenter > .docs-sidebar");
+  var sidebar = $("#documenter .docs-sidebar");
   var sidebar_button = $("#documenter-sidebar-button");
   sidebar_button.click(function (ev) {
     ev.preventDefault();
@@ -13,7 +13,7 @@ $(document).ready(function () {
       $("#documenter .docs-menu a.is-active").focus();
     }
   });
-  $("#documenter > .docs-main").bind("click", function (ev) {
+  $("#documenter .docs-main").bind("click", function (ev) {
     if ($(ev.target).is(sidebar_button)) {
       return;
     }
@@ -40,6 +40,23 @@ $(document).ready(function () {
   resize();
   $(window).resize(resize);
   $(window).on("orientationchange", resize);
+});
+
+// Dynamically update --topmenu-height so that the sidebar, content wrapper, and
+// sticky navbar all stay correctly positioned when top menu items wrap to a new line.
+$(document).ready(function () {
+  var topMenu = $("#documenter .docs-top-menu");
+  if (topMenu.length === 0) return;
+  var documenter = document.getElementById("documenter");
+  function updateTopMenuHeight() {
+    documenter.style.setProperty(
+      "--topmenu-height",
+      topMenu[0].offsetHeight + "px",
+    );
+  }
+  updateTopMenuHeight();
+  $(window).resize(updateTopMenuHeight);
+  $(window).on("orientationchange", updateTopMenuHeight);
 });
 
 // Scroll the navigation bar to the currently selected menu item
