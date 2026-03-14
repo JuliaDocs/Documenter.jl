@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The HTML output now sets a `no-referrer` referrer policy by default, so that the CDNs serving the fonts, stylesheets and scripts are no longer told which page the reader is on. It can be changed or disabled with the `referrerpolicy` keyword of `Documenter.HTML`. ([#2391], [#2401])
 * Added an `image` keyword to `Documenter.LaTeX` to select the container image used by `platform = "docker"`, overridable via the `DOCUMENTER_LATEX_DOCKER_IMAGE` environment variable. ([#2888])
-* Enabled `microtype` for improved PDF typography: character protrusion (hanging punctuation), font expansion, and tracking adjustments for better paragraph justification. ([#2906])
+* Improved PDF typography: `microtype` for character protrusion and font expansion, `selnolig` for ligature suppression, `bookmark` for improved PDF bookmarks, page headers with chapter/section names, and `friendly` Pygments theme for syntax-highlighted code blocks. ([#2906])
 
 ### Changed
 
