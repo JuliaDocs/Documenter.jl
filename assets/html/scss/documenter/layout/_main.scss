@@ -5,6 +5,10 @@
 #documenter {
   .docs-main {
     > article {
+      h1,h2,h3,h4,h5,h6{
+        scroll-margin-top: 4.5rem;
+      }
+
       // Long inline words can happen, so we'll break them in case that, instead of letting
       // go into overflow. Most likely to happen with inline code snippets.
       overflow-wrap: break-word;
