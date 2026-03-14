@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+* Strikethrough text is now rendered in LaTeX/PDF output using `\sout` from the `ulem` package, instead of silently stripping the formatting. ([#2890])
 * Fixed rendering of operator docstring bindings such as `Base.:(:)` and `Base.:(==)` in doc headers and indices. ([#2844])
 
 ## Version [v1.16.1] - 2025-11-21
