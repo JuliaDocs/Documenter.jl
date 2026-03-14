@@ -87,17 +87,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: "Install LaTeX dependencies"
+      - uses: TeX-Live/setup-texlive-action@v4
+        with:
+          version: latest
+          packages: |
+            scheme-basic
+            collection-luatex
+            collection-latexrecommended
+            collection-latexextra
+            collection-fontsrecommended
+            collection-plaingeneric
+            latexmk
+            minted
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            latexmk \
-            python3-pygments \
-            texlive-fonts-recommended \
-            texlive-lang-other \
-            texlive-latex-extra \
-            texlive-luatex \
-            texlive-plain-generic
+          sudo apt-get install -y python3-pygments fontconfig fonts-dejavu fonts-lato
       - uses: julia-actions/setup-julia@v2
         with:
           version: 'nightly'

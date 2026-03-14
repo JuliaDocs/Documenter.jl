@@ -96,17 +96,23 @@ jobs:
       - name: "install pygments for tectonic"
         run: pip install pygments
         if: matrix.os == 'windows-latest'
-      - uses: zauguin/install-texlive@v4
+      - uses: TeX-Live/setup-texlive-action@v4
         with:
+          version: latest
           packages: |
-            scheme-medium
-            hyperref
+            scheme-basic
+            collection-luatex
+            collection-latexrecommended
+            collection-latexextra
+            collection-fontsrecommended
+            collection-plaingeneric
+            latexmk
             minted
-            newunicodechar
-            transparent
-            upquote
-            tabulary
-            tcolorbox
+      - name: Install system dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pygments fontconfig fonts-dejavu fonts-lato
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -203,6 +209,24 @@ jobs:
           - pdf
     steps:
       - uses: actions/checkout@v6
+      - uses: TeX-Live/setup-texlive-action@v4
+        if: matrix.format == 'pdf'
+        with:
+          version: latest
+          packages: |
+            scheme-basic
+            collection-luatex
+            collection-latexrecommended
+            collection-latexextra
+            collection-fontsrecommended
+            collection-plaingeneric
+            latexmk
+            minted
+      - name: Install system dependencies for PDF
+        if: matrix.format == 'pdf'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pygments fontconfig fonts-dejavu fonts-lato
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
