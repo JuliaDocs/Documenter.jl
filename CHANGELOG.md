@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The HTML output now sets a `no-referrer` referrer policy by default, so that the CDNs serving the fonts, stylesheets and scripts are no longer told which page the reader is on. It can be changed or disabled with the `referrerpolicy` keyword of `Documenter.HTML`. ([#2391], [#2401])
 * Added an `image` keyword to `Documenter.LaTeX` to select the container image used by `platform = "docker"`, overridable via the `DOCUMENTER_LATEX_DOCKER_IMAGE` environment variable. ([#2888])
+* Enabled `microtype` for improved PDF typography: character protrusion (hanging punctuation), font expansion, and tracking adjustments for better paragraph justification. ([#2906])
 
 ### Changed
 
@@ -2331,6 +2332,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
 [#2894]: https://github.com/JuliaDocs/Documenter.jl/issues/2894
 [#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
+[#2906]: https://github.com/JuliaDocs/Documenter.jl/issues/2906
 [#2912]: https://github.com/JuliaDocs/Documenter.jl/issues/2912
 [#2925]: https://github.com/JuliaDocs/Documenter.jl/issues/2925
 [#2953]: https://github.com/JuliaDocs/Documenter.jl/issues/2953
