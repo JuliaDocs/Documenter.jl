@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Support self-hosted GitHub instances. ([#2755])
-* Enabled `microtype` for improved PDF typography: character protrusion (hanging punctuation), font expansion, and tracking adjustments for better paragraph justification. ([#2906])
+* Improved PDF typography: `microtype` for character protrusion and font expansion, `selnolig` for ligature suppression, `bookmark` for improved PDF bookmarks, page headers with chapter/section names, and `friendly` Pygments theme for syntax-highlighted code blocks. ([#2906])
 
 
 ## Version [v1.17.0] - 2026-02-20
