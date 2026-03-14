@@ -105,6 +105,7 @@ jobs:
             polyglossia
             tabulary
             tcolorbox
+            ulem
             xcolor
             anyfontsize
             background

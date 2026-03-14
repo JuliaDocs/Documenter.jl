@@ -104,6 +104,7 @@ jobs:
             minted
             newunicodechar
             transparent
+            ulem
             upquote
             tabulary
             tcolorbox
