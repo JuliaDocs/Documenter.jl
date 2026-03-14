@@ -4,6 +4,10 @@
 \setsansfont{DejaVu Sans}[Scale=MatchLowercase, Ligatures=TeX]
 \setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
 \renewcommand{\familydefault}{\sfdefault}
+
+% typography: enable microtypographic enhancements (character protrusion,
+% font expansion, tracking) for improved paragraph layout and justification.
+\usepackage{microtype}
 % DejaVu Sans Mono does not have the xor symbol. So we hack around that by replacing all
 % instances of it with calls to \unicodeveebar, which prints this single character as with
 % DejaVu Sans instead.
