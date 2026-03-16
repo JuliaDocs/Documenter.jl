@@ -4,6 +4,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+* Fixed headers hidden by the navbar. ([#2905])
 
 ### Added
 
@@ -30,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed rendering of operator docstring bindings such as `Base.:(:)` and `Base.:(==)` in doc headers and indices. ([#2844])
-* Fixed headers hidden by the navbar. ([#2905])
 
 ## Version [v1.16.1] - 2025-11-21
 
