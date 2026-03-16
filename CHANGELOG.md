@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed headers hidden by the navbar. ([#2905])
+### Changed
+
+* Switched PDF documentation build from Docker (`juliadocs/documenter-latex`) to native TeX Live via `TeX-Live/setup-texlive-action@v4`. This eliminates the dependency on a pre-built Docker image, uses the latest TeX Live with built-in caching, and makes it easier to add new LaTeX packages.
 
 ## Version [v1.17.0] - 2026-02-20
 
