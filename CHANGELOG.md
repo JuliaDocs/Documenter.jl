@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed headers hidden by the navbar. ([#2905])
+
 ## Version [v1.17.0] - 2026-02-20
 
 ### Added
