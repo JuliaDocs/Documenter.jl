@@ -37,7 +37,7 @@ end
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
     format = if "pdf" in ARGS
-        Documenter.LaTeX(platform = "native")
+        Documenter.LaTeX(platform = "docker")
     else
         Documenter.HTML(
             # Use clean URLs, unless built as a "local" build
