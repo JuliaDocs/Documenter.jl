@@ -3,6 +3,7 @@
  * The main container is <div> that is identified by id #documenter.
  */
 #documenter {
+  display:flex;
   .docs-main {
     > article {
       // Long inline words can happen, so we'll break them in case that, instead of letting
@@ -109,7 +110,7 @@
         }
       }
     }
-
+    
     // Footnotes
     section.footnotes {
       border-top: 1px solid $border;

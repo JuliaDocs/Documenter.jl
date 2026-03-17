@@ -992,10 +992,11 @@ function render_page(ctx, navnode)
     head = render_head(ctx, navnode)
     sidebar = render_sidebar(ctx, navnode)
     navbar = render_navbar(ctx, navnode, true)
+    toc = render_toc(ctx, navnode)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
     extras = render_extras(ctx, navnode)
-    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras)
+    htmldoc = render_html(ctx, head, sidebar, navbar, toc, article, footer, extras)
     return write_html(ctx, navnode, htmldoc)
 end
 
@@ -1005,7 +1006,7 @@ end
 """
 Renders the main `<html>` tag.
 """
-function render_html(ctx, head, sidebar, navbar, article, footer, extras)
+function render_html(ctx, head, sidebar, navbar, toc, article, footer, extras)
     @tags html body div
     return DOM.HTMLDocument(
         html[:lang => ctx.settings.lang](
@@ -1014,6 +1015,7 @@ function render_html(ctx, head, sidebar, navbar, article, footer, extras)
                 div["#documenter"](
                     sidebar,
                     div[".docs-main"](navbar, article, footer),
+                    toc,
                     render_settings(),
                 ),
             ),
@@ -1465,6 +1467,36 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Construct the main <header> node that should be the first element in div.docs-main
     return header[".docs-navbar"](navbar_left, breadcrumb, navbar_right)
+end
+
+function render_toc(ctx,navnode)
+    @tags div span ul li a
+
+    if navnode===nothing || navnode.page===nothing
+        return DOM.Node("")
+    end
+
+    page=getpage(ctx,navnode.page)
+    subs=collect_subsections(page.mdast)
+
+    if isempty(subs)
+        return DOM.Node("")
+    end
+
+    dctx=DCtx(ctx,navnode,true)
+
+    toc_items=map(subs) do s
+        istoplevel, anchor, text=s
+        liclass=istoplevel ? ".toplevel" : ""
+
+        li[liclass](a[".tocitem", :href => anchor](span(domify(dctx, text.children))))
+    end
+
+    toc_list=ul[".page-toc"](toc_items)
+
+    return div[".docs-toc"](
+        span[".toc-title"]("On this page"),toc_list
+    )
 end
 
 """
