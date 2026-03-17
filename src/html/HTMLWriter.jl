@@ -825,7 +825,7 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
     if isempty(doc.blueprint.pages)
         error("Aborting HTML build: no pages under src/")
-    elseif !haskey(doc.blueprint.pages, "index.md")
+    elseif !haskey(doc.blueprint.pages, "index.md") && isempty(doc.internal.top_menu_sections)
         @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
     end
 
@@ -939,6 +939,31 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
 
     write_inventory(doc, ctx)
 
+    # Generate redirect index.html for top_menu builds (landing page is in a subdirectory)
+    if !isempty(doc.internal.top_menu_sections)
+        first_section = first(doc.internal.top_menu_sections)
+        first_page_path = pretty_url(ctx, get_url(ctx, first_section.first_page))
+        # Only generate redirect if first page is not at root (i.e., not index.html)
+        if first_page_path != "index.html" && !haskey(doc.blueprint.pages, "index.md")
+            redirect_path = joinpath(doc.user.build, "index.html")
+            open(redirect_path, "w") do io
+                println(
+                    io, """<!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <meta http-equiv="refresh" content="0; url=$(first_page_path)">
+                        <title>Redirecting...</title>
+                    </head>
+                    <body>
+                        <p>Redirecting to <a href="$(first_page_path)">$(first_section.title)</a>...</p>
+                    </body>
+                    </html>"""
+                )
+            end
+        end
+    end
+
     return generate_siteinfo_json(doc.user.build)
 end
 
@@ -995,7 +1020,8 @@ function render_page(ctx, navnode)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
     extras = render_extras(ctx, navnode)
-    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras)
+    top_menu = render_top_menu(ctx, navnode)
+    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras; top_menu = top_menu)
     return write_html(ctx, navnode, htmldoc)
 end
 
@@ -1003,20 +1029,148 @@ end
 # ------------------------------------------------------------------------------
 
 """
+Find the first descendant NavNode that has an associated page, or the node itself
+if it has a page. Returns `nothing` if no such node exists in the subtree.
+"""
+function first_page_navnode(nn::Documenter.NavNode)
+    nn.page !== nothing && return nn
+    for child in nn.children
+        result = first_page_navnode(child)
+        result !== nothing && return result
+    end
+    return nothing
+end
+
+"""
+Renders the top navigation bar when `top_menu` is configured.
+Returns `nothing` if `top_menu` is not being used.
+"""
+function render_top_menu(ctx, navnode)
+    sections = ctx.doc.internal.top_menu_sections
+    isempty(sections) && return nothing
+
+    @tags nav div a ul li span
+
+    # Find which section the current page belongs to
+    current_page = navnode.page
+    current_section_idx = 0
+    for (idx, section) in enumerate(sections)
+        for nn in section.navlist
+            if nn.page == current_page
+                current_section_idx = idx
+                break
+            end
+        end
+        current_section_idx > 0 && break
+    end
+
+    # Build the menu items
+    items = map(enumerate(sections)) do (idx, section)
+        is_active = idx == current_section_idx
+        # Find the first navnode within this specific section
+        first_navnode = isempty(section.navlist) ? nothing : section.navlist[1]
+        href = if first_navnode !== nothing
+            navhref(ctx, first_navnode, navnode)
+        else
+            "#"
+        end
+
+        # Build dropdown items from the section's top-level navtree entries
+        dropdown_items = DOM.Node[]
+        for nn in section.navtree
+            target_nn = first_page_navnode(nn)
+            target_nn === nothing && continue
+            item_href = navhref(ctx, target_nn, navnode)
+            dctx_nn = DCtx(ctx, nn, true)
+            item_title = domify(dctx_nn, pagetitle(dctx_nn))
+            push!(dropdown_items, li(a[".docs-top-dropdown-item", :href => item_href](item_title)))
+        end
+
+        li_class = is_active ? ".docs-top-dropdown.is-active" : ".docs-top-dropdown"
+        li[li_class](
+            a[".docs-top-menu-link", :href => href](
+                section.title,
+                span[".docs-top-dropdown-caret"]("▾"),
+            ),
+            ul[".docs-top-dropdown-menu"](dropdown_items...),
+        )
+    end
+
+    return nav[".docs-top-menu"](
+        div[".container"](
+            ul[".docs-top-menu-list"](items...)
+        )
+    )
+end
+
+"""
+Find the NavNode for a given page path.
+"""
+function find_navnode_for_page(doc, page_path)
+    # First search in top_menu sections if they exist
+    if !isempty(doc.internal.top_menu_sections)
+        for section in doc.internal.top_menu_sections
+            for navnode in section.navlist
+                if navnode.page == page_path
+                    return navnode
+                end
+            end
+        end
+    end
+    # Fall back to main navlist
+    for navnode in doc.internal.navlist
+        if navnode.page == page_path
+            return navnode
+        end
+    end
+    # Fallback to first navnode
+    return isempty(doc.internal.navlist) ? nothing : doc.internal.navlist[1]
+end
+
+"""
+Get the correct navtree for the current page based on top_menu sections.
+"""
+function get_section_navtree(ctx, navnode)
+    sections = ctx.doc.internal.top_menu_sections
+    isempty(sections) && return ctx.doc.internal.navtree
+
+    current_page = navnode.page
+    for section in sections
+        for nn in section.navlist
+            if nn.page == current_page
+                return section.navtree
+            end
+        end
+    end
+    # Fallback to global navtree
+    return ctx.doc.internal.navtree
+end
+
+"""
 Renders the main `<html>` tag.
 """
-function render_html(ctx, head, sidebar, navbar, article, footer, extras)
+function render_html(ctx, head, sidebar, navbar, article, footer, extras; top_menu = nothing)
     @tags html body div
+    main_content = if isnothing(top_menu)
+        div["#documenter"](
+            sidebar,
+            div[".docs-main"](navbar, article, footer),
+            render_settings(),
+        )
+    else
+        div["#documenter.has-top-menu"](
+            top_menu,
+            div[".docs-content-wrapper"](
+                sidebar,
+                div[".docs-main"](navbar, article, footer),
+            ),
+            render_settings(),
+        )
+    end
     return DOM.HTMLDocument(
         html[:lang => ctx.settings.lang](
             head,
-            body(
-                div["#documenter"](
-                    sidebar,
-                    div[".docs-main"](navbar, article, footer),
-                    render_settings(),
-                ),
-            ),
+            body(main_content),
             extras...
         )
     )
@@ -1326,7 +1480,7 @@ It gets called recursively to construct the whole tree.
 It always returns a [`DOM.Node`](@ref). If there's nothing to display (e.g. the node is set
 to be invisible), it returns an empty text node (`DOM.Node("")`).
 """
-navitem(nctx) = navitem(nctx, nctx.htmlctx.doc.internal.navtree)
+navitem(nctx) = navitem(nctx, get_section_navtree(nctx.htmlctx, nctx.current))
 function navitem(nctx, nns::Vector)
     push!(nctx.idstack, 0)
     nodes = map(nns) do nn
