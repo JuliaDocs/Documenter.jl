@@ -7,7 +7,7 @@ using Test
 using Documenter
 using IOCapture
 
-isdefined(Main, :XRefSignaturesMain) || @eval Main module XRefSignaturesMain
+module XRefSignaturesContent
     """
         g
 
@@ -51,13 +51,12 @@ isdefined(Main, :XRefSignaturesMain) || @eval Main module XRefSignaturesMain
     export g
 end
 
-
 @testset "Cross-referencing methods" begin
     kwargs = (
         root = dirname(@__FILE__),
         source = "src",
         build = "build",
-        modules = Main.XRefSignaturesMain,
+        modules = [Main.XRefSignatures.XRefSignaturesContent],
         sitename = "XRefSignatures",
         warnonly = false,
         format = Documenter.HTML(
@@ -77,22 +76,22 @@ end
         html = read(index_html, String)
 
         # Find anchor name for docstring containing AbstractArray (this differs between Julia 1.6 and 1.12!)
-        array_anchor_pattern = r"""<a\s+class="docstring-binding"\s+href="([^"]*AbstractArray[^"]*)"[^>]*>\s*<code>Main\.XRefSignaturesMain\.g</code>\s*</a>"""x
+        array_anchor_pattern = r"""<a\s+class="docstring-binding"\s+href="([^"]*AbstractArray[^"]*)"[^>]*>\s*<code>Main\.XRefSignatures.XRefSignaturesContent\.g</code>\s*</a>"""x
         array_anchor_rx = match(array_anchor_pattern, html)
         @test !isnothing(array_anchor_rx)
         array_anchor = array_anchor_rx.captures[1]
 
         # Body -> API xref
-        @test contains(html, """<a href="index.html#Main.XRefSignaturesMain.g-Tuple{Float64}">specialized methods</a>""")
-        @test contains(html, """<a href="index.html#Main.XRefSignaturesMain.g-Tuple{X} where X">parametric methods</a>""")
+        @test contains(html, """<a href="index.html#Main.XRefSignatures.XRefSignaturesContent.g-Tuple{Float64}">specialized methods</a>""")
+        @test contains(html, """<a href="index.html#Main.XRefSignatures.XRefSignaturesContent.g-Tuple{X} where X">parametric methods</a>""")
         @test contains(html, """<a href="index.html$(array_anchor)">constrained parametric methods</a>""")
-        @test contains(html, """<a href="index.html#Main.XRefSignaturesMain.g-Tuple{X} where X"><code>g(::Y) where Y</code></a>""")
+        @test contains(html, """<a href="index.html#Main.XRefSignatures.XRefSignaturesContent.g-Tuple{X} where X"><code>g(::Y) where Y</code></a>""")
 
         # API -> API xref
-        @test contains(html, """See also <a href="index.html#Main.XRefSignaturesMain.g-Tuple{X} where X">parametric <code>g</code></a>""")
+        @test contains(html, """See also <a href="index.html#Main.XRefSignatures.XRefSignaturesContent.g-Tuple{X} where X">parametric <code>g</code></a>""")
         @test contains(html, """See also <a href="index.html$(array_anchor)">parametric array <code>g</code></a>""")
-        @test contains(html, """See also <a href="index.html#Main.XRefSignaturesMain.g-Tuple{Float64}">specialized <code>g</code></a>""")
-        @test contains(html, """See also <a href="index.html#Main.XRefSignaturesMain.g-Tuple{X} where X">plain parametric <code>g</code></a>""")
+        @test contains(html, """See also <a href="index.html#Main.XRefSignatures.XRefSignaturesContent.g-Tuple{Float64}">specialized <code>g</code></a>""")
+        @test contains(html, """See also <a href="index.html#Main.XRefSignatures.XRefSignaturesContent.g-Tuple{X} where X">plain parametric <code>g</code></a>""")
     end
 end
 
