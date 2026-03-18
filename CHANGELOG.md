@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Support self-hosted GitHub instances. ([#2755])
+* Improved PDF typography: `microtype` for character protrusion and font expansion, `selnolig` for ligature suppression, `bookmark` for improved PDF bookmarks, page headers with chapter/section names, and `friendly` Pygments theme for syntax-highlighted code blocks. ([#2906])
 
 ### Fixed
 
