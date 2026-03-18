@@ -720,7 +720,7 @@ end
 
 
 function parse_kwargs(lang::String, kwargs_str::Nothing, block::MarkdownAST.CodeBlock, doc, source)
-    return Dict{Symbol,Any}()
+    return Dict{Symbol, Any}()
 end
 
 function parse_kwargs(lang::String, kwargs_str::AbstractString, block::MarkdownAST.CodeBlock, doc, source)
@@ -746,12 +746,12 @@ function parse_kwargs(lang::String, kwargs_str::AbstractString, block::MarkdownA
     # Parse as a synthetic function call to ensure comma-separated keywords are
     # represented unambiguously as `Expr(:kw, ...)` entries.
     if !(
-        isa(kwargs, Expr) &&
-        kwargs.head === :call &&
-        length(kwargs.args) == 2 &&
-        isa(kwargs.args[2], Expr) &&
-        kwargs.args[2].head === :parameters
-    )
+            isa(kwargs, Expr) &&
+                kwargs.head === :call &&
+                length(kwargs.args) == 2 &&
+                isa(kwargs.args[2], Expr) &&
+                kwargs.args[2].head === :parameters
+        )
         @docerror(
             doc, :parse_error,
             """
@@ -766,7 +766,7 @@ function parse_kwargs(lang::String, kwargs_str::AbstractString, block::MarkdownA
         return nothing
     end
 
-    d = Dict{Symbol,Any}()
+    d = Dict{Symbol, Any}()
     for kwarg in kwargs.args[2].args
         if !(isa(kwarg, Expr) && kwarg.head === :kw && isa(kwarg.args[1], Symbol))
             @docerror(
@@ -796,7 +796,7 @@ function parse_kwargs(lang::String, kwargs_str::AbstractString, block::MarkdownA
 end
 
 function validate_codeblock_args(
-        lang::String, name, kwargs::Dict{Symbol,Any}, source;
+        lang::String, name, kwargs::Dict{Symbol, Any}, source;
         allow_name::Bool = true,
         allowed_kwargs = Symbol[],
         bool_kwargs = Symbol[],
@@ -806,7 +806,7 @@ function validate_codeblock_args(
         name = nothing
     end
 
-    filtered = Dict{Symbol,Any}()
+    filtered = Dict{Symbol, Any}()
     for (k, v) in kwargs
         if !(k in allowed_kwargs)
             @warn "In $source: `$lang` block has an unsupported keyword argument: $(k)"

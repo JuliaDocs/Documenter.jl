@@ -632,10 +632,10 @@ end
         dummy_doc = Documenter.Document(; warnonly = [:parse_error])
         dummy_block = MarkdownAST.CodeBlock("@setup NAME ; arg1=1", "")
         @test Documenter.parse_kwargs("@setup", nothing, dummy_block, dummy_doc, "dummy.md") ==
-            Dict{Symbol,Any}()
+            Dict{Symbol, Any}()
         @test Documenter.parse_kwargs(
             "@setup", "arg1=1, arg2=:sym, arg3=(x + 1)", dummy_block, dummy_doc, "dummy.md"
-        ) == Dict{Symbol,Any}(:arg1 => 1, :arg2 => QuoteNode(:sym), :arg3 => :(x + 1))
+        ) == Dict{Symbol, Any}(:arg1 => 1, :arg2 => QuoteNode(:sym), :arg3 => :(x + 1))
 
         @test Documenter.parse_kwargs("@setup", "arg1 = ", dummy_block, dummy_doc, "dummy.md") === nothing
         @test :parse_error ∈ dummy_doc.internal.errors
@@ -657,7 +657,7 @@ end
         end
         @test success
         @test name == "NAME"
-        @test kwargs == Dict{Symbol,Any}(:continued => true, :ansicolor => false)
+        @test kwargs == Dict{Symbol, Any}(:continued => true, :ansicolor => false)
         @test [(log.level, log.message) for log in logger.logs] == [
             (Warn, "In dummy.md: `@example` block has an unsupported keyword argument: typo"),
         ]
@@ -665,20 +665,20 @@ end
 
     @testset "validate fenced code block arguments" begin
         name, kwargs = @test_logs (
-            :warn, "In dummy.md: `@docs` block does not support a name; ignoring `NAME`."
+            :warn, "In dummy.md: `@docs` block does not support a name; ignoring `NAME`.",
         ) Documenter.validate_codeblock_args(
-            "@docs", "NAME", Dict{Symbol,Any}(), "dummy.md";
+            "@docs", "NAME", Dict{Symbol, Any}(), "dummy.md";
             allow_name = false,
             allowed_kwargs = Symbol[],
         )
         @test name === nothing
-        @test kwargs == Dict{Symbol,Any}()
+        @test kwargs == Dict{Symbol, Any}()
 
         logger = Test.TestLogger()
         name, kwargs = with_logger(logger) do
             Documenter.validate_codeblock_args(
                 "@example", "NAME",
-                Dict{Symbol,Any}(:continued => true, :typo => true, :ansicolor => QuoteNode(:blue)),
+                Dict{Symbol, Any}(:continued => true, :typo => true, :ansicolor => QuoteNode(:blue)),
                 "dummy.md";
                 allow_name = true,
                 allowed_kwargs = [:continued, :ansicolor],
@@ -690,7 +690,7 @@ end
             (Warn, "In dummy.md: `@example` block keyword argument `ansicolor` must be `true` or `false`; ignoring :blue"),
         ]
         @test name == "NAME"
-        @test kwargs == Dict{Symbol,Any}(:continued => true)
+        @test kwargs == Dict{Symbol, Any}(:continued => true)
     end
 
     @testset "check_strict_kw" begin

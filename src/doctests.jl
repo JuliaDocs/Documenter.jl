@@ -124,7 +124,7 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
         sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
 
         # evaluate the values in the sandbox environment
-        for (k,v) in d
+        for (k, v) in d
             d[k] = Core.eval(sandbox, v)
         end
         ctx.meta[:LocalDocTestArguments] = d
