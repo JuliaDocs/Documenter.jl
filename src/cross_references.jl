@@ -498,7 +498,8 @@ function find_object(doc::Documenter.Document, binding, typesig)
                 # We've found an actual match out of the possible choices! Use it.
                 return candidate
             else
-                # Special case: UnionAll signature might be equivalent to an existing object, but not identical ([#2889])
+                # Special case: UnionAll signature might be equivalent to an existing object, but not identical
+                # See <https://github.com/JuliaDocs/Documenter.jl/issues/2836>
                 if isa(typesig, UnionAll)
                     for object in objects
                         if object.binding === candidate.binding &&

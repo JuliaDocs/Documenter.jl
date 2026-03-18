@@ -8,7 +8,8 @@ including references to:
 
 Union-all types may be equivalent without being identical. 
 Thus, we can sometimes refer to them using alternative, but valid, names such as
- [`g(::Y) where Y`](@ref XRefSignaturesMain.g(::Y) where Y).
+[`g(::Y) where Y`](@ref XRefSignaturesMain.g(::Y) where Y) which is equivalent to
+[`g(::X) where X`](@ref XRefSignaturesMain.g(::X) where X).
 
 ## API
 
