@@ -3,6 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+* Support self-hosted GitHub instances. ([#2755])
+
+### Fixed
+
+* Fixed headers hidden by the navbar. ([#2905])
+
 ## Version [v1.17.0] - 2026-02-20
 
 ### Added
@@ -2230,6 +2240,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2751]: https://github.com/JuliaDocs/Documenter.jl/issues/2751
 [#2752]: https://github.com/JuliaDocs/Documenter.jl/issues/2752
 [#2753]: https://github.com/JuliaDocs/Documenter.jl/issues/2753
+[#2755]: https://github.com/JuliaDocs/Documenter.jl/issues/2755
 [#2761]: https://github.com/JuliaDocs/Documenter.jl/issues/2761
 [#2762]: https://github.com/JuliaDocs/Documenter.jl/issues/2762
 [#2772]: https://github.com/JuliaDocs/Documenter.jl/issues/2772
@@ -2259,6 +2270,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2874]: https://github.com/JuliaDocs/Documenter.jl/issues/2874
 [#2875]: https://github.com/JuliaDocs/Documenter.jl/issues/2875
 [#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
+[#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

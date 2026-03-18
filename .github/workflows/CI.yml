@@ -51,7 +51,7 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
           show-versioninfo: true
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-runtest@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -96,7 +96,7 @@ jobs:
       - name: "install pygments for tectonic"
         run: pip install pygments
         if: matrix.os == 'windows-latest'
-      - uses: TeX-Live/setup-texlive-action@v3
+      - uses: zauguin/install-texlive@v4
         with:
           packages: |
             scheme-medium
@@ -110,7 +110,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Instantiate Pkg environment
         shell: julia --color=yes --project=test/examples {0}
         run: |
@@ -133,7 +133,7 @@ jobs:
           path-to-lcov: lcov.info
           flag-name: latex-${{ join(matrix.*, '-') }}
           parallel: true
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: "PDFs-${{ matrix.os }}"
           path: test/examples/builds/*/*.pdf
@@ -146,7 +146,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Install dependencies
         run: make -C assets/html Manifest.toml
       - name: Verify theme CSS files
@@ -166,7 +166,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - run: |
           julia --project=test/prerender/ -e '
             using Pkg
@@ -192,6 +192,9 @@ jobs:
   docs:
     name: 'Documentation: ${{ matrix.format }}'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      statuses: write
     strategy:
       fail-fast: false
       matrix:
@@ -203,7 +206,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Install dependencies
         run: make docs/Manifest.toml
       - name: Build the manual
@@ -212,14 +215,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
           DOCUMENTER_LATEX_DEBUG: ${{ github.workspace }}/latex-debug-logs
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: ${{ always() && matrix.format == 'pdf' }}
         with:
           name: PDF build logs
           path: ${{ github.workspace }}/latex-debug-logs
       - name: Upload search index
         if: ${{ matrix.format == 'html' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: search-index
           path: docs/build/search_index.js
@@ -234,11 +237,11 @@ jobs:
         with:
           version: 1
           show-versioninfo: true
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Instantiate main project environment
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
       - name: Download search index
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: search-index
           path: docs/build
@@ -252,7 +255,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload search benchmark results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: search-benchmark-results
           path: test/search/search_benchmark_results_*.txt
@@ -321,7 +324,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1.11'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - uses: fredrikekre/runic-action@v1
         with:
           version: '1.2'

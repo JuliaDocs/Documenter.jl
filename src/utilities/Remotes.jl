@@ -3,6 +3,7 @@ Types and functions for handling repository remotes.
 """
 module Remotes
 
+using URIs: URI
 """
     abstract type Remote
 
@@ -103,7 +104,44 @@ function repofile(remote::Remote, ref, filename, linerange = nothing)
 end
 
 """
-    GitHub(user :: AbstractString, repo :: AbstractString)
+    parse_url(url)
+
+Return tuple with values `authority` and `path` fragments of the given URL string.
+This function is not strictly following URI specification as it will parse "github.com/user/repo" into `("github.com", "/user/repo")`
+    returning authority even if scheme is missing.
+"""
+function parse_url(url)::Tuple{String, String}
+    if contains(url, "://") == false
+        url = "https://$(url)"
+    end
+    u = URI(url)
+
+    authority = u.host
+    if u.userinfo != ""
+        authority = "$(u.userinfo)@$(authority)"
+    end
+
+    if u.port != ""
+        authority = "$(authority):$(u.port)"
+    end
+    return (authority, u.path)
+end
+
+"""
+    github_host()
+
+Returns hostname of the GitHub installation where this code is running on at the moment.
+This is derived from the `ENV[GITHUB_SERVER_URL]` variable which is set in every GitHub Actions workflow.
+If this variable is not set, return "github.com".
+"""
+function github_host()
+    haskey(ENV, "GITHUB_SERVER_URL") || return "github.com"
+    url = ENV["GITHUB_SERVER_URL"]
+    return parse_url(url)[1]
+end
+
+"""
+    GitHub(user :: AbstractString, repo :: AbstractString, [host :: AbstractString])
     GitHub(remote :: AbstractString)
 
 Represents a remote Git repository hosted on GitHub. The repository is identified by the
@@ -117,16 +155,28 @@ makedocs(
 
 The single-argument constructor assumes that the user and repository parts are separated by
 a slash (e.g. `JuliaDocs/Documenter.jl`).
+
+A `host` can be provided to point to the location of the self-hosted GitHub installation.
 """
 struct GitHub <: Remote
     user::String
     repo::String
+    host::String
+
+    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = github_host()) = new(user, repo, host)
 end
 function GitHub(remote::AbstractString)
-    user, repo = split(remote, '/')
-    return GitHub(user, repo)
+    url_authority, url_path = parse_url(remote)
+    path = url_path[1] == '/' ? url_path[2:end] : url_path
+
+    if occursin("/", path)
+        user, repo = split(path, "/")
+        return GitHub(user, repo, url_authority)
+    else
+        return GitHub(url_authority, path)
+    end
 end
-repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
+repourl(remote::GitHub) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)
     url = "$(repourl(remote))/blob/$(ref)/$(filename)"
     isnothing(linerange) && return url

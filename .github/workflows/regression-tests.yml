@@ -35,7 +35,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Test
         shell: julia --color=yes {0}
         run: |
@@ -58,7 +58,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: install-and-build-documentation
         shell: julia --color=yes {0}
         run: |
@@ -87,37 +87,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: TeX-Live/setup-texlive-action@v3
-        with:
-          packages: |
-            scheme-medium
-            afterpage
-            adjustbox
-            amsmath
-            amssymb
-            everypage
-            fontspec
-            booktabs
-            graphicx
-            hyperref
-            minted
-            newunicodechar
-            polyglossia
-            tabulary
-            tcolorbox
-            xcolor
-            anyfontsize
-            background
-            geometry
+      - name: "Install LaTeX dependencies"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            latexmk \
+            python3-pygments \
+            texlive-fonts-recommended \
+            texlive-lang-other \
+            texlive-latex-extra \
+            texlive-luatex \
+            texlive-plain-generic
       - uses: julia-actions/setup-julia@v2
         with:
           version: 'nightly'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: "Regressions test"
         env:
           DOCUMENTER_LATEX_SHOW_LOGS: 1
         run: julia ./.github/scripts/julia-manual-regression-test.jl .
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: "regression-tests-julia-manual"
           path: julia/doc/_build/html
