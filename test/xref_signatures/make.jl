@@ -7,6 +7,8 @@ using Test
 using Documenter
 using IOCapture
 
+include("../TestUtilities.jl"); using Main.TestUtilities
+
 module XRefSignaturesContent
     """
         g
@@ -65,10 +67,7 @@ end
         ),
     )
 
-    captured = IOCapture.capture() do
-        makedocs(; kwargs...)
-    end
-    @test isnothing(captured.value)
+    @quietly makedocs(; kwargs...)
 
     index_html = joinpath(dirname(@__FILE__), "build", "index.html")
     @test isfile(index_html)
