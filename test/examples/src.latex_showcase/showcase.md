@@ -485,7 +485,7 @@ Here we link to the heading [Cross-references](@ref).
 
 We can also link to other pages, such as: [An index of docstrings](@ref).
 
-Then there are link to docstrings: [`Foo.bar`](@ref), [`foobar`](@ref `Foo.bar`), [foobar](@ref `Foo.bar`).
+Then there are link to docstrings: [`Foo.bar`](@ref), [`foobar`](@ref Foo.bar), [foobar](@ref Foo.bar).
 
 And issue references: [#1245](@ref)
 
