@@ -692,10 +692,10 @@ While they won't automatically reference one another, such referencing can be ad
 
 It is possible to customize Documenter to use other systems then the ones described in
 the sections above. This is done by passing a configuration
-(a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs` by the `deploy_config`
-keyword argument. Documenter supports [`Travis`](@ref Documenter.Travis),
-[`GitHubActions`](@ref Documenter.GitHubActions), [`GitLab`](@ref Documenter.GitLab), and
-[`Buildkite`](@ref Documenter.Buildkite) natively, but it is easy to define your own by
+(a [`DeployConfig`](@ref `Documenter.DeployConfig`)) to `deploydocs` by the `deploy_config`
+keyword argument. Documenter supports [`Travis`](@ref `Documenter.Travis`),
+[`GitHubActions`](@ref `Documenter.GitHubActions`), [`GitLab`](@ref `Documenter.GitLab`), and
+[`Buildkite`](@ref `Documenter.Buildkite`) natively, but it is easy to define your own by
 following the simple interface described below.
 
 ```@docs

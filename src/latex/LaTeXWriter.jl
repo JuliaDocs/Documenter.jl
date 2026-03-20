@@ -4,7 +4,7 @@ A module for rendering `Document` objects to LaTeX and PDF.
 # Keywords
 
 [`LaTeXWriter`](@ref) uses the following additional keyword arguments that can be passed to
-[`makedocs`](@ref Documenter.makedocs): `authors`, `sitename`.
+[`makedocs`](@ref `Documenter.makedocs`): `authors`, `sitename`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 navigation menu. It goes into the `\\title` LaTeX command.
@@ -20,7 +20,7 @@ using MarkdownAST: MarkdownAST, Node
     Documenter.LaTeX(; kwargs...)
 
 Output format specifier that results in LaTeX/PDF output.
-Used together with [`makedocs`](@ref Documenter.makedocs), e.g.
+Used together with [`makedocs`](@ref `Documenter.makedocs`), e.g.
 
 ```julia
 makedocs(

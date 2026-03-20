@@ -287,7 +287,7 @@ the `node`, `meta`, `page`, and `doc` arguments, it also passes a `slug` to the 
 that any pipeline step can use to easily resolve the link target. This `slug` is obtained as
 follows:
 
-- For, e.g, ```[`Documenter.makedocs`](@ref)``` or `[text](@ref Documenter.makedocs)`, the
+- For, e.g, ```[`Documenter.makedocs`](@ref)``` or ```[text](@ref `Documenter.makedocs`)```, the
   `slug` is `"Documenter.makedocs"`
 - For, e.g, ```[Hosting Documentation](@ref)``` or `[text](@ref "Hosting Documentation")`,
   the `slug` is sluggified version of the given section title, `"Hosting-Documentation"` in

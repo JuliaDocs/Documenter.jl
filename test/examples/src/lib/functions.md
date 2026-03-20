@@ -217,6 +217,6 @@ A footnote reference [^footnote].
 # Named docstring `@ref`s
 
   * a normal docstring `@ref` link: [`AutoDocs.Pages.f`](@ref);
-  * a named docstring `@ref` link: [`f`](@ref AutoDocs.Pages.f);
-  * and a link with custom text: [`@eval 1 + 2`](@ref @eval);
+  * a named docstring `@ref` link: [`f`](@ref `AutoDocs.Pages.f`);
+  * and a link with custom text: [`@eval 1 + 2`](@ref `@eval`);
   * some invalid syntax: [`while i < 10; ...`](@ref while).

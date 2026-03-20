@@ -324,7 +324,7 @@ page. Currently recognized keys:
 - `Description`: a page-specific description that gets displayed in search engines and
   link previews. Overrides the site-wide description in [`makedocs`](@ref).
 - `Draft`: boolean for overriding the global draft mode for the page.
-- `CollapsedDocStrings`: for output formats that support this (i.e. only [`HTML`](@ref Documenter.HTML) currently), if set to `true`, render all docstrings as collapsed by default.
+- `CollapsedDocStrings`: for output formats that support this (i.e. only [`HTML`](@ref `Documenter.HTML`) currently), if set to `true`, render all docstrings as collapsed by default.
 - `ShareDefaultModule`: If set to `true`, all unnamed `@example`, `@repl` and `@setup` blocks share the same evaluation sandbox module, which is useful for writing tutorial-like documents.
   When `false` (default), unnamed blocks will each have a separate sandbox module where the code gets evaluated.
   In either case, named blocks always have their own sandbox module, shared by the blocks with the same name.
