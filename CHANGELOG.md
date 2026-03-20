@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* During cross-referencing `find_object` correctly locates the `Documenter.Object` associated with `UnionAll` method signatures. ([#2836]. [#2889])
+* During cross-referencing `find_object` correctly locates the `Documenter.Object` associated with `UnionAll` method signatures. ([#2836], [#2889])
 * Fixed rendering of operator docstring bindings such as `Base.:(:)` and `Base.:(==)` in doc headers and indices. ([#2844])
 
 ## Version [v1.16.1] - 2025-11-21
