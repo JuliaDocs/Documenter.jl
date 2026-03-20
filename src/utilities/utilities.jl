@@ -707,9 +707,6 @@ function parse_codelang(expected_lang::String, block::MarkdownAST.CodeBlock, doc
             ```
             """
         )
-        # TODO: should this lead to an hard error? or should it just
-        # report the problem but go on??
-        #error("invalid $(expected_lang) syntax: $(block.info)")
         return false, nothing, nothing
     elseif res[1] != expected_lang
         # this case really shouldn't be possible if the caller did not screw up
@@ -787,9 +784,6 @@ function parse_kwargs(lang::String, kwargs_str::AbstractString, block::MarkdownA
         # leave this to the caller who is in a better position
         # to decided whether doing so is appropriate, and if so,
         # in which context.
-        # TODO: or maybe we *should* evaluate? but then we need to
-        # take a `sandbox` as argument:
-        #d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
     end
 
     return d
