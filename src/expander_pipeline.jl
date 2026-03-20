@@ -742,11 +742,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     source = Documenter.locrepr(doc, page, lines)
 
     # parse codelang first, even in draft mode, to catch syntax errors
-    success, name, d = parse_codeblock_args(
-        "@eval", x, doc, source;
-        allow_name = true,
-        allowed_kwargs = Symbol[],
-    )
+    success, name, d = parse_codeblock_args("@eval", x, doc, source)
     success || return
 
     # Bail early if in draft mode
@@ -873,7 +869,6 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     # parse codelang first, even in draft mode, to catch syntax errors
     success, name, d = parse_codeblock_args(
         "@example", x, doc, source;
-        allow_name = true,
         allowed_kwargs = [:continued, :ansicolor],
         bool_kwargs = [:continued, :ansicolor],
     )
@@ -983,7 +978,6 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
 
     success, name, d = parse_codeblock_args(
         "@repl", x, doc, source;
-        allow_name = true,
         allowed_kwargs = [:ansicolor],
         bool_kwargs = [:ansicolor],
     )
@@ -1062,11 +1056,7 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     source = Documenter.locrepr(doc, page, lines)
 
     # parse codelang first, even in draft mode, to catch syntax errors
-    success, name, d = parse_codeblock_args(
-        "@setup", x, doc, source;
-        allow_name = true,
-        allowed_kwargs = Symbol[],
-    )
+    success, name, d = parse_codeblock_args("@setup", x, doc, source)
     success || return
     if name === nothing
         @warn "In $source: `@setup` block requires a name."
@@ -1112,11 +1102,7 @@ function Selectors.runner(::Type{Expanders.RawBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     source = Documenter.locrepr(doc, page, lines)
 
-    success, name, d = parse_codeblock_args(
-        "@raw", x, doc, source;
-        allow_name = true,
-        allowed_kwargs = Symbol[],
-    )
+    success, name, d = parse_codeblock_args("@raw", x, doc, source)
     success || return
     name === nothing && error("invalid '@raw <name>' syntax: $(x.info)")
     node.element = Documenter.RawNode(Symbol(name), x.code)

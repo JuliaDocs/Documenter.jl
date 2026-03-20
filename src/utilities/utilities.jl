@@ -792,8 +792,8 @@ end
 function validate_codeblock_args(
         lang::String, name, kwargs::Dict{Symbol, Any}, source;
         allow_name::Bool = true,
-        allowed_kwargs = Symbol[],
-        bool_kwargs = Symbol[],
+        allowed_kwargs::Vector{Symbol} = Symbol[],
+        bool_kwargs::Vector{Symbol} = Symbol[],
     )
     if !allow_name && name !== nothing
         @warn "In $source: `$lang` block does not support a name; ignoring `$(name)`."
@@ -819,8 +819,8 @@ end
 function parse_codeblock_args(
         lang::String, block::MarkdownAST.CodeBlock, doc, source;
         allow_name::Bool = true,
-        allowed_kwargs = Symbol[],
-        bool_kwargs = Symbol[],
+        allowed_kwargs::Vector{Symbol} = Symbol[],
+        bool_kwargs::Vector{Symbol} = Symbol[],
     )
     success, name, kwargs_str = parse_codelang(lang, block, doc, source)
     success || return false, nothing, nothing
