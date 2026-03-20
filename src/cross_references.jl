@@ -232,10 +232,11 @@ function xref_unresolved(node)
         occursin(XREF_REGEX, node.element.destination)
 end
 
+
 function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
     xref_unresolved(node) || return false
     return classifyxref(node, doc.internal.headers).kind ∈ (
-        :implicit_header, :explicit_header_title, :explicit_header_id
+        :implicit_header, :explicit_header_title, :explicit_header_id,
     )
 end
 
@@ -413,23 +414,23 @@ const DASHED_XREF_ID_REGEX = r"^[^-]+(?:-[^-]+)+$"
 function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     headers = doc.internal.headers
-    if anchor_exists(headers, slug)
-        # Add the link to list of local uncheck links.
-        doc.internal.locallinks[node.element] = node.element.destination
-        # Error checking: `slug` should exist and be unique.
-        # TODO: handle non-unique slugs.
-        if anchor_isunique(headers, slug)
-            # Replace the `@ref` url with a path to the referenced header.
-            anchor = Documenter.anchor(headers, slug)
-            pagekey = relpath(anchor.file, doc.user.build)
-            page = doc.blueprint.pages[pagekey]
-            node.element = Documenter.PageLink(page, anchor_label(anchor))
-        else
-            push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).")
-        end
-    else
+    if !anchor_exists(headers, slug)
         push!(errors, "Header with slug '$slug' in $(Documenter.locrepr(doc, page)) does not exist.")
     end
+    # Add the link to list of local uncheck links.
+    doc.internal.locallinks[node.element] = node.element.destination
+    # Error checking: `slug` should exist and be unique.
+    # TODO: handle non-unique slugs.
+    if anchor_isunique(headers, slug)
+        # Replace the `@ref` url with a path to the referenced header.
+        anchor = Documenter.anchor(headers, slug)
+        pagekey = relpath(anchor.file, doc.user.build)
+        page = doc.blueprint.pages[pagekey]
+        node.element = Documenter.PageLink(page, anchor_label(anchor))
+    else
+        push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(doc, page)).")
+    end
+    return
 end
 
 # Cross referencing docstrings.

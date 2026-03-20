@@ -53,21 +53,25 @@ end
         makedocs(; kwargs...)
     end
 
-    output = replace(captured.output,
-                     "\\src\\index" => "/src/index",
-                     "\\src\\page" => "/src/page",
-                     "test/docsxref/src/index" => "docsxref/src/index",
-                     "test/docsxref/src/page" => "docsxref/src/page")
+    output = replace(
+        captured.output,
+        "\\src\\index" => "/src/index",
+        "\\src\\page" => "/src/page",
+        "test/docsxref/src/index" => "docsxref/src/index",
+        "test/docsxref/src/page" => "docsxref/src/page"
+    )
 
     @test isnothing(captured.value)
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[`AbstractSelector`](@ref)" in docsxref/src/index.md.
         │ - No docstring found in doc for binding `Main.DocsReferencingMain.AbstractSelector`.
         │ - Fallback resolution in Main for `AbstractSelector` -> `Documenter.Selectors.AbstractSelector` is only allowed for fully qualified names
         """
     )
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[`DocsReferencingMain.f`](@ref)" in docsxref/src/page.md.
         │ - Exception trying to find docref for `DocsReferencingMain.f`: unable to get the binding for `DocsReferencingMain.f` in module Documenter.Selectors
@@ -75,57 +79,66 @@ end
         """
     )
 
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[header](@ref)" in docsxref/src/index.md.
         │ - Header with slug 'header' in docsxref/src/index.md does not exist.
         """
     )
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[header link](@ref \\\"header\\\")" in docsxref/src/index.md.
         │ - Header with slug 'header' in docsxref/src/index.md does not exist.
         """
     )
 
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[Multiple words](@ref)" in docsxref/src/index.md.
         │ - Header with slug 'Multiple-words' in docsxref/src/index.md does not exist.
         """
     )
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[header link](@ref \\\"Multiple words\\\")" in docsxref/src/index.md.
         │ - Header with slug 'Multiple-words' in docsxref/src/index.md does not exist.
         """
     )
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[header id link](@ref missing-header-id)" in docsxref/src/index.md.
         │ - Header with slug 'missing-header-id' in docsxref/src/index.md does not exist.
         """
     )
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[dashed header id link](@ref missing-header-id-with-dashes)" in docsxref/src/index.md.
         │ - Header with slug 'missing-header-id-with-dashes' in docsxref/src/index.md does not exist.
         """
     )
 
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[`foobar`](@ref)" in docsxref/src/index.md.
         │ - No docstring found in doc for binding `Main.foobar`.
         """
     )
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[docstring link](@ref Main.foobar)" in docsxref/src/index.md.
         │ - No docstring found in doc for binding `Main.foobar`.
         """
     )
-    @test contains(output,
+    @test contains(
+        output,
         """
         ┌ Warning: Cannot resolve @ref for md"[docstring code link](@ref `Main.foobar`)" in docsxref/src/index.md.
         │ - No docstring found in doc for binding `Main.foobar`.
