@@ -232,7 +232,7 @@ It is also possible to override the destination of an `@ref`-link by adding the 
 label to the link, such as a docstring reference or a page heading.
 
 ```markdown
-Both of the following references point to `g` found in module `Main.Other`:
+All three of the following references point to `g` found in module `Main.Other`:
 
 * [`Main.Other.g`](@ref)
 * [the `g` function](@ref `Main.Other.g`)
