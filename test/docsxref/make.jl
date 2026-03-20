@@ -53,13 +53,11 @@ end
         makedocs(; kwargs...)
     end
 
-    output = replace(
-        captured.output,
-        "\\src\\index" => "/src/index",
-        "\\src\\page" => "/src/page",
-        "test/docsxref/src/index" => "docsxref/src/index",
-        "test/docsxref/src/page" => "docsxref/src/page"
-    )
+    output = captured.output
+    output = replace(output, "\\src\\index" => "/src/index")
+    output = replace(output, "\\src\\page" => "/src/page")
+    output = replace(output, "test/docsxref/src/index" => "docsxref/src/index")
+    output = replace(output, "test/docsxref/src/page" => "docsxref/src/page")
 
     @test isnothing(captured.value)
     @test contains(
