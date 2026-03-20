@@ -55,7 +55,9 @@ end
 
     output = replace(captured.output,
                      "\\src\\index" => "/src/index",
-                     "\\src\\page" => "/src/page")
+                     "\\src\\page" => "/src/page",
+                     "test/docsxref/src/index" => "docsxref/src/index",
+                     "test/docsxref/src/page" => "docsxref/src/page")
 
     @test isnothing(captured.value)
     @test contains(output,
@@ -98,6 +100,18 @@ end
         │ - Header with slug 'Multiple-words' in docsxref/src/index.md does not exist.
         """
     )
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[header id link](@ref missing-header-id)" in docsxref/src/index.md.
+        │ - Header with slug 'missing-header-id' in docsxref/src/index.md does not exist.
+        """
+    )
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[dashed header id link](@ref missing-header-id-with-dashes)" in docsxref/src/index.md.
+        │ - Header with slug 'missing-header-id-with-dashes' in docsxref/src/index.md does not exist.
+        """
+    )
 
     @test contains(output,
         """
@@ -108,6 +122,12 @@ end
     @test contains(output,
         """
         ┌ Warning: Cannot resolve @ref for md"[docstring link](@ref Main.foobar)" in docsxref/src/index.md.
+        │ - No docstring found in doc for binding `Main.foobar`.
+        """
+    )
+    @test contains(output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[docstring code link](@ref `Main.foobar`)" in docsxref/src/index.md.
         │ - No docstring found in doc for binding `Main.foobar`.
         """
     )
@@ -125,10 +145,14 @@ end
         @test contains(html, "<a href=\"index.html#API\">header link</a>")
         @test contains(html, "<a href=\"index.html#Two-words\">Two words</a>")
         @test contains(html, "<a href=\"index.html#Two-words\">header link</a>")
+        @test contains(html, "<a href=\"index.html#api-reference\">header id link</a>")
         @test contains(html, "<a href=\"https://github.com/JuliaDocs/Documenter.jl/issues/12345\">#12345</a>")
         @test contains(html, "<a href=\"https://github.com/JuliaDocs/Documenter.jl/issues/12345\">issue link</a>")
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\"><code>DocsReferencingMain.g</code></a>")
-        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\">docstring link</a>")
+        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.f\">docstring link</a>")
+        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\">docstring code link</a>")
+        @test contains(html, "<a href=\"index.html#DocsReferencingMain.g\">conflict link</a>")
+        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\">conflict docs link</a>")
     end
     page_html = joinpath(dirname(@__FILE__), "build", "page.html")
     @test isfile(page_html)

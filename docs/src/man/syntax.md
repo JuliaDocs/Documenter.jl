@@ -201,6 +201,15 @@ makedocs
 ... [#42](@ref) ...
 ````
 
+The reference target is classified from the link syntax:
+
+| Reference type | Implicit form | Explicit form |
+| --- | --- | --- |
+| Header by title | `[Header name](@ref)` | `[link](@ref "Header name")` |
+| Header by `@id` | n/a | `[link](@ref header-id)` |
+| Issue/PR | `[#42](@ref)` | `[link](@ref #42)` |
+| Docstring | ``[`Example.domath`](@ref)`` | ``[link](@ref `Example.domath`)`` |
+
 Plain text in the "text" part of a link will either cross-reference a header, or, when it is
 a number preceded by a `#`, a GitHub issue/pull request. Text wrapped in backticks will
 cross-reference a docstring from a `@docs` or `@autodocs` block.
@@ -210,7 +219,7 @@ The code enclosed in the backticks for such a reference will be evaluated in the
 `@ref` links inside a docstring, the `CurrentModule` is automatically set to the module
 containing the docstring.
 
-A reference that is a fully qualified name (e.g. ```[`Example.domath`](@ref)``` or `[domath](@ref Example.domath)`) will also be resolved in `Main`.
+A reference that is a fully qualified name (e.g. ```[`Example.domath`](@ref)```, ``[domath](@ref `Example.domath`)``, or `[domath](@ref Example.domath)`) will also be resolved in `Main`.
 That is, loading a package in `docs/make.jl` ensures that fully qualified `@ref` links work from anywhere.
 
 The `@ref` links may refer to docstrings or headers on different pages as well as the
@@ -226,6 +235,7 @@ label to the link, such as a docstring reference or a page heading.
 Both of the following references point to `g` found in module `Main.Other`:
 
 * [`Main.Other.g`](@ref)
+* [the `g` function](@ref `Main.Other.g`)
 * [the `g` function](@ref Main.Other.g)
 
 Both of the following point to the heading "On Something":
@@ -248,6 +258,13 @@ Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
     cases, make it difficult to tell *which* function is being referred to in a particular
     docstring if there happen to be several modules that provide definitions with the same
     name.
+
+!!! note "Compatibility"
+
+    The explicit unquoted docstring form `[text](@ref Example.domath)` remains supported for
+    backward compatibility. However, header references still take precedence, including
+    labels introduced with [`@id`](@ref at-ref-at-id-links), so the explicit backticked form
+    is less ambiguous.
 
 ### Duplicate Headers
 
