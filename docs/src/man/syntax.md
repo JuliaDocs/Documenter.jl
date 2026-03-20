@@ -219,7 +219,7 @@ The code enclosed in the backticks for such a reference will be evaluated in the
 `@ref` links inside a docstring, the `CurrentModule` is automatically set to the module
 containing the docstring.
 
-A reference that is a fully qualified name (e.g. ```[`Example.domath`](@ref)```, ``[domath](@ref `Example.domath`)``, or `[domath](@ref Example.domath)`) will also be resolved in `Main`.
+A reference that is a fully qualified name (e.g. ```[`Example.domath`](@ref)```, ```[domath](@ref `Example.domath`)```, or `[domath](@ref Example.domath)`) will also be resolved in `Main`.
 That is, loading a package in `docs/make.jl` ensures that fully qualified `@ref` links work from anywhere.
 
 The `@ref` links may refer to docstrings or headers on different pages as well as the
