@@ -10,7 +10,7 @@ using URIs: URI
 Abstract supertype for implementing additional remote repositories that Documenter can use
 when generating links to files hosted on Git hosting service (such as GitHub, GitLab etc).
 For custom or less common Git hosting services, the user can create their own `Remote`
-subtype and pass that as the `repo` argument to [`makedocs`](@ref Main.Documenter.makedocs).
+subtype and pass that as the `repo` argument to [`makedocs`](@ref `Main.Documenter.makedocs`).
 
 When implementing a new type `T <: Remote`, the following functions must be extended for
 that type:

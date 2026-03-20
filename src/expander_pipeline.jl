@@ -136,15 +136,15 @@ module Expanders
     abstract type ExpanderPipeline <: Selectors.AbstractSelector end
 
     """
-    The subset of [node expanders](@ref ExpanderPipeline) which also apply in nested contexts.
+    The subset of [node expanders](@ref `ExpanderPipeline`) which also apply in nested contexts.
 
-    See also [`expand_recursively`](@ref Documenter.expand_recursively).
+    See also [`expand_recursively`](@ref `Documenter.expand_recursively`).
     """
     abstract type NestedExpanderPipeline <: ExpanderPipeline end
 
     """
     Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
-    [`Anchor`](@ref Documenter.Anchor) object for each one.
+    [`Anchor`](@ref `Documenter.Anchor`) object for each one.
     """
     abstract type TrackHeaders <: ExpanderPipeline end
 

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed headers hidden by the navbar. ([#2905])
+* Tightened `@ref` classification so references are matched more consistently by syntax, with header labels still taking precedence over docstrings and mistaken header/id references less likely to resolve as docstrings. ([#2678])
 
 ## Version [v1.17.0] - 2026-02-20
 

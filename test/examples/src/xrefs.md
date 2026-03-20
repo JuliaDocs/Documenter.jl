@@ -9,6 +9,7 @@ Named x-refs:
 
 * [X-ref target with an ID](@ref xreftarget)
 * [docstring target](@ref Mod.func)
+* [docstring target via backticks](@ref `Mod.func`)
 * [string target](@ref "X-ref target")
 
 ## X-ref target
