@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added a `show_log` keyword for `Documenter.LaTeX` to print LaTeX compiler logs to stdout when PDF compilation fails, and support for forcing this via `DOCUMENTER_LATEX_SHOW_LOGS` in CI environments. ([#1697])
 * Added support for new features of the Markdown stdlib introduced in Julia 1.14, namely strike through, HTML blocks and inline HTML (this requires Julia 1.14+ and `MarkdownAST` 0.1.3).
 
+### Fixed
+
+* Added error handling for `@example` block result display to avoid crashing when `display_dict` fails. ([#2876])
+
 ### Changed
 
 * reduced time complexity from O(n^2) to O(n) to improve the initial load time for search ([#2875])
