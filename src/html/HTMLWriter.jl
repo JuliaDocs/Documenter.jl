@@ -2540,7 +2540,7 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
     # Parse the admonition title as inline Markdown so that e.g. `code` renders correctly.
     # Markdown.parse results in a paragraph, so we strip that wrapper (same as pagetitle()).
     title_nodes = if isempty(a.title)
-        [a.title]
+        Node[]
     else
         title_md = Markdown.parse(a.title)
         title_ast = convert(Node, title_md)
