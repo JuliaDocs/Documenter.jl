@@ -657,6 +657,186 @@ function codelang(infostring::AbstractString)
     return m[1]
 end
 
+"""
+    parse_codelang(block::MarkdownAST.CodeBlock)
+
+Parse the "codelang" part of code blocks, that is, the `info` field
+of a `MarkdownAST.CodeBlock`.
+
+Returns either `nothing` (indicating a parsing error), or else a tuple
+`(lang, name, kwargs)` where `lang` is a string, and both `name` and `kwargs`
+are either `nothing` or a `String`.
+
+# Examples
+
+```jldoctest; setup = :(using Documenter, MarkdownAST)
+julia> Documenter.parse_codelang(MarkdownAST.CodeBlock("jldoctest", "julia> 1+1"))
+("jldoctest", nothing, nothing)
+
+julia> Documenter.parse_codelang(MarkdownAST.CodeBlock("@eval name", "julia> 1+1"))
+("@eval", "name", nothing)
+
+julia> Documenter.parse_codelang(MarkdownAST.CodeBlock("@example name; key1 = value1, key2 = value2", "julia> 1+1"))
+("@example", "name", "key1 = value1, key2 = value2")
+```
+"""
+function parse_codelang(block::MarkdownAST.CodeBlock)
+    re = r"^([^\s;]+)(?:\s+([^\s;]+))?\s*(;\s*(.*))?$"
+    matched = match(re, block.info)
+    matched === nothing && return nothing
+    lang, name, _, kwargs_str = matched.captures
+
+    # Reject a bare trailing `;` so `@lang;` is treated as invalid syntax instead
+    # of silently behaving like an empty keyword argument list.
+    kwargs_str !== nothing && isempty(strip(kwargs_str)) && return nothing
+
+    return lang, name, kwargs_str
+end
+
+function parse_codelang(expected_lang::String, block::MarkdownAST.CodeBlock, doc, source)
+    res = parse_codelang(block)
+    if res === nothing
+        @docerror(
+            doc, :parse_error,
+            """
+            invalid syntax for fenced code block in $(source)
+            Use `$(expected_lang) name; key1 = value1, key2 = value2`
+
+            ```$(block.info)
+            $(block.code)
+            ```
+            """
+        )
+        return false, nothing, nothing
+    elseif res[1] != expected_lang
+        # this case really shouldn't be possible if the caller did not screw up
+        error("internal error: expected $(expected_lang) code block in $(source)")
+    end
+    return true, res[2], res[3]
+end
+
+
+function parse_kwargs(lang::String, kwargs_str::Nothing, block::MarkdownAST.CodeBlock, doc, source)
+    return Dict{Symbol, Any}()
+end
+
+function parse_kwargs(lang::String, kwargs_str::AbstractString, block::MarkdownAST.CodeBlock, doc, source)
+    # parse keyword arguments
+    kwargs = try
+        Meta.parse("f(; $(kwargs_str))")
+    catch e
+        e isa Meta.ParseError || rethrow(e)
+        @docerror(
+            doc, :parse_error,
+            """
+            Unable to parse $(lang) keyword arguments in $(source)
+            Use `$(lang) name; key1 = value1, key2 = value2`
+
+            ```$(block.info)
+            $(block.code)
+            ```
+            """, parse_error = e
+        )
+        return nothing
+    end
+
+    # Parse as a synthetic function call to ensure comma-separated keywords are
+    # represented unambiguously as `Expr(:kw, ...)` entries.
+    if !(
+            isa(kwargs, Expr) &&
+                kwargs.head === :call &&
+                length(kwargs.args) == 2 &&
+                isa(kwargs.args[2], Expr) &&
+                kwargs.args[2].head === :parameters
+        )
+        @docerror(
+            doc, :parse_error,
+            """
+            invalid syntax for $(lang) keyword arguments in $(source)
+            Use ```$(lang) name; key1 = value1, key2 = value2
+
+            ```$(block.info)
+            $(block.code)
+            ```
+            """
+        )
+        return nothing
+    end
+
+    d = Dict{Symbol, Any}()
+    for kwarg in kwargs.args[2].args
+        if !(isa(kwarg, Expr) && kwarg.head === :kw && isa(kwarg.args[1], Symbol))
+            @docerror(
+                doc, :parse_error,
+                """
+                invalid syntax for $(lang) keyword arguments in $(source)
+                Use ```$(lang) name; key1 = value1, key2 = value2
+
+                ```$(block.info)
+                $(block.code)
+                ```
+                """
+            )
+            return nothing
+        end
+        d[kwarg.args[1]] = kwarg.args[2]
+        # We don't attempt to evaluate the values here, and
+        # leave this to the caller who is in a better position
+        # to decided whether doing so is appropriate, and if so,
+        # in which context.
+    end
+
+    return d
+end
+
+function validate_codeblock_args(
+        lang::String, name, kwargs::Dict{Symbol, Any}, source;
+        allow_name::Bool = true,
+        allowed_kwargs::Vector{Symbol} = Symbol[],
+        bool_kwargs::Vector{Symbol} = Symbol[],
+    )
+    if !allow_name && name !== nothing
+        @warn "In $source: `$lang` block does not support a name; ignoring `$(name)`."
+        name = nothing
+    end
+
+    filtered = Dict{Symbol, Any}()
+    for (k, v) in kwargs
+        if !(k in allowed_kwargs)
+            @warn "In $source: `$lang` block has an unsupported keyword argument: $(k)"
+            continue
+        end
+        if (k in bool_kwargs) && !isa(v, Bool)
+            vrepr = v isa QuoteNode ? repr(v.value) : repr(v)
+            @warn "In $source: `$lang` block keyword argument `$(k)` must be `true` or `false`; ignoring $(vrepr)"
+            continue
+        end
+        filtered[k] = v
+    end
+    return name, filtered
+end
+
+function parse_codeblock_args(
+        lang::String, block::MarkdownAST.CodeBlock, doc, source;
+        allow_name::Bool = true,
+        allowed_kwargs::Vector{Symbol} = Symbol[],
+        bool_kwargs::Vector{Symbol} = Symbol[],
+    )
+    success, name, kwargs_str = parse_codelang(lang, block, doc, source)
+    success || return false, nothing, nothing
+
+    kwargs = parse_kwargs(lang, kwargs_str, block, doc, source)
+    kwargs === nothing && return false, nothing, nothing
+
+    name, kwargs = validate_codeblock_args(
+        lang, name, kwargs, source;
+        allow_name = allow_name,
+        allowed_kwargs = allowed_kwargs,
+        bool_kwargs = bool_kwargs,
+    )
+    return true, name, kwargs
+end
+
 function get_sandbox_module!(meta, prefix, name = nothing; share_default_module = false)
     sym = if name === nothing || isempty(name)
         if share_default_module
