@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+* Fix HTML entities (e.g. `&harr;`) not being decoded in search index, causing incorrect search matches. ([#2428])
+
 ### Added
 
 * Support self-hosted GitHub instances. ([#2755])

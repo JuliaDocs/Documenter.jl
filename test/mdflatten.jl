@@ -95,6 +95,14 @@ struct UnsupportedElement <: MarkdownAST.AbstractElement end
 
     @test mdflatten([@ast("x"), @ast("y"), @ast("z")]) == "xyz"
     @test_throws Exception mdflatten(@ast(UnsupportedElement()))
+    # HTML entity decoding
+    @test mdflatten(parse("### &harr; &harr; &harr;")) == "↔ ↔ ↔\n\n"
+    @test mdflatten(parse("### &#8596;")) == "↔\n\n"
+    @test mdflatten(parse("### &#x2194;")) == "↔\n\n"
+    @test mdflatten(parse("a &amp; b")) == "a & b\n\n"
+    @test mdflatten(parse("a &lt;b&gt;")) == "a <b>\n\n"
+    @test mdflatten(parse("&unknown;")) == "&unknown;\n\n"
+    @test mdflatten(parse("!!! note \"&harr; title\"\n    test")) == "note: ↔ title\ntest\n\n"
 end
 
 end

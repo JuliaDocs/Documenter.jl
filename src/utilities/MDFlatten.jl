@@ -8,6 +8,34 @@ for the output (number of newlines, indents, formatting, etc.).
 module MDFlatten
 
 export mdflatten
+# Decode HTML entities in text for use in search index
+function _decode_html_entities(s::AbstractString)
+    # Numeric decimal: &#8596; → ↔
+    s = replace(s, r"&#(\d+);" => m -> string(Char(parse(Int, m[3:end-1]))))
+    # Numeric hex: &#x2194; → ↔
+    s = replace(s, r"&#x([0-9a-fA-F]+);" => m -> string(Char(parse(Int, m[4:end-1], base=16))))
+    # Common named entities
+    s = replace(s,
+        "&amp;"    => "&",
+        "&lt;"     => "<",
+        "&gt;"     => ">",
+        "&quot;"   => "\"",
+        "&apos;"   => "'",
+        "&nbsp;"   => " ",
+        "&harr;"   => "↔",
+        "&larr;"   => "←",
+        "&rarr;"   => "→",
+        "&uarr;"   => "↑",
+        "&darr;"   => "↓",
+        "&hellip;" => "…",
+        "&mdash;"  => "—",
+        "&ndash;"  => "–",
+        "&times;"  => "×",
+        "&divide;" => "÷",
+    )
+    return s
+end
+
 
 using MarkdownAST: MarkdownAST, Node
 
@@ -69,7 +97,7 @@ function mdflatten(io, node::Node, t::MarkdownAST.Table)
 end
 
 # Inline nodes
-mdflatten(io, node::Node, e::MarkdownAST.Text) = print(io, e.text)
+mdflatten(io, node::Node, e::MarkdownAST.Text) = print(io, _decode_html_entities(e.text))
 function mdflatten(io, node::Node, e::MarkdownAST.Image)
     print(io, "(Image: ")
     mdflatten(io, node.children)
@@ -97,7 +125,7 @@ function mdflatten(io, node::Node, f::MarkdownAST.FootnoteDefinition)
 end
 
 function mdflatten(io, node::Node, a::MarkdownAST.Admonition)
-    println(io, "$(a.category): $(a.title)")
+    println(io, "$(a.category): $(_decode_html_entities(a.title))")
     return mdflatten(io, node.children)
 end
 
