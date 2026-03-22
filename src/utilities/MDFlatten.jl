@@ -11,28 +11,20 @@ export mdflatten
 # Decode HTML entities in text for use in search index
 function _decode_html_entities(s::AbstractString)
     # Numeric decimal: &#8596; → ↔
-    s = replace(s, r"&#(\d+);" => m -> string(Char(parse(Int, m[3:end-1]))))
+    s = replace(s, r"&#(\d+);" => m -> string(Char(parse(Int, m[3:(end - 1)]))))
     # Numeric hex: &#x2194; → ↔
-    s = replace(s, r"&#x([0-9a-fA-F]+);" => m -> string(Char(parse(Int, m[4:end-1], base=16))))
+    s = replace(s, r"&#x([0-9a-fA-F]+);" => m -> string(Char(parse(Int, m[4:(end - 1)], base = 16))))
     # Common named entities
-    s = replace(s,
-        "&amp;"    => "&",
-        "&lt;"     => "<",
-        "&gt;"     => ">",
-        "&quot;"   => "\"",
-        "&apos;"   => "'",
-        "&nbsp;"   => " ",
-        "&harr;"   => "↔",
-        "&larr;"   => "←",
-        "&rarr;"   => "→",
-        "&uarr;"   => "↑",
-        "&darr;"   => "↓",
-        "&hellip;" => "…",
-        "&mdash;"  => "—",
-        "&ndash;"  => "–",
-        "&times;"  => "×",
-        "&divide;" => "÷",
-    )
+    for (entity, unicode) in (
+            "&amp;" => "&", "&lt;" => "<", "&gt;" => ">",
+            "&quot;" => "\"", "&apos;" => "'", "&nbsp;" => " ",
+            "&harr;" => "↔", "&larr;" => "←", "&rarr;" => "→",
+            "&uarr;" => "↑", "&darr;" => "↓", "&hellip;" => "…",
+            "&mdash;" => "—", "&ndash;" => "–", "&times;" => "×",
+            "&divide;" => "÷",
+        )
+        s = replace(s, entity => unicode)
+    end
     return s
 end
 
