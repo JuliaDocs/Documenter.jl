@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+* Fix inline Markdown (e.g. backtick code spans) not being rendered in admonition titles. ([#2583])
+
 ### Added
 
 * Support self-hosted GitHub instances. ([#2755])

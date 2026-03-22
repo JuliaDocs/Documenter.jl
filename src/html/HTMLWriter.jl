@@ -2537,14 +2537,23 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
     end
     anchor_link = DOM.Tag(:a)[".admonition-anchor", :href => "#$(admonition_id)", :title => "Permalink"]()
     inner_div = div[".admonition-body"](domify(dctx, node.children))
+    # Parse the admonition title as inline Markdown so that e.g. `code` renders correctly.
+    # Markdown.parse results in a paragraph, so we strip that wrapper (same as pagetitle()).
+    title_nodes = if isempty(a.title)
+        [a.title]
+    else
+        title_md = Markdown.parse(a.title)
+        title_ast = convert(Node, title_md)
+        collect(first(title_ast.children).children)
+    end
     if a.category == "details"
         # details admonitions are rendered as <details><summary> blocks
         return details[".admonition.is-details", :id => admonition_id](
-            summary[".admonition-header"](a.title, anchor_link), inner_div
+            summary[".admonition-header"](domify(dctx, title_nodes)..., anchor_link), inner_div
         )
     else
         return div[".admonition$(colorclass)", :id => admonition_id](
-            header[".admonition-header"](a.title, anchor_link), inner_div
+            header[".admonition-header"](domify(dctx, title_nodes)..., anchor_link), inner_div
         )
     end
 end

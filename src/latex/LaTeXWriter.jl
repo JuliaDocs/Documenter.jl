@@ -651,7 +651,14 @@ function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
     _print(io, "\\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,")
     _print(io, "colback=$(color)!50!white,colframe=$(color),")
     _print(io, "title=\\textbf{")
-    latexesc(io, md.title)
+    # Parse the admonition title as inline Markdown so that e.g. `code` renders correctly.
+    if isempty(md.title)
+        latexesc(io, md.title)
+    else
+        title_md = Markdown.parse(md.title)
+        title_ast = convert(Node, title_md)
+        latex(io, collect(first(title_ast.children).children))
+    end
     _println(io, "}]")
     latex(io, node.children)
     _println(io, "\\end{tcolorbox}")

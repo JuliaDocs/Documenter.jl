@@ -627,6 +627,9 @@ Also in block quotes:
 !!! note "'note' admonition"
     Admonitions look like this. This is a `!!! note`-type admonition.
 
+!!! note "Admonition with `code` in title"
+    This tests that backtick code in admonition titles renders correctly.
+
     Note that admonitions themselves can contain other block-level elements too,
     such as code blocks. E.g.
 
