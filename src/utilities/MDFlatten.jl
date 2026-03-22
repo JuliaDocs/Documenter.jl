@@ -11,9 +11,21 @@ export mdflatten
 # Decode HTML entities in text for use in search index
 function _decode_html_entities(s::AbstractString)
     # Numeric decimal: &#8596; → ↔
-    s = replace(s, r"&#(\d+);" => m -> string(Char(parse(Int, m[3:(end - 1)]))))
+    s = replace(
+        s, r"&#(\d+);" => m -> try
+            string(Char(parse(Int, m[3:(end - 1)])))
+        catch
+            m
+        end
+    )
     # Numeric hex: &#x2194; → ↔
-    s = replace(s, r"&#x([0-9a-fA-F]+);" => m -> string(Char(parse(Int, m[4:(end - 1)], base = 16))))
+    s = replace(
+        s, r"&#x([0-9a-fA-F]+);" => m -> try
+            string(Char(parse(Int, m[4:(end - 1)], base = 16)))
+        catch
+            m
+        end
+    )
     # Common named entities
     for (entity, unicode) in (
             "&amp;" => "&", "&lt;" => "<", "&gt;" => ">",
