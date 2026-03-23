@@ -133,11 +133,6 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
   }
 }
 
-// Offset anchor-scroll targets so the fixed top menu doesn't cover them
-html:has(#documenter.has-top-menu) {
-  scroll-padding-top: var(--topmenu-height, #{$documenter-topmenu-height});
-}
-
 // Adjustments when top menu is present
 #documenter.has-top-menu {
   // Content wrapper to hold sidebar and main content

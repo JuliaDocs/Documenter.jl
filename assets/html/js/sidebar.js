@@ -49,10 +49,10 @@ $(document).ready(function () {
   if (topMenu.length === 0) return;
   var documenter = document.getElementById("documenter");
   function updateTopMenuHeight() {
-    documenter.style.setProperty(
-      "--topmenu-height",
-      topMenu[0].offsetHeight + "px",
-    );
+    var height = topMenu[0].offsetHeight + "px";
+    documenter.style.setProperty("--topmenu-height", height);
+    // Offset anchor-scroll targets so the fixed top menu doesn't cover them
+    document.documentElement.style.scrollPaddingTop = height;
   }
   updateTopMenuHeight();
   $(window).resize(updateTopMenuHeight);
