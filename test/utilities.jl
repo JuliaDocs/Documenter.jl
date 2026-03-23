@@ -1,6 +1,6 @@
 module UtilitiesTests
 using Test
-using Logging: Info
+using Logging: Info, Warn, with_logger
 include("TestUtilities.jl")
 using Main.TestUtilities
 
@@ -618,6 +618,79 @@ end
         @test Documenter.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.codelang("&%^ ***") == "&%^"
+    end
+
+    @testset "parse fenced code block language" begin
+        @test Documenter.parse_codelang(MarkdownAST.CodeBlock("jldoctest", "julia> 1+1")) ==
+            ("jldoctest", nothing, nothing)
+        @test Documenter.parse_codelang(MarkdownAST.CodeBlock("@setup NAME ; arg1=val1, arg2=val2", "")) ==
+            ("@setup", "NAME", "arg1=val1, arg2=val2")
+        @test Documenter.parse_codelang(MarkdownAST.CodeBlock("@eval ; ans = 42", "")) ==
+            ("@eval", nothing, "ans = 42")
+        @test Documenter.parse_codelang(MarkdownAST.CodeBlock(" ; ans = 42", "")) === nothing
+
+        dummy_doc = Documenter.Document(; warnonly = [:parse_error])
+        dummy_block = MarkdownAST.CodeBlock("@setup NAME ; arg1=1", "")
+        @test Documenter.parse_kwargs("@setup", nothing, dummy_block, dummy_doc, "dummy.md") ==
+            Dict{Symbol, Any}()
+        @test Documenter.parse_kwargs(
+            "@setup", "arg1=1, arg2=:sym, arg3=(x + 1)", dummy_block, dummy_doc, "dummy.md"
+        ) == Dict{Symbol, Any}(:arg1 => 1, :arg2 => QuoteNode(:sym), :arg3 => :(x + 1))
+
+        @test Documenter.parse_kwargs("@setup", "arg1 = ", dummy_block, dummy_doc, "dummy.md") === nothing
+        @test :parse_error ∈ dummy_doc.internal.errors
+        empty!(dummy_doc.internal.errors)
+        @test Documenter.parse_kwargs("@setup", "foo.bar = 1", dummy_block, dummy_doc, "dummy.md") === nothing
+        @test :parse_error ∈ dummy_doc.internal.errors
+
+        logger = Test.TestLogger()
+        success, name, kwargs = with_logger(logger) do
+            Documenter.parse_codeblock_args(
+                "@example",
+                MarkdownAST.CodeBlock("@example NAME ; continued = true, ansicolor = false, typo = 1", ""),
+                dummy_doc,
+                "dummy.md";
+                allow_name = true,
+                allowed_kwargs = [:continued, :ansicolor],
+                bool_kwargs = [:continued, :ansicolor],
+            )
+        end
+        @test success
+        @test name == "NAME"
+        @test kwargs == Dict{Symbol, Any}(:continued => true, :ansicolor => false)
+        @test [(log.level, log.message) for log in logger.logs] == [
+            (Warn, "In dummy.md: `@example` block has an unsupported keyword argument: typo"),
+        ]
+    end
+
+    @testset "validate fenced code block arguments" begin
+        name, kwargs = @test_logs (
+            :warn, "In dummy.md: `@docs` block does not support a name; ignoring `NAME`.",
+        ) Documenter.validate_codeblock_args(
+            "@docs", "NAME", Dict{Symbol, Any}(), "dummy.md";
+            allow_name = false,
+            allowed_kwargs = Symbol[],
+        )
+        @test name === nothing
+        @test kwargs == Dict{Symbol, Any}()
+
+        logger = Test.TestLogger()
+        name, kwargs = with_logger(logger) do
+            Documenter.validate_codeblock_args(
+                "@example", "NAME",
+                Dict{Symbol, Any}(:continued => true, :typo => true, :ansicolor => QuoteNode(:blue)),
+                "dummy.md";
+                allow_name = true,
+                allowed_kwargs = [:continued, :ansicolor],
+                bool_kwargs = [:continued, :ansicolor],
+            )
+        end
+        @test [(log.level, log.message) for log in logger.logs] == [
+            (Warn, "In dummy.md: `@example` block has an unsupported keyword argument: typo"),
+            (Warn, "In dummy.md: `@example` block keyword argument `ansicolor` must be `true` or `false`; ignoring :blue"),
+        ]
+        @test name == "NAME"
+        @test kwargs == Dict{Symbol, Any}(:continued => true)
     end
 
     @testset "check_strict_kw" begin

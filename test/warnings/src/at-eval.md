@@ -14,6 +14,11 @@ Syntax errors in blocks should be a `@docerror`, not an exception (issue #2731).
 1 !in 2
 ```
 
+Unsupported keyword arguments should warn and be ignored.
+```@eval named ; typo = true
+nothing
+```
+
 Eval block evaluates to a value with unsupported type (should be `nothing`
 or `Markdown.MD`).
 ```@eval
