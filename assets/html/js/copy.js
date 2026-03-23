@@ -7,20 +7,20 @@ function addCopyButtonCallbacks() {
 
     el.appendChild(button);
 
-    const success = function () {
+    const success = () => {
       button.classList.add("success", "fa-check");
       button.classList.remove("fa-copy");
     };
 
-    const failure = function () {
+    const failure = () => {
       button.classList.add("error", "fa-xmark");
       button.classList.remove("fa-copy");
     };
 
-    button.addEventListener("click", function () {
+    button.addEventListener("click", () => {
       copyToClipboard(el.innerText).then(success, failure);
 
-      setTimeout(function () {
+      setTimeout(() => {
         button.classList.add("fa-copy");
         button.classList.remove("success", "fa-check", "fa-xmark");
       }, 5000);
@@ -30,10 +30,10 @@ function addCopyButtonCallbacks() {
 
 function copyToClipboard(text) {
   // clipboard API is only available in secure contexts
-  if (window.navigator && window.navigator.clipboard) {
+  if (window.navigator?.clipboard) {
     return window.navigator.clipboard.writeText(text);
   } else {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       try {
         const el = document.createElement("textarea");
         el.textContent = text;

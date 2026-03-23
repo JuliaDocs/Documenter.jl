@@ -2,10 +2,10 @@
 // arguments: $
 
 // Manages the showing and hiding of the sidebar.
-$(document).ready(function () {
+$(document).ready(() => {
   var sidebar = $("#documenter > .docs-sidebar");
   var sidebar_button = $("#documenter-sidebar-button");
-  sidebar_button.click(function (ev) {
+  sidebar_button.click((ev) => {
     ev.preventDefault();
     sidebar.toggleClass("visible");
     if (sidebar.hasClass("visible")) {
@@ -13,7 +13,7 @@ $(document).ready(function () {
       $("#documenter .docs-menu a.is-active").focus();
     }
   });
-  $("#documenter > .docs-main").bind("click", function (ev) {
+  $("#documenter > .docs-main").bind("click", (ev) => {
     if ($(ev.target).is(sidebar_button)) {
       return;
     }
@@ -25,7 +25,7 @@ $(document).ready(function () {
 
 // Resizes the package name / sitename in the sidebar if it is too wide.
 // Inspired by: https://github.com/davatron5000/FitText.js
-$(document).ready(function () {
+$(document).ready(() => {
   e = $("#documenter .docs-autofit");
   function resize() {
     var L = parseInt(e.css("max-width"), 10);
@@ -43,7 +43,7 @@ $(document).ready(function () {
 });
 
 // Scroll the navigation bar to the currently selected menu item
-$(document).ready(function () {
+$(document).ready(() => {
   var sidebar = $("#documenter .docs-menu").get(0);
   var active = $("#documenter .docs-menu .is-active").get(0);
   if (typeof active !== "undefined") {

@@ -70,8 +70,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     "https://cdn.jsdelivr.net/npm/minisearch@__MINISEARCH_VERSION__/dist/umd/index.min.js",
   );
 
-  let data = documenterSearchIndex.map((x, key) => {
-    x["id"] = key; // minisearch requires a unique for each object
+  const data = documenterSearchIndex.map((x, key) => {
+    x.id = key; // minisearch requires a unique for each object
     return x;
   });
 
@@ -186,7 +186,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     "your",
   ]);
 
-  let index = new MiniSearch({
+  const index = new MiniSearch({
     fields: ["title", "text"], // fields to index for full-text search
     storeFields: ["location", "title", "text", "category", "page"], // fields to return with results
     processTerm: (term) => {
@@ -207,12 +207,12 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     tokenize: (string) => {
       const tokens = [];
       const tokenSet = new Set();
-      let remaining = string;
+      const remaining = string;
 
       // julia specific patterns
       const patterns = [
         // Module qualified names (e.g., Base.sort, Module.Submodule. function)
-        /\b[A-Za-z0-9_1*(?:\.[A-Z][A-Za-z0-9_1*)*\.[a-z_][A-Za-z0-9_!]*\b/g,
+        /\b[A-Za-z0-9_1*(?:.[A-Z][A-Za-z0-9_1*)*.[a-z_][A-Za-z0-9_!]*\b/g,
         // Macro calls (e.g., @time, @async)
         /@[A-Za-z0-9_]*/g,
         // Type parameters (e.g., Array{T,N}, Vector{Int})
@@ -310,7 +310,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
    * @returns string
    */
   function make_search_result(result, querystring) {
-    let search_divider = `<div class="search-divider w-100"></div>`;
+    const search_divider = `<div class="search-divider w-100"></div>`;
     let display_link =
       result.location.slice(Math.max(0), Math.min(50, result.location.length)) +
       (result.location.length > 30 ? "..." : ""); // To cut-off the link because it messes with the overflow of the whole div
@@ -319,7 +319,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       display_link += ` (${result.page})`;
     }
     searchstring = escapeRegExp(querystring);
-    let textindex = new RegExp(`${searchstring}`, "i").exec(result.text);
+    const textindex = new RegExp(`${searchstring}`, "i").exec(result.text);
     let text =
       textindex !== null
         ? result.text.slice(
@@ -333,7 +333,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
 
     text = text.length ? escape(text) : "";
 
-    let display_result = text.length
+    const display_result = text.length
       ? "..." +
         text.replace(
           new RegExp(`${escape(searchstring)}`, "i"), // For first occurrence
@@ -348,9 +348,9 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     }
 
     // We encode the full url to escape some special characters which can lead to broken links
-    let result_div = `
+    const result_div = `
         <a href="${encodeURI(
-          documenterBaseURL + "/" + result.location,
+          `${documenterBaseURL}/${result.location}`,
         )}" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 px-4 py-2">
           <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-flex-start">
             <div class="search-result-title has-text-weight-bold ${
@@ -380,7 +380,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     const queryLower = query.toLowerCase();
 
     // Tier 1 : Exact title match
-    if (titleLower == queryLower) {
+    if (titleLower === queryLower) {
       return 10000 + result.score;
     }
 
@@ -404,8 +404,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     return result.score;
   }
 
-  self.onmessage = function (e) {
-    let query = e.data;
+  self.onmessage = (e) => {
+    const query = e.data;
     let results = index.search(query, {
       filter: (result) => {
         // Only return relevant results
@@ -425,18 +425,18 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
 
     // Pre-filter to deduplicate and limit to 200 per category to the extent
     // possible without knowing what the filters are.
-    let filtered_results = [];
-    let counts = {};
-    for (let filter of filters) {
+    const filtered_results = [];
+    const counts = {};
+    for (const filter of filters) {
       counts[filter] = 0;
     }
-    let present = {};
+    const present = {};
 
-    for (let result of results) {
+    for (const result of results) {
       cat = result.category;
       cnt = counts[cat];
       if (cnt < 200) {
-        id = cat + "---" + result.location;
+        id = `${cat}---${result.location}`;
         if (present[id]) {
           continue;
         }
@@ -458,13 +458,13 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
 function runSearchMainCode() {
   // `worker = Threads.@spawn worker_function(documenterSearchIndex)`, but in JavaScript!
   const filters = [
-    ...new Set(documenterSearchIndex["docs"].map((x) => x.category)),
+    ...new Set(documenterSearchIndex.docs.map((x) => x.category)),
   ];
   const worker_str =
     "(" +
     worker_function.toString() +
     ")(" +
-    JSON.stringify(documenterSearchIndex["docs"]) +
+    JSON.stringify(documenterSearchIndex.docs) +
     "," +
     JSON.stringify(documenterBaseURL) +
     "," +
@@ -488,7 +488,7 @@ function runSearchMainCode() {
   // Which filter is currently selected
   var selected_filter = "";
 
-  document.addEventListener("reset-filter", function () {
+  document.addEventListener("reset-filter", () => {
     selected_filter = "";
     update_search();
   });
@@ -524,7 +524,7 @@ function runSearchMainCode() {
     }
   }
 
-  $(document).on("input", ".documenter-search-input", function (event) {
+  $(document).on("input", ".documenter-search-input", (_event) => {
     if (!worker_is_running) {
       launch_search();
     }
@@ -537,7 +537,7 @@ function runSearchMainCode() {
     worker.postMessage(last_search_text);
   }
 
-  worker.onmessage = function (e) {
+  worker.onmessage = (e) => {
     if (last_search_text !== $(".documenter-search-input").val()) {
       launch_search();
     } else {
@@ -549,8 +549,8 @@ function runSearchMainCode() {
   };
 
   $(document).on("click", ".search-filter", function () {
-    let search_input = $(".documenter-search-input");
-    let cursor_position = search_input[0].selectionStart;
+    const search_input = $(".documenter-search-input");
+    const cursor_position = search_input[0].selectionStart;
 
     if ($(this).hasClass("search-filter-selected")) {
       selected_filter = "";
@@ -569,29 +569,29 @@ function runSearchMainCode() {
    * Make/Update the search component
    */
   function update_search() {
-    let querystring = $(".documenter-search-input").val();
+    const querystring = $(".documenter-search-input").val();
     updateSearchURL(querystring);
 
     if (querystring.trim()) {
-      if (selected_filter == "") {
+      if (selected_filter === "") {
         results = unfiltered_results;
       } else {
         results = unfiltered_results.filter((result) => {
-          return selected_filter == result.category.toLowerCase();
+          return selected_filter === result.category.toLowerCase();
         });
       }
 
       let search_result_container = ``;
-      let modal_filters = make_modal_body_filters();
-      let search_divider = `<div class="search-divider w-100"></div>`;
+      const modal_filters = make_modal_body_filters();
+      const search_divider = `<div class="search-divider w-100"></div>`;
 
       if (results.length) {
-        let links = [];
+        const links = [];
         let count = 0;
         let search_results = "";
 
         for (var i = 0, n = results.length; i < n && count < 200; ++i) {
-          let result = results[i];
+          const result = results[i];
           if (result.location && !links.includes(result.location)) {
             search_results += result.div;
             count++;
@@ -599,14 +599,14 @@ function runSearchMainCode() {
           }
         }
 
-        if (count == 1) {
+        if (count === 1) {
           count_str = "1 result";
-        } else if (count == 200) {
+        } else if (count === 200) {
           count_str = "200+ results";
         } else {
-          count_str = count + " results";
+          count_str = `${count} results`;
         }
-        let result_count = `<div class="is-size-6">${count_str}</div>`;
+        const result_count = `<div class="is-size-6">${count_str}</div>`;
 
         search_result_container = `
               <div class="is-flex is-flex-direction-column gap-2 is-align-items-flex-start">
@@ -669,9 +669,9 @@ function runSearchMainCode() {
    * @returns string
    */
   function make_modal_body_filters() {
-    let str = filters
+    const str = filters
       .map((val) => {
-        if (selected_filter == val.toLowerCase()) {
+        if (selected_filter === val.toLowerCase()) {
           return `<a href="javascript:;" class="search-filter search-filter-selected"><span>${val}</span></a>`;
         } else {
           return `<a href="javascript:;" class="search-filter"><span>${val}</span></a>`;
