@@ -1,8 +1,8 @@
 // libraries: jquery
 // arguments: $
 
-$(document).ready(function () {
-  let search_modal_header = `
+$(document).ready(() => {
+  const search_modal_header = `
     <header class="modal-card-head gap-2 is-align-items-center is-justify-content-space-between w-100 px-3">
       <div class="field mb-0 w-100">
         <p class="control has-icons-right">
@@ -19,11 +19,11 @@ $(document).ready(function () {
     </header>
   `;
 
-  let initial_search_body = `
+  const initial_search_body = `
     <div class="has-text-centered my-5 py-5">Type something to get started!</div>
   `;
 
-  let search_modal_footer = `
+  const search_modal_footer = `
     <footer class="modal-card-foot is-flex is-justify-content-space-between is-align-items-center">
       <div class="is-flex gap-3 is-flex-wrap-wrap">
         <span>
@@ -80,7 +80,7 @@ $(document).ready(function () {
       closeModal();
     });
 
-  $(document).on("click", ".search-result-link", function () {
+  $(document).on("click", ".search-result-link", () => {
     closeModal();
   });
 
@@ -139,15 +139,15 @@ $(document).ready(function () {
 
   // Functions to open and close a modal
   function openModal() {
-    let searchModal = document.querySelector("#search-modal");
+    const searchModal = document.querySelector("#search-modal");
 
     searchModal.classList.add("is-active");
     document.querySelector(".documenter-search-input").focus();
   }
 
   function closeModal() {
-    let searchModal = document.querySelector("#search-modal");
-    let initial_search_body = `
+    const searchModal = document.querySelector("#search-modal");
+    const initial_search_body = `
       <div class="has-text-centered my-5 py-5">Type something to get started!</div>
     `;
 

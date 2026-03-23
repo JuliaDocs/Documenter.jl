@@ -2,9 +2,9 @@
 // arguments: $
 
 // Theme picker setup
-$(document).ready(function () {
+$(document).ready(() => {
   // onchange callback
-  $("#documenter-themepicker").change(function themepick_callback(ev) {
+  $("#documenter-themepicker").change(function themepick_callback(_ev) {
     var themename = $("#documenter-themepicker option:selected").attr("value");
     if (themename === "auto") {
       // set_theme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -22,7 +22,7 @@ $(document).ready(function () {
   if (typeof window.localStorage !== "undefined") {
     var theme = window.localStorage.getItem("documenter-theme");
     if (theme !== null) {
-      $("#documenter-themepicker option").each(function (i, e) {
+      $("#documenter-themepicker option").each((_i, e) => {
         e.selected = e.value === theme;
       });
     }

@@ -1,6 +1,6 @@
 // libraries: jquery
 // arguments: $
-$(document).ready(function () {
+$(document).ready(() => {
   $(".footnote-ref").hover(
     function () {
       var id = $(this).attr("href");
@@ -44,6 +44,6 @@ $(document).ready(function () {
 
     var arrowLeft = refRect.left + refRect.width / 2 - newPreviewRect.left;
 
-    $preview.css("--arrow-left", arrowLeft + "px");
+    $preview.css("--arrow-left", `${arrowLeft}px`);
   }
 });

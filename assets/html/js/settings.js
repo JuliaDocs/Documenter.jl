@@ -2,17 +2,17 @@
 // arguments: $
 
 // Modal settings dialog
-$(document).ready(function () {
+$(document).ready(() => {
   var settings = $("#documenter-settings");
-  $("#documenter-settings-button").click(function () {
+  $("#documenter-settings-button").click(() => {
     settings.toggleClass("is-active");
   });
   // Close the dialog if X is clicked
-  $("#documenter-settings button.delete").click(function () {
+  $("#documenter-settings button.delete").click(() => {
     settings.removeClass("is-active");
   });
   // Close dialog if ESC is pressed
-  $(document).keyup(function (e) {
-    if (e.keyCode == 27) settings.removeClass("is-active");
+  $(document).keyup((e) => {
+    if (e.keyCode === 27) settings.removeClass("is-active");
   });
 });

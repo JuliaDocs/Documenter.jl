@@ -34,7 +34,7 @@ function noccordion() {
 }
 
 function expandAll() {
-  let me = document.getElementById("documenter-article-toggle-button");
+  const me = document.getElementById("documenter-article-toggle-button");
   me.setAttribute("open", "true");
   $(me).removeClass("fa-chevron-down").addClass("fa-chevron-up");
   $(me).prop("title", "Collapse all docstrings");
@@ -42,7 +42,7 @@ function expandAll() {
 }
 
 function collapseAll() {
-  let me = document.getElementById("documenter-article-toggle-button");
+  const me = document.getElementById("documenter-article-toggle-button");
   me.removeAttribute("open");
   $(me).removeClass("fa-chevron-up").addClass("fa-chevron-down");
   $(me).prop("title", "Expand all docstrings");

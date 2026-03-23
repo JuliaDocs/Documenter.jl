@@ -51,7 +51,7 @@ If the formatter fails to run because it can not load Runic, you can install it 
 
 ### JS, HTML and (S)CSS
 
-We use [Prettier](https://github.com/prettier/prettier) v2 for formatting the HTML/web front end related code.
+We use [Biome](https://biomejs.dev) for formatting the JavaScript source code. You can run it with `make format-js` (install with `make install-biome`).
 
 ### Markdown
 
