@@ -313,11 +313,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: julia-actions/setup-julia@v2
-        with: 
+        with:
           version: '1'
       - run: make install-biome
       - run: make format-js
-      
 
   runic:
     name: "Runic (Julia code formatting)"

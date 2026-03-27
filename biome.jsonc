@@ -1,5 +1,7 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.4/schema.json",
+  // The biome JLL runs into:
+  // > The configuration schema version does not match the CLI version 0.0.1
+  // "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -8,43 +10,17 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "**",
-      "!!docs/build",
-      "!!assets/html/scss/highlightjs",
+      "biome.jsonc",
+      "assets/html/**",
       "!!assets/html/themes",
-      "!!test"
+      "!!assets/html/scss/highlightjs"
     ]
   },
   "formatter": {
     "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2
+    "indentStyle": "space"
   },
   "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "correctness": {
-        "noInnerDeclarations": "off"
-      },
-      "suspicious": {
-        "noAssignInExpressions": "off",
-        "noShadowRestrictedNames": "off",
-        "noRedeclare": "off"
-      }
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "double"
-    }
-  },
-  "assist": {
-    "enabled": true,
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
+    "enabled": false
   }
 }

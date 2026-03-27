@@ -31,10 +31,10 @@ install-runic:
 	julia --project=$(RUNIC) -e 'using Pkg; Pkg.add("Runic")'
 
 format-js:
-	julia --project=$(BIOME) -e 'using biome_jll; run(`$$(biome_jll.biome()) check --write assets/html/js`)'
+	julia --project=$(BIOME) -e 'using biome_jll; run(`$$(biome_jll.biome()) check --write`)'
 
 install-biome:
-	julia --project=$(BIOME) -e 'using Pkg; Pkg.add("biome_jll")'
+	julia --project=$(BIOME) -e 'using Pkg; Pkg.add(; name="biome_jll", version="2.4.8")'
 
 test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
