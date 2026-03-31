@@ -307,14 +307,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  prettier:
-    name: Prettier (JS code formatting)
+  biome:
+    name: Biome (JS code formatting)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actionsx/prettier@v3
+      - uses: julia-actions/setup-julia@v2
         with:
-          args: --check .
+          version: '1'
+      - run: make install-biome
+      - run: make format-js
 
   runic:
     name: "Runic (Julia code formatting)"

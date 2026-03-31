@@ -14,7 +14,6 @@ generic defaults:
 
 * for Julia code, use the Runic-based workflow described there
   (for example `make format-julia`);
-* for JS, HTML, and (S)CSS, follow the Prettier guidance described there;
 * for Markdown, follow the Markdown conventions described there and do not
   introduce hard-wrapping or ad hoc list formatting.
 
