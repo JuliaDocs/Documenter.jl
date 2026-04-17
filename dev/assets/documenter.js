@@ -13,7 +13,18 @@ requirejs.config({
     'highlight-julia-repl': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/julia-repl.min',
   },
   shim: {
+  "headroom-jquery": {
+    "deps": [
+      "jquery",
+      "headroom"
+    ]
+  },
   "highlight-julia": {
+    "deps": [
+      "highlight"
+    ]
+  },
+  "highlight-julia-repl": {
     "deps": [
       "highlight"
     ]
@@ -27,17 +38,6 @@ requirejs.config({
     "deps": [
       "katex"
     ]
-  },
-  "headroom-jquery": {
-    "deps": [
-      "jquery",
-      "headroom"
-    ]
-  },
-  "highlight-julia-repl": {
-    "deps": [
-      "highlight"
-    ]
   }
 }});
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,19 +48,19 @@ $(document).ready(function() {
     {
   "delimiters": [
     {
+      "display": false,
       "left": "$",
-      "right": "$",
-      "display": false
+      "right": "$"
     },
     {
+      "display": true,
       "left": "$$",
-      "right": "$$",
-      "display": true
+      "right": "$$"
     },
     {
+      "display": true,
       "left": "\\[",
-      "right": "\\]",
-      "display": true
+      "right": "\\]"
     }
   ]
 }
