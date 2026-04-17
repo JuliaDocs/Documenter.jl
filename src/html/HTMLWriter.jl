@@ -1027,6 +1027,30 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
 
     write_inventory(doc, ctx)
 
+    # When top_menu is enabled and there is no root index.md, generate a redirect
+    # index.html at the build root pointing to the first index.md in the pages tree.
+    if settings.top_menu && !haskey(doc.blueprint.pages, "index.md")
+        first_index = _find_first_index_page(doc.user.pages)
+        if first_index !== nothing
+            first_url = pretty_url(ctx, get_url(ctx, normpath(first_index)))
+            redirect_path = joinpath(doc.user.build, "index.html")
+            open(redirect_path, "w") do io
+                write(io, """<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="0; url=$(first_url)">
+    <title>Redirecting...</title>
+</head>
+<body>
+    <p><a href="$(first_url)">Redirecting...</a></p>
+</body>
+</html>
+""")
+            end
+        end
+    end
+
     return generate_siteinfo_json(doc.user.build)
 end
 

@@ -512,6 +512,12 @@ end
             @test joinpath(build_dir, "guide", "index.html") |> isfile
             @test joinpath(build_dir, "guide", "advanced", "index.html") |> isfile
 
+            # Check that a redirect index.html was generated at the build root
+            @test joinpath(build_dir, "index.html") |> isfile
+            redirect_content = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("getting-started", redirect_content)
+            @test occursin("Redirecting", redirect_content)
+
             # Check that top menu is present in generated HTML
             page_content = read(joinpath(build_dir, "getting-started", "index.html"), String)
             @test occursin("docs-top-menu", page_content)
