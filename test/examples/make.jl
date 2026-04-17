@@ -498,11 +498,11 @@ examples_html_topmenu_doc = if "html-topmenu" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / top_menu build")
     @quietly makedocs(
         debug = true,
+        format = Documenter.HTML(top_menu = true),
         root = examples_root,
         build = "builds/html-topmenu",
         source = "src.topmenu",
         sitename = "Documenter TopMenu Example",
-        top_menu = true,
         pages = [
             "Getting Started" => [
                 "Home" => "getting-started/index.md",

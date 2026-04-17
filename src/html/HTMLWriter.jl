@@ -94,6 +94,43 @@ const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
+struct TopMenuSection
+    title::String
+    navtree::Vector{Documenter.NavNode}
+    navlist::Vector{Documenter.NavNode}
+    first_page::Union{String, Nothing}
+end
+
+TopMenuSection(title::String) = TopMenuSection(title, Documenter.NavNode[], Documenter.NavNode[], nothing)
+
+function _collect_navlist!(list, node)
+    node.page !== nothing && push!(list, node)
+    for child in node.children
+        _collect_navlist!(list, child)
+    end
+end
+
+function build_top_menu_sections(doc::Documenter.Document)
+    sections = TopMenuSection[]
+    seen_pages = Set{String}()
+    for top_node in doc.internal.navtree
+        title = something(top_node.title_override, "")
+        navtree = top_node.children
+        navlist = Documenter.NavNode[]
+        _collect_navlist!(navlist, top_node)
+        for nn in navlist
+            if nn.page in seen_pages
+                @warn "Page '$(nn.page)' appears in multiple top_menu sections. " *
+                    "Each page should belong to only one section for proper navigation."
+            end
+            push!(seen_pages, nn.page)
+        end
+        first_page = isempty(navlist) ? nothing : navlist[1].page
+        push!(sections, TopMenuSection(title, navtree, navlist, first_page))
+    end
+    return sections
+end
+
 abstract type HTMLHeadContent end
 
 struct HTMLAsset <: HTMLHeadContent
@@ -476,6 +513,35 @@ the documentation source directory (conventionally `src/`). Non-local assets, id
 their absolute URLs, can be included with the [`asset`](@ref) function.
 
 [^1]: Adding an ICO asset is primarily useful for setting a custom `favicon`.
+
+**`top_menu`** (Boolean, default: `false`) enables building a top-level navigation bar
+above the sidebar navigation. When set to `true`, the first layer of the `pages` argument
+to [`makedocs`](@ref) is used as the top menu (each entry becomes a section with its own
+sidebar navigation).
+
+```julia
+makedocs(
+    format = HTML(top_menu = true),
+    pages = [
+        "Getting Started" => [
+            "Home" => "index.md",
+            "Installation" => "install.md",
+        ],
+        "User Guide" => [
+            "Guide" => "guide/index.md",
+        ],
+    ],
+)
+```
+
+Each entry in the first layer of `pages` must be a `"Section Title" => pages_array` pair.
+The first page in each section will be used as the link destination when clicking the
+section title in the top bar.
+
+!!! note "Landing page and unique pages"
+    The section containing `index.md` will be displayed first when the documentation is opened,
+    since `index.md` becomes the landing page. Additionally, each page should appear in only
+    one section — having the same page in multiple sections will cause navigation issues.
 """
 struct HTML <: Documenter.Writer
     prettyurls::Bool
@@ -503,6 +569,7 @@ struct HTML <: Documenter.Writer
     example_size_threshold::Int
     search_size_threshold_warn::Int
     inventory_version::Union{String, Nothing}
+    top_menu::Bool
 
     function HTML(;
             prettyurls::Bool = true,
@@ -533,6 +600,7 @@ struct HTML <: Documenter.Writer
             example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
             search_size_threshold_warn::Union{Integer, Nothing} = 500 * 2^10, # 500 KiB
             inventory_version = nothing,
+            top_menu::Bool = false,
 
             # deprecated keywords
             edit_branch::Union{String, Nothing, Default} = Default(nothing),
@@ -598,7 +666,8 @@ struct HTML <: Documenter.Writer
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
             search_size_threshold_warn,
-            (isnothing(inventory_version) ? nothing : string(inventory_version))
+            (isnothing(inventory_version) ? nothing : string(inventory_version)),
+            top_menu
         )
     end
 end
@@ -684,11 +753,13 @@ mutable struct HTMLContext
     search_index_js::String
     search_navnode::Documenter.NavNode
     atexample_warnings::Vector{AtExampleFallbackWarning}
+    top_menu_sections::Vector{TopMenuSection}
 
     HTMLContext(doc, settings = nothing) = new(
         doc, settings, [], "", "", "", [], "",
         Documenter.NavNode("search", "Search", nothing),
         AtExampleFallbackWarning[],
+        TopMenuSection[],
     )
 end
 
@@ -825,7 +896,7 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
     if isempty(doc.blueprint.pages)
         error("Aborting HTML build: no pages under src/")
-    elseif !haskey(doc.blueprint.pages, "index.md") && isempty(doc.internal.top_menu_sections)
+    elseif !haskey(doc.blueprint.pages, "index.md")
         @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
     end
 
@@ -841,6 +912,9 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     end
 
     ctx = HTMLContext(doc, settings)
+    if settings.top_menu
+        ctx.top_menu_sections = build_top_menu_sections(doc)
+    end
     ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
     ctx.warner_js = copy_asset("warner.js", doc)
@@ -939,31 +1013,6 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
 
     write_inventory(doc, ctx)
 
-    # Generate redirect index.html for top_menu builds (landing page is in a subdirectory)
-    if !isempty(doc.internal.top_menu_sections)
-        first_section = first(doc.internal.top_menu_sections)
-        first_page_path = pretty_url(ctx, get_url(ctx, first_section.first_page))
-        # Only generate redirect if first page is not at root (i.e., not index.html)
-        if first_page_path != "index.html" && !haskey(doc.blueprint.pages, "index.md")
-            redirect_path = joinpath(doc.user.build, "index.html")
-            open(redirect_path, "w") do io
-                println(
-                    io, """<!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="utf-8">
-                        <meta http-equiv="refresh" content="0; url=$(first_page_path)">
-                        <title>Redirecting...</title>
-                    </head>
-                    <body>
-                        <p>Redirecting to <a href="$(first_page_path)">$(first_section.title)</a>...</p>
-                    </body>
-                    </html>"""
-                )
-            end
-        end
-    end
-
     return generate_siteinfo_json(doc.user.build)
 end
 
@@ -1020,8 +1069,7 @@ function render_page(ctx, navnode)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
     extras = render_extras(ctx, navnode)
-    top_menu = render_top_menu(ctx, navnode)
-    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras; top_menu = top_menu)
+    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer, extras)
     return write_html(ctx, navnode, htmldoc)
 end
 
@@ -1046,7 +1094,7 @@ Renders the top navigation bar when `top_menu` is configured.
 Returns `nothing` if `top_menu` is not being used.
 """
 function render_top_menu(ctx, navnode)
-    sections = ctx.doc.internal.top_menu_sections
+    sections = ctx.top_menu_sections
     isempty(sections) && return nothing
 
     @tags nav div a ul li span
@@ -1106,32 +1154,20 @@ end
 """
 Find the NavNode for a given page path.
 """
-function find_navnode_for_page(doc, page_path)
-    # First search in top_menu sections if they exist
-    if !isempty(doc.internal.top_menu_sections)
-        for section in doc.internal.top_menu_sections
-            for navnode in section.navlist
-                if navnode.page == page_path
-                    return navnode
-                end
-            end
-        end
-    end
-    # Fall back to main navlist
-    for navnode in doc.internal.navlist
+function find_navnode_for_page(ctx, page_path)
+    for navnode in ctx.doc.internal.navlist
         if navnode.page == page_path
             return navnode
         end
     end
-    # Fallback to first navnode
-    return isempty(doc.internal.navlist) ? nothing : doc.internal.navlist[1]
+    return isempty(ctx.doc.internal.navlist) ? nothing : ctx.doc.internal.navlist[1]
 end
 
 """
 Get the correct navtree for the current page based on top_menu sections.
 """
 function get_section_navtree(ctx, navnode)
-    sections = ctx.doc.internal.top_menu_sections
+    sections = ctx.top_menu_sections
     isempty(sections) && return ctx.doc.internal.navtree
 
     current_page = navnode.page
@@ -1142,15 +1178,15 @@ function get_section_navtree(ctx, navnode)
             end
         end
     end
-    # Fallback to global navtree
     return ctx.doc.internal.navtree
 end
 
 """
 Renders the main `<html>` tag.
 """
-function render_html(ctx, head, sidebar, navbar, article, footer, extras; top_menu = nothing)
+function render_html(ctx, navnode, head, sidebar, navbar, article, footer, extras)
     @tags html body div
+    top_menu = render_top_menu(ctx, navnode)
     main_content = if isnothing(top_menu)
         div["#documenter"](
             sidebar,

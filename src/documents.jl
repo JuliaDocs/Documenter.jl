@@ -271,33 +271,7 @@ mutable struct NavNode
 end
 NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
 
-# Top Menu Section
-# ----------------
 
-"""
-Represents a section in the top-level navigation menu (top bar).
-Each section contains its own navigation tree (sidebar content).
-"""
-struct TopMenuSection
-    """
-    The label displayed in the top bar for this section.
-    """
-    title::String
-    """
-    The navigation tree for this section (equivalent to navtree for regular docs).
-    """
-    navtree::Vector{NavNode}
-    """
-    An ordered list of `NavNode`s that point to actual pages in this section.
-    """
-    navlist::Vector{NavNode}
-    """
-    Optional path to the first page (used to determine the link in the top bar).
-    """
-    first_page::Union{String, Nothing}
-end
-
-TopMenuSection(title::String) = TopMenuSection(title, NavNode[], NavNode[], nothing)
 # This method ensures that we do not print the whole navtree in case we ever happen to print
 # a NavNode in some debug output somewhere.
 function Base.show(io::IO, n::NavNode)
@@ -395,7 +369,6 @@ struct User
     draft::Bool
     meta::Dict{Symbol, Any} # default @meta block data for pages
     treat_markdown_warnings_as_error::Bool # option to treat markdown warnings as an error
-    top_menu::Vector{Any} # Top-level menu sections for multi-section documentation
 end
 
 """
@@ -415,7 +388,6 @@ struct Internal
     errors::Set{Symbol}
     src_to_uuid::Dict{String, Base.UUID} # These two are used to cache information from Pkg
     uuid_to_version_info::Dict{Base.UUID, Tuple{VersionNumber, String}}
-    top_menu_sections::Vector{TopMenuSection} # Top-level menu sections
 end
 
 # Document.
@@ -461,7 +433,6 @@ function Document(;
         draft::Bool = false,
         meta::Dict{Symbol} = Dict{Symbol, Any}(),
         treat_markdown_warnings_as_error::Bool = false,
-        top_menu::Vector = Any[],
         others...
     )
 
@@ -529,7 +500,6 @@ function Document(;
         draft,
         meta,
         treat_markdown_warnings_as_error,
-        top_menu,
     )
     internal = Internal(
         assetsdir(),
@@ -545,7 +515,6 @@ function Document(;
         Set{Symbol}(),
         Dict{String, String}(),
         Dict{String, Tuple{String, String}}(),
-        TopMenuSection[],
     )
 
     plugin_dict = Dict{DataType, Plugin}()

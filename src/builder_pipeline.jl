@@ -127,98 +127,22 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
     # path (it will group them by subdirectory, among others).
     userpages = isempty(doc.user.pages) ? sort(mdpages, lt = lt_page) : doc.user.pages
 
-    # Check if top_menu is being used
-    if !isempty(doc.user.top_menu)
-        # Track all pages used across sections to detect duplicates
-        all_section_pages = Set{String}()
+    # Populating the .navtree and .navlist.
+    # We need the for loop because we can't assign to the fields of the immutable
+    # doc.internal.
+    for navnode in walk_navpages(userpages, nothing, doc)
+        push!(doc.internal.navtree, navnode)
+    end
 
-        # Populating top_menu_sections with their navtrees and navlists
-        for section_entry in doc.user.top_menu
-            section_title, section_pages = if section_entry isa Pair
-                pages = section_entry.second
-                pages = pages isa AbstractString ? [pages] : pages
-                section_entry.first, pages
-            else
-                error("top_menu entries must be Pairs of \"Title\" => pages_array, got: $(typeof(section_entry))")
-            end
-
-            section_navtree = Documenter.NavNode[]
-            section_navlist = Documenter.NavNode[]
-
-            # Walk through the section's pages
-            for navnode in walk_navpages(section_pages, nothing, doc; navlist = section_navlist)
-                push!(section_navtree, navnode)
-            end
-
-            # Check for duplicate pages across sections
-            for navnode in section_navlist
-                if navnode.page in all_section_pages
-                    @warn "Page '$(navnode.page)' appears in multiple top_menu sections. " *
-                        "Each page should belong to only one section for proper navigation."
-                end
-                push!(all_section_pages, navnode.page)
-            end
-
-            # Populate prev/next for this section's navlist
-            local prev::Union{Documenter.NavNode, Nothing} = nothing
-            for navnode in section_navlist
-                navnode.prev = prev
-                if prev !== nothing
-                    prev.next = navnode
-                end
-                prev = navnode
-            end
-
-            # Determine the first page for the section link
-            first_page = isempty(section_navlist) ? nothing : section_navlist[1].page
-
-            # Create the section with populated data
-            section = Documenter.TopMenuSection(
-                section_title,
-                section_navtree,
-                section_navlist,
-                first_page
-            )
-            push!(doc.internal.top_menu_sections, section)
-
-            # Also add to the global navlist for backward compatibility and cross-section navigation
-            append!(doc.internal.navlist, section_navlist)
+    # Finally we populate the .next and .prev fields of the navnodes that point
+    # to actual pages.
+    local prev::Union{Documenter.NavNode, Nothing} = nothing
+    for navnode in doc.internal.navlist
+        navnode.prev = prev
+        if prev !== nothing
+            prev.next = navnode
         end
-
-        # Now populate the global navtree as well (for backward compatibility)
-        # The global navtree will contain all sections' navtrees combined
-        for section in doc.internal.top_menu_sections
-            append!(doc.internal.navtree, section.navtree)
-        end
-
-        # Re-populate prev/next for the global navlist to allow cross-section navigation
-        local prev_global::Union{Documenter.NavNode, Nothing} = nothing
-        for navnode in doc.internal.navlist
-            navnode.prev = prev_global
-            if prev_global !== nothing
-                prev_global.next = navnode
-            end
-            prev_global = navnode
-        end
-    else
-        # Original behavior when top_menu is not used
-        # Populating the .navtree and .navlist.
-        # We need the for loop because we can't assign to the fields of the immutable
-        # doc.internal.
-        for navnode in walk_navpages(userpages, nothing, doc)
-            push!(doc.internal.navtree, navnode)
-        end
-
-        # Finally we populate the .next and .prev fields of the navnodes that point
-        # to actual pages.
-        local prev::Union{Documenter.NavNode, Nothing} = nothing
-        for navnode in doc.internal.navlist
-            navnode.prev = prev
-            if prev !== nothing
-                prev.next = navnode
-            end
-            prev = navnode
-        end
+        prev = navnode
     end
 
     # If the user specified pagesonly, we will remove all the pages not in the navigation
@@ -254,10 +178,8 @@ process.
 
 This implementation is the de facto specification for the `.user.pages` field.
 
-The optional `navlist` keyword argument allows specifying an alternative navlist
-to populate (used for top_menu sections).
 """
-function walk_navpages(visible, title, src, children, parent, doc; navlist = nothing)
+function walk_navpages(visible, title, src, children, parent, doc)
     # parent can also be nothing (for top-level elements)
     parent_visible = (parent === nothing) || parent.visible
     if src !== nothing
@@ -265,27 +187,25 @@ function walk_navpages(visible, title, src, children, parent, doc; navlist = not
         src in keys(doc.blueprint.pages) || error("'$src' is not an existing page!")
     end
     nn = Documenter.NavNode(src, title, parent)
-    # Push to the appropriate navlist
     if src !== nothing
-        target_navlist = isnothing(navlist) ? doc.internal.navlist : navlist
-        push!(target_navlist, nn)
+        push!(doc.internal.navlist, nn)
     end
     nn.visible = parent_visible && visible
-    nn.children = walk_navpages(children, nn, doc; navlist = navlist)
+    nn.children = walk_navpages(children, nn, doc)
     return nn
 end
 
-function walk_navpages(hps::Tuple, parent, doc; navlist = nothing)
+function walk_navpages(hps::Tuple, parent, doc)
     @assert length(hps) == 4
-    return walk_navpages(hps..., parent, doc; navlist = navlist)
+    return walk_navpages(hps..., parent, doc)
 end
 
-walk_navpages(title::String, children::Vector, parent, doc; navlist = nothing) = walk_navpages(true, title, nothing, children, parent, doc; navlist = navlist)
-walk_navpages(title::String, page, parent, doc; navlist = nothing) = walk_navpages(true, title, page, [], parent, doc; navlist = navlist)
+walk_navpages(title::String, children::Vector, parent, doc) = walk_navpages(true, title, nothing, children, parent, doc)
+walk_navpages(title::String, page, parent, doc) = walk_navpages(true, title, page, [], parent, doc)
 
-walk_navpages(p::Pair, parent, doc; navlist = nothing) = walk_navpages(p.first, p.second, parent, doc; navlist = navlist)
-walk_navpages(ps::Vector, parent, doc; navlist = nothing) = [walk_navpages(p, parent, doc; navlist = navlist)::Documenter.NavNode for p in ps]
-walk_navpages(src::String, parent, doc; navlist = nothing) = walk_navpages(true, nothing, src, [], parent, doc; navlist = navlist)
+walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
+walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documenter.NavNode for p in ps]
+walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
     if doc.user.doctest in [:fix, :only, true]

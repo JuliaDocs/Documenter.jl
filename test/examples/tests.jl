@@ -492,18 +492,18 @@ end
         doc = Main.examples_html_topmenu_doc
         @test isa(doc, Documenter.Documenter.Document)
 
-        # Verify top_menu_sections were created
-        @test length(doc.internal.top_menu_sections) == 2
-        @test doc.internal.top_menu_sections[1].title == "Getting Started"
-        @test doc.internal.top_menu_sections[2].title == "User Guide"
+        # Verify top-level navtree has two section entries
+        @test length(doc.internal.navtree) == 2
+        @test doc.internal.navtree[1].title_override == "Getting Started"
+        @test doc.internal.navtree[2].title_override == "User Guide"
 
-        # Verify each section has its own navlist
-        @test length(doc.internal.top_menu_sections[1].navlist) == 2
-        @test length(doc.internal.top_menu_sections[2].navlist) == 2
+        # Verify each section has its own pages (children of the section navnode)
+        @test length(doc.internal.navtree[1].children) == 2
+        @test length(doc.internal.navtree[2].children) == 2
 
-        # Verify first_page is set correctly (use joinpath for cross-platform compatibility)
-        @test doc.internal.top_menu_sections[1].first_page == joinpath("getting-started", "index.md")
-        @test doc.internal.top_menu_sections[2].first_page == joinpath("guide", "index.md")
+        # Verify first page of each section (use joinpath for cross-platform compatibility)
+        @test doc.internal.navtree[1].children[1].page == joinpath("getting-started", "index.md")
+        @test doc.internal.navtree[2].children[1].page == joinpath("guide", "index.md")
 
         let build_dir = joinpath(examples_root, "builds", "html-topmenu")
             # Check that HTML files were generated
@@ -511,12 +511,6 @@ end
             @test joinpath(build_dir, "getting-started", "install", "index.html") |> isfile
             @test joinpath(build_dir, "guide", "index.html") |> isfile
             @test joinpath(build_dir, "guide", "advanced", "index.html") |> isfile
-
-            # Check that redirect index.html was generated at root
-            @test joinpath(build_dir, "index.html") |> isfile
-            redirect_content = read(joinpath(build_dir, "index.html"), String)
-            @test occursin("getting-started", redirect_content)
-            @test occursin("Redirecting", redirect_content)
 
             # Check that top menu is present in generated HTML
             page_content = read(joinpath(build_dir, "getting-started", "index.html"), String)
@@ -559,9 +553,8 @@ end
                 :source => srcdir,
                 :build => joinpath(tempdir, "build"),
                 :sitename => "TopMenu EdgeCase",
-                :top_menu => true,
                 :pages => top_menu_pages,
-                :format => Documenter.HTML(prettyurls = false),
+                :format => Documenter.HTML(top_menu = true, prettyurls = false),
                 :warnonly => true,
                 :remotes => nothing,
             )
@@ -590,25 +583,10 @@ end
             @test_throws ErrorException makedocs_with_topmenu(pages)
         end
 
-        # 3. top_menu with an empty section
+        # 3. top_menu with an empty section (should not crash)
         @testset "top_menu empty section" begin
             pages = ["Empty Section" => []]
-            tempdir = mktempdir()
-            srcdir = joinpath(tempdir, "src")
-            mkpath(srcdir)
-            write(joinpath(srcdir, "index.md"), "# Index\n\nSome content.")
-            builddir = joinpath(tempdir, "build")
-            @test_throws BoundsError makedocs(
-                root = tempdir,
-                source = srcdir,
-                build = builddir,
-                sitename = "TopMenu EdgeCase",
-                top_menu = true,
-                pages = pages,
-                format = Documenter.HTML(prettyurls = false),
-                warnonly = true,
-                remotes = nothing,
-            )
+            @test_nowarn makedocs_with_topmenu(pages)
         end
     end
 
