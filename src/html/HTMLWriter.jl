@@ -56,7 +56,7 @@ is borrowed from the [Sphinx project](https://www.sphinx-doc.org/en/master/). It
 of a plain text header that includes the project name, taken from the `sitename` argument
 to [`Documenter.makedocs`](@ref), and a project `version` taken from the
 `inventory_version` argument of the [`HTML`](@ref) options, or automatically
-determined by [`deploydocs`](@ref Documenter.deploydocs) for tagged releases.
+determined by [`deploydocs`](@ref `Documenter.deploydocs`) for tagged releases.
 The bulk of the file is a list of plain text records, compressed with gzip. See
 [Inventory Generation](https://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
 for details on these records.
@@ -344,7 +344,7 @@ looking at the `origin` remote, and falls back to `"master"` if that fails.
 **`repolink`** can be used to override the URL of the Git repository link in the top navbar
 (if passed a `String`). By default, Documenter attempts to determine the link from the Git
 remote of the repository (e.g. specified via the `remotes` argument of
-[`makedocs`](@ref Documenter.makedocs)). Passing a `nothing` disables the repository link.
+[`makedocs`](@ref `Documenter.makedocs`)). Passing a `nothing` disables the repository link.
 
 **`canonical`** specifies the canonical URL for your documentation. We recommend
 you set this to the base url of your stable documentation, e.g. `https://documenter.juliadocs.org/stable`.
@@ -381,7 +381,7 @@ passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) 
 
 **`description`** is the site-wide description that displays in page previews and search
 engines. Defaults to `"Documentation for \$sitename"`, where `sitename` is defined as
-an argument to [`makedocs`](@ref Documenter.makedocs).
+an argument to [`makedocs`](@ref `Documenter.makedocs`).
 
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
@@ -414,7 +414,7 @@ print a warning, instead of throwing an error. Defaults to `100 KiB`, and must b
 
 **`size_threshold_ignore`** can be passed a list of pages for which the size thresholds are completely
 ignored (silently). The arguments should be the same file paths as for the `pages` argument of
-[`makedocs`](@ref Documenter.makedocs). Using this argument to ignore a few specific pages is preferred
+[`makedocs`](@ref `Documenter.makedocs`). Using this argument to ignore a few specific pages is preferred
 over setting a high general limit, or disabling the size checking altogether.
 
 !!! note "Purpose of HTML size thresholds"
@@ -437,7 +437,7 @@ executable to be available in `PATH` or to be passed as the `node` keyword.
 `objects.inv` inventory file. This should be a valid version number without a `v` prefix.
 Defaults to the `version` defined in the `Project.toml` file in the parent folder of the
 documentation root. Setting this to an empty string leaves the `version` in the inventory
-unspecified until [`deploydocs`](@ref Documenter.deploydocs) runs and automatically sets the
+unspecified until [`deploydocs`](@ref `Documenter.deploydocs`) runs and automatically sets the
 `version` for any tagged release.
 
 # Default and custom assets
@@ -2309,7 +2309,7 @@ Returns the full path of a [`Documenter.NavNode`](@ref) relative to `src/`.
 get_url(ctx, navnode::Documenter.NavNode) = get_url(ctx, navnode.page)
 
 """
-If `prettyurls` for [`HTML`](@ref Documenter.HTML) is enabled, returns a "pretty" version of
+If `prettyurls` for [`HTML`](@ref `Documenter.HTML`) is enabled, returns a "pretty" version of
 the `path` which can then be used in links in the resulting HTML file.
 """
 function pretty_url(ctx, path::AbstractString)
@@ -2323,7 +2323,7 @@ function pretty_url(ctx, path::AbstractString)
 end
 
 """
-If `canonical` for [`HTML`](@ref Documenter.HTML) is set, returns the canonical
+If `canonical` for [`HTML`](@ref `Documenter.HTML`) is set, returns the canonical
 URL of a `path` or [`Documenter.NavNode`](@ref), otherwise returns nothing.
 """
 function canonical_url(ctx, path_or_navnode)

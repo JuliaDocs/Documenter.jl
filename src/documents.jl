@@ -976,8 +976,8 @@ end
 """
     Documenter.getplugin(doc::Document, T) -> Plugin
 
-Retrieves the object for the [`Plugin`](@ref Plugin) sub-type `T` stored in `doc`. If an
-object of type `T` was an element of the `plugins` list passed to [`makedocs`](@ref makedocs),
+Retrieves the object for the [`Plugin`](@ref ) sub-type `T` stored in `doc`. If an
+object of type `T` was an element of the `plugins` list passed to [`makedocs`](@ref),
 that object will be returned. Otherwise, a new `T` object will be created using the default
 constructor `T()`. Subsequent calls to `getplugin(doc, T)` return the same object.
 """

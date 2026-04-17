@@ -444,7 +444,7 @@ mathengine = MathJax2(Dict(
 )),
 ```
 or on MathJax v3, the
-[physics package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf)
+[physics package](https://mirrors.ctan.org/macros/latex/contrib/physics/physics.pdf)
 can be loaded:
 
 ```julia

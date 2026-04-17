@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Support self-hosted GitHub instances. ([#2755])
 
+### Fixed
+
+* Fixed headers hidden by the navbar. ([#2905])
+* Tightened `@ref` classification so references are matched more consistently by syntax, with header labels still taking precedence over docstrings and mistaken header/id references less likely to resolve as docstrings. ([#2678])
 
 ## Version [v1.17.0] - 2026-02-20
 
@@ -30,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+* During cross-referencing `find_object` correctly locates the `Documenter.Object` associated with `UnionAll` method signatures. ([#2836], [#2889])
 * Fixed rendering of operator docstring bindings such as `Base.:(:)` and `Base.:(==)` in doc headers and indices. ([#2844])
 
 ## Version [v1.16.1] - 2025-11-21
@@ -1643,6 +1648,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.15.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.15.0
 [v1.16.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.16.0
 [v1.16.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.16.1
+[v1.17.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.17.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -2257,6 +2263,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2816]: https://github.com/JuliaDocs/Documenter.jl/issues/2816
 [#2817]: https://github.com/JuliaDocs/Documenter.jl/issues/2817
 [#2827]: https://github.com/JuliaDocs/Documenter.jl/issues/2827
+[#2836]: https://github.com/JuliaDocs/Documenter.jl/issues/2836
 [#2839]: https://github.com/JuliaDocs/Documenter.jl/issues/2839
 [#2842]: https://github.com/JuliaDocs/Documenter.jl/issues/2842
 [#2844]: https://github.com/JuliaDocs/Documenter.jl/issues/2844
@@ -2267,6 +2274,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2874]: https://github.com/JuliaDocs/Documenter.jl/issues/2874
 [#2875]: https://github.com/JuliaDocs/Documenter.jl/issues/2875
 [#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
+[#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
+[#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

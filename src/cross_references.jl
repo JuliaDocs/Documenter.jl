@@ -234,31 +234,39 @@ end
 
 
 function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
-    return (xref_unresolved(node) && anchor_exists(doc.internal.headers, slug))
+    xref_unresolved(node) || return false
+    return classifyxref(node, doc.internal.headers).kind ∈ (
+        :implicit_header, :explicit_header_title, :explicit_header_id,
+    )
 end
 
 function Selectors.runner(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
-    return namedxref(node, slug, meta, page, doc, errors)
+    info = classifyxref(node, doc.internal.headers)
+    return namedxref(node, info.slug, meta, page, doc, errors)
 end
 
 Selectors.strict(::Type{XRefResolvers.Header}) = true
 
 
 function Selectors.matcher(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)
-    return (xref_unresolved(node) && occursin(r"#[0-9]+", slug))
+    xref_unresolved(node) || return false
+    return classifyxref(node, doc.internal.headers).kind == :issue
 end
 
 function Selectors.runner(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)
-    return issue_xref(node, lstrip(slug, '#'), meta, page, doc, errors)
+    info = classifyxref(node, doc.internal.headers)
+    return issue_xref(node, info.target, meta, page, doc, errors)
 end
 
 
 function Selectors.matcher(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
-    return xref_unresolved(node)
+    xref_unresolved(node) || return false
+    return classifyxref(node, doc.internal.headers).kind ∈ (:implicit_docs, :explicit_docs)
 end
 
 function Selectors.runner(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
-    return docsxref(node, slug, meta, page, doc, errors)
+    info = classifyxref(node, doc.internal.headers)
+    return docsxref(node, info.target, meta, page, doc, errors)
 end
 
 
@@ -279,7 +287,7 @@ the `node`, `meta`, `page`, and `doc` arguments, it also passes a `slug` to the 
 that any pipeline step can use to easily resolve the link target. This `slug` is obtained as
 follows:
 
-- For, e.g, ```[`Documenter.makedocs`](@ref)``` or `[text](@ref Documenter.makedocs)`, the
+- For, e.g, ```[`Documenter.makedocs`](@ref)``` or ```[text](@ref `Documenter.makedocs`)```, the
   `slug` is `"Documenter.makedocs"`
 - For, e.g, ```[Hosting Documentation](@ref)``` or `[text](@ref "Hosting Documentation")`,
   the `slug` is sluggified version of the given section title, `"Hosting-Documentation"` in
@@ -287,29 +295,10 @@ follows:
 """
 function xref(node::MarkdownAST.Node, meta, page, doc)
     @assert node.element isa MarkdownAST.Link
-    link = node.element
-    slug = xrefname(link.destination)
-    @assert !isnothing(slug)
-    if isempty(slug)
-        # obtain a slug from the link text
-        if length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Code)
-            slug = first(node.children).element.code
-        else
-            # TODO: remove this hack (replace with mdflatten?)
-            md = _link_node_as_md(node)
-            text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
-            slug = Documenter.slugify(text)
-        end
-    else
-        # explicit slugs that are enclosed in quotes must be further sluggified
-        stringmatch = match(r"\"(.+)\"", slug)
-        if !isnothing(stringmatch)
-            slug = Documenter.slugify(stringmatch[1])
-        end
-    end
+    info = classifyxref(node, doc.internal.headers)
     errors = String[]
     Selectors.dispatch(
-        XRefResolvers.XRefResolverPipeline, node, slug, meta, page, doc, errors
+        XRefResolvers.XRefResolverPipeline, node, info.slug, meta, page, doc, errors
     )
     # finalizer
     if xref_unresolved(node)
@@ -347,6 +336,64 @@ function xrefname(link_url::AbstractString)
     return isnothing(m[1]) ? "" : strip(m[1])
 end
 
+function linkcontent(node::MarkdownAST.Node)
+    isa(node.element, MarkdownAST.Link) || return nothing
+
+    if length(node.children) == 1
+        child = first(node.children).element
+        if isa(child, MarkdownAST.Code)
+            return (:code, child.code)
+        elseif isa(child, MarkdownAST.Text)
+            return (:text, child.text)
+        end
+    end
+
+    text = MDFlatten.mdflatten(node)
+    return (:complex, text)
+end
+
+function classifyxref(node::MarkdownAST.Node, headers::AnchorMap)
+    @assert node.element isa MarkdownAST.Link
+    dest = xrefname(node.element.destination)
+    @assert !isnothing(dest)
+    return classifyxref(dest, linkcontent(node), headers)
+end
+
+function classifyxref(dest::AbstractString, content::Tuple{Symbol, <:AbstractString}, headers::AnchorMap)
+    content_kind, content_text = content
+    if isempty(dest)
+        if occursin(ISSUE_REGEX, content_text)
+            return (kind = :issue, target = lstrip(content_text, '#'), slug = content_text)
+        elseif content_kind == :code
+            return (kind = :implicit_docs, target = content_text, slug = content_text)
+        else
+            return (
+                kind = :implicit_header,
+                target = content_text,
+                slug = Documenter.slugify(content_text),
+            )
+        end
+    elseif occursin(QUOTED_XREF_REGEX, dest)
+        title = strip_wrapping(dest)
+        return (
+            kind = :explicit_header_title,
+            target = title,
+            slug = Documenter.slugify(title),
+        )
+    elseif occursin(ISSUE_REGEX, dest)
+        return (kind = :issue, target = lstrip(dest, '#'), slug = dest)
+    elseif occursin(BACKTICK_XREF_REGEX, dest)
+        code = strip_wrapping(dest)
+        return (kind = :explicit_docs, target = code, slug = code)
+    elseif anchor_exists(headers, dest) || occursin(DASHED_XREF_ID_REGEX, dest)
+        return (kind = :explicit_header_id, target = dest, slug = dest)
+    else
+        return (kind = :explicit_docs, target = dest, slug = dest)
+    end
+end
+
+strip_wrapping(s::AbstractString) = s[2:prevind(s, lastindex(s))]
+
 """Regular expression for an `@ref` link url.
 
 This is used by the [`XRefResolvers.XRefResolverPipeline`](@ref), respectively
@@ -355,6 +402,10 @@ the reference remains unresolved and needs further processing in subsequent step
 pipeline.
 """
 const XREF_REGEX = r"^\s*@ref(\s.*)?$"
+const QUOTED_XREF_REGEX = r"^\".+\"$"
+const BACKTICK_XREF_REGEX = r"^`.+`$"
+const ISSUE_REGEX = r"^#[0-9]+$"
+const DASHED_XREF_ID_REGEX = r"^[^-]+(?:-[^-]+)+$"
 
 
 # Cross referencing headers.
@@ -363,7 +414,9 @@ const XREF_REGEX = r"^\s*@ref(\s.*)?$"
 function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     headers = doc.internal.headers
-    @assert anchor_exists(headers, slug)
+    if !anchor_exists(headers, slug)
+        push!(errors, "Header with slug '$slug' in $(Documenter.locrepr(doc, page)) does not exist.")
+    end
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
     # Error checking: `slug` should exist and be unique.
@@ -498,6 +551,17 @@ function find_object(doc::Documenter.Document, binding, typesig)
                 # We've found an actual match out of the possible choices! Use it.
                 return candidate
             else
+                # Special case: UnionAll signature might be equivalent to an existing object, but not identical
+                # See <https://github.com/JuliaDocs/Documenter.jl/issues/2836>
+                if isa(typesig, UnionAll)
+                    for object in objects
+                        if object.binding === candidate.binding &&
+                                object.signature == candidate.signature && # equality, not identity!
+                                object.noncanonical_extra === candidate.noncanonical_extra
+                            return object
+                        end
+                    end
+                end
                 # No match in the possible choices. Use the one that was first included.
                 return objects[1]
             end
@@ -512,7 +576,7 @@ function find_object(binding, typesig)
         return Documenter.Object(binding, typesig)
     end
 end
-function find_object(λ::Union{Function, DataType}, binding, typesig)
+function find_object(λ::Union{Function, DataType}, binding, typesig::DataType)
     if hasmethod(λ, typesig)
         signature = getsig(λ, typesig)
         return Documenter.Object(binding, signature)

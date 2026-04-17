@@ -106,55 +106,25 @@ end
 function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
     lang = block.info
     if startswith(lang, "jldoctest")
-        # Define new module or reuse an old one from this page if we have a named doctest.
-        name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
-        sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
+        file = ctx.meta[:CurrentFile]
+        lines = Documenter.find_block_in_file(block.code, file)
+        source = Documenter.locrepr(file, lines)
+
+        success, name, d = parse_codeblock_args(
+            "jldoctest", block, ctx.doc, source;
+            allowed_kwargs = [:setup, :teardown, :filter, :syntax],
+        )
+        success || return false
 
         # Normalise line endings.
         block.code = replace(block.code, "\r\n" => "\n")
 
-        # parse keyword arguments to doctest
-        d = Dict()
-        idx = findfirst(c -> c == ';', lang)
-        if idx !== nothing
-            kwargs = try
-                Meta.parse("($(lang[nextind(lang, idx):end]),)")
-            catch e
-                e isa Meta.ParseError || rethrow(e)
-                file = ctx.meta[:CurrentFile]
-                lines = Documenter.find_block_in_file(block.code, file)
-                @docerror(
-                    ctx.doc, :doctest,
-                    """
-                    Unable to parse doctest keyword arguments in $(Documenter.locrepr(file, lines))
-                    Use ```jldoctest name; key1 = value1, key2 = value2
+        # Define new module or reuse an old one from this page if we have a named doctest.
+        sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
 
-                    ```$(lang)
-                    $(block.code)
-                    ```
-                    """, parse_error = e
-                )
-                return false
-            end
-            for kwarg in kwargs.args
-                if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
-                    file = ctx.meta[:CurrentFile]
-                    lines = Documenter.find_block_in_file(block.code, file)
-                    @docerror(
-                        ctx.doc, :doctest,
-                        """
-                        invalid syntax for doctest keyword arguments in $(Documenter.locrepr(file, lines))
-                        Use ```jldoctest name; key1 = value1, key2 = value2
-
-                        ```$(lang)
-                        $(block.code)
-                        ```
-                        """
-                    )
-                    return false
-                end
-                d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
-            end
+        # evaluate the values in the sandbox environment
+        for (k, v) in d
+            d[k] = Core.eval(sandbox, v)
         end
         ctx.meta[:LocalDocTestArguments] = d
 
@@ -177,9 +147,7 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
         # Check if syntax versioning is supported (requires Julia 1.14+)
         if syntax_version !== nothing && !isdefined(Base, :VersionedParse)
             if syntax_version >= v"1.14"
-                file = ctx.meta[:CurrentFile]
-                lines = Documenter.find_block_in_file(block.code, file)
-                @warn "Skipping doctest in $(Documenter.locrepr(file, lines)): syntax version $syntax_version requires Julia 1.14 or later (running on Julia $VERSION)"
+                @warn "Skipping doctest in $(source): syntax version $syntax_version requires Julia 1.14 or later (running on Julia $VERSION)"
                 return true  # Skip this doctest but don't treat as error
             end
             # For syntax versions < 1.14, we can proceed normally since the syntax should be compatible
@@ -191,12 +159,10 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
         elseif occursin(r"^# output$"m, block.code)
             eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file; syntax_version = syntax_version, mod = ctx.mod)
         elseif occursin(r"^# output\s+$"m, block.code)
-            file = ctx.meta[:CurrentFile]
-            lines = Documenter.find_block_in_file(block.code, file)
             @docerror(
                 ctx.doc, :doctest,
                 """
-                invalid doctest block in $(Documenter.locrepr(file, lines))
+                invalid doctest block in $(source)
                 Requires `# output` without trailing whitespace
 
                 ```$(lang)
@@ -205,12 +171,10 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
                 """
             )
         else
-            file = ctx.meta[:CurrentFile]
-            lines = Documenter.find_block_in_file(block.code, file)
             @docerror(
                 ctx.doc, :doctest,
                 """
-                invalid doctest block in $(Documenter.locrepr(file, lines))
+                invalid doctest block in $(source)
                 Requires `julia> ` or `# output`
 
                 ```$(lang)
@@ -264,13 +228,15 @@ end
 
 function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page; syntax_version = nothing, mod = nothing)
     file = meta[:CurrentFile]
-    src_lines = Documenter.find_block_in_file(block.code, file)
-    (prefix, split) = repl_splitter(block.code, doc, file, src_lines)
+    lines = Documenter.find_block_in_file(block.code, file)
+    source = Documenter.locrepr(file, lines)
+
+    (prefix, split) = repl_splitter(block.code, doc, file, lines)
     for (raw_input, input, output) in split
         result = Result(block, raw_input, input, output, file)
         for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false, syntax_version = syntax_version, mod = mod)
             # Input containing a semi-colon gets suppressed in the final output.
-            @debug "Evaluating REPL line from doctest at $(Documenter.locrepr(result.file, src_lines))" unparsed_string = str parsed_expression = ex
+            @debug "Evaluating REPL line from doctest at $(source)" unparsed_string = str parsed_expression = ex
             result.hide = REPL.ends_with_semicolon(str)
             # Use the REPL softscope for REPL jldoctests,
             # see https://github.com/JuliaLang/julia/pull/33864

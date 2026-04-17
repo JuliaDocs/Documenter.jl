@@ -689,10 +689,10 @@ Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
 ## Issue #2074: Named at-eval blocks
 
 ```@setup setup-at-eval
-x = 20274
+ x = 2074
 ```
 
 ```@eval setup-at-eval
 @assert x == 2074
-x
+nothing
 ```

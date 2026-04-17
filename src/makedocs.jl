@@ -101,7 +101,7 @@ the use of the template strings is discouraged, in favor of concrete
 repository URLs for local filesystem files, such as the edit links for manual Markdown
 pages, or docstring source links. `path` should be an absolute local filesystem path to a
 directory, and will be interpreted as the root of the remote repository specified with
-`remote`. `remote` would normally be [`Remote`](@ref Remotes.Remote) object, but can also be
+`remote`. `remote` would normally be [`Remote`](@ref `Remotes.Remote`) object, but can also be
 a `(remote::Remote, commit::AbstractString)` tuple, where the second argument specifies the
 commit within the repository. This is necessary when `path` is not pointing to a proper Git
 repository, and so determining the commit automatically is not possible.

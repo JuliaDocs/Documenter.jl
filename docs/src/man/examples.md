@@ -36,7 +36,7 @@ Packages that have tagged versions available in the general Registry:
 - [POMDPs.jl](https://juliapomdp.github.io/POMDPs.jl/stable/)
 - [PhyloNetworks.jl](https://juliaphylo.github.io/PhyloNetworks.jl/stable/)
 - [SlimOptim.jl](https://slimgroup.github.io/SlimOptim.jl/stable/)
-- [SymbolicRegression.jl](https://astroautomata.com/SymbolicRegression.jl/stable/)
+- [SymbolicRegression.jl](https://ai.damtp.cam.ac.uk/symbolicregression/dev/)
 - [TaylorSeries.jl](https://juliadiff.org/TaylorSeries.jl/stable/)
 - [WorldDynamics.jl](https://worlddynamics.github.io/WorldDynamics.jl/stable/)
 

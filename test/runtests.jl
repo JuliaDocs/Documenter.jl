@@ -29,6 +29,10 @@ end
     @info "Building docsxref/make.jl"
     include("docsxref/make.jl")
 
+    # Test cross-references with method arguments
+    @info "Building xref_signatures/make.jl"
+    include("xref_signatures/make.jl")
+
     # Warnings
     @info "Building warnings/make.jl"
     include("warnings/make.jl")
