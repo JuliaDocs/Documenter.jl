@@ -891,12 +891,26 @@ Returns a page (as a [`Documenter.Page`](@ref) object) using the [`HTMLContext`]
 getpage(ctx::HTMLContext, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx::HTMLContext, navnode::Documenter.NavNode) = getpage(ctx, navnode.page)
 
+function _find_first_index_page(pages)
+    for entry in pages
+        page = entry isa Pair ? entry.second : entry
+        if page isa AbstractString
+            endswith(normpath(page), "index.md") && return page
+        elseif page isa Vector
+            result = _find_first_index_page(page)
+            result !== nothing && return result
+        end
+    end
+    return nothing
+end
+
 function render(doc::Documenter.Document, settings::HTML = HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
     if isempty(doc.blueprint.pages)
         error("Aborting HTML build: no pages under src/")
-    elseif !haskey(doc.blueprint.pages, "index.md")
+    elseif !haskey(doc.blueprint.pages, "index.md") &&
+            !(settings.top_menu && _find_first_index_page(doc.user.pages) !== nothing)
         @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
     end
 
