@@ -1212,7 +1212,10 @@ function get_section_navtree(ctx, navnode)
     for section in sections
         for nn in section.navlist
             if nn.page == current_page
-                return section.navtree
+                # If the section has no navtree children (e.g. a top-level leaf page
+                # like "Home" => "index.md"), fall back to the full navtree so
+                # the sidebar still shows all top-level entries.
+                return isempty(section.navtree) ? ctx.doc.internal.navtree : section.navtree
             end
         end
     end
