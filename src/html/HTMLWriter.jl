@@ -115,7 +115,10 @@ function build_top_menu_sections(doc::Documenter.Document)
     seen_pages = Set{String}()
     for top_node in doc.internal.navtree
         title = something(top_node.title_override, "")
-        navtree = top_node.children
+        # For leaf pages (no children), include the node itself in the
+        # navtree so the sidebar shows it as a single entry with its
+        # in-page headings.
+        navtree = isempty(top_node.children) ? [top_node] : top_node.children
         navlist = Documenter.NavNode[]
         _collect_navlist!(navlist, top_node)
         for nn in navlist
@@ -1212,10 +1215,7 @@ function get_section_navtree(ctx, navnode)
     for section in sections
         for nn in section.navlist
             if nn.page == current_page
-                # If the section has no navtree children (e.g. a top-level leaf page
-                # like "Home" => "index.md"), fall back to the full navtree so
-                # the sidebar still shows all top-level entries.
-                return isempty(section.navtree) ? ctx.doc.internal.navtree : section.navtree
+                return section.navtree
             end
         end
     end
