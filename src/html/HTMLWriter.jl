@@ -483,7 +483,7 @@ struct HTML <: Documenter.Writer
     edit_link::Union{String, Symbol, Nothing}
     repolink::Union{String, Nothing, Default{Nothing}}
     canonical::Union{String, Nothing}
-    assets::Vector{<:HTMLHeadContent}
+    assets::Vector{HTMLHeadContent}
     analytics::String
     collapselevel::Int
     sidebar_sitename::Bool
@@ -541,11 +541,12 @@ struct HTML <: Documenter.Writer
         if prerender
             prerender, node, highlightjs = prepare_prerendering(prerender, node, highlightjs, highlights)
         end
-        assets = map(assets) do asset
-            isa(asset, HTMLHeadContent) && return asset
-            isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
+        assets = HTMLHeadContent[
+            isa(asset, HTMLHeadContent) ? asset :
+            isa(asset, AbstractString) ? HTMLAsset(assetclass(asset), asset, true) :
             error("Invalid value in assets: $(asset) [$(typeof(asset))]")
-        end
+            for asset in assets
+        ]
         # Handle edit_branch deprecation
         if !isa(edit_branch, Default)
             isa(edit_link, Default) || error("Can't specify edit_branch (deprecated) and edit_link simultaneously")
