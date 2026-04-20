@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Support self-hosted GitHub instances. ([#2755])
+* Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically. ([#2925])
 
 ### Fixed
 

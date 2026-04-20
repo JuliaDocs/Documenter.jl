@@ -543,9 +543,9 @@ struct HTML <: Documenter.Writer
         end
         assets = HTMLHeadContent[
             isa(asset, HTMLHeadContent) ? asset :
-            isa(asset, AbstractString) ? HTMLAsset(assetclass(asset), asset, true) :
-            error("Invalid value in assets: $(asset) [$(typeof(asset))]")
-            for asset in assets
+                isa(asset, AbstractString) ? HTMLAsset(assetclass(asset), asset, true) :
+                error("Invalid value in assets: $(asset) [$(typeof(asset))]")
+                for asset in assets
         ]
         # Handle edit_branch deprecation
         if !isa(edit_branch, Default)
