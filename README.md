@@ -19,7 +19,7 @@ pkg> add Documenter
 
 Or, equivalently, via the `Pkg` API:
 
-```julia
+```julia-repl
 julia> import Pkg; Pkg.add("Documenter")
 ```
 
