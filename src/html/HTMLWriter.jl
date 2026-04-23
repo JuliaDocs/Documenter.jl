@@ -541,12 +541,11 @@ struct HTML <: Documenter.Writer
         if prerender
             prerender, node, highlightjs = prepare_prerendering(prerender, node, highlightjs, highlights)
         end
-        assets = HTMLHeadContent[
-            isa(asset, HTMLHeadContent) ? asset :
-                isa(asset, AbstractString) ? HTMLAsset(assetclass(asset), asset, true) :
-                error("Invalid value in assets: $(asset) [$(typeof(asset))]")
-                for asset in assets
-        ]
+        assets = map(assets) do asset
+            isa(asset, HTMLHeadContent) && return asset
+            isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
+            error("Invalid value in assets: $(asset) [$(typeof(asset))]")
+        end
         # Handle edit_branch deprecation
         if !isa(edit_branch, Default)
             isa(edit_link, Default) || error("Can't specify edit_branch (deprecated) and edit_link simultaneously")
