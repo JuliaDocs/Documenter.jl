@@ -75,19 +75,19 @@ julia> x
 ```
 
 ```jldoctest; setup
-julia> 1+1
+julia> 1 + 1
 2
 ```
 ```jldoctest invalidkwarg1; setup
-julia> 1+1
+julia> 1 + 1
 2
 ```
 ```jldoctest; setup == 1
-julia> 1+1
+julia> 1 + 1
 2
 ```
 ```jldoctest invalidkwarg2; setup == 1
-julia> 1+1
+julia> 1 + 1
 2
 ```
 

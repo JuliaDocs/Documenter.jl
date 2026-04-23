@@ -72,7 +72,7 @@ Markdown.MD("Hello")
 ```jldoctest
 julia> # First definition.
        function f(x, y)
-           x + y
+           return x + y
        end
        #
        # Second definition.
@@ -95,7 +95,7 @@ false
 ```
 
 ```jldoctest
-julia> for i = 1:5
+julia> for i in 1:5
            println(i)
        end
 1
@@ -164,7 +164,7 @@ Assuming the following type and method live in the `InlineSVG` module
 
 ```julia
 struct SVG
-    code :: String
+    code::String
 end
 Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
 ```

@@ -73,8 +73,10 @@ function _decode_key_content(keycontent)
 end
 
 """
-    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl,
-                             tag_prefix, kwargs...)
+    Documenter.deploy_folder(
+        cfg::DeployConfig; repo, devbranch, push_preview, devurl,
+        tag_prefix, kwargs...
+    )
 
 Return a `DeployDecision`.
 This function is called with the `repo`, `devbranch`, `push_preview`, `tag_prefix`,

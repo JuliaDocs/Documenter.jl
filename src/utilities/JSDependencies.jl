@@ -21,7 +21,7 @@ Declares a remote JS dependency that should be declared in the RequireJS configu
 # Constructors
 
 ```julia
-RemoteLibrary(name::AbstractString, url::AbstractString; deps=String[], exports=nothing)
+RemoteLibrary(name::AbstractString, url::AbstractString; deps = String[], exports = nothing)
 ```
 """
 struct RemoteLibrary
@@ -116,7 +116,7 @@ end
 Base.push!(r::RequireJS, s::Snippet) = push!(r.snippets, s)
 
 """
-    verify(r::RequireJS; verbose=false) -> Bool
+    verify(r::RequireJS; verbose = false) -> Bool
 
 Checks that none of the dependencies are missing (returns `false` if some are). If `verbose`
 is set to `true`, it will also log an error with the missing dependency.

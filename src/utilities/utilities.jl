@@ -554,7 +554,7 @@ isabsurl(url) = occursin(ABSURL_REGEX, url)
 const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 """
-    mdparse(s::AbstractString; mode=:single)
+    mdparse(s::AbstractString; mode = :single)
 
 Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
 layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
@@ -634,9 +634,10 @@ keyword argument, or whether the keyword argument was not passed at all.
 
 ```julia
 function foo(; kwarg = Default("default value"))
-    if isa(kwarg, Default)
+    return if isa(kwarg, Default)
         # User did not explicitly pass a value for kwarg
-    else kwarg === "default value"
+    else
+        kwarg === "default value"
         # User passed "default value" explicitly
     end
 end
