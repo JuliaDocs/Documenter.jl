@@ -5,6 +5,7 @@ On the *page* (unlike in the `g` docstring) can link directly to [`AbstractSelec
 Implicit link to a header (single word): [API](@ref).
 Explicit link to a header (single word): [header link](@ref "API").
 Explicit link to a header via `@id`: [header id link](@ref api-reference).
+Explicit link to a header via multi-dash `@id`: [multi-dash id link](@ref multi-word-section-id).
 
 Implicit link to a header (multiple words): [Two words](@ref).
 Explicit link to a header (multiple words): [header link](@ref "Two words").
@@ -52,3 +53,5 @@ Something
 ## [Header/docstring conflict](@id DocsReferencingMain.g)
 
 Something else
+
+## [Multi-word section with dashes](@id multi-word-section-id)

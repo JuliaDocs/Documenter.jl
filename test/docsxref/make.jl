@@ -157,6 +157,7 @@ end
         @test contains(html, "<a href=\"index.html#Two-words\">Two words</a>")
         @test contains(html, "<a href=\"index.html#Two-words\">header link</a>")
         @test contains(html, "<a href=\"index.html#api-reference\">header id link</a>")
+        @test contains(html, "<a href=\"index.html#multi-word-section-id\">multi-dash id link</a>")
         @test contains(html, "<a href=\"https://github.com/JuliaDocs/Documenter.jl/issues/12345\">#12345</a>")
         @test contains(html, "<a href=\"https://github.com/JuliaDocs/Documenter.jl/issues/12345\">issue link</a>")
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\"><code>DocsReferencingMain.g</code></a>")
