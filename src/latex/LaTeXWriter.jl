@@ -467,6 +467,24 @@ end
 
 # Select the "best" representation for LaTeX output.
 using Base64: base64decode
+
+function _strip_latex_math_delimiters(latex::AbstractString)
+    m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
+    if m_bracket !== nothing
+        inner = m_bracket[1]
+        if occursin(r"^\s*\\begin\{"s, inner)
+            return lstrip(inner)
+        end
+    end
+    m_dollars = match(r"^\s*(\${1,2})([^\$]*)\1\s*$"s, latex)
+    if m_dollars !== nothing
+        inner = m_dollars[2]
+        if occursin(r"^\s*\\begin\{"s, inner)
+            return lstrip(inner)
+        end
+    end
+    return latex
+end
 latex(io::Context, node::Node, ::Documenter.MultiOutput) = latex(io, node.children)
 function latex(io::Context, node::Node, moe::Documenter.MultiOutputElement)
     return Base.invokelatest(latex, io, node, moe.element)
@@ -494,8 +512,7 @@ function latex(io::Context, ::Node, d::Dict{MIME, Any})
             """
         )
     elseif haskey(d, MIME"text/latex"())
-        # If it has a latex MIME, just write it out directly.
-        content = d[MIME("text/latex")]
+        content = _strip_latex_math_delimiters(d[MIME("text/latex")])
         if startswith(content, "\\begin{tabular}")
             # This is a hacky fix for the printing of DataFrames (or any type
             # that produces a {tabular} environment). The biggest problem is
