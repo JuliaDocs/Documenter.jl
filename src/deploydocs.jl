@@ -346,8 +346,8 @@ end
 """
     git_push(
         root, tmp, repo;
-        branch="gh-pages", dirname="", target="site", sha="",
-        cname=nothing, devurl="dev",
+        branch = "gh-pages", dirname = "", target = "site", sha = "",
+        cname = nothing, devurl = "dev",
         deploy_config, subfolder
     )
 

@@ -417,7 +417,7 @@ done just in the REPL:
 
 ```julia-repl
 julia> using Documenter, MyPackage
-julia> doctest(MyPackage, fix=true)
+julia> doctest(MyPackage, fix = true)
 ```
 
 Alternatively, you can also pass the `doctest = :fix` keyword to [`makedocs`](@ref).

@@ -149,39 +149,48 @@ The `mathengine` argument to [`Documenter.HTMLWriter.HTML`](@ref) allows the mat
 
 Furthermore, you can also pass custom configuration to the rendering engine. E.g. to add global LaTeX command definitions, you can set `mathengine` to:
 ```julia
-mathengine = Documenter.MathJax(Dict(:TeX => Dict(
-    :equationNumbers => Dict(:autoNumber => "AMS"),
-    :Macros => Dict(
-        :ket => ["|#1\\rangle", 1],
-        :bra => ["\\langle#1|", 1],
-    ),
-)))
+mathengine = Documenter.MathJax(
+    Dict(
+        :TeX => Dict(
+            :equationNumbers => Dict(:autoNumber => "AMS"),
+            :Macros => Dict(
+                :ket => ["|#1\\rangle", 1],
+                :bra => ["\\langle#1|", 1],
+            ),
+        )
+    )
+)
 ```
 Or with MathJax v3, the [physics package](https://mirrors.ctan.org/macros/latex/contrib/physics/physics.pdf) can be loaded:
 
 ```julia
-mathengine = MathJax3(Dict(
-    :loader => Dict("load" => ["[tex]/physics"]),
-    :tex => Dict(
-        "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
-        "tags" => "ams",
-        "packages" => ["base", "ams", "autoload", "physics"],
-    ),
-))
+mathengine = MathJax3(
+    Dict(
+        :loader => Dict("load" => ["[tex]/physics"]),
+        :tex => Dict(
+            "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
+            "tags" => "ams",
+            "packages" => ["base", "ams", "autoload", "physics"],
+        ),
+    )
+)
 ```
 
 The syntax is slightly different if using KaTeX, the following example is what you might include in your `makedocs` function:
 
 ```julia
 makedocs(
-    format = Documenter.HTML(; mathengine=
-        Documenter.KaTeX(
-            Dict(:delimiters => [
-                Dict(:left => raw"$",   :right => raw"$",   display => false),
-                Dict(:left => raw"$$",  :right => raw"$$",  display => true),
-                Dict(:left => raw"\[",  :right => raw"\]",  display => true),
+    format = Documenter.HTML(;
+        mathengine =
+            Documenter.KaTeX(
+            Dict(
+                :delimiters => [
+                    Dict(:left => raw"$", :right => raw"$", display => false),
+                    Dict(:left => raw"$$", :right => raw"$$", display => true),
+                    Dict(:left => raw"\[", :right => raw"\]", display => true),
                 ],
-                :macros => Dict("\\RR" => "\\mathbb{R}",
+                :macros => Dict(
+                    "\\RR" => "\\mathbb{R}",
                     raw"\Xi" => raw"X_{i}",
                     raw"\Ru" => raw"R_{\mathrm{univ.}}",
                     raw"\Pstd" => raw"P_{\mathrm{std}}",

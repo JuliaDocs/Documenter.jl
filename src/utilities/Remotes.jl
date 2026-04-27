@@ -89,7 +89,7 @@ function issueurl end
 issueurl(::Remote, ::Any) = nothing
 
 """
-    repofile(remote::Remote, ref, filename, linerange=nothing)
+    repofile(remote::Remote, ref, filename, linerange = nothing)
 
 Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
 to the potentially user-defined `fileurl` implementations.
@@ -141,8 +141,8 @@ function github_host()
 end
 
 """
-    GitHub(user :: AbstractString, repo :: AbstractString, [host :: AbstractString])
-    GitHub(remote :: AbstractString)
+    GitHub(user::AbstractString, repo::AbstractString, [host::AbstractString])
+    GitHub(remote::AbstractString)
 
 Represents a remote Git repository hosted on GitHub. The repository is identified by the
 names of the user (or organization) and the repository: `GitHub(user, repository)`. E.g.:
@@ -274,7 +274,7 @@ issueurl(
 # Handling of URL string templates (deprecated, for backwards compatibility)
 #
 """
-    URL(urltemplate, repourl=nothing)
+    URL(urltemplate, repourl = nothing)
 
 A [`Remote`](@ref) type used internally in Documenter when the user passes a URL template
 string as the `repo` argument. Will return `nothing` from `repourl` if the optional

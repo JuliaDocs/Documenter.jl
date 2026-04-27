@@ -237,7 +237,7 @@ julia> WarningTests.run_warnings_test("doctest")
 │
 │ ```jldoctest
 │
-│ julia> 1+1
+│ julia> 1 + 1
 │ 2
 │ ```
 └ @ Documenter
@@ -245,8 +245,8 @@ julia> WarningTests.run_warnings_test("doctest")
 │ Consecutive `julia>` prompts must be separated by an empty line.
 │
 │ ```jldoctest
-│ julia> a=1;
-│ julia> a+1
+│ julia> a = 1;
+│ julia> a + 1
 │ 2
 │ ```
 └ @ Documenter
