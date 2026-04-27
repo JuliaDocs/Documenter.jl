@@ -483,7 +483,7 @@ struct HTML <: Documenter.Writer
     edit_link::Union{String, Symbol, Nothing}
     repolink::Union{String, Nothing, Default{Nothing}}
     canonical::Union{String, Nothing}
-    assets::Vector{<:HTMLHeadContent}
+    assets::Vector{HTMLHeadContent}
     analytics::String
     collapselevel::Int
     sidebar_sitename::Bool
