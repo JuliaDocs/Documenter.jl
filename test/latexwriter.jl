@@ -148,6 +148,25 @@ end
     end
 end
 
+@testset "LaTeX: _strip_latex_math_delimiters" begin
+    strip = LaTeXWriter._strip_latex_math_delimiters
+    eq = "\\begin{equation}\nx^2\n\\end{equation}"
+    # Strips \[...\] and $$...$$ when inner content has a \begin{} environment
+    @test strip("\\[$eq\\]") == eq
+    @test strip("\$\$$eq\$\$") == eq
+    @test strip("  \\[ $eq \\]  ") == eq
+    @test strip("  \$\$ $eq \$\$  ") == eq
+    # Does NOT strip when inner content has no \begin{} environment
+    for content in ["x^2", "\\frac{1}{2}", "\\left[\\begin{array}{c}1\\end{array}\\right]"]
+        @test strip("\\[$content\\]") == "\\[$content\\]"
+        @test strip("\$\$$content\$\$") == "\$\$$content\$\$"
+        @test strip("\$$content\$") == "\$$content\$"
+    end
+    # Unchanged when no delimiters present
+    @test strip(eq) == eq
+    @test strip("x^2") == "x^2"
+end
+
 @testset "dump latex log" begin
     mktempdir() do tmp
         output = cd(tmp) do

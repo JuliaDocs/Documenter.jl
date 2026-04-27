@@ -473,14 +473,14 @@ function _strip_latex_math_delimiters(latex::AbstractString)
     if m_bracket !== nothing
         inner = m_bracket[1]
         if occursin(r"^\s*\\begin\{"s, inner)
-            return lstrip(inner)
+            return strip(inner)
         end
     end
     m_dollars = match(r"^\s*(\${1,2})([^\$]*)\1\s*$"s, latex)
     if m_dollars !== nothing
         inner = m_dollars[2]
         if occursin(r"^\s*\\begin\{"s, inner)
-            return lstrip(inner)
+            return strip(inner)
         end
     end
     return latex
