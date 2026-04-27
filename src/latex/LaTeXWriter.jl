@@ -473,17 +473,17 @@ function _strip_latex_math_delimiters(latex::AbstractString)
     if m_bracket !== nothing
         inner = m_bracket[1]
         if occursin(r"^\s*\\begin\{"s, inner)
-            return strip(inner)
+            return strip(inner), true
         end
     end
     m_dollars = match(r"^\s*(\${1,2})([^\$]*)\1\s*$"s, latex)
     if m_dollars !== nothing
         inner = m_dollars[2]
         if occursin(r"^\s*\\begin\{"s, inner)
-            return strip(inner)
+            return strip(inner), true
         end
     end
-    return latex
+    return latex, false
 end
 latex(io::Context, node::Node, ::Documenter.MultiOutput) = latex(io, node.children)
 function latex(io::Context, node::Node, moe::Documenter.MultiOutputElement)
@@ -512,7 +512,10 @@ function latex(io::Context, ::Node, d::Dict{MIME, Any})
             """
         )
     elseif haskey(d, MIME"text/latex"())
-        content = _strip_latex_math_delimiters(d[MIME("text/latex")])
+        content, was_stripped = _strip_latex_math_delimiters(d[MIME("text/latex")])
+        if was_stripped
+            @warn "LaTeX output wraps a display math environment (e.g. \\begin{equation}) inside \$\$ or \\[...\\] delimiters, which is invalid LaTeX. The outer delimiters have been removed. Please fix the `show(io, MIME\"text/latex\"(), ...)` method of the relevant type."
+        end
         if startswith(content, "\\begin{tabular}")
             # This is a hacky fix for the printing of DataFrames (or any type
             # that produces a {tabular} environment). The biggest problem is
