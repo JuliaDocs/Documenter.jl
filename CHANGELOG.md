@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed headers hidden by the navbar. ([#2905])
 * Tightened `@ref` classification so references are matched more consistently by syntax, with header labels still taking precedence over docstrings and mistaken header/id references less likely to resolve as docstrings. ([#2678])
+* Added test coverage confirming that `@ref` links to headers defined with a multi-dash `@id` (e.g. `@id my-section-title`) resolve correctly. ([#2732])
 
 ## Version [v1.17.0] - 2026-02-20
 
