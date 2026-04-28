@@ -229,6 +229,24 @@ end
     )
 )
 
+@testset "remotes parent directory covers repo root" begin
+    @debug Test.get_testset()
+    # This tests the branch where makedocs_root_repo (git repo root) is a subdirectory of
+    # makedocs_root_remoteref.root (a path in `remotes`). The git repo remote should win
+    # for the main remote, and the parent remotes entry covers everything else underneath.
+    doc = Documenter.Document(
+        root = joinpath(mainrepo, "docs"),
+        remotes = Dict(
+            tmproot => (Remotes.GitHub("ParentOrg", "ParentRepo.jl"), "parent-commit"),
+        )
+    )
+    @test doc.user.remote == Remotes.GitHub("TestOrg", "TestRepo.jl")
+    @test edit_url(doc, joinpath(mainrepo, "foo"); rev = nothing) ==
+        "https://github.com/TestOrg/TestRepo.jl/blob/$(mainrepo_commit)/foo"
+    @test edit_url(doc, joinpath(extdirectory, "foo"); rev = nothing) ==
+        "https://github.com/ParentOrg/ParentRepo.jl/blob/parent-commit/extdirectory/foo"
+end
+
 rm(tmproot, recursive = true, force = true)
 
 include("repolink_helpers.jl")
