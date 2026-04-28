@@ -270,6 +270,8 @@ mutable struct NavNode
     next::Union{NavNode, Nothing}
 end
 NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
+
+
 # This method ensures that we do not print the whole navtree in case we ever happen to print
 # a NavNode in some debug output somewhere.
 function Base.show(io::IO, n::NavNode)
@@ -512,7 +514,7 @@ function Document(;
         Dict{Markdown.Link, String}(),
         Set{Symbol}(),
         Dict{String, String}(),
-        Dict{String, Tuple{String, String}}()
+        Dict{String, Tuple{String, String}}(),
     )
 
     plugin_dict = Dict{DataType, Plugin}()

@@ -188,7 +188,7 @@ struct Node
     nodes::Vector{Node}
 
     Node(name::Symbol, attr::Attributes, data::Vector{Node}) = new(name, EMPTY_STRING, attr, data)
-    Node(text::AbstractString) = new(TEXT, text)
+    Node(text::AbstractString) = new(TEXT, text, Attributes(), Node[])
 end
 
 #

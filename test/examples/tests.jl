@@ -488,6 +488,114 @@ end
         @test examples_html_sizethreshold_ignore_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
     end
 
+    @testset "HTML: top_menu" begin
+        doc = Main.examples_html_topmenu_doc
+        @test isa(doc, Documenter.Documenter.Document)
+
+        # Verify top-level navtree has two section entries
+        @test length(doc.internal.navtree) == 2
+        @test doc.internal.navtree[1].title_override == "Getting Started"
+        @test doc.internal.navtree[2].title_override == "User Guide"
+
+        # Verify each section has its own pages (children of the section navnode)
+        @test length(doc.internal.navtree[1].children) == 2
+        @test length(doc.internal.navtree[2].children) == 2
+
+        # Verify first page of each section (use joinpath for cross-platform compatibility)
+        @test doc.internal.navtree[1].children[1].page == joinpath("getting-started", "index.md")
+        @test doc.internal.navtree[2].children[1].page == joinpath("guide", "index.md")
+
+        let build_dir = joinpath(examples_root, "builds", "html-topmenu")
+            # Check that HTML files were generated
+            @test joinpath(build_dir, "getting-started", "index.html") |> isfile
+            @test joinpath(build_dir, "getting-started", "install", "index.html") |> isfile
+            @test joinpath(build_dir, "guide", "index.html") |> isfile
+            @test joinpath(build_dir, "guide", "advanced", "index.html") |> isfile
+
+            # Check that a redirect index.html was generated at the build root
+            @test joinpath(build_dir, "index.html") |> isfile
+            redirect_content = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("getting-started", redirect_content)
+            @test occursin("Redirecting", redirect_content)
+
+            # Check that top menu is present in generated HTML
+            page_content = read(joinpath(build_dir, "getting-started", "index.html"), String)
+            @test occursin("docs-top-menu", page_content)
+            @test occursin("Getting Started", page_content)
+            @test occursin("User Guide", page_content)
+            @test occursin("has-top-menu", page_content)
+
+            # Check dropdown structure is present
+            @test occursin("docs-top-dropdown", page_content)
+            @test occursin("docs-top-dropdown-menu", page_content)
+            @test occursin("docs-top-dropdown-item", page_content)
+            @test occursin("docs-top-dropdown-caret", page_content)
+
+            # Check that the dropdown items link to section pages
+            # "Getting Started" section has "Home" (getting-started/index.md) and "Installation"
+            @test occursin("getting-started", page_content)
+            @test occursin("install", page_content)
+
+            # Check that different sections show different sidebar content
+            guide_content = read(joinpath(build_dir, "guide", "index.html"), String)
+            @test occursin("docs-top-menu", guide_content)
+            # Dropdown for "User Guide" section should contain its pages
+            @test occursin("docs-top-dropdown-menu", guide_content)
+            @test occursin("docs-top-dropdown-item", guide_content)
+        end
+
+        # --- Additional edge case tests for top_menu ---
+
+        using Documenter
+        import Markdown
+        # Helper to create a temp doc source dir with a minimal index.md
+        function makedocs_with_topmenu(top_menu_pages; extra_kwargs = Dict())
+            tempdir = mktempdir()
+            srcdir = joinpath(tempdir, "src")
+            mkpath(srcdir)
+            write(joinpath(srcdir, "index.md"), "# Index\n\nSome content.")
+            kwargs = Dict(
+                :root => tempdir,
+                :source => srcdir,
+                :build => joinpath(tempdir, "build"),
+                :sitename => "TopMenu EdgeCase",
+                :pages => top_menu_pages,
+                :format => Documenter.HTML(top_menu = true, prettyurls = false),
+                :warnonly => true,
+                :remotes => nothing,
+            )
+            merge!(kwargs, extra_kwargs)
+            return Documenter.makedocs(; kwargs...)
+        end
+
+        # 1. Duplicate page in different sections triggers warning
+        @testset "top_menu duplicate page warning" begin
+            pages = [
+                "Section 1" => ["index.md"],
+                "Section 2" => ["index.md"],
+            ]
+            io = IOBuffer()
+            got_warn = false
+            with_logger(ConsoleLogger(io, Logging.Warn)) do
+                makedocs_with_topmenu(pages)
+                got_warn = occursin("appears in multiple top_menu sections", String(take!(io)))
+            end
+            @test got_warn
+        end
+
+        # 2. Invalid top_menu entry (not a Pair)
+        @testset "top_menu invalid entry error" begin
+            pages = [["not a pair"]]
+            @test_throws ErrorException makedocs_with_topmenu(pages)
+        end
+
+        # 3. top_menu with an empty section (should not crash)
+        @testset "top_menu empty section" begin
+            pages = ["Empty Section" => []]
+            @test_nowarn makedocs_with_topmenu(pages)
+        end
+    end
+
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
         @test isa(doc, Documenter.Documenter.Document)
