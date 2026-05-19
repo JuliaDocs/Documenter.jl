@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Support self-hosted GitHub instances. ([#2755])
+* Added documentation on how to use `IOContext` to limit the display size of large outputs in `@example` blocks. ([#2207])
+
+### Changed
+
+* Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically in plugins. ([#2925])
+
+### Added
+
+* Support self-hosted GitHub instances. ([#2755])
 
 ### Changed
 

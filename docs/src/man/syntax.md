@@ -421,6 +421,35 @@ As with `@index` if `Pages` is not provided then all pages are included. The def
 
     Documenter will then list the contents of the "Subsection" pages, and they will always appear in the same order as they are in the sidebar.
 
+### Modifying Output Display (`IOContext`)
+
+When generating documentation, you may want to limit the output of large arrays, dataframes, or deeply nested structures. By default, Documenter evaluates blocks without aggressive truncation, which can occasionally result in excessively long output blocks.
+
+To control how objects are displayed, you can explicitly call `Base.show` with a custom `IOContext` at the end of your `@example` or `@repl` block. 
+
+For example, to limit the number of elements printed for a large matrix, you can pass `:limit => true` and define a `:displaysize`:
+
+````julia
+```@example
+large_matrix = rand(100, 100)
+# Use IOContext to truncate the output explicitly
+show(IOContext(stdout, :limit => true, :displaysize => (10, 80)), "text/plain", large_matrix)
+```
+````
+
+This will truncate the matrix output visually with `...` and `⋱`, just as it would appear in a constrained REPL environment, preventing the documentation page from becoming bloated.
+
+**Global Doctest Settings**
+If you need to enforce a specific text width globally across all your doctests (for instance, to ensure your doctest strings don't wrap unexpectedly and fail), you can set the `ENV["COLUMNS"]` variable directly in your `docs/make.jl` file before calling `makedocs`:
+
+````julia
+ENV["COLUMNS"] = 80 # Sets the display width for doctest outputs
+makedocs(
+    sitename = "MyPackage.jl",
+    # ...
+)
+````
+
 ## [`@example` block](@id reference-at-example)
 
 Evaluates the code block and inserts the result of the last expression into the final document along with the
