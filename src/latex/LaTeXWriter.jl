@@ -131,7 +131,10 @@ function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
             open("$(fileprefix).tex", "w") do io
                 context = Context(io, doc)
                 writeheader(context, doc, settings)
-                for (title, filename, depth) in files(doc.user.pages)
+                for (title, filename, depth) in Documenter.progress_iter(
+                        collect(files(doc.user.pages));
+                        desc = "Rendering LaTeX:  ",
+                    )
                     context.filename = filename
                     empty!(context.footnotes)
                     if 1 <= depth <= length(DOCUMENT_STRUCTURE)

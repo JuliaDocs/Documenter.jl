@@ -24,7 +24,10 @@ keyword in [`Documenter.makedocs`](@ref) to disable doctesting.
 function _doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Document)
     @debug "Running doctests."
     # find all the doctest blocks in the pages
-    for (src, page) in blueprint.pages
+    for (src, page) in Documenter.progress_iter(
+            collect(blueprint.pages);
+            desc = "Running doctests: ",
+        )
         if Documenter.is_draft(doc, page)
             @debug "Skipping page-doctests in draft mode" page.source
             continue

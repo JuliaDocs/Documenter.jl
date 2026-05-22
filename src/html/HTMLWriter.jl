@@ -880,7 +880,12 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
         copy_asset("themes/$(theme).css", doc)
     end
 
-    size_limit_successes = map(collect(keys(doc.blueprint.pages))) do page
+    size_limit_successes = map(
+        Documenter.progress_iter(
+            collect(keys(doc.blueprint.pages));
+            desc = "Rendering HTML:   ",
+        )
+    ) do page
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
         nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
         @debug "Rendering $(page) [$(repr(idx))]"
