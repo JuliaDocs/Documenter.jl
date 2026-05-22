@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added an opt-in `DocumenterProgressMeterExt` package extension that displays [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl) progress bars for the page-iterating loops of the `makedocs` pipeline (template expansion, doctests, and HTML/LaTeX rendering). Activate by adding `ProgressMeter` to your docs project and writing `using ProgressMeter` in `make.jl`. ([#2936])
 * Support self-hosted GitHub instances. ([#2755])
 
 ### Changed
