@@ -37,40 +37,73 @@ function clear_modules!(d::Dict{Symbol, Any})
     return
 end
 
-function expand(doc::Documenter.Document)
+function ordered_expander_pages(doc::Documenter.Document; warn_missing::Bool = true)
     expandfirst = map(normpath, doc.user.expandfirst)
     priority_pages = filter(expandfirst) do src
         if src in keys(doc.blueprint.pages)
             return true
         else
-            @warn "$(src) in expandfirst does not exist"
+            warn_missing && @warn "$(src) in expandfirst does not exist"
             return false
         end
     end
     normal_pages = filter(src -> !(src in priority_pages), keys(doc.blueprint.pages))
     normal_pages = sort([src for src in normal_pages])
     @debug "pages" keys(doc.blueprint.pages) priority_pages normal_pages
-    for src in Iterators.flatten([priority_pages, normal_pages])
+    return Iterators.flatten([priority_pages, normal_pages])
+end
+
+function expand_page!(pipeline, nested_pipeline, page, doc)
+    # We need to collect the child nodes here because we will end up changing the structure
+    # of the tree in some cases.
+    for node in collect(page.mdast.children)
+        Selectors.dispatch(pipeline, node, page, doc)
+        expand_recursively(node, page, doc, nested_pipeline)
+    end
+    return
+end
+
+function expand_templates(doc::Documenter.Document)
+    for src in ordered_expander_pages(doc)
         page = doc.blueprint.pages[src]
         @debug "Running ExpanderPipeline on $src"
         copy!(page.globals.meta, doc.user.meta)
-        # We need to collect the child nodes here because we will end up changing the structure
-        # of the tree in some cases.
-        for node in collect(page.mdast.children)
-            Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
-            expand_recursively(node, page, doc)
-        end
+        expand_page!(Expanders.ExpanderPipeline, Expanders.NestedExpanderPipeline, page, doc)
+    end
+    return
+end
+
+function expand_executable_templates(doc::Documenter.Document)
+    for src in ordered_expander_pages(doc; warn_missing = false)
+        page = doc.blueprint.pages[src]
+        @debug "Running ExecutableExpanderPipeline on $src"
+        expand_page!(
+            Expanders.ExecutableExpanderPipeline,
+            Expanders.NestedExecutableExpanderPipeline,
+            page,
+            doc,
+        )
         pagecheck(doc, page)
         clear_modules!(page.globals.meta)
     end
     return
 end
 
+function expand(doc::Documenter.Document)
+    expand_templates(doc)
+    expand_executable_templates(doc)
+    return
+end
+
 """
-Similar to `expand()`, but recursively calls itself on all descendants of `node`
-and applies `NestedExpanderPipeline` instead of `ExpanderPipeline`.
+Similar to `expand_page!`, but recursively calls itself on all descendants of `node`
+and applies the supplied nested expander pipeline.
 """
 function expand_recursively(node, page, doc)
+    return expand_recursively(node, page, doc, Expanders.NestedExpanderPipeline)
+end
+
+function expand_recursively(node, page, doc, nested_pipeline)
     if typeof(node.element) in (
             MarkdownAST.Admonition,
             MarkdownAST.BlockQuote,
@@ -78,8 +111,8 @@ function expand_recursively(node, page, doc)
             MarkdownAST.List,
         )
         for child in node.children
-            Selectors.dispatch(Expanders.NestedExpanderPipeline, child, page, doc)
-            expand_recursively(child, page, doc)
+            Selectors.dispatch(nested_pipeline, child, page, doc)
+            expand_recursively(child, page, doc, nested_pipeline)
         end
     end
     return
@@ -119,18 +152,17 @@ module Expanders
     import ..Documenter.Selectors
 
     """
-    The default node expander "pipeline", which consists of the following expanders:
+    The node expander "pipeline" for non-executable markdown templates.
+
+    It consists of the following expanders:
 
     - [`TrackHeaders`](@ref)
     - [`MetaBlocks`](@ref)
     - [`DocsBlocks`](@ref)
     - [`AutoDocsBlocks`](@ref)
-    - [`EvalBlocks`](@ref)
     - [`IndexBlocks`](@ref)
     - [`ContentsBlocks`](@ref)
-    - [`ExampleBlocks`](@ref)
-    - [`SetupBlocks`](@ref)
-    - [`REPLBlocks`](@ref)
+    - [`RawBlocks`](@ref)
 
     """
     abstract type ExpanderPipeline <: Selectors.AbstractSelector end
@@ -141,6 +173,27 @@ module Expanders
     See also [`expand_recursively`](@ref `Documenter.expand_recursively`).
     """
     abstract type NestedExpanderPipeline <: ExpanderPipeline end
+
+    """
+    The node expander "pipeline" for executable markdown templates.
+
+    It consists of the following expanders:
+
+    - [`EvalBlocks`](@ref)
+    - [`ExampleBlocks`](@ref)
+    - [`REPLBlocks`](@ref)
+    - [`SetupBlocks`](@ref)
+
+    """
+    abstract type ExecutableExpanderPipeline <: Selectors.AbstractSelector end
+
+    """
+    The subset of [executable node expanders](@ref `ExecutableExpanderPipeline`) which also
+    apply in nested contexts.
+
+    See also [`expand_recursively`](@ref `Documenter.expand_recursively`).
+    """
+    abstract type NestedExecutableExpanderPipeline <: ExecutableExpanderPipeline end
 
     """
     Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
@@ -206,7 +259,7 @@ module Expanders
     ```
     ````
     """
-    abstract type EvalBlocks <: NestedExpanderPipeline end
+    abstract type EvalBlocks <: NestedExecutableExpanderPipeline end
 
     """
     Parses each code block where the language is `@raw`.
@@ -262,7 +315,7 @@ module Expanders
     ```
     ````
     """
-    abstract type ExampleBlocks <: NestedExpanderPipeline end
+    abstract type ExampleBlocks <: NestedExecutableExpanderPipeline end
 
     """
     Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
@@ -276,7 +329,7 @@ module Expanders
     ```
     ````
     """
-    abstract type REPLBlocks <: NestedExpanderPipeline end
+    abstract type REPLBlocks <: NestedExecutableExpanderPipeline end
 
     """
     Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
@@ -287,7 +340,7 @@ module Expanders
     ```
     ````
     """
-    abstract type SetupBlocks <: NestedExpanderPipeline end
+    abstract type SetupBlocks <: NestedExecutableExpanderPipeline end
 end
 
 Selectors.order(::Type{Expanders.TrackHeaders}) = 1.0
@@ -318,6 +371,8 @@ Selectors.matcher(::Type{Expanders.RawBlocks}, node, page, doc) = iscode(node, r
 
 Selectors.runner(::Type{Expanders.ExpanderPipeline}, node, page, doc) = nothing
 Selectors.runner(::Type{Expanders.NestedExpanderPipeline}, node, page, doc) = nothing
+Selectors.runner(::Type{Expanders.ExecutableExpanderPipeline}, node, page, doc) = nothing
+Selectors.runner(::Type{Expanders.NestedExecutableExpanderPipeline}, node, page, doc) = nothing
 
 # Track Headers.
 # --------------

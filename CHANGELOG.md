@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically in plugins. ([#2925])
+* Expand non-executable markdown templates before executable `@eval`, `@example`, `@repl`, and `@setup` templates, so page-level `@meta` settings apply before executable templates run.
 
 ### Fixed
 

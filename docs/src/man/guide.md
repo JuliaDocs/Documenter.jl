@@ -145,6 +145,7 @@ When you run that you should see the following output
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.

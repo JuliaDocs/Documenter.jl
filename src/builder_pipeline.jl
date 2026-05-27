@@ -15,6 +15,7 @@ module Builder
     - [`SetupBuildDirectory`](@ref)
     - [`Doctest`](@ref)
     - [`ExpandTemplates`](@ref)
+    - [`ExpandExecutableTemplates`](@ref)
     - [`CheckDocument`](@ref)
     - [`Populate`](@ref)
     - [`RenderDocument`](@ref)
@@ -33,9 +34,14 @@ module Builder
     abstract type Doctest <: DocumentPipeline end
 
     """
-    Executes a sequence of actions on each node of the parsed markdown files in turn.
+    Expands non-executable markdown templates in the parsed markdown files.
     """
     abstract type ExpandTemplates <: DocumentPipeline end
+
+    """
+    Expands executable markdown templates in the parsed markdown files.
+    """
+    abstract type ExpandExecutableTemplates <: DocumentPipeline end
 
     """
     Finds and sets URLs for each `@ref` link in the document to the correct destinations.
@@ -62,6 +68,7 @@ end
 Selectors.order(::Type{Builder.SetupBuildDirectory}) = 1.0
 Selectors.order(::Type{Builder.Doctest}) = 1.1
 Selectors.order(::Type{Builder.ExpandTemplates}) = 2.0
+Selectors.order(::Type{Builder.ExpandExecutableTemplates}) = 2.1
 Selectors.order(::Type{Builder.CrossReferences}) = 3.0
 Selectors.order(::Type{Builder.CheckDocument}) = 4.0
 Selectors.order(::Type{Builder.Populate}) = 5.0
@@ -221,7 +228,14 @@ end
 function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    expand(doc)
+    expand_templates(doc)
+    return
+end
+
+function Selectors.runner(::Type{Builder.ExpandExecutableTemplates}, doc::Documenter.Document)
+    is_doctest_only(doc, "ExpandExecutableTemplates") && return
+    @info "ExpandExecutableTemplates: expanding executable markdown templates."
+    expand_executable_templates(doc)
     return
 end
 
