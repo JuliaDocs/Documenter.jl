@@ -50,6 +50,9 @@ considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 fails. This can be useful in CI where temporary build directories are not preserved. If
 the environment variable `DOCUMENTER_LATEX_SHOW_LOGS` is set, log dumping is always enabled.
 
+**`latexmk_norc`** if `true`, pass the `-norc` flag to `latexmk`, preventing it from
+reading any `latexmkrc` configuration files. Defaults to `false`.
+
 See [Other Output Formats](@ref) for more information.
 """
 struct LaTeX <: Documenter.Writer
@@ -57,15 +60,17 @@ struct LaTeX <: Documenter.Writer
     version::String
     tectonic::Union{Cmd, String, Nothing}
     show_log::Bool
+    latexmk_norc::Bool
     function LaTeX(;
             platform = "native",
             version = get(ENV, "TRAVIS_TAG", ""),
             tectonic = nothing,
             show_log = false,
+            latexmk_norc = false,
         )
         platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
         show_log = show_log || haskey(ENV, "DOCUMENTER_LATEX_SHOW_LOGS")
-        return new(platform, string(version), tectonic, show_log)
+        return new(platform, string(version), tectonic, show_log, latexmk_norc)
     end
 end
 
@@ -197,7 +202,8 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
         try
-            piperun(`latexmk -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
+            norc_flag = settings.latexmk_norc ? `-norc` : ``
+            piperun(`latexmk $norc_flag -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
             settings.show_log && dump_latex_log(fileprefix)
