@@ -35,10 +35,10 @@ import Documenter.LaTeXWriter
 end
 
 
-function _dummy_lctx()
+function _dummy_lctx(settings = LaTeXWriter.LaTeX())
     doc = Documenter.Document()
     buffer = IOBuffer()
-    return LaTeXWriter.Context(buffer, doc)
+    return LaTeXWriter.Context(buffer, doc, settings)
 end
 
 function _latexesc(str)
@@ -137,6 +137,19 @@ end
         @test success(proc)
         @test !occursin("Illegal parameter number in definition of \\Hy@tempa", log)
     end
+end
+
+@testset "LaTeX lexers option" begin
+    # unknown language falls back to text with default lexers
+    tex = _mdblocks_to_latex("```python\nx = 1\n```")
+    @test occursin("{text}", tex)
+
+    # custom lexers: python is now accepted
+    lctx = _dummy_lctx(LaTeXWriter.LaTeX(lexers = union(LaTeXWriter.LEXER, ["python"])))
+    for node in Documenter.mdparse("```python\nx = 1\n```"; mode = :blocks)
+        LaTeXWriter.latex(lctx, node)
+    end
+    @test occursin("{python}", String(take!(lctx.io)))
 end
 
 @testset "LaTeX show_log option" begin
