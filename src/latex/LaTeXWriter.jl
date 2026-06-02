@@ -203,7 +203,10 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         @info "LaTeXWriter: using latexmk to compile tex."
         try
             norc_flag = settings.latexmk_norc ? `-norc` : ``
-            piperun(`latexmk $norc_flag -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
+            piperun(
+                `latexmk $norc_flag -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex`,
+                clearlogs = true
+            )
             return true
         catch err
             settings.show_log && dump_latex_log(fileprefix)
