@@ -57,7 +57,7 @@ on:
       - master # update to match your development branch (master, main, dev, trunk, ...)
     tags: '*'
   pull_request:
-
+  workflow_dispatch:
 jobs:
   build:
     # These permissions are needed to:
