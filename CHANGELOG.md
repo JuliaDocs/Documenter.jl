@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed headers hidden by the navbar. ([#2905])
 * Tightened `@ref` classification so references are matched more consistently by syntax, with header labels still taking precedence over docstrings and mistaken header/id references less likely to resolve as docstrings. ([#2678])
+* Doctest failures are now reported as warnings rather than errors when doctesting is non-strict (e.g. `warnonly = true`), matching the behaviour of other non-strict checks. ([#2090])
 
 ## Version [v1.17.0] - 2026-02-20
 
@@ -2069,6 +2070,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
 [#2083]: https://github.com/JuliaDocs/Documenter.jl/issues/2083
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
+[#2090]: https://github.com/JuliaDocs/Documenter.jl/issues/2090
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
 [#2103]: https://github.com/JuliaDocs/Documenter.jl/issues/2103
 [#2114]: https://github.com/JuliaDocs/Documenter.jl/issues/2114
