@@ -108,6 +108,7 @@ function _collect_navlist!(list, node)
     for child in node.children
         _collect_navlist!(list, child)
     end
+    return
 end
 
 function build_top_menu_sections(doc::Documenter.Document)
@@ -1038,18 +1039,20 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
             first_url = pretty_url(ctx, get_url(ctx, normpath(first_index)))
             redirect_path = joinpath(doc.user.build, "index.html")
             open(redirect_path, "w") do io
-                write(io, """<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="refresh" content="0; url=$(first_url)">
-    <title>Redirecting...</title>
-</head>
-<body>
-    <p><a href="$(first_url)">Redirecting...</a></p>
-</body>
-</html>
-""")
+                write(
+                    io, """<!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <meta http-equiv="refresh" content="0; url=$(first_url)">
+                        <title>Redirecting...</title>
+                    </head>
+                    <body>
+                        <p><a href="$(first_url)">Redirecting...</a></p>
+                    </body>
+                    </html>
+                    """
+                )
             end
         end
     end
