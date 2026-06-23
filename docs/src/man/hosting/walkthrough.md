@@ -40,7 +40,7 @@ shell> ssh-keygen -N "" -f privatekey
 
 Next, we need to encode the private key in Base64. Run the following command:
 
-```julia
+```julia-repl
 julia> using Base64
 
 julia> read("privatekey", String) |> base64encode |>  println
@@ -50,7 +50,7 @@ Copy and paste the output somewhere. This is your *private key* and is required 
 
 Now we need to get the public key. Run the following command:
 
-```julia
+```julia-repl
 julia> read("privatekey.pub", String) |> println
 ```
 
@@ -138,7 +138,7 @@ read [Generating an SSH Key](@ref).
 
 First, we need to Base64 encode the private key. Open Julia, and run the command
 
-```julia
+```julia-repl
 julia> using Base64
 
 julia> read("path/to/private/key", String) |> base64encode |> println

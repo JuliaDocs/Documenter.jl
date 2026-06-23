@@ -32,7 +32,7 @@ jobs:
           - package: 'DocumenterVitepress'
     steps:
       - uses: actions/checkout@v6
-      - uses: julia-actions/setup-julia@v2
+      - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
       - uses: julia-actions/cache@v3
@@ -55,7 +55,7 @@ jobs:
           - package: 'Oscar'
     steps:
       - uses: actions/checkout@v6
-      - uses: julia-actions/setup-julia@v2
+      - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
       - uses: julia-actions/cache@v3
@@ -98,7 +98,7 @@ jobs:
             texlive-latex-extra \
             texlive-luatex \
             texlive-plain-generic
-      - uses: julia-actions/setup-julia@v2
+      - uses: julia-actions/setup-julia@v3
         with:
           version: 'nightly'
       - uses: julia-actions/cache@v3
