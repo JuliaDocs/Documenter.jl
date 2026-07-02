@@ -31,7 +31,7 @@ jobs:
           - package: 'DocumenterDescriptions'
           - package: 'DocumenterVitepress'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
@@ -54,7 +54,7 @@ jobs:
           - package: 'MathOptInterface'
           - package: 'Oscar'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
@@ -86,7 +86,7 @@ jobs:
     name: "Julia Manual"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: "Install LaTeX dependencies"
         run: |
           sudo apt-get update
