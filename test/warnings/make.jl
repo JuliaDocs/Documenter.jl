@@ -66,6 +66,7 @@ julia> WarningTests.run_warnings_test("at-docs")
 │    1 !in 2
 │    #└────┘ ── extra tokens after end of expression
 └ @ Documenter
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.
@@ -94,6 +95,7 @@ julia> WarningTests.run_warnings_test("at-eval")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 ┌ Warning: failed to parse code block in src/at-eval.md:13-15
 │   exception =
 │    ParseError:
@@ -132,6 +134,7 @@ julia> WarningTests.run_warnings_test("at-example")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 ┌ Warning: failed to parse code block in src/at-example.md:13-15
 │   exception =
 │    ParseError:
@@ -160,6 +163,7 @@ julia> WarningTests.run_warnings_test("at-meta")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.
@@ -177,6 +181,7 @@ julia> WarningTests.run_warnings_test("at-repl")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 ┌ Warning: failed to parse code block in src/at-repl.md:13-15
 │   exception =
 │    ParseError:
@@ -201,6 +206,7 @@ julia> WarningTests.run_warnings_test("at-setup")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 ┌ Warning: In src/at-setup.md:13-15: `@setup` block has an unsupported keyword argument: typo
 └ @ Documenter
 ┌ Warning: failed to run `@setup` block in src/at-setup.md:18-20
@@ -251,6 +257,7 @@ julia> WarningTests.run_warnings_test("doctest")
 │ ```
 └ @ Documenter
 [ Info: ExpandTemplates: expanding markdown templates.
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.
@@ -268,6 +275,7 @@ julia> WarningTests.run_warnings_test("dollar")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
 [ Info: ExpandTemplates: expanding markdown templates.
+[ Info: ExpandExecutableTemplates: expanding executable markdown templates.
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
 [ Info: Populate: populating indices.

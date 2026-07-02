@@ -86,7 +86,7 @@ all_md_files_in_src = let srcdir = joinpath(@__DIR__, "src"), mdfiles = String[]
     end
     mdfiles
 end
-@test length(all_md_files_in_src) == 29
+@test length(all_md_files_in_src) == 30
 
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
@@ -181,6 +181,14 @@ end
             @test occursin("expanded_example", issue_491)
             @test occursin("expanded_setup", issue_491)
             @test occursin("<p>expanded_raw</p>", issue_491)
+
+            # Staged expansion
+            @test isfile(joinpath(build_dir, "staged-expansion", "index.html"))
+            staged_expansion = read(joinpath(build_dir, "staged-expansion", "index.html"), String)
+
+            @test occursin("meta_stage_shared", staged_expansion)
+            @test occursin("expanded-eval-shared", staged_expansion)
+            @test occursin("expanded-example-shared", staged_expansion)
 
             # CollapsedDocStrings
             if name == "html"

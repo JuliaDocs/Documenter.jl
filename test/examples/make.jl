@@ -244,6 +244,7 @@ htmlbuild_pages = Any[
     "example-output.md",
     "fonts.md",
     "issue491.md",
+    "staged-expansion.md",
     "linenumbers.md",
     "EditURL" => [
         "editurl/good.md",
