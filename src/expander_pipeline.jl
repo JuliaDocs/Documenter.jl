@@ -60,6 +60,11 @@ function expand(doc::Documenter.Document)
             Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
             expand_recursively(node, page, doc)
         end
+        # Register arbitrary `[content](@id name)` anchors. This runs after the per-node
+        # expansion above (so header `@id` links have already been consumed by TrackHeaders)
+        # and, crucially, before the CrossReferences pipeline stage, so that `@ref`s to these
+        # anchors — including forward references to later pages — can be resolved.
+        collect_named_anchors!(page, doc)
         pagecheck(doc, page)
         clear_modules!(page.globals.meta)
     end
@@ -1127,6 +1132,30 @@ function namedheader(node::Node)
     else
         return false
     end
+end
+
+# Walk the whole page tree and turn every `[content](@id name)` link on non-header content
+# into an `AnchoredInline`, registering the anchor in the same AnchorMap used for headers.
+# Reusing `doc.internal.headers` means these anchors share a single id namespace with headers
+# (so collisions are caught by the existing uniqueness checks), resolve through the existing
+# `@ref` header pipeline, and are written to the `objects.inv` inventory automatically.
+function collect_named_anchors!(page, doc)
+    for node in AbstractTrees.PreOrderDFS(page.mdast)
+        node.element isa MarkdownAST.Link || continue
+        m = match(NAMEDHEADER_REGEX, node.element.destination)
+        isnothing(m) && continue
+        # Links that are the sole child of a Heading are header anchors, handled (and removed
+        # from the tree) by TrackHeaders; guard against re-registering one here.
+        parent = node.parent
+        if !isnothing(parent) && parent.element isa MarkdownAST.Heading && length(parent.children) == 1
+            continue
+        end
+        id = String(m[1])
+        anchor = Documenter.anchor_add!(doc.internal.headers, node.element, id, page.build)
+        node.element = Documenter.AnchoredInline(anchor)
+        anchor.node = node
+    end
+    return
 end
 
 # Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.

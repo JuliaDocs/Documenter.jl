@@ -1833,6 +1833,12 @@ function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     )
 end
 
+function domify(dctx::DCtx, node::Node, ai::Documenter.AnchoredInline)
+    @tags a
+    id = lstrip(Documenter.anchor_fragment(ai.anchor), '#')
+    return a[:id => id](domify(dctx, node.children))
+end
+
 struct ListBuilder
     es::Vector
 end

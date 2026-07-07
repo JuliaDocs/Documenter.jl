@@ -353,6 +353,16 @@ function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     return
 end
 
+function latex(io::Context, node::Node, ai::Documenter.AnchoredInline)
+    # A `\hypertarget` (matching the `\hyperlinkref` emitted for a resolved `@ref`, see the
+    # PageLink method) wrapping the anchored inline content.
+    id = _hash(Documenter.anchor_label(ai.anchor))
+    _print(io, "\\hypertarget{", id, "}{")
+    latex(io, node.children)
+    _print(io, "}")
+    return
+end
+
 ## Documentation Nodes.
 
 function latex(io::Context, node::Node, ::Documenter.DocsNodesBlock)

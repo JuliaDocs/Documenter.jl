@@ -245,6 +245,19 @@ struct LocalImage <: AbstractDocumenterInline
 end
 Base.show(io::IO, image::LocalImage) = print(io, "Documenter.LocalImage(\"", image.path, "\")")
 
+"""
+Represents a named anchor attached to arbitrary inline content via the `[content](@id name)`
+syntax. Unlike a header anchor ([`AnchoredHeader`](@ref)), this can wrap any inline content
+(text, images, code) so that it becomes a cross-reference target for `[text](@ref name)`.
+
+The wrapped content is stored as the child nodes of the `MarkdownAST.Node` holding this
+element, mirroring how [`PageLink`](@ref) replaces a `MarkdownAST.Link` in place.
+"""
+struct AnchoredInline <: AbstractDocumenterInline
+    anchor::Anchor
+end
+Base.show(io::IO, ::AnchoredInline) = print(io, "Documenter.AnchoredInline([...])")
+
 # Navigation
 # ----------------------
 
@@ -1031,7 +1044,10 @@ function populate!(contents::ContentsNode, document::Document)
                 page = relpath(anchor.file, dirname(contents.build))
                 # Note: This only filters based on contents.depth and *not* contents.mindepth.
                 #       Instead the writers who support this adjust this when rendering.
-                if _isvalid(page, contents.pages) && anchor.object.level ≤ contents.depth
+                # Only headers participate in `@contents` listings. The same AnchorMap also
+                # holds arbitrary `[content](@id name)` anchors (whose `.object` is not a
+                # Heading), which must be skipped here.
+                if _isvalid(page, contents.pages) && anchor.object isa MarkdownAST.Heading && anchor.object.level ≤ contents.depth
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end
@@ -1130,6 +1146,7 @@ end
 
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = MDFlatten.mdflatten(io, node.children)
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredInline) = MDFlatten.mdflatten(io, node.children)
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = MDFlatten.mdflatten(io, node, e.codeblock)
