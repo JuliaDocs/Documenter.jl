@@ -318,8 +318,8 @@ rendered as usual, wrapped in an anchor (`<span id="...">` in HTML, `\hypertarge
 
 These anchors share a single id namespace with header `@id` labels (so a duplicate id is
 reported the same way a duplicate header is), and they are written into the `objects.inv`
-inventory as `std:label` entries, which means other projects can link to them with
-[`@extref`](@ref) via the `DocumenterInterLinks` plugin.
+inventory as `std:label` entries, which means other projects can link to them with `@extref`
+via the `DocumenterInterLinks` plugin (see the `@extref` link section below).
 
 ### `@extref` link
 

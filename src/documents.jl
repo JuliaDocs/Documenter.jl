@@ -247,11 +247,11 @@ Base.show(io::IO, image::LocalImage) = print(io, "Documenter.LocalImage(\"", ima
 
 """
 Represents a named anchor attached to arbitrary inline content via the `[content](@id name)`
-syntax. Unlike a header anchor ([`AnchoredHeader`](@ref)), this can wrap any inline content
+syntax. Unlike a header anchor (`AnchoredHeader`), this can wrap any inline content
 (text, images, code) so that it becomes a cross-reference target for `[text](@ref name)`.
 
 The wrapped content is stored as the child nodes of the `MarkdownAST.Node` holding this
-element, mirroring how [`PageLink`](@ref) replaces a `MarkdownAST.Link` in place.
+element, mirroring how `PageLink` replaces a `MarkdownAST.Link` in place.
 """
 struct AnchoredInline <: AbstractDocumenterInline
     anchor::Anchor

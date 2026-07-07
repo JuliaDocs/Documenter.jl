@@ -84,17 +84,19 @@ end
     end
 
     # Happy path: inline text anchor + a thumbnail-image anchor, both referenced.
-    tmp = build_doc([
-        "index.md" => """
-        # Header
+    tmp = build_doc(
+        [
+            "index.md" => """
+                # Header
 
-        Inline anchor: [my target](@id my-anchor) mid-sentence.
+                Inline anchor: [my target](@id my-anchor) mid-sentence.
 
-        Thumbnail: [![thumb](assets/logo.png)](@id fig-anchor)
+                Thumbnail: [![thumb](assets/logo.png)](@id fig-anchor)
 
-        Refs: [go to target](@ref my-anchor) and [see figure](@ref fig-anchor).
-        """,
-    ])
+                Refs: [go to target](@ref my-anchor) and [see figure](@ref fig-anchor).
+                """,
+        ]
+    )
     html = read(joinpath(tmp, "build", "index.html"), String)
     @test occursin("<span id=\"my-anchor\">", html)
     @test occursin("<span id=\"fig-anchor\">", html)
@@ -107,42 +109,50 @@ end
 
     # The id is slugified exactly like a header `@id`, so an id with spaces/mixed case
     # yields a valid HTML id and resolves via its slug (matching header behaviour).
-    tmp = build_doc([
-        "index.md" => "# H\n\n[content](@id My Anchor Name).\n\nRef: [x](@ref My-Anchor-Name).\n",
-    ])
+    tmp = build_doc(
+        [
+            "index.md" => "# H\n\n[content](@id My Anchor Name).\n\nRef: [x](@ref My-Anchor-Name).\n",
+        ]
+    )
     html = read(joinpath(tmp, "build", "index.html"), String)
     @test occursin("<span id=\"My-Anchor-Name\">", html)
     @test !occursin("id=\"My Anchor Name\"", html)
     @test occursin("href=\"#My-Anchor-Name\"", html)
 
     # Forward/cross-page reference to an inline anchor defined on a later page.
-    tmp = build_doc([
-        "a.md" => "# A\n\nSee [target](@ref cross-anchor).\n",
-        "b.md" => "# B\n\nHere: [the target](@id cross-anchor).\n",
-    ])
+    tmp = build_doc(
+        [
+            "a.md" => "# A\n\nSee [target](@ref cross-anchor).\n",
+            "b.md" => "# B\n\nHere: [the target](@id cross-anchor).\n",
+        ]
+    )
     @test occursin("href=\"../b/#cross-anchor\"", read(joinpath(tmp, "build", "a", "index.html"), String))
 
     # `@contents` must not trip over inline anchors sharing the header AnchorMap.
     @test (build_doc(["index.md" => "# Top\n\n```@contents\n```\n\n## Sec\n\n[t](@id inline-a).\n"]); true)
 
     # A referenced duplicate id is an error, not a silent pick.
-    @test_throws Exception build_doc([
-        "index.md" => "# H\n\n[a](@id dup) and [b](@id dup).\n\nRef: [x](@ref dup).\n",
-    ])
+    @test_throws Exception build_doc(
+        [
+            "index.md" => "# H\n\n[a](@id dup) and [b](@id dup).\n\nRef: [x](@ref dup).\n",
+        ]
+    )
 
     # Inline anchors are found inside nested containers (admonitions, lists, ...).
-    tmp = build_doc([
-        "index.md" => """
-        # H
+    tmp = build_doc(
+        [
+            "index.md" => """
+                # H
 
-        !!! note
-            An [anchored note](@id in-admon).
+                !!! note
+                    An [anchored note](@id in-admon).
 
-        * a list item with [an anchor](@id in-list)
+                * a list item with [an anchor](@id in-list)
 
-        Refs: [x](@ref in-admon) and [y](@ref in-list).
-        """,
-    ])
+                Refs: [x](@ref in-admon) and [y](@ref in-list).
+                """,
+        ]
+    )
     html = read(joinpath(tmp, "build", "index.html"), String)
     @test occursin("<span id=\"in-admon\">", html)
     @test occursin("<span id=\"in-list\">", html)
