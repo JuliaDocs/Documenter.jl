@@ -294,6 +294,33 @@ document more than once is disallowed.
     Both user-defined and internally generated header reference labels take precedence over
     docstring references, in case there is a conflict.
 
+### Anchors on arbitrary content
+
+The `[content](@id name)` syntax is not restricted to headers: it can attach a named anchor
+to arbitrary inline content, turning it into a cross-reference target. This is useful, for
+example, to link a thumbnail image to the section or figure it previews:
+
+```markdown
+A named anchor on inline text: [some text](@id my-anchor).
+
+A clickable thumbnail that is itself an anchor target:
+
+[![thumbnail](assets/thumb.png)](@id figure-1)
+
+... elsewhere ...
+
+Jump to [the anchored text](@ref my-anchor) or [Figure 1](@ref figure-1).
+```
+
+Unlike the header form, the link wrapping the content is *not* removed: the content is
+rendered as usual, wrapped in an anchor (`<a id="...">` in HTML, `\hypertarget` in
+``\LaTeX``) that `@ref` links can point to.
+
+These anchors share a single id namespace with header `@id` labels (so a duplicate id is
+reported the same way a duplicate header is), and they are written into the `objects.inv`
+inventory as `std:label` entries, which means other projects can link to them with
+[`@extref`](@ref) via the `DocumenterInterLinks` plugin.
+
 ### `@extref` link
 
 Using the [`DocumenterInterLinks` plugin](https://github.com/JuliaDocs/DocumenterInterLinks.jl#readme),
