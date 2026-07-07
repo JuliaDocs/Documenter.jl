@@ -1150,7 +1150,10 @@ function collect_named_anchors!(page, doc)
         if !isnothing(parent) && parent.element isa MarkdownAST.Heading && length(parent.children) == 1
             continue
         end
-        id = String(m[1])
+        # Slugify the id exactly as TrackHeaders does for named headers, so that inline and
+        # header `@id` anchors share identical id semantics (and never emit an invalid HTML
+        # id, e.g. one containing spaces).
+        id = Documenter.slugify(String(m[1]))
         anchor = Documenter.anchor_add!(doc.internal.headers, node.element, id, page.build)
         node.element = Documenter.AnchoredInline(anchor)
         anchor.node = node

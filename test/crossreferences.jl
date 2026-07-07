@@ -105,6 +105,16 @@ end
     @test occursin("my-anchor std:label", inv)
     @test occursin("fig-anchor std:label", inv)
 
+    # The id is slugified exactly like a header `@id`, so an id with spaces/mixed case
+    # yields a valid HTML id and resolves via its slug (matching header behaviour).
+    tmp = build_doc([
+        "index.md" => "# H\n\n[content](@id My Anchor Name).\n\nRef: [x](@ref My-Anchor-Name).\n",
+    ])
+    html = read(joinpath(tmp, "build", "index.html"), String)
+    @test occursin("<a id=\"My-Anchor-Name\">", html)
+    @test !occursin("id=\"My Anchor Name\"", html)
+    @test occursin("href=\"#My-Anchor-Name\"", html)
+
     # Forward/cross-page reference to an inline anchor defined on a later page.
     tmp = build_doc([
         "a.md" => "# A\n\nSee [target](@ref cross-anchor).\n",
