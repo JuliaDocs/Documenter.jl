@@ -1834,9 +1834,13 @@ function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
 end
 
 function domify(dctx::DCtx, node::Node, ai::Documenter.AnchoredInline)
-    @tags a
+    @tags span
     id = lstrip(Documenter.anchor_fragment(ai.anchor), '#')
-    return a[:id => id](domify(dctx, node.children))
+    # A `<span id=...>` (rather than `<a id=...>`) so the anchored content renders exactly as
+    # it would without the anchor: it is a valid fragment/scroll target, but avoids link
+    # styling on non-link content and nesting an <a> inside the content (which may itself be a
+    # link or image).
+    return span[:id => id](domify(dctx, node.children))
 end
 
 struct ListBuilder

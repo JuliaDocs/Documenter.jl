@@ -96,8 +96,8 @@ end
         """,
     ])
     html = read(joinpath(tmp, "build", "index.html"), String)
-    @test occursin("<a id=\"my-anchor\">", html)
-    @test occursin("<a id=\"fig-anchor\">", html)
+    @test occursin("<span id=\"my-anchor\">", html)
+    @test occursin("<span id=\"fig-anchor\">", html)
     @test occursin("href=\"#my-anchor\"", html)
     @test occursin("href=\"#fig-anchor\"", html)
     # The anchors are written to the inventory as std:label entries.
@@ -111,7 +111,7 @@ end
         "index.md" => "# H\n\n[content](@id My Anchor Name).\n\nRef: [x](@ref My-Anchor-Name).\n",
     ])
     html = read(joinpath(tmp, "build", "index.html"), String)
-    @test occursin("<a id=\"My-Anchor-Name\">", html)
+    @test occursin("<span id=\"My-Anchor-Name\">", html)
     @test !occursin("id=\"My Anchor Name\"", html)
     @test occursin("href=\"#My-Anchor-Name\"", html)
 

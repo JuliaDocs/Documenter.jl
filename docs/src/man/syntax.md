@@ -313,7 +313,7 @@ Jump to [the anchored text](@ref my-anchor) or [Figure 1](@ref figure-1).
 ```
 
 Unlike the header form, the link wrapping the content is *not* removed: the content is
-rendered as usual, wrapped in an anchor (`<a id="...">` in HTML, `\hypertarget` in
+rendered as usual, wrapped in an anchor (`<span id="...">` in HTML, `\hypertarget` in
 ``\LaTeX``) that `@ref` links can point to.
 
 These anchors share a single id namespace with header `@id` labels (so a duplicate id is
