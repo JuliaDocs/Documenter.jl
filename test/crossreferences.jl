@@ -129,6 +129,30 @@ end
     @test_throws Exception build_doc([
         "index.md" => "# H\n\n[a](@id dup) and [b](@id dup).\n\nRef: [x](@ref dup).\n",
     ])
+
+    # Inline anchors are found inside nested containers (admonitions, lists, ...).
+    tmp = build_doc([
+        "index.md" => """
+        # H
+
+        !!! note
+            An [anchored note](@id in-admon).
+
+        * a list item with [an anchor](@id in-list)
+
+        Refs: [x](@ref in-admon) and [y](@ref in-list).
+        """,
+    ])
+    html = read(joinpath(tmp, "build", "index.html"), String)
+    @test occursin("<span id=\"in-admon\">", html)
+    @test occursin("<span id=\"in-list\">", html)
+
+    # An inline id sharing the header namespace collides with a header slug of the same name.
+    @test_throws Exception build_doc(["index.md" => "# Foo\n\ntext [x](@id Foo).\n\nRef: [r](@ref Foo).\n"])
+
+    # An empty-content anchor `[](@id name)` uses `-` as its inventory display name.
+    tmp = build_doc(["index.md" => "# H\n\n[](@id empty1)\n\nRef [r](@ref empty1).\n"])
+    @test any(l -> startswith(l, "empty1 std:label -1 ") && endswith(strip(l), " -"), split(read_inventory(tmp), '\n'))
 end
 
 end

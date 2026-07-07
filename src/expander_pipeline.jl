@@ -336,7 +336,7 @@ function Selectors.runner(::Type{Expanders.TrackHeaders}, node, page, doc)
         link_node = first(node.children)
         MarkdownAST.unlink!(link_node)
         append!(node.children, link_node.children)
-        text = match(NAMEDHEADER_REGEX, link_node.element.destination)[1]
+        text = match(NAMED_ANCHOR_REGEX, link_node.element.destination)[1]
     else
         # TODO: remove this hack (replace with mdflatten?)
         ast = MarkdownAST.@ast MarkdownAST.Document() do
@@ -1122,13 +1122,16 @@ iscode(x::MarkdownAST.CodeBlock, r::Regex) = occursin(r, x.info)
 iscode(x::MarkdownAST.CodeBlock, lang) = x.info == lang
 iscode(x, lang) = false
 
-const NAMEDHEADER_REGEX = r"^@id (.+)$"
+# Matches the destination of an `@id` link, both for named headers (`# [H](@id name)`,
+# handled by TrackHeaders) and for inline anchors on arbitrary content (handled by
+# collect_named_anchors!).
+const NAMED_ANCHOR_REGEX = r"^@id (.+)$"
 
 function namedheader(node::Node)
     @assert node.element isa MarkdownAST.Heading
     if length(node.children) == 1 && first(node.children).element isa MarkdownAST.Link
         url = first(node.children).element.destination
-        return occursin(NAMEDHEADER_REGEX, url)
+        return occursin(NAMED_ANCHOR_REGEX, url)
     else
         return false
     end
@@ -1142,7 +1145,7 @@ end
 function collect_named_anchors!(page, doc)
     for node in AbstractTrees.PreOrderDFS(page.mdast)
         node.element isa MarkdownAST.Link || continue
-        m = match(NAMEDHEADER_REGEX, node.element.destination)
+        m = match(NAMED_ANCHOR_REGEX, node.element.destination)
         isnothing(m) && continue
         # Links that are the sole child of a Heading are header anchors, handled (and removed
         # from the tree) by TrackHeaders; guard against re-registering one here.

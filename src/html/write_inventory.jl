@@ -135,7 +135,10 @@ end
 # dispname for :std:label
 function _get_inventory_dispname(doc, ctx, name::AbstractString, anchor::Documenter.Anchor)
     dispname = mdflatten(anchor.node)
-    if dispname == name
+    # `-` is the inventory convention for "display name is the same as the name". Empty
+    # content (e.g. `[](@id name)`) has no display name, so use `-` rather than emitting a
+    # trailing-empty field.
+    if isempty(dispname) || dispname == name
         dispname = "-"
     end
     return dispname
