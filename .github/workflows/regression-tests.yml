@@ -35,7 +35,7 @@ jobs:
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
-      - uses: julia-actions/cache@v3
+      - uses: julia-actions/cache@v4
       - name: Test
         shell: julia --color=yes {0}
         run: |
@@ -58,7 +58,7 @@ jobs:
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
-      - uses: julia-actions/cache@v3
+      - uses: julia-actions/cache@v4
       - name: install-and-build-documentation
         shell: julia --color=yes {0}
         run: |
@@ -101,7 +101,7 @@ jobs:
       - uses: julia-actions/setup-julia@v3
         with:
           version: 'nightly'
-      - uses: julia-actions/cache@v3
+      - uses: julia-actions/cache@v4
       - name: "Regressions test"
         env:
           DOCUMENTER_LATEX_SHOW_LOGS: 1
