@@ -27,7 +27,7 @@ Simply copy & paste the checklist below into the pull request description, and t
  - [ ] After merging the pull request, tag the release. There are two options for this:
 
    1. [Comment `[at]JuliaRegistrator register` on the GitHub commit.](https://github.com/JuliaRegistries/Registrator.jl#via-the-github-app)
-   2. Use [JuliaHub's package registration feature](https://help.juliahub.com/juliahub/stable/contribute/#registrator) to trigger the registration.
+   2. Use [JuliaHub's package registration feature](http://web.archive.org/web/20240222041250/https://help.juliahub.com/juliahub/stable/contribute/) to trigger the registration.
 
    Either of those should automatically publish a new version to the Julia registry.
  - Once registered, the `TagBot.yml` workflow should create a tag, and rebuild the documentation for this tag.
