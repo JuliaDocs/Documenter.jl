@@ -33,6 +33,10 @@ end
     @info "Building xref_signatures/make.jl"
     include("xref_signatures/make.jl")
 
+    # Per-docstring anchors in aggregated @docs entries
+    @info "Building docs_subanchors/make.jl"
+    include("docs_subanchors/make.jl")
+
     # Warnings
     @info "Building warnings/make.jl"
     include("warnings/make.jl")
