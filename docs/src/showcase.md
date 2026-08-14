@@ -250,6 +250,46 @@ The footnote label can be an arbitrary string and even consist of block-level el
     > Any sufficiently advanced technology is indistinguishable from magic.
     Arthur C. Clarke, _Profiles of the Future_ (1961): Clarke's Third Law.
 
+In the HTML output, hovering over a reference shows a preview of the footnote. The preview
+must not be clipped by the surrounding table[^table], and a preview too tall for the
+viewport must stay hoverable so that it can be scrolled[^code].
+
+| object | footnote     |
+| :----- | :----------- |
+| `A`    | see[^table]  |
+| `B`    | see[^code]   |
+
+[^table]: A footnote referenced from inside a table, which is a horizontally scrolling
+    container in the HTML output.
+
+[^code]: A footnote containing a code block:
+
+    ```julia
+    function f(x)
+        # A long line that does not fit into the preview box, so that the code block gets
+        # its own horizontal scrollbar.
+        return x
+    end
+    ```
+
+    Followed by enough text that the preview does not fit into the viewport:
+
+    1. one
+    1. two
+    1. three
+    1. four
+    1. five
+    1. six
+    1. seven
+    1. eight
+    1. nine
+    1. ten
+    1. eleven
+    1. twelve
+    1. thirteen
+    1. fourteen
+    1. fifteen
+
 ## Headings
 
 Finally, headings render as follows
