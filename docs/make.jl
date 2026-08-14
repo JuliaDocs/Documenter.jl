@@ -32,6 +32,10 @@ linkcheck_ignore = [
 if get(ENV, "GITHUB_ACTIONS", nothing) == "true"
     # It seems that CTAN blocks GitHub Actions?
     push!(linkcheck_ignore, "https://ctan.org/pkg/minted")
+    # Times out from Actions runners (curl exit 28).
+    push!(linkcheck_ignore, "https://www.chiark.greenend.org.uk/~sgtatham/putty/")
+    # Codeberg answers 403 to Actions runners.
+    push!(linkcheck_ignore, r"^https://codeberg.org")
 end
 
 makedocs(
