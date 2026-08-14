@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Support self-hosted GitHub instances. ([#2755])
 
+### Changed
+
+* Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically in plugins. ([#2925])
+
 ### Fixed
 
 * Fixed a duplicate `elseif` condition in `interpret_repo_and_remotes` that made the branch handling the case where the git repository root is nested inside a `remotes` path unreachable. ([#2868])

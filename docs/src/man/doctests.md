@@ -90,6 +90,18 @@ Note that not all features of the REPL are supported such as shell and help mode
     `for` loops etc. When using Documenter with Julia 1.5 or above, Documenter uses the soft
     scope in `@repl`-blocks and REPL-type doctests.
 
+!!! note "Multi-line expressions"
+
+    Continuation lines of a multi-line expression must begin with at least 7 spaces so that Documenter can distinguish them from expected output ([#1159](https://github.com/JuliaDocs/Documenter.jl/issues/1159)). Fewer spaces will cause a `premature end of input` parse error on the incomplete expression.
+
+    ````markdown
+    ```jldoctest
+    julia> 1 +
+           2
+    3
+    ```
+    ````
+
 ## Exceptions
 
 Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual
