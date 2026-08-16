@@ -29,6 +29,20 @@ using Test
     @test Documenter.xrefname(" \t@ref  foo") == "foo"
 end
 
+@testset "could_be_binding" begin
+    # Accepted: things that can name a binding.
+    for target in ("foo", "Base.foo", "Base.Sys.foo", "foo()", "foo(x, 1)",
+            "g(::Float64)", "g(::X) where X", "@time", "Base.@time")
+        @test Documenter.could_be_binding(target)
+    end
+    # Rejected: prose. `Some header` and `Some-header` both parse -- the second as a call
+    # to `-` -- which is how they used to resolve to the docstring of `-` (#2668).
+    for target in ("", "Some header", "Some-header", "Some-Particular-Constructions",
+            "Multiple words", "`values", "-", "1 + 1")
+        @test !Documenter.could_be_binding(target)
+    end
+end
+
 @testset "CrossReference classification" begin
     headers = Documenter.AnchorMap()
     Documenter.anchor_add!(headers, :dummy, "existing-id", "index.html")

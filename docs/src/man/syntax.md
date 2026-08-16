@@ -201,7 +201,7 @@ makedocs
 ... [#42](@ref) ...
 ````
 
-The reference target is classified from the link syntax:
+The reference target is initially classified from the link syntax:
 
 | Reference type | Implicit form | Explicit form |
 | --- | --- | --- |
@@ -213,6 +213,11 @@ The reference target is classified from the link syntax:
 Plain text in the "text" part of a link will either cross-reference a header, or, when it is
 a number preceded by a `#`, a GitHub issue/pull request. Text wrapped in backticks will
 cross-reference a docstring from a `@docs` or `@autodocs` block.
+
+If that classification does not resolve the link, the remaining ones are tried before it is
+reported as unresolvable. A header title may itself be code, as in
+```### [`JULIA_EDITOR`](@id JULIA_EDITOR)```, so backticked text can still name a header;
+conversely `[makedocs](@ref)` can still name a docstring.
 
 The code enclosed in the backticks for such a reference will be evaluated in the
 `CurrentModule`  given in the `@meta` block of the current page (`Main` by default). For

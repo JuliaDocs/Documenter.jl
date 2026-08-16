@@ -143,6 +143,17 @@ end
         """
     )
 
+    # An implicit target that is neither a header nor a plausible binding is
+    # reported, not silently resolved to the docstring of `-` (#2960).
+    @test contains(
+        output,
+        """
+        ┌ Warning: Cannot resolve @ref for md"[Some-Hyphenated-Target](@ref)" in docsxref/src/index.md.
+        │ - Header with slug 'Some-Hyphenated-Target' in docsxref/src/index.md does not exist.
+        """
+    )
+    @test !contains(output, "binding `Base.-`")
+
     index_html = joinpath(dirname(@__FILE__), "build", "index.html")
     @test isfile(index_html)
     if isfile(index_html)
@@ -163,6 +174,13 @@ end
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.f\">docstring link</a>")
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\">docstring code link</a>")
         @test contains(html, "<a href=\"index.html#DocsReferencingMain.g\">conflict link</a>")
+        # Un-backticked link text still falls through to a docstring (#2960).
+        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.f\">DocsReferencingMain.f</a>")
+        # Precedence by syntax: plain text prefers the header, backticks the docstring.
+        @test contains(html, "<a href=\"index.html#DocsReferencingMain.g\">DocsReferencingMain.g</a>")
+        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\"><code>DocsReferencingMain.g</code></a>")
+        # Backticked link text still finds a header `@id` (#2960).
+        @test contains(html, "<a href=\"index.html#ENVVAR\"><code>ENVVAR</code></a>")
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\">conflict docs link</a>")
     end
     page_html = joinpath(dirname(@__FILE__), "build", "page.html")
