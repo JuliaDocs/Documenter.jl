@@ -225,7 +225,7 @@ The explicit forms do not fall back to the other kind: if their target does not 
 of the built-in rules applies.
 
 Plugins may add further resolvers to this pipeline, which normally get their turn once the
-built-in rules are exhausted — see [`@extref` link](@ref) for an example. A reference is
+built-in rules are exhausted; see [`@extref` link](@ref) for an example. A reference is
 reported as unresolvable only after every resolver has declined it.
 
 The code enclosed in the backticks for such a reference will be evaluated in the
