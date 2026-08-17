@@ -157,9 +157,9 @@ module XRefResolvers
     - [`XRefResolvers.Docs`](@ref) for links like ```[`Documenter.makedocs`](@ref)```
     - [`XRefResolvers.HeaderFallback`](@ref) for backticked text naming a header
 
-    Each syntax is tried against its own target first and the other one second: plain text
-    is a header first and a docstring second, backticked text the other way round. Steps
-    only match the syntax they serve, so the two orders coexist in one pipeline.
+    A step only matches the link syntax it serves, so plain text tries
+    [`XRefResolvers.Header`](@ref) and then [`XRefResolvers.Docs`](@ref), while backticked
+    text tries [`XRefResolvers.Docs`](@ref) and then [`XRefResolvers.HeaderFallback`](@ref).
 
     Each step may or may not be able to resolve the link. Processing continues until the
     link is resolved or the end of the pipeline is reached. A step that cannot resolve a
