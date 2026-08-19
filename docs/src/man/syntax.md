@@ -305,8 +305,9 @@ document more than once is disallowed.
 
 !!! note "Label precedence"
 
-    Both user-defined and internally generated header reference labels take precedence over
-    docstring references, in case there is a conflict.
+    When a name is both a header label and a docstring, the link syntax decides which one
+    wins: `[Example](@ref)` resolves to the header, ```[`Example`](@ref)``` to the docstring.
+    This applies to user-defined and internally generated header labels alike.
 
 ### `@extref` link
 
