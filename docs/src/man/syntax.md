@@ -220,8 +220,8 @@ plain text is a header reference and never a docstring one, so a docstring must 
 as ```[`makedocs`](@ref)``` rather than `[makedocs](@ref)`. Likewise, if an explicit form's
 target does not exist, none of the built-in rules applies.
 
-Plugins may add further resolvers to this pipeline, at a position of their choosing — before
-the built-in rules, between them, or after them; see [`@extref` link](@ref) for an example.
+Plugins may add further resolvers to this pipeline at a position of their choosing: before
+the built-in rules, between them, or after them. See [`@extref` link](@ref) for an example.
 A reference is reported as unresolvable only after every resolver has declined it.
 
 The code enclosed in the backticks for such a reference will be evaluated in the
@@ -239,11 +239,11 @@ current page using the same syntax.
 ### Named `@ref`s
 
 It is also possible to override the destination of an `@ref`-link by adding the appropriate
-label to the link, such as a docstring reference or a page heading.
+label to the link, such as a docstring reference or a page heading. However, the unquoted
+form in the third reference below is best avoided; see the compatibility note below.
 
 ```markdown
-All three of the following references point to `g` found in module `Main.Other`, though
-the last one uses the older unquoted syntax:
+All three of the following references point to `g` found in module `Main.Other`:
 
 * [`Main.Other.g`](@ref)
 * [the `g` function](@ref `Main.Other.g`)
@@ -272,11 +272,10 @@ Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
 
 !!! note "Compatibility"
 
-    Prefer the backticked form ```[text](@ref `Example.domath`)```. The unquoted
-    `[text](@ref Example.domath)` is the older syntax and remains supported for backward
-    compatibility, but it is ambiguous: an unquoted target that matches a header label,
-    including one introduced with [`@id`](@ref at-ref-at-id-links), resolves to that header
-    rather than to the docstring.
+    Prefer the backticked form ```[text](@ref `Example.domath`)```. The unquoted form
+    `[text](@ref Example.domath)` remains supported for backward compatibility, but it is
+    ambiguous: an unquoted target that matches a header label, including one introduced with
+    [`@id`](@ref at-ref-at-id-links), resolves to that header rather than to the docstring.
 
 ### Duplicate Headers
 
