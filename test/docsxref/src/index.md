@@ -28,7 +28,7 @@ Implicit link to a non-existent docstring: [`foobar`](@ref).
 Explicit link to a non-existent docstring: [docstring link](@ref Main.foobar).
 Explicit link to a non-existent docstring with backticks: [docstring code link](@ref `Main.foobar`).
 
-Implicit link to a docstring without backticks: [DocsReferencingMain.f](@ref).
+Plain text naming a docstring is not a docstring reference: [DocsReferencingMain.f](@ref).
 Implicit link to a name that is both a header and a docstring: [DocsReferencingMain.g](@ref).
 Implicit link to a header `@id` with backticks: [`ENVVAR`](@ref).
 Implicit link that is neither a header nor a binding: [Some-Hyphenated-Target](@ref).

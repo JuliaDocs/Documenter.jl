@@ -1,8 +1,9 @@
 module DuplicateHeaderTests
 
-# A non-unique header slug must be reported, and must never be resolved as a binding:
-# `[Blow-Ups](@ref)` parses as `Blow - Ups` and used to link to the docstring of `-`
-# (https://github.com/JuliaDocs/Documenter.jl/issues/2668).
+# A non-unique header slug must be reported, and must never be resolved as a binding.
+# `[Blow-Ups](@ref)` parses as `Blow - Ups`, which used to link to the docstring of `-`
+# (https://github.com/JuliaDocs/Documenter.jl/issues/2668); plain text is now a header
+# reference only, so it is never looked up as code in the first place.
 #
 # It must also not pre-empt a reference that a later step resolves correctly, which is what
 # made https://github.com/JuliaDocs/Documenter.jl/issues/2843 report 66 working links.

@@ -174,8 +174,8 @@ end
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.f\">docstring link</a>")
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\">docstring code link</a>")
         @test contains(html, "<a href=\"index.html#DocsReferencingMain.g\">conflict link</a>")
-        # Un-backticked link text still falls through to a docstring (#2960).
-        @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.f\">DocsReferencingMain.f</a>")
+        # Plain text is a header reference only, so this names nothing (#2960).
+        @test contains(html, "<a href=\"@ref\">DocsReferencingMain.f</a>")
         # Precedence by syntax: plain text prefers the header, backticks the docstring.
         @test contains(html, "<a href=\"index.html#DocsReferencingMain.g\">DocsReferencingMain.g</a>")
         @test contains(html, "<a href=\"index.html#Main.DocsReferencingMain.g\"><code>DocsReferencingMain.g</code></a>")

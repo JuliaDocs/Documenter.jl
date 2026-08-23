@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed headers hidden by the navbar. ([#2905])
-* Tightened `@ref` classification so references are matched more consistently by syntax, with header labels still taking precedence over docstrings and mistaken header/id references less likely to resolve as docstrings. ([#2678], [#2961])
+* Tightened `@ref` classification so references are matched more consistently by syntax. Plain link text is now a header reference only; a docstring must be written as ``[`makedocs`](@ref)`` rather than `[makedocs](@ref)`. Backticked text still falls back to a header, since a header title may itself be code. ([#2678], [#2961])
 * Reverted the eager failure on a non-unique header slug added in [#2787], which also rejected references that resolve correctly ([#2843]) and prevented plugin resolvers from running; see [#2960] for details. ([#2668], [#2787], [#2843], [#2960], [#2961])
 
 ## Version [v1.17.0] - 2026-02-20

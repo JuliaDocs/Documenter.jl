@@ -214,15 +214,11 @@ Plain text in the "text" part of a link will either cross-reference a header, or
 a number preceded by a `#`, a GitHub issue/pull request. Text wrapped in backticks will
 cross-reference a docstring from a `@docs` or `@autodocs` block.
 
-The two implicit forms fall back to each other when the first lookup finds nothing.
-Backticked text such as ```[`makedocs`](@ref)``` looks for a docstring first and for a header
-second, since a header title may itself be code, as in
-```### [`JULIA_EDITOR`](@id JULIA_EDITOR)```. Plain text such as `[makedocs](@ref)` looks for
-a header first and for a docstring second, and only if the text could name a binding at all,
-so that prose like `[Some section](@ref)` is never looked up as code.
-
-The explicit forms do not fall back to the other kind: if their target does not exist, none
-of the built-in rules applies.
+Backticked text falls back to a header when no docstring matches, since a header title may
+itself be code, as in ```### [`JULIA_EDITOR`](@id JULIA_EDITOR)```. Nothing else falls back:
+plain text is a header reference and never a docstring one, so a docstring must be written
+as ```[`makedocs`](@ref)``` rather than `[makedocs](@ref)`. Likewise, if an explicit form's
+target does not exist, none of the built-in rules applies.
 
 Plugins may add further resolvers to this pipeline, which normally get their turn once the
 built-in rules are exhausted; see [`@extref` link](@ref) for an example. A reference is

@@ -152,14 +152,13 @@ module XRefResolvers
 
     The steps for trying to resolve links are:
 
-    - [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
-    - [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
     - [`XRefResolvers.Docs`](@ref) for links like ```[`Documenter.makedocs`](@ref)```
-    - [`XRefResolvers.HeaderFallback`](@ref) for backticked text naming a header
+    - [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
+    - [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
 
-    A step only matches the link syntax it serves, so plain text tries
-    [`XRefResolvers.Header`](@ref) and then [`XRefResolvers.Docs`](@ref), while backticked
-    text tries [`XRefResolvers.Docs`](@ref) and then [`XRefResolvers.HeaderFallback`](@ref).
+    A step only matches the link syntax it serves. Plain text is a header reference and
+    nothing else; backticked text is a docstring reference first and a header second, since
+    a header title may itself be code.
 
     Each step may or may not be able to resolve the link. Processing continues until the
     link is resolved or the end of the pipeline is reached. A step that cannot resolve a
@@ -200,6 +199,10 @@ module XRefResolvers
 
     This runs if the `slug` corresponds to a known local section title, and resolves the
     `node` to link to that section.
+
+    It also makes a second attempt at backticked link text. That syntax ordinarily
+    references a docstring, which is why [`XRefResolvers.Docs`](@ref) gets it first, but a
+    header title may itself be code, as in ```### [`JULIA_EDITOR`](@id JULIA_EDITOR)```.
     """
     abstract type Header <: XRefResolverPipeline end
 
@@ -212,27 +215,16 @@ module XRefResolvers
 
     """Resolve `@ref` links for docstrings.
 
-    This tries to find a code binding for the given `slug`, linking to its docstring. It
-    also picks up plain link text that [`XRefResolvers.Header`](@ref) could not resolve,
-    but only if it could name a binding at all — see `Documenter.could_be_binding`.
+    This runs first, since backticked link text is a docstring reference, and tries to find
+    a code binding for the given `slug`, linking to its docstring.
     """
     abstract type Docs <: XRefResolverPipeline end
 
-    """Second pass of [`XRefResolvers.Header`](@ref), for backticked link text.
-
-    Backticked text ordinarily references a docstring, which should therefore get
-    precedence, which is why [`XRefResolvers.Header`](@ref) does not handle it. But a header
-    title may itself be code, as in ```### [`JULIA_EDITOR`](@id JULIA_EDITOR)```, so once
-    [`XRefResolvers.Docs`](@ref) has declined, a second attempt is made here.
-    """
-    abstract type HeaderFallback <: XRefResolverPipeline end
-
 end
 
-Selectors.order(::Type{XRefResolvers.Header}) = 1.0
+Selectors.order(::Type{XRefResolvers.Docs}) = 1.0
 Selectors.order(::Type{XRefResolvers.Issue}) = 2.0
-Selectors.order(::Type{XRefResolvers.Docs}) = 3.0
-Selectors.order(::Type{XRefResolvers.HeaderFallback}) = 3.5
+Selectors.order(::Type{XRefResolvers.Header}) = 3.0
 
 
 """
@@ -250,9 +242,10 @@ end
 
 function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
     xref_unresolved(node) || return false
-    return classifyxref(node, doc.internal.headers).kind ∈ (
-        :implicit_header, :explicit_header_title, :explicit_header_id,
-    )
+    info = classifyxref(node, doc.internal.headers)
+    info.kind ∈ (:implicit_header, :explicit_header_title, :explicit_header_id) && return true
+    # Backticked text naming a header, which XRefResolvers.Docs has already declined.
+    return info.kind === :implicit_docs && anchor_exists(doc.internal.headers, info.slug)
 end
 
 function Selectors.runner(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
@@ -274,68 +267,12 @@ end
 
 function Selectors.matcher(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
     xref_unresolved(node) || return false
-    info = classifyxref(node, doc.internal.headers)
-    info.kind ∈ (:implicit_docs, :explicit_docs) && return true
-    # Plain text is a header by syntax, but `[makedocs](@ref)` resolved to a docstring long
-    # before that rule existed, so it gets a second chance here once Header has declined.
-    return info.kind === :implicit_header && could_be_binding(info.target)
-end
-
-"""
-$(SIGNATURES)
-
-Whether `target` could name a binding, i.e. whether it parses as an identifier, a dotted
-path, or a call or macro call on one of those.
-
-Used to decide whether un-backticked link text is worth a docstring lookup at all. It is
-not enough for the text to parse: `[Some header](@ref)` parses fine, as `Some - header`,
-and used to resolve to the docstring of `-` if the documentation happened to document `-`
-([#2668](https://github.com/JuliaDocs/Documenter.jl/issues/2668)). Requiring the callee to
-be an identifier rejects that while still accepting `[foo](@ref)` and `[Base.foo](@ref)`.
-"""
-function could_be_binding(target::AbstractString)
-    isempty(target) && return false
-    return is_binding_expr(Meta.parse(target, raise = false))
-end
-
-is_binding_expr(s::Symbol) = Base.isidentifier(s) || is_macro_name(s)
-is_binding_expr(::Any) = false
-function is_binding_expr(e::Expr)
-    if e.head === :.
-        # `Base.foo`, `Base.Sys.foo`
-        return length(e.args) == 2 && is_binding_expr(e.args[1]) &&
-            e.args[2] isa QuoteNode && is_binding_expr(e.args[2].value)
-    elseif e.head === :call || e.head === :macrocall
-        # `foo(x)`, `@foo`; infix operators parse this way too, hence the identifier check
-        # on the callee, which is what keeps `Some - header` out.
-        return is_binding_expr(first(e.args))
-    elseif e.head === :where
-        # `foo(::X) where X`
-        return is_binding_expr(first(e.args))
-    end
-    return false
-end
-
-function is_macro_name(s::Symbol)
-    str = String(s)
-    return startswith(str, "@") && Base.isidentifier(SubString(str, 2))
+    return classifyxref(node, doc.internal.headers).kind ∈ (:implicit_docs, :explicit_docs)
 end
 
 function Selectors.runner(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
     info = classifyxref(node, doc.internal.headers)
     return docsxref(node, info.target, meta, page, doc, errors)
-end
-
-
-function Selectors.matcher(::Type{XRefResolvers.HeaderFallback}, node, slug, meta, page, doc, errors)
-    xref_unresolved(node) || return false
-    info = classifyxref(node, doc.internal.headers)
-    return info.kind === :implicit_docs && anchor_exists(doc.internal.headers, info.slug)
-end
-
-function Selectors.runner(::Type{XRefResolvers.HeaderFallback}, node, slug, meta, page, doc, errors)
-    info = classifyxref(node, doc.internal.headers)
-    return namedxref(node, info.slug, meta, page, doc, errors)
 end
 
 
