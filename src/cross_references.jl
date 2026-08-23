@@ -166,7 +166,7 @@ module XRefResolvers
     since plugins append steps to it and a step that stops decides for steps it cannot see
     ([#2843](https://github.com/JuliaDocs/Documenter.jl/issues/2843)). If the link is still
     unresolved after the last step, [`Documenter.xref`](@ref) issues an error that includes
-    the accumulated messages. Failure to resolve an `@ref` link will fail
+    any accumulated error messages. Failure to resolve an `@ref` link will fail
     [`Documenter.makedocs`](@ref) if it is not called with `warnonly=true`.
 
     The default pipeline could be extended by plugins using the general [`Selectors`](@ref)
