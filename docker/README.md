@@ -50,7 +50,8 @@ what the `was mounted empty` error reports.
 
 `.github/workflows/DockerImage.yml` publishes `linux/amd64` and `linux/arm64` on
 every push to `master` that touches `docker/`, and weekly to pick up TeX Live and
-Debian security updates. Pull requests do not publish.
+Debian security updates. Pull requests do not publish: the `latex` job in `CI.yml`
+builds the image from source and runs the PDF test suite against it instead.
 
 Tags:
 
@@ -60,10 +61,12 @@ Tags:
 * `:1-YYYYMMDD` — immutable, so a broken rebuild can be rolled back to.
 * `:latest`.
 
-To build it locally:
+To build and test locally:
 
 ```bash
 docker build -t documenter-latex:test docker/
+DOCUMENTER_LATEX_DOCKER_IMAGE=documenter-latex:test \
+  julia --project=test/examples test/examples/tests_latex.jl
 ```
 
 The predecessor, `juliadocs/documenter-latex:0.1` on Docker Hub, is unmaintained;

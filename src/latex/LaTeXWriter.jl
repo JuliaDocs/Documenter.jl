@@ -16,6 +16,20 @@ module LaTeXWriter
 import ...Documenter: Documenter
 using MarkdownAST: MarkdownAST, Node
 
+const DOCKER_IMAGE = "ghcr.io/juliadocs/documenter-latex:1"
+
+# Lets CI point the docker platform at an image built from docker/Dockerfile in
+# the same run, before it has been published. Empty counts as unset, so a workflow
+# can pass the variable through unconditionally.
+function default_docker_image()
+    image = get(ENV, "DOCUMENTER_LATEX_DOCKER_IMAGE", "")
+    return isempty(image) ? DOCKER_IMAGE : image
+end
+
+# Where the build tree is copied to inside the container. Fixed so that the PDF
+# can be copied back out without knowing the image's user or home directory.
+const CONTAINER_BUILD_DIR = "/tmp/build"
+
 """
     Documenter.LaTeX(; kwargs...)
 
@@ -46,6 +60,12 @@ considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 
 **`tectonic`** path to a `tectonic` executable used for compilation.
 
+**`image`** the container image used when `platform = "docker"`. Defaults to
+`$(DOCKER_IMAGE)`, or to the value of the `DOCUMENTER_LATEX_DOCKER_IMAGE` environment
+variable if that is set. A custom image must provide `latexmk`, `lualatex`, `bash`, the LaTeX
+packages listed under "Compiling using natively installed latex" in the manual, and a
+writable `/tmp`.
+
 **`show_log`** if `true`, dump the generated LaTeX log files to stdout when PDF compilation
 fails. This can be useful in CI where temporary build directories are not preserved. If
 the environment variable `DOCUMENTER_LATEX_SHOW_LOGS` is set, log dumping is always enabled.
@@ -57,15 +77,17 @@ struct LaTeX <: Documenter.Writer
     version::String
     tectonic::Union{Cmd, String, Nothing}
     show_log::Bool
+    image::String
     function LaTeX(;
             platform = "native",
             version = get(ENV, "TRAVIS_TAG", ""),
             tectonic = nothing,
             show_log = false,
+            image = default_docker_image(),
         )
         platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
         show_log = show_log || haskey(ENV, "DOCUMENTER_LATEX_SHOW_LOGS")
-        return new(platform, string(version), tectonic, show_log)
+        return new(platform, string(version), tectonic, show_log, image)
     end
 end
 
@@ -190,8 +212,6 @@ function latex_fileprefix(doc::Documenter.Document, settings::LaTeX)
     return replace(fileprefix, " " => "")
 end
 
-const DOCKER_IMAGE_TAG = "0.1"
-
 function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::String)
     if settings.platform == "native"
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
@@ -222,17 +242,26 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         end
     elseif settings.platform == "docker"
         Sys.which("docker") === nothing && (@error "LaTeXWriter: docker command not found."; return false)
-        @info "LaTeXWriter: using docker to compile tex."
+        image = settings.image
+        @info "LaTeXWriter: using docker to compile tex." image
+        # The `test -f` turns a silently empty bind mount -- the usual symptom of a
+        # Docker installation that has not been given access to the host's temporary
+        # directory -- into a pointed error instead of a confusing LaTeX failure.
         script = """
-        mkdir /home/zeptodoctor/build
-        cd /home/zeptodoctor/build
+        set -e
+        mkdir -p $(CONTAINER_BUILD_DIR)
+        cd $(CONTAINER_BUILD_DIR)
         cp -r /mnt/. .
+        test -f $(fileprefix).tex || {
+            echo "$(pwd()) was mounted empty; check that Docker can access it."
+            exit 1
+        }
         latexmk -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex
         """
         try
-            piperun(`docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`, clearlogs = true)
-            piperun(`docker exec -u zeptodoctor latex-container bash -c $(script)`)
-            piperun(`docker cp latex-container:/home/zeptodoctor/build/$(fileprefix).pdf .`)
+            piperun(`docker run -itd --name latex-container -v $(pwd()):/mnt/ --rm $(image)`, clearlogs = true)
+            piperun(`docker exec latex-container bash -c $(script)`)
+            piperun(`docker cp latex-container:$(CONTAINER_BUILD_DIR)/$(fileprefix).pdf .`)
             return true
         catch err
             settings.show_log && dump_latex_log(fileprefix)
