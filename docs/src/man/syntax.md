@@ -201,7 +201,7 @@ makedocs
 ... [#42](@ref) ...
 ````
 
-The reference target is initially classified from the link syntax:
+The reference target is classified from the link syntax:
 
 | Reference type | Implicit form | Explicit form |
 | --- | --- | --- |
