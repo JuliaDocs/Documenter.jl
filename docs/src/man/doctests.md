@@ -6,9 +6,14 @@ examples from becoming outdated, incorrect, or misleading. It is recommended tha
 a package's examples as possible be runnable by Documenter's doctest.
 Doctest failures during [`makedocs`](@ref) are fatal by default, but can be turned into just warnings by passing `warnonly=:doctest` to `makedocs`.
 
-
 This section of the manual outlines how to go about enabling doctests for code blocks in
 your package's documentation.
+
+!!! note "Doctests in docstrings"
+
+    This page mostly describes `jldoctest` code blocks that are directly included in your Markdown files.
+    `jldoctest` code blocks can also be included inside docstrings.
+    However, you will need to add the top-level module containing those docstrings to [`makedocs`](@ref)'s `modules` keyword argument in order for Documenter to find and run them.
 
 ## "Script" Examples
 
