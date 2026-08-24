@@ -146,22 +146,127 @@ to the configuration file, as showed in the [previous section](@ref GitHub-Actio
     of the deployment is the same as the current repository. In order to push
     elsewhere you should instead use a SSH deploy key.
 
-### Authentication: SSH Deploy Keys
+### [Authentication: SSH Deploy Keys](@id ssh-deploy-keys)
 
-It is also possible to authenticate using a SSH deploy key, just as described in
-the [SSH Deploy Keys section for Travis CI](@ref travis-ssh). You can generate the
-key in the same way, and then set the encoded key as a secret environment variable
-in your repository settings. You also need to make the key available for the doc
-building workflow by adding
+Instead of `GITHUB_TOKEN`, deployment can be authenticated with an SSH deploy key.
+A deploy key grants push access to a *single* repository, and, unlike `GITHUB_TOKEN`,
+it can point at a repository other than the one running the workflow (see
+[Out-of-repo deployment](@ref)).
+
+The key pair is generated with `DocumenterTools.genkeys` from the
+[DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl) package:
+
+```julia-repl
+pkg> add DocumenterTools
+
+julia> using DocumenterTools
+
+julia> DocumenterTools.genkeys(user="MyUser", repo="MyPackage.jl")
+```
+
+If the package is checked out in development mode with `] dev MyPackage`, the
+repository can also be inferred from the package itself:
+
+```julia-repl
+julia> using MyPackage
+
+julia> DocumenterTools.genkeys(MyPackage)
+```
+
+The output looks similar to this:
+
+```
+[ Info: Add the key below as a new 'Deploy key' on GitHub
+  (https://github.com/USER/REPO/settings/keys) with read and write access. [...]
+
+[SSH PUBLIC KEY HERE]
+
+[ Info: Add a secure 'Repository secret' named 'DOCUMENTER_KEY' (to
+  https://github.com/USER/REPO/settings/secrets if you deploy using GitHub Actions)
+  with value:
+
+[LONG BASE64 ENCODED PRIVATE KEY]
+```
+
+!!! note
+
+    You will need several command line programs (`which`, `git` and `ssh-keygen`) to be
+    installed for the above to work. If DocumenterTools fails, see the
+    [SSH Deploy Keys Walkthrough](@ref) section for instructions on how to generate the keys
+    manually (including on Windows).
+
+The two halves of the key pair go to two different places in the GitHub settings.
+GitHub reorganizes these pages every so often; the paths below are the ones in the
+current UI, and the direct URLs are stable.
+
+#### Step 1: add the public key as a deploy key
+
+Go to **Settings** → **Deploy keys** (in the **Security** section of the sidebar) of the
+repository the documentation is deployed **to**, i.e.
+`https://github.com/USER/REPO/settings/keys`, and click **`Add deploy key`**:
+
+* **`Title`**: e.g. `documenter` (can be left empty, GitHub then infers it from the key comment).
+* **`Key`**: the public key from the `genkeys` output.
+* **`Allow write access`**: must be **checked**, otherwise Documenter cannot push.
+
+#### Step 2: add the private key as a repository secret
+
+Go to **Settings** → **Secrets and variables** → **Actions** of the repository the
+documentation workflow runs **in**, i.e.
+`https://github.com/USER/REPO/settings/secrets/actions`, and, on the **`Secrets`** tab,
+click **`New repository secret`**:
+
+* **`Name`**: `DOCUMENTER_KEY`
+* **`Secret`**: the base64-encoded private key from the `genkeys` output, with
+  **no whitespace** and no surrounding quotes.
+
+!!! warning "Pick the right box"
+
+    That page has several similar-looking sections, and putting the key in the wrong one is a
+    common cause of failing deployments:
+
+    * Use the **`Secrets`** tab, not the **`Variables`** tab. Variables are not encrypted
+      and are not exposed through `secrets.*`.
+    * Use **`Repository secrets`**, not **`Environment secrets`**. Environment secrets are
+      only visible to jobs that explicitly opt into that environment with an
+      `environment:` key, which the workflow above does not have.
+    * **`Organization secrets`** work too, if the organization grants the repository access
+      to the secret.
+
+!!! warning "Security warning"
+
+    The base64-encoded string contains the *unencrypted* private key that gives full write
+    access to the target repository, so it must be kept secret. Never print it in a build
+    log, and never merge code that exposes it.
+
+#### Step 3: pass the secret to the doc build
+
+Secrets are not automatically available to a workflow. Make the key available to the
+doc-building step by adding
 
 ```yaml
 DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 ```
 
-to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
-See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
+to the `env:` section of the configuration file, as shown in the
+[previous section](@ref GitHub-Actions). See GitHub's manual on
+[using secrets in GitHub Actions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
 for more information.
+
+!!! tip "Deployment fails with a `github-actions[bot]` permission error"
+
+    An error such as
+
+    ```
+    remote: Permission to USER/REPO.git denied to github-actions[bot].
+    fatal: unable to access 'https://github.com/USER/REPO.git/': ... error: 403
+    ```
+
+    means Documenter fell back to `GITHUB_TOKEN` because `DOCUMENTER_KEY` did not reach the
+    build. Documenter logs its deployment criteria before pushing; if that list shows
+    `ENV["GITHUB_TOKEN"] exists` rather than `ENV["DOCUMENTER_KEY"] exists`, the secret did
+    not arrive. Check that it is a repository secret (step 2) *and* that it is listed in the
+    `env:` section of the workflow (step 3).
 
 ### Permissions
 
@@ -233,73 +338,18 @@ The three lines in the `script:` section do the following:
     If your `.travis.yml` file still uses `matrix:`, it should be replaced with a a single
     `jobs:` section.
 
-### [Authentication: SSH Deploy Keys](@id travis-ssh)
+### [Authentication: SSH Deploy Keys (Travis CI)](@id travis-ssh)
 
-In order to push the generated documentation from Travis you need to add deploy keys.
-Deploy keys provide push access to a *single* repository, to allow secure deployment of
-generated documentation from the builder to GitHub. The SSH keys can be generated with
-`DocumenterTools.genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl) package.
+Travis CI also authenticates with an SSH deploy key. Generate the key pair with
+`DocumenterTools.genkeys` as described in the
+[SSH deploy key section](@ref ssh-deploy-keys) above. Only the private key is added
+elsewhere:
 
-!!! note
+ 1. Add the public ssh key as a deploy key with write access on the
+    `https://github.com/USER/REPO/settings/keys` page of the GitHub repository.
 
-    You will need several command line programs (`which`, `git` and `ssh-keygen`) to be
-    installed for the following steps to work. If DocumenterTools fails, please see the the
-    [SSH Deploy Keys Walkthrough](@ref) section for instruction on how to generate the keys
-    manually (including in Windows).
-
-
-Install and load DocumenterTools with
-
-```
-pkg> add DocumenterTools
-```
-```julia-repl
-julia> using DocumenterTools
-```
-
-Then call the [`DocumenterTools.genkeys`](@ref) function as follows:
-
-```julia-repl
-julia> using DocumenterTools
-julia> DocumenterTools.genkeys(user="MyUser", repo="MyPackage.jl")
-```
-
-where `MyPackage` is the name of the package you would like to create deploy keys for and
-`MyUser` is your GitHub username. Note that the keyword arguments are optional and can be
-omitted.
-
-If the package is checked out in development mode with `] dev MyPackage`, you can also use
-`DocumenterTools.genkeys` as follows:
-
-```julia-repl
-julia> using MyPackage
-julia> DocumenterTools.genkeys(MyPackage)
-```
-
-where `MyPackage` is the package you would like to create deploy keys for. The output will
-look similar to the text below:
-
-```
-[ Info: add the public key below to https://github.com/USER/REPO/settings/keys
-      with read/write access:
-
-[SSH PUBLIC KEY HERE]
-
-[ Info: add a secure environment variable named 'DOCUMENTER_KEY' to
-  https://travis-ci.com/USER/REPO/settings with value:
-
-[LONG BASE64 ENCODED PRIVATE KEY]
-```
-
-Follow the instructions that are printed out, namely:
-
- 1. Add the public ssh key to your settings page for the GitHub repository that you are
-    setting up by following the `.../settings/keys` link provided. Click on **`Add deploy
-    key`**, enter the name **`documenter`** as the title, and copy the public key into the
-    **`Key`** field. Check **`Allow write access`** to allow Documenter to commit the
-    generated documentation to the repo.
-
- 2. Next add the long private key to the Travis settings page using the provided link.
+ 2. Next add the long private key to the Travis settings page at
+    `https://app.travis-ci.com/USER/REPO/settings`.
     Again note that you should include **no whitespace** when copying the key. In the **`Environment
     Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
     out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
@@ -594,11 +644,16 @@ Preview builds are still deployed to the `previews` subfolder.
 Sometimes the `gh-pages` branch can become really large, either just due to a large number of commits over time, or due figures and other large artifacts.
 In those cases, it can be useful to deploy the docs in the `gh-pages` of a separate repository.
 The following steps can be used to deploy the documentation of a "source"
-repository on a "target" repo:
+repository on a "target" repo. The key pair is split across the two repositories, so it is
+worth being precise about which half goes where (see
+[Authentication: SSH Deploy Keys](@ref ssh-deploy-keys) for the exact GitHub settings pages):
 
-1. Run `DocumenterTools.genkeys()` to generate a pair of keys
-2. Add the **deploy key** to the **"target"** repository
-3. Add the `DOCUMENTER_KEY` **secret** to the **"source"** repository (that runs the documentation workflow)
+1. Run `DocumenterTools.genkeys()` to generate a pair of keys.
+2. Add the public key as a **deploy key** with write access to the **"target"** repository,
+   under **Settings** → **Deploy keys**.
+3. Add the private key as the `DOCUMENTER_KEY` **repository secret** to the **"source"**
+   repository (the one that runs the documentation workflow), under **Settings** →
+   **Secrets and variables** → **Actions**.
 4. Adapt `docs/make.jl` to deploy on "target" repository:
 
 ```julia
@@ -607,6 +662,16 @@ deploydocs(
   deploy_repo="github.com/TargetRepoOrg/TargetRepo"
 )
 ```
+
+Note that, as for `repo`, no protocol (`https://` or `git@`) may be given in `deploy_repo`;
+a trailing `.git` is optional. Setting the `GITHUB_REPOSITORY` environment variable around
+the `deploydocs` call is *not* necessary.
+
+!!! note
+
+    Out-of-repo deployment requires SSH deploy keys. `GITHUB_TOKEN` only ever grants access
+    to the repository the workflow runs in, so a build that falls back to it fails with a
+    `Permission to TargetRepoOrg/TargetRepo.git denied to github-actions[bot]` error.
 
 ## Deploying from a monorepo
 

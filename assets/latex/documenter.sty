@@ -39,6 +39,10 @@
     bgcolor = codeblock-background,
     rulecolor=codeblock-border,
 }
+% Footnote bodies are passed to \footnotetext as an argument, where verbatim
+% (i.e. minted) content is not allowed. This makes fancyvrb scan those arguments
+% in a way that permits it.
+\VerbatimFootnotes
 %
 
 % tables

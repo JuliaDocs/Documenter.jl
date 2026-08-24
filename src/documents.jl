@@ -624,7 +624,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
             # with remotes. In that case, the remote in `remotes` takes precedence as well.
             @debug "Remotes: `remotes` takes precedence over automatically determined remote" makedocs_root_remoteref makedocs_root_repo makedocs_root_remote repo_normalized
             makedocs_root_remote = makedocs_root_remoteref.remote
-        elseif startswith(makedocs_root_remoteref.root, makedocs_root_repo)
+        elseif startswith(makedocs_root_repo, makedocs_root_remoteref.root)
             # In this case we determined that root of the repository is more specific than
             # whatever we found in remotes. So the main remote will be determined from the Git
             # repository. This will be a no-op, except that `repo` argument may override the
