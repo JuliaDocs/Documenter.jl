@@ -5,6 +5,12 @@
 # .tex -> .pdf step. See docker/README.md.
 FROM debian:trixie-slim
 
+# `image.source` is what links the published package to this repository on GHCR,
+# so the package inherits its permissions and links back to the Dockerfile.
+LABEL org.opencontainers.image.source="https://github.com/JuliaDocs/Documenter.jl"
+LABEL org.opencontainers.image.description="TeX toolchain for Documenter.jl's PDF backend"
+LABEL org.opencontainers.image.licenses="MIT"
+
 # Installed from CTAN rather than from Debian, whose texlive-* packages trail
 # upstream by a year or more.
 ARG TEXLIVE_MIRROR=https://mirror.ctan.org/systems/texlive/tlnet
