@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed an `Unexpected repository roots` error when `makedocs` runs in a Git repository nested inside a directory configured in `remotes`; the repository's own remote is now used for the main repository, and the `remotes` entry applies to the surrounding paths. ([#2868])
 * Fixed headers hidden by the navbar. ([#2905])
 * Tightened `@ref` classification so references are matched more consistently by syntax, with header labels still taking precedence over docstrings and mistaken header/id references less likely to resolve as docstrings. ([#2678])
+* Footnote previews are no longer clipped by a surrounding table or code block, are kept within the viewport, and stay open while the pointer is over them, so that long previews can be scrolled. ([#2894], [#2956])
+* LaTeX: a footnote containing a code block no longer breaks the PDF build. ([#2958])
 
 ## Version [v1.17.0] - 2026-02-20
 
@@ -2281,8 +2283,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2875]: https://github.com/JuliaDocs/Documenter.jl/issues/2875
 [#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
 [#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
+[#2894]: https://github.com/JuliaDocs/Documenter.jl/issues/2894
 [#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
 [#2953]: https://github.com/JuliaDocs/Documenter.jl/issues/2953
+[#2956]: https://github.com/JuliaDocs/Documenter.jl/issues/2956
+[#2958]: https://github.com/JuliaDocs/Documenter.jl/issues/2958
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
