@@ -239,8 +239,7 @@ current page using the same syntax.
 ### Named `@ref`s
 
 It is also possible to override the destination of an `@ref`-link by adding the appropriate
-label to the link, such as a docstring reference or a page heading. However, the unquoted
-form in the third reference below is best avoided; see the compatibility note below.
+label to the link, such as a docstring reference or a page heading.
 
 ```markdown
 The following references point to `g` found in module `Main.Other`:
