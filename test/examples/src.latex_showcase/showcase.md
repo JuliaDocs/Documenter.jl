@@ -279,6 +279,14 @@ Footnote with more block contents.[^footblock]
 
         .. in a footnote.
 
+    And a code block:
+
+    ```julia
+    function f(x)
+        return x
+    end
+    ```
+
 ## Headings
 
 Finally, headings render as follows
