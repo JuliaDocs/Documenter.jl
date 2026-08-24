@@ -16,6 +16,15 @@ module LaTeXWriter
 import ...Documenter: Documenter
 using MarkdownAST: MarkdownAST, Node
 
+# Whitelisted lexers.
+const LEXER = Set(
+    [
+        "julia",
+        "jlcon",
+        "text",
+    ]
+)
+
 """
     Documenter.LaTeX(; kwargs...)
 
@@ -50,6 +59,10 @@ considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 fails. This can be useful in CI where temporary build directories are not preserved. If
 the environment variable `DOCUMENTER_LATEX_SHOW_LOGS` is set, log dumping is always enabled.
 
+**`lexers`** a collection of Pygments lexer names that `minted` will accept as code block
+languages. Defaults to `LaTeXWriter.LEXER`. Any language not in this set is rendered as
+plain `text`.
+
 See [Other Output Formats](@ref) for more information.
 """
 struct LaTeX <: Documenter.Writer
@@ -57,15 +70,17 @@ struct LaTeX <: Documenter.Writer
     version::String
     tectonic::Union{Cmd, String, Nothing}
     show_log::Bool
+    lexers::Set{String}
     function LaTeX(;
             platform = "native",
             version = get(ENV, "TRAVIS_TAG", ""),
             tectonic = nothing,
             show_log = false,
+            lexers = LEXER,
         )
         platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
         show_log = show_log || haskey(ENV, "DOCUMENTER_LATEX_SHOW_LOGS")
-        return new(platform, string(version), tectonic, show_log)
+        return new(platform, string(version), tectonic, show_log, Set{String}(lexers))
     end
 end
 
@@ -80,8 +95,9 @@ mutable struct Context{I <: IO} <: IO
     depth::Int
     filename::String # currently active source file
     doc::Documenter.Document
+    settings::LaTeX
 end
-Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc)
+Context(io, doc, settings) = Context{typeof(io)}(io, false, Dict(), 1, "", doc, settings)
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
@@ -129,7 +145,7 @@ function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
         cd(joinpath(path, "build")) do
             fileprefix = latex_fileprefix(doc, settings)
             open("$(fileprefix).tex", "w") do io
-                context = Context(io, doc)
+                context = Context(io, doc, settings)
                 writeheader(context, doc, settings)
                 for (title, filename, depth) in files(doc.user.pages)
                     context.filename = filename
@@ -549,20 +565,11 @@ function latex(io::Context, node::Node, heading::MarkdownAST.Heading)
     return
 end
 
-# Whitelisted lexers.
-const LEXER = Set(
-    [
-        "julia",
-        "jlcon",
-        "text",
-    ]
-)
-
 function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     language = Documenter.codelang(code.info)
     if language == "julia-repl"
         language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
-    elseif !(language in LEXER) && language != "text/plain"
+    elseif !(language in io.settings.lexers) && language != "text/plain"
         # For all others, like ```python or ```markdown, render as text.
         language = "text"
     end
