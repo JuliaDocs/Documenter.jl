@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically in plugins. ([#2925])
 * JuliaMono has been updated from `v0.050` to `v0.63.2`. ([#2953])
+* The SSH deploy key instructions in the manual now cover GitHub Actions directly, naming the settings pages for both halves of the key pair and disambiguating repository secrets from variables and environment secrets. ([#2403])
 
 ### Fixed
 
@@ -2151,6 +2152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2382]: https://github.com/JuliaDocs/Documenter.jl/issues/2382
 [#2394]: https://github.com/JuliaDocs/Documenter.jl/issues/2394
 [#2399]: https://github.com/JuliaDocs/Documenter.jl/issues/2399
+[#2403]: https://github.com/JuliaDocs/Documenter.jl/issues/2403
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
 [#2410]: https://github.com/JuliaDocs/Documenter.jl/issues/2410
@@ -2221,6 +2223,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
 [#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
+[#2678]: https://github.com/JuliaDocs/Documenter.jl/issues/2678
 [#2679]: https://github.com/JuliaDocs/Documenter.jl/issues/2679
 [#2682]: https://github.com/JuliaDocs/Documenter.jl/issues/2682
 [#2683]: https://github.com/JuliaDocs/Documenter.jl/issues/2683
@@ -2280,6 +2283,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
 [#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
 [#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
+[#2925]: https://github.com/JuliaDocs/Documenter.jl/issues/2925
 [#2953]: https://github.com/JuliaDocs/Documenter.jl/issues/2953
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
