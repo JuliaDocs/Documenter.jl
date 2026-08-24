@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed headers hidden by the navbar. ([#2905])
 * Tightened `@ref` classification so references are matched more consistently by syntax, with header labels still taking precedence over docstrings and mistaken header/id references less likely to resolve as docstrings. ([#2678])
+* Large Markdown tables in LaTeX / PDF output now use `xltabular`, so they break across pages with a repeated header row instead of being silently dropped or aborting the build with `Dimension too large`. ([#2963])
 
 ## Version [v1.17.0] - 2026-02-20
 
@@ -2281,6 +2282,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
 [#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
 [#2953]: https://github.com/JuliaDocs/Documenter.jl/issues/2953
+[#2963]: https://github.com/JuliaDocs/Documenter.jl/issues/2963
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

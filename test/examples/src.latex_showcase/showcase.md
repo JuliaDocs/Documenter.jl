@@ -250,6 +250,18 @@ table = Markdown.Table(
 Markdown.MD([table])
 ```
 
+Tables that are too long for a single page break across pages, with the header row repeated:
+
+```@eval
+using Markdown
+nrows = 100
+rows = Any[Any[["row"], ["value"]]]
+for i in 1:nrows
+    push!(rows, Any[[string(i)], [string(i^2)]])
+end
+Markdown.MD([Markdown.Table(rows, [:l, :r])])
+```
+
 However, tables with huge cells are not properly handled right now:
 
 | object | implemented |      value |
