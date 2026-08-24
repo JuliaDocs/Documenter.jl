@@ -13,7 +13,18 @@ requirejs.config({
     'highlight-julia-repl': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/julia-repl.min',
   },
   shim: {
+  "headroom-jquery": {
+    "deps": [
+      "jquery",
+      "headroom"
+    ]
+  },
   "highlight-julia": {
+    "deps": [
+      "highlight"
+    ]
+  },
+  "highlight-julia-repl": {
     "deps": [
       "highlight"
     ]
@@ -27,17 +38,6 @@ requirejs.config({
     "deps": [
       "katex"
     ]
-  },
-  "headroom-jquery": {
-    "deps": [
-      "jquery",
-      "headroom"
-    ]
-  },
-  "highlight-julia-repl": {
-    "deps": [
-      "highlight"
-    ]
   }
 }});
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,19 +48,19 @@ $(document).ready(function() {
     {
   "delimiters": [
     {
+      "display": false,
       "left": "$",
-      "right": "$",
-      "display": false
+      "right": "$"
     },
     {
+      "display": true,
       "left": "$$",
-      "right": "$$",
-      "display": true
+      "right": "$$"
     },
     {
+      "display": true,
       "left": "\\[",
-      "right": "\\]",
-      "display": true
+      "right": "\\]"
     }
   ]
 }
@@ -100,13 +100,13 @@ window.addEventListener("load", openTarget);
 
 function accordion() {
   document.body
-    .querySelectorAll("details")
+    .querySelectorAll("details.docstring")
     .forEach((e) => e.setAttribute("open", "true"));
 }
 
 function noccordion() {
   document.body
-    .querySelectorAll("details")
+    .querySelectorAll("details.docstring")
     .forEach((e) => e.removeAttribute("open"));
 }
 
@@ -487,6 +487,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     // find anything if searching for "add!", only for the entire qualification
     tokenize: (string) => {
       const tokens = [];
+      const tokenSet = new Set();
       let remaining = string;
 
       // julia specific patterns
@@ -513,8 +514,9 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
         let match;
         while ((match = pattern.exec(remaining)) != null) {
           const token = match[0].trim();
-          if (token && !tokens.includes(token)) {
+          if (token && !tokenSet.has(token)) {
             tokens.push(token);
+            tokenSet.add(token);
           }
         }
       }
@@ -524,8 +526,9 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
         .split(/[\s\-,;()[\]{}]+/)
         .filter((t) => t.trim());
       for (const token of basicTokens) {
-        if (token && !tokens.includes(token)) {
+        if (token && !tokenSet.has(token)) {
           tokens.push(token);
+          tokenSet.add(token);
         }
       }
 
@@ -1286,7 +1289,58 @@ $(document).ready(function () {
     target_href = version_selector_select
       .children("option:selected")
       .get(0).value;
-    window.location.href = target_href;
+
+    // if the target is just "#", don't navigate (it's the current version)
+    if (target_href === "#") {
+      return;
+    }
+
+    // try to stay on the same page when switching versions
+    // get the current page path relative to the version root
+    var current_page = window.location.pathname;
+
+    // resolve the documenterBaseURL to an absolute path
+    // documenterBaseURL is a relative path (usually "."), so we need to resolve it
+    var base_url_absolute = new URL(documenterBaseURL, window.location.href)
+      .pathname;
+    if (!base_url_absolute.endsWith("/")) {
+      base_url_absolute = base_url_absolute + "/";
+    }
+
+    // extract the page path after the version directory
+    // e.g., if we're on /stable/man/guide.html, we want "man/guide.html"
+    var page_path = "";
+    if (current_page.startsWith(base_url_absolute)) {
+      page_path = current_page.substring(base_url_absolute.length);
+    }
+
+    // construct the target URL with the same page path
+    var target_url = target_href;
+    if (page_path && page_path !== "" && page_path !== "index.html") {
+      // ensure target_href ends with a slash before appending page path
+      if (!target_url.endsWith("/")) {
+        target_url = target_url + "/";
+      }
+      target_url = target_url + page_path;
+    }
+
+    // preserve the anchor (hash) from the current page
+    var current_hash = window.location.hash;
+
+    // check if the target page exists, fallback to homepage if it doesn't
+    fetch(target_url, { method: "HEAD" })
+      .then(function (response) {
+        if (response.ok) {
+          window.location.href = target_url + current_hash;
+        } else {
+          // page doesn't exist in the target version, go to homepage
+          window.location.href = target_href;
+        }
+      })
+      .catch(function (error) {
+        // network error or other failure - use homepage
+        window.location.href = target_href;
+      });
   });
 
   // add the current version to the selector based on siteinfo.js, but only if the selector is empty
