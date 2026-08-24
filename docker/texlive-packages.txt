@@ -1,27 +1,9 @@
-# TeX Live packages required by Documenter's PDF backend.
-#
-# Consumed by two places, which is the point of keeping it in one file:
-#   * docker/Dockerfile         -> tlmgr install
-#   * .github/workflows/CI.yml  -> zauguin/install-texlive (package_file)
-#
-# Both accept a whitespace-separated list with `#` comments. Dependencies are
-# resolved by tlmgr, so only direct requirements belong here.
-
-scheme-medium     # latexmk, lualatex, fontspec, polyglossia, amsmath, graphicx, ...
-
-# Explicitly requested by assets/latex/documenter.sty:
+scheme-medium
+collection-latexextra
 hyperref
-minted            # source highlighting; shells out to pygmentize
+minted
 newunicodechar
 tabulary
 tcolorbox
-
-# Pulled in by generated documents rather than by documenter.sty:
 transparent
 upquote
-
-# Not needed by Documenter's own output, but the predecessor image was built on
-# Debian's texlive-latex-extra, so dropping it would silently break custom
-# preambles that have always worked. Also supplies `mwe`, whose example-image is
-# used by the cover page test.
-collection-latexextra
