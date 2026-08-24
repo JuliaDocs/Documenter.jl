@@ -100,9 +100,11 @@ jobs:
         with:
           packages: |
             scheme-medium
+            bookmark
             hyperref
             minted
             newunicodechar
+            selnolig
             transparent
             upquote
             tabulary

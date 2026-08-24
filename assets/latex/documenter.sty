@@ -9,6 +9,14 @@
 % DejaVu Sans instead.
 \newfontfamily\unicodeveebarfont{DejaVu Sans}[Scale=MatchLowercase]
 \newcommand\unicodeveebar{{\unicodeveebarfont ⊻}}
+
+% typography: enable microtypographic enhancements (character protrusion,
+% font expansion, tracking) for improved paragraph layout and justification.
+\usepackage{microtype}
+\microtypesetup{nopatch=item} % avoid interaction with memoir's list formatting
+
+% suppress inappropriate ligatures (LuaLaTeX only)
+\usepackage{selnolig}
 %
 
 % colours
@@ -38,6 +46,7 @@
     frame = none,
     bgcolor = codeblock-background,
     rulecolor=codeblock-border,
+    style = friendly,
 }
 %
 
@@ -56,6 +65,8 @@
     urlcolor = dark-purple,
     colorlinks = true,
 }
+% improved PDF bookmarks (must be loaded after hyperref)
+\usepackage{bookmark}
 %
 
 % table of contents
@@ -72,6 +83,14 @@
 \setlrmarginsandblock{1.5in}{1in}{*}
 \setheaderspaces{1in}{*}{*}
 \checkandfixthelayout
+
+% page headers: show chapter and section for navigation
+\makepagestyle{documenter}
+\makeevenhead{documenter}{\thepage}{}{\slshape\leftmark}
+\makeoddhead{documenter}{\slshape\rightmark}{}{\thepage}
+\makeevenfoot{documenter}{}{}{}
+\makeoddfoot{documenter}{}{}{}
+\pagestyle{documenter}
 %
 
 % images etc.
