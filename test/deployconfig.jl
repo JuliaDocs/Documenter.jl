@@ -543,6 +543,27 @@ end
         ) do
             @test_logs (:warn, "curl not found in PATH, cannot post status") Documenter.post_github_status(Documenter.GitHubActions("pages.selfhosted/something/JuliaDocs/Documenter.jl"), "type", "sha")
         end
+
+        # Check the status payload built for the GitHub API
+        let pages_url = "https://juliadocs.github.io/Documenter.jl/"
+            json = Documenter.github_status_json("success", pages_url)
+            @test json["state"] == "success"
+            @test json["context"] == "documenter/deploy"
+            @test json["description"] == "Documentation build succeeded"
+            @test json["target_url"] == "https://juliadocs.github.io/Documenter.jl"
+
+            json = Documenter.github_status_json("success", pages_url, "previews/PR123")
+            @test json["target_url"] == "https://juliadocs.github.io/Documenter.jl/previews/PR123"
+
+            json = Documenter.github_status_json("success", "", "previews/PR123")
+            @test json["target_url"] == ""
+
+            json = Documenter.github_status_json("pending", pages_url)
+            @test json["description"] == "Documentation build in progress"
+            @test !haskey(json, "target_url")
+
+            @test_throws ErrorException Documenter.github_status_json("nonsense", pages_url)
+        end
     end
 end
 
@@ -1569,7 +1590,7 @@ end
             end
             logged = read(seek(buffer, 0), String)
             @test occursin(r"""`curl -sX POST -H 'Authorization: token SGVsbG8sIHdvcmxkLg==' -H 'User-Agent: Documenter.jl' -H 'Content-Type: application/json' -d '{.+?}' badurl://api.github.com/repos/JuliaDocs/Documenter.jl/statuses/407d4b94`""", logged)
-            @test occursin(r"""`.+?{.*?\"target_url":"https://JuliaDocs.github.io/Documenter.jl/".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"target_url":"https://JuliaDocs.github.io/Documenter.jl".*?}'.+?`""", logged)
             @test occursin(r"""`.+?{.*?\"context\":\"documenter/deploy\".*?}'.+?`""", logged)
             @test occursin(r"""`.+?{.*?\"description\":\"Documentation build succeeded\".*?}'.+?`""", logged)
             @test occursin(r"""`.+?{.*?\"state\":\"success\".*?}'.+?`""", logged)
@@ -1598,7 +1619,7 @@ end
             end
             logged = read(seek(buffer, 0), String)
             @test occursin(r"""`curl -sX POST -H 'Authorization: token SGVsbG8sIHdvcmxkLg==' -H 'User-Agent: Documenter.jl' -H 'Content-Type: application/json' -d '{.+?}' badurl://api.github.com/repos/JuliaDocs/Documenter.jl/statuses/407d4b94`""", logged)
-            @test occursin(r"""`.+?{.*?\"target_url":"https://JuliaDocs.github.io/Documenter.jl/".*?}'.+?`""", logged)
+            @test occursin(r"""`.+?{.*?\"target_url":"https://JuliaDocs.github.io/Documenter.jl".*?}'.+?`""", logged)
             @test occursin(r"""`.+?{.*?\"context\":\"documenter/deploy\".*?}'.+?`""", logged)
             @test occursin(r"""`.+?{.*?\"description\":\"Documentation build succeeded\".*?}'.+?`""", logged)
             @test occursin(r"""`.+?{.*?\"state\":\"success\".*?}'.+?`""", logged)

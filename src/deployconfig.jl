@@ -540,6 +540,29 @@ function post_status(gha::GitHubActions; type, subfolder = nothing, kwargs...)
     end
 end
 
+function github_status_json(type, pages_url, subfolder = nothing)
+    json = Dict{String, Any}("context" => "documenter/deploy", "state" => type)
+    if type == "pending"
+        json["description"] = "Documentation build in progress"
+    elseif type == "success"
+        json["description"] = "Documentation build succeeded"
+        # no trailing slash, because a public-to-private redirect in front of a private
+        # GitHub Pages site can 404 on the trailing-slash form
+        target_url = String(rstrip(pages_url, '/'))
+        if !isempty(target_url) && subfolder !== nothing
+            target_url *= "/$(subfolder)"
+        end
+        json["target_url"] = target_url
+    elseif type == "error"
+        json["description"] = "Documentation build errored"
+    elseif type == "failure"
+        json["description"] = "Documentation build failed"
+    else
+        error("unsupported type: $type")
+    end
+    return json
+end
+
 function post_github_status(gha::GitHubActions, type::S, sha::S, subfolder = nothing) where {S <: String}
     try
         if Sys.which("curl") === nothing
@@ -557,24 +580,7 @@ function post_github_status(gha::GitHubActions, type::S, sha::S, subfolder = not
         push!(cmd.exec, "-H", "Authorization: token $(auth)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
         push!(cmd.exec, "-H", "Content-Type: application/json")
-        json = Dict{String, Any}("context" => "documenter/deploy", "state" => type)
-        if type == "pending"
-            json["description"] = "Documentation build in progress"
-        elseif type == "success"
-            json["description"] = "Documentation build succeeded"
-            target_url = gha.github_pages_url
-            if !isempty(target_url) && subfolder !== nothing
-                target_url = rstrip(target_url, '/') * "/$(subfolder)/"
-            end
-            json["target_url"] = target_url
-        elseif type == "error"
-            json["description"] = "Documentation build errored"
-        elseif type == "failure"
-            json["description"] = "Documentation build failed"
-        else
-            error("unsupported type: $type")
-        end
-        push!(cmd.exec, "-d", JSON.json(json))
+        push!(cmd.exec, "-d", JSON.json(github_status_json(type, gha.github_pages_url, subfolder)))
         push!(cmd.exec, "$(gha.github_api)/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
