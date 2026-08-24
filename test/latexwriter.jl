@@ -179,5 +179,21 @@ end
     end
 end
 
+@testset "container image" begin
+    @test Documenter.LaTeX(platform = "docker").image == LaTeXWriter.DOCKER_IMAGE
+    @test Documenter.LaTeX(platform = "docker", image = "foo:1").image == "foo:1"
+
+    withenv("DOCUMENTER_LATEX_DOCKER_IMAGE" => "bar:2") do
+        @test Documenter.LaTeX(platform = "docker").image == "bar:2"
+        # An explicit keyword still wins over the environment.
+        @test Documenter.LaTeX(platform = "docker", image = "foo:1").image == "foo:1"
+    end
+
+    # Empty counts as unset, so CI can pass the variable through unconditionally.
+    withenv("DOCUMENTER_LATEX_DOCKER_IMAGE" => "") do
+        @test Documenter.LaTeX(platform = "docker").image == LaTeXWriter.DOCKER_IMAGE
+    end
+end
+
 
 end

@@ -8,10 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Support self-hosted GitHub instances. ([#2755])
+* Added an `image` keyword to `Documenter.LaTeX` to select the container image used by `platform = "docker"`, overridable via the `DOCUMENTER_LATEX_DOCKER_IMAGE` environment variable. ([#2888])
 
 ### Changed
 
 * Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically in plugins. ([#2925])
+* `Documenter.LaTeX(platform = "docker")` now uses `ghcr.io/juliadocs/documenter-latex`, which is built from `docker/` in this repository and rebuilt weekly, instead of the unmaintained `juliadocs/documenter-latex:0.1` image on Docker Hub. ([#2888])
 
 ### Fixed
 
