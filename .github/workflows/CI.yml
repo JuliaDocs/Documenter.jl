@@ -79,6 +79,10 @@ jobs:
           - windows-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Both parents of the pull request's merge commit, so the step below can
+          # diff this change against its base.
+          fetch-depth: 2
       - name: "Download and install DejaVu fonts"
         run: |
           Invoke-WebRequest "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip" -OutFile "DejaVu.zip"
@@ -99,6 +103,30 @@ jobs:
       - uses: zauguin/install-texlive@v4
         with:
           package_file: docker/texlive-packages.txt
+      # A change to docker/ is tested against the image built from it, before
+      # DockerImage.yml publishes that image. Every other change uses the published
+      # one, so unrelated pull requests only pay a pull. Windows runners have no
+      # Docker and skip these examples (see test/examples/tests_latex.jl).
+      - name: Check whether this change touches docker/
+        id: image
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          if git diff --name-only HEAD^1 HEAD | grep -q '^docker/'; then
+            echo "rebuild=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "rebuild=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: docker/setup-buildx-action@v3
+        if: steps.image.outputs.rebuild == 'true'
+      - name: Build the LaTeX container image
+        if: steps.image.outputs.rebuild == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: docker
+          load: true
+          tags: documenter-latex:ci
+          # Populated by DockerImage.yml; a cache miss only costs build time.
+          cache-from: type=registry,ref=ghcr.io/juliadocs/documenter-latex:buildcache-amd64
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
@@ -110,6 +138,8 @@ jobs:
           Pkg.instantiate()
       - name: Run test/examples/tests_latex.jl
         run: julia --color=yes --project=test/examples --code-coverage test/examples/tests_latex.jl
+        env:
+          DOCUMENTER_LATEX_DOCKER_IMAGE: ${{ steps.image.outputs.rebuild == 'true' && 'documenter-latex:ci' || '' }}
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v7
         with:
