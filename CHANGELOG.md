@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically in plugins. ([#2925])
+* JuliaMono has been updated from `v0.050` to `v0.63.2`. ([#2953])
 
 ### Fixed
 
@@ -2280,6 +2281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
 [#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
 [#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
+[#2953]: https://github.com/JuliaDocs/Documenter.jl/issues/2953
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
