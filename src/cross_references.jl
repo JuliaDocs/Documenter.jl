@@ -202,7 +202,7 @@ module XRefResolvers
 
     It also makes a second attempt at backticked link text. That syntax ordinarily
     references a docstring, which is why [`XRefResolvers.Docs`](@ref) gets it first, but a
-    header title may itself be code, as in ```### [`JULIA_EDITOR`](@id JULIA_EDITOR)```.
+    header title may itself be code, as in ``` ### `JULIA_EDITOR` ```.
     """
     abstract type Header <: XRefResolverPipeline end
 
