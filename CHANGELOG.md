@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Fixed a duplicate `elseif` condition in `interpret_repo_and_remotes` that made the branch handling the case where the git repository root is nested inside a `remotes` path unreachable. ([#2868])
+* Fixed an `Unexpected repository roots` error when `makedocs` runs in a Git repository nested inside a directory configured in `remotes`; the repository's own remote is now used for the main repository, and the `remotes` entry applies to the surrounding paths. ([#2868])
 * Fixed headers hidden by the navbar. ([#2905])
 * Tightened `@ref` classification so references are matched more consistently by syntax, with header labels still taking precedence over docstrings and mistaken header/id references less likely to resolve as docstrings. ([#2678])
 
@@ -2275,6 +2275,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2849]: https://github.com/JuliaDocs/Documenter.jl/issues/2849
 [#2854]: https://github.com/JuliaDocs/Documenter.jl/issues/2854
 [#2857]: https://github.com/JuliaDocs/Documenter.jl/issues/2857
+[#2868]: https://github.com/JuliaDocs/Documenter.jl/issues/2868
 [#2871]: https://github.com/JuliaDocs/Documenter.jl/issues/2871
 [#2874]: https://github.com/JuliaDocs/Documenter.jl/issues/2874
 [#2875]: https://github.com/JuliaDocs/Documenter.jl/issues/2875
