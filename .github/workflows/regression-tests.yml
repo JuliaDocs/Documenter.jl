@@ -74,6 +74,7 @@ jobs:
           Pkg.develop(Pkg.PackageSpec(path=pwd()))
           # special hack to make OSCAR tests work *sigh*
           if package == "Oscar"
+            #AbstractAlgebra, Nemo, Hecke, Singular, GAP, Polymake
             Pkg.add("Hecke")
           end
           # Install
