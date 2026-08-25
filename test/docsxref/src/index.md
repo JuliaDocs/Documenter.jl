@@ -28,6 +28,11 @@ Implicit link to a non-existent docstring: [`foobar`](@ref).
 Explicit link to a non-existent docstring: [docstring link](@ref Main.foobar).
 Explicit link to a non-existent docstring with backticks: [docstring code link](@ref `Main.foobar`).
 
+Plain text naming a docstring is not a docstring reference: [DocsReferencingMain.f](@ref).
+Implicit link to a name that is both a header and a docstring: [DocsReferencingMain.g](@ref).
+Implicit link to a header whose title is code: [`ENVVAR`](@ref).
+Implicit link that is neither a header nor a binding: [Some-Hyphenated-Target](@ref).
+
 Conflicting header/docstring label: [conflict link](@ref DocsReferencingMain.g).
 Conflicting header/docstring label with backticks: [conflict docs link](@ref `DocsReferencingMain.g`).
 
@@ -46,6 +51,8 @@ Documenter.hide
 ```
 
 ## Two words
+
+## `ENVVAR`
 
 Something
 
