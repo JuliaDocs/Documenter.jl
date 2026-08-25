@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically in plugins. ([#2925])
 * JuliaMono has been updated from `v0.050` to `v0.63.2`. ([#2953])
-* Minisearchjs has been updated from `v6.1.0` to `v6.2.0` and is served via `cdnjs` instead of `jsdelivr`. ([#2973], [#2212])
+* Minisearchjs has been updated from `v6.1.0` to `v6.2.0` and is served via `cdnjs` instead of `jsdelivr`. ([#2973], [#2212], [#2976])
 * The SSH deploy key instructions in the manual now cover GitHub Actions directly, naming the settings pages for both halves of the key pair and disambiguating repository secrets from variables and environment secrets. ([#2403])
 
 ### Fixed
@@ -2294,6 +2294,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2960]: https://github.com/JuliaDocs/Documenter.jl/issues/2960
 [#2961]: https://github.com/JuliaDocs/Documenter.jl/issues/2961
 [#2973]: https://github.com/JuliaDocs/Documenter.jl/issues/2973
+[#2976]: https://github.com/JuliaDocs/Documenter.jl/issues/2976
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
