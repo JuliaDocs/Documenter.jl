@@ -33,6 +33,10 @@ install-runic:
 format-js:
 	julia --project=$(BIOME) -e 'using biome_jll; run(`$$(biome_jll.biome()) check --write`)'
 
+# Report unformatted JS without rewriting it; fails if anything needs formatting.
+check-js:
+	julia --project=$(BIOME) -e 'using biome_jll; exit(run(ignorestatus(`$$(biome_jll.biome()) check`)).exitcode)'
+
 install-biome:
 	julia --project=$(BIOME) -e 'using Pkg; Pkg.add(; name="biome_jll", version="2.4.8")'
 
@@ -74,10 +78,11 @@ help:
 	@echo " - make format-julia: formats the Julia source code with Runic"
 	@echo " - make install-runic: installs Runic.jl into the @runic shared Julia environment (for make format)"
 	@echo " - make format-js: formats the JS source code with Biome"
+	@echo " - make check-js: checks the JS source code formatting with Biome"
 	@echo " - make install-biome: installs biome_jll into the @biome shared Julia environment"
 	@echo " - make test: run the tests"
 	@echo " - make search-benchmarks: run search functionality benchmarks"
 	@echo " - make themes: compile Documenter's native CSS themes"
 	@echo " - make clean: remove generated files"
 
-.PHONY: default docs-instantiate themes help changelog docs test format-julia install-runic format-js install-biome search-benchmarks
+.PHONY: default docs-instantiate themes help changelog docs test format-julia install-runic format-js check-js install-biome search-benchmarks
