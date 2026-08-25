@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* The HTML output now sets a `no-referrer` referrer policy by default, so that the CDNs serving the fonts, stylesheets and scripts are no longer told which page the reader is on. It can be changed or disabled with the `referrerpolicy` keyword of `Documenter.HTML`. ([#2391], [#2401])
+
 ### Fixed
 
 * An `@contents` or `@index` block whose body fails to parse is now left unexpanded instead of falling back to the defaults, which silently listed the whole document. ([#1140])
@@ -2179,8 +2183,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
 [#2378]: https://github.com/JuliaDocs/Documenter.jl/issues/2378
 [#2382]: https://github.com/JuliaDocs/Documenter.jl/issues/2382
+[#2391]: https://github.com/JuliaDocs/Documenter.jl/issues/2391
 [#2394]: https://github.com/JuliaDocs/Documenter.jl/issues/2394
 [#2399]: https://github.com/JuliaDocs/Documenter.jl/issues/2399
+[#2401]: https://github.com/JuliaDocs/Documenter.jl/issues/2401
 [#2403]: https://github.com/JuliaDocs/Documenter.jl/issues/2403
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
