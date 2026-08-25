@@ -84,6 +84,22 @@ export HTML
 "Data attribute for the script inserting a warning for outdated docs."
 const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 
+"""
+The referrer policy tokens defined by the [Referrer Policy specification](https://www.w3.org/TR/referrer-policy/#referrer-policies).
+A browser ignores any other value and silently falls back to its own default, so the values
+passed to `HTML(referrerpolicy = ...)` are checked against this list.
+"""
+const REFERRER_POLICIES = [
+    "no-referrer",
+    "no-referrer-when-downgrade",
+    "same-origin",
+    "origin",
+    "strict-origin",
+    "origin-when-cross-origin",
+    "strict-origin-when-cross-origin",
+    "unsafe-url",
+]
+
 "List of Documenter native themes."
 const THEMES = ["documenter-light", "documenter-dark", "catppuccin-latte", "catppuccin-frappe", "catppuccin-macchiato", "catppuccin-mocha"]
 "The root directory of the HTML assets."
@@ -363,8 +379,10 @@ for more information.
 **`referrerpolicy`** sets the [referrer policy][mdn-referrer] of the generated pages via a
 `<meta name="referrer">` tag. The default, `"no-referrer"`, stops the browser from telling
 the CDNs that host the fonts, stylesheets and scripts (and any external site the reader
-navigates to) which page the request originated from. Set it to `nothing` to omit the tag
-and fall back to the browser default.
+navigates to) which page the request originated from. Any of the [referrer policy
+tokens][mdn-referrer] is accepted -- e.g. `"strict-origin"` reveals the site, but not the
+page, to the CDNs. Set it to `nothing` to omit the tag and fall back to the browser
+default.
 
 [mdn-referrer]: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/referrer
 
@@ -595,6 +613,16 @@ struct HTML <: Documenter.Writer
             example_size_threshold = typemax(Int)
         elseif example_size_threshold < 0
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
+        end
+        if !isnothing(referrerpolicy) && !(referrerpolicy in REFERRER_POLICIES)
+            throw(
+                ArgumentError(
+                    """
+                    Invalid referrerpolicy: $(repr(referrerpolicy))
+                    Must be `nothing` or one of: $(join(repr.(REFERRER_POLICIES), ", "))
+                    """
+                )
+            )
         end
         if isnothing(search_size_threshold_warn)
             search_size_threshold_warn = typemax(Int)
