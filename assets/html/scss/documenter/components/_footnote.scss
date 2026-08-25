@@ -5,7 +5,9 @@
 
 .footnote-preview {
     display: none;
-    position: absolute;
+    // Fixed, so that no scrolling or clipping ancestor (a table, a code block) can cut the
+    // preview off. The actual position is computed in footnote.js.
+    position: fixed;
     z-index: 1000;
     max-width: 300px;
     width: max-content;
@@ -13,12 +15,15 @@
     border: 1px solid $link-hover;
     padding: 10px;
     border-radius: 5px;
-    top: calc(100% + 10px);
-    left: 50%;
-    transform: translateX(-50%);
     box-sizing: border-box;
     /* Default arrow position */
     --arrow-left: 50%;
+}
+
+.footnote-preview-content {
+    // max-height is set in footnote.js, from the space left in the viewport.
+    overflow: auto;
+    overscroll-behavior: contain;
 }
 
 .footnote-preview::before {
@@ -30,4 +35,11 @@
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
     border-bottom: 10px solid $link-hover;
+}
+
+.footnote-preview.is-above::before {
+    top: auto;
+    bottom: -10px;
+    border-bottom: none;
+    border-top: 10px solid $link-hover;
 }
