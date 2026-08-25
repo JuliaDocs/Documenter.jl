@@ -310,6 +310,17 @@ end
         @test html.size_threshold_warn == 1234
     end
 
+    @testset "HTML: referrerpolicy" begin
+        @test Documenter.HTML().referrerpolicy == "no-referrer"
+        @test Documenter.HTML(referrerpolicy = "strict-origin").referrerpolicy == "strict-origin"
+        @test Documenter.HTML(referrerpolicy = nothing).referrerpolicy === nothing
+
+        tag = HTMLWriter.referrerpolicy_meta_tag("no-referrer")
+        @test string(tag) == """<meta name="referrer" content="no-referrer"/>"""
+        # No tag at all means the browser default applies.
+        @test string(HTMLWriter.referrerpolicy_meta_tag(nothing)) == ""
+    end
+
     @testset "HTML: format_units" begin
         @test HTMLWriter.format_units(0) == "0.0 (bytes)"
         @test HTMLWriter.format_units(1) == "1.0 (bytes)"
