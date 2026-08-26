@@ -206,20 +206,30 @@ The reference target is classified from the link syntax:
 | Reference type | Implicit form | Explicit form |
 | --- | --- | --- |
 | Header by title | `[Header name](@ref)` | `[link](@ref "Header name")` |
-| Header by `@id` | n/a | `[link](@ref header-id)` |
+| Header by `@id` | only if the text is the label itself | `[link](@ref header-id)` |
 | Issue/PR | `[#42](@ref)` | `[link](@ref #42)` |
-| Docstring | ``[`Example.domath`](@ref)`` | ``[link](@ref `Example.domath`)`` |
+| Docstring | ```[`Example.domath`](@ref)``` | ```[link](@ref `Example.domath`)``` |
 
 Plain text in the "text" part of a link will either cross-reference a header, or, when it is
 a number preceded by a `#`, a GitHub issue/pull request. Text wrapped in backticks will
 cross-reference a docstring from a `@docs` or `@autodocs` block.
+
+Backticked text falls back to a header when no docstring matches, since a header title may
+itself be code, as in ``` ### `JULIA_EDITOR` ```. Nothing else falls back:
+plain text is a header reference and never a docstring one, so a docstring must be written
+as ```[`makedocs`](@ref)``` rather than `[makedocs](@ref)`. Likewise, if an explicit form's
+target does not exist, none of the built-in rules applies.
+
+Plugins may add further resolvers to this pipeline at a position of their choosing: before
+the built-in rules, between them, or after them. See [`@extref` link](@ref) for an example.
+A reference is reported as unresolvable only after every resolver has declined it.
 
 The code enclosed in the backticks for such a reference will be evaluated in the
 `CurrentModule`  given in the `@meta` block of the current page (`Main` by default). For
 `@ref` links inside a docstring, the `CurrentModule` is automatically set to the module
 containing the docstring.
 
-A reference that is a fully qualified name (e.g. ```[`Example.domath`](@ref)```, ```[domath](@ref `Example.domath`)```, or `[domath](@ref Example.domath)`) will also be resolved in `Main`.
+A reference that is a fully qualified name (e.g. ```[`Example.domath`](@ref)``` or ```[`domath`](@ref `Example.domath`)```) will also be resolved in `Main`.
 That is, loading a package in `docs/make.jl` ensures that fully qualified `@ref` links work from anywhere.
 
 The `@ref` links may refer to docstrings or headers on different pages as well as the
@@ -232,11 +242,10 @@ It is also possible to override the destination of an `@ref`-link by adding the 
 label to the link, such as a docstring reference or a page heading.
 
 ```markdown
-All three of the following references point to `g` found in module `Main.Other`:
+The following references point to `g` found in module `Main.Other`:
 
 * [`Main.Other.g`](@ref)
 * [the `g` function](@ref `Main.Other.g`)
-* [the `g` function](@ref Main.Other.g)
 
 Both of the following point to the heading "On Something":
 
@@ -261,10 +270,11 @@ Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
 
 !!! note "Compatibility"
 
-    The explicit unquoted docstring form `[text](@ref Example.domath)` remains supported for
-    backward compatibility. However, header references still take precedence, including
-    labels introduced with [`@id`](@ref at-ref-at-id-links), so the explicit backticked form
-    is less ambiguous.
+    For backwards compatibility, Documenter also resolves `[text](@ref Example.domath)`
+    without backticks around `Example.domath`. Prefer the backticked form
+    ```[text](@ref `Example.domath`)```. The legacy syntax is ambiguous: an unquoted target
+    that matches a header label, including one introduced with
+    [`@id`](@ref at-ref-at-id-links), resolves to that header rather than to the docstring.
 
 ### Duplicate Headers
 
@@ -291,8 +301,9 @@ document more than once is disallowed.
 
 !!! note "Label precedence"
 
-    Both user-defined and internally generated header reference labels take precedence over
-    docstring references, in case there is a conflict.
+    When a name is both a header label and a docstring, the link syntax decides which one
+    wins: `[Example](@ref)` resolves to the header, ```[`Example`](@ref)``` to the docstring.
+    This applies to user-defined and internally generated header labels alike.
 
 ### Anchors on arbitrary content
 
