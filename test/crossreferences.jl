@@ -30,30 +30,30 @@ using Test
 end
 
 @testset "CrossReference classification" begin
-    headers = Documenter.AnchorMap()
-    Documenter.anchor_add!(headers, :dummy, "existing-id", "index.html")
-    Documenter.anchor_add!(headers, :dummy, "DocsReferencingMain.g", "index.html")
+    anchors = Documenter.AnchorMap()
+    Documenter.anchor_add!(anchors, :dummy, "existing-id", "index.html")
+    Documenter.anchor_add!(anchors, :dummy, "DocsReferencingMain.g", "index.html")
 
-    @test Documenter.classifyxref("", (:text, "Header title"), headers) ==
+    @test Documenter.classifyxref("", (:text, "Header title"), anchors) ==
         (kind = :implicit_header, target = "Header title", slug = "Header-title")
-    @test Documenter.classifyxref("", (:text, "#123"), headers) ==
+    @test Documenter.classifyxref("", (:text, "#123"), anchors) ==
         (kind = :issue, target = "123", slug = "#123")
-    @test Documenter.classifyxref("", (:code, "Main.f"), headers) ==
+    @test Documenter.classifyxref("", (:code, "Main.f"), anchors) ==
         (kind = :implicit_docs, target = "Main.f", slug = "Main.f")
 
-    @test Documenter.classifyxref("\"Header title\"", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("\"Header title\"", (:text, "label"), anchors) ==
         (kind = :explicit_header_title, target = "Header title", slug = "Header-title")
-    @test Documenter.classifyxref("#123", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("#123", (:text, "label"), anchors) ==
         (kind = :issue, target = "123", slug = "#123")
-    @test Documenter.classifyxref("`Main.f`", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("`Main.f`", (:text, "label"), anchors) ==
         (kind = :explicit_docs, target = "Main.f", slug = "Main.f")
-    @test Documenter.classifyxref("existing-id", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("existing-id", (:text, "label"), anchors) ==
         (kind = :explicit_header_id, target = "existing-id", slug = "existing-id")
-    @test Documenter.classifyxref("missing-id", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("missing-id", (:text, "label"), anchors) ==
         (kind = :explicit_header_id, target = "missing-id", slug = "missing-id")
-    @test Documenter.classifyxref("Main.f", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("Main.f", (:text, "label"), anchors) ==
         (kind = :explicit_docs, target = "Main.f", slug = "Main.f")
-    @test Documenter.classifyxref("DocsReferencingMain.g", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("DocsReferencingMain.g", (:text, "label"), anchors) ==
         (kind = :explicit_header_id, target = "DocsReferencingMain.g", slug = "DocsReferencingMain.g")
 end
 

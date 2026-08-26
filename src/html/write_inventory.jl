@@ -41,9 +41,9 @@ function write_inventory(doc, ctx)
     domain = "std"
     role = "label"
     priority = -1
-    for name in keys(doc.internal.headers.map)
+    for name in keys(doc.internal.anchors.map)
         isempty(name) && continue  # skip empty heading
-        anchor = Documenter.anchor(doc.internal.headers, name)
+        anchor = Documenter.anchor(doc.internal.anchors, name)
         if isnothing(anchor)
             # anchor not unique -> exclude from inventory
             continue

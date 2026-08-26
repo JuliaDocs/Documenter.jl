@@ -347,7 +347,7 @@ function Selectors.runner(::Type{Expanders.TrackHeaders}, node, page, doc)
     end
     slug = Documenter.slugify(text)
     # Add the header to the document's header map.
-    anchor = Documenter.anchor_add!(doc.internal.headers, header, slug, page.build)
+    anchor = Documenter.anchor_add!(doc.internal.anchors, header, slug, page.build)
     # Create an AnchoredHeader node and push the
     ah = MarkdownAST.Node(Documenter.AnchoredHeader(anchor))
     anchor.node = ah
@@ -1138,10 +1138,10 @@ function namedheader(node::Node)
 end
 
 # Walk the whole page tree and turn every `[content](@id name)` link on non-header content
-# into an `AnchoredInline`, registering the anchor in the same AnchorMap used for headers.
-# Reusing `doc.internal.headers` means these anchors share a single id namespace with headers
-# (so collisions are caught by the existing uniqueness checks), resolve through the existing
-# `@ref` header pipeline, and are written to the `objects.inv` inventory automatically.
+# into an `AnchoredInline`, registering the anchor in `doc.internal.anchors`. Sharing that
+# AnchorMap with headers gives all `@id` anchors a single id namespace (so collisions are
+# caught by the existing uniqueness checks), lets them resolve through the existing `@ref`
+# header pipeline, and gets them written to the `objects.inv` inventory automatically.
 function collect_named_anchors!(page, doc)
     for node in AbstractTrees.PreOrderDFS(page.mdast)
         node.element isa MarkdownAST.Link || continue
@@ -1157,7 +1157,7 @@ function collect_named_anchors!(page, doc)
         # header `@id` anchors share identical id semantics (and never emit an invalid HTML
         # id, e.g. one containing spaces).
         id = Documenter.slugify(String(m[1]))
-        anchor = Documenter.anchor_add!(doc.internal.headers, node.element, id, page.build)
+        anchor = Documenter.anchor_add!(doc.internal.anchors, node.element, id, page.build)
         node.element = Documenter.AnchoredInline(anchor)
         anchor.node = node
     end

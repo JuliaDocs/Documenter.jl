@@ -390,7 +390,7 @@ struct Internal
     assets::String # Path where asset files will be copied to.
     navtree::Vector{NavNode} # A vector of top-level navigation items.
     navlist::Vector{NavNode} # An ordered list of `NavNode`s that point to actual pages
-    headers::AnchorMap # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    anchors::AnchorMap # See `modules/Anchors.jl`. Tracks `@id` anchors on headers and inline content.
     docs::AnchorMap # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings::IdDict{Any, Any} # Tracks insertion order of object per-binding.
     objects::IdDict{Any, Any} # Tracks which `Objects` are included in the `Document`.
@@ -1039,7 +1039,7 @@ end
 
 function populate!(contents::ContentsNode, document::Document)
     # Filtering valid contents links.
-    for (id, filedict) in document.internal.headers.map
+    for (id, filedict) in document.internal.anchors.map
         for (file, anchors) in filedict
             for anchor in anchors
                 page = relpath(anchor.file, dirname(contents.build))
