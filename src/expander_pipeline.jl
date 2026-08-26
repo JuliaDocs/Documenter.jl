@@ -1157,8 +1157,12 @@ function collect_named_anchors!(page, doc)
         # header `@id` anchors share identical id semantics (and never emit an invalid HTML
         # id, e.g. one containing spaces).
         id = Documenter.slugify(String(m[1]))
-        anchor = Documenter.anchor_add!(doc.internal.anchors, node.element, id, page.build)
-        node.element = Documenter.AnchoredInline(anchor)
+        # The anchor and the element carrying it are mutually referential, so the anchor is
+        # registered with no object and told about the AnchoredInline once that exists.
+        anchor = Documenter.anchor_add!(doc.internal.anchors, nothing, id, page.build)
+        element = Documenter.AnchoredInline(anchor)
+        anchor.object = element
+        node.element = element
         anchor.node = node
     end
     return

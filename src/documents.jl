@@ -1046,8 +1046,8 @@ function populate!(contents::ContentsNode, document::Document)
                 # Note: This only filters based on contents.depth and *not* contents.mindepth.
                 #       Instead the writers who support this adjust this when rendering.
                 # Only headers participate in `@contents` listings. The same AnchorMap also
-                # holds arbitrary `[content](@id name)` anchors (whose `.object` is not a
-                # Heading), which must be skipped here.
+                # holds arbitrary `[content](@id name)` anchors (whose `.object` is an
+                # `AnchoredInline`), which must be skipped here.
                 if _isvalid(page, contents.pages) && anchor.object isa MarkdownAST.Heading && anchor.object.level ≤ contents.depth
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
