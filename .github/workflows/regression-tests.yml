@@ -10,12 +10,34 @@ on:
       - '*/*-runci'
     tags: '*'
   pull_request:
-    paths:
-      - '.github/workflows/regression-tests.yml'
-      - 'Project.toml'
+    # 'labeled' so that adding the opt-in label to an open PR starts a new run
+    types: [opened, synchronize, reopened, labeled]
 jobs:
+  # The path filter that used to live on the `pull_request` trigger lives here
+  # instead: a trigger-level filter would keep the workflow from starting at
+  # all, leaving no place to check for the opt-in label.
+  gate:
+    name: 'Gate'
+    runs-on: ubuntu-latest
+    outputs:
+      run-tests: ${{ steps.decide.outputs.run-tests }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name == 'pull_request'
+        with:
+          filters: |
+            ci:
+              - '.github/workflows/regression-tests.yml'
+              - 'Project.toml'
+      - id: decide
+        run: |
+          echo "run-tests=${{ github.event_name != 'pull_request' || steps.filter.outputs.ci == 'true' || contains(github.event.pull_request.labels.*.name, 'Run Regression Tests') }}" >> "$GITHUB_OUTPUT"
+
   test-dependent-packages:
     name: Tests / ${{ matrix.package }}
+    needs: gate
+    if: needs.gate.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     env:
       PACKAGE: ${{ matrix.package }}
@@ -46,6 +68,8 @@ jobs:
 
   test-documentation-build:
     name: "Docs / ${{ matrix.package }}"
+    needs: gate
+    if: needs.gate.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -84,6 +108,8 @@ jobs:
 
   test-julia-manual-build:
     name: "Julia Manual"
+    needs: gate
+    if: needs.gate.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
