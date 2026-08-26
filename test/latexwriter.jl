@@ -99,6 +99,23 @@ end
     @test_logs (:warn, r"Raw HTML block is not supported in LaTeX output") _node_to_latex(htmlblock) == "y\n"
 end
 
+@testset "inline @id anchors" begin
+    anchor = Documenter.Anchor(nothing)
+    anchor.id = "my-anchor"
+    node = Documenter.MarkdownAST.Node(Documenter.AnchoredInline(anchor))
+    push!(node.children, Documenter.MarkdownAST.Node(Documenter.MarkdownAST.Text("content")))
+    id = LaTeXWriter._hash(Documenter.anchor_label(anchor))
+
+    @test _node_to_latex(node) == "\\hypertarget{$(id)}{content}"
+
+    # A header title is a moving argument that also lands in the table of contents and the
+    # PDF bookmarks, where \hypertarget does not belong -- only the content is emitted.
+    lctx = _dummy_lctx()
+    lctx.in_header = true
+    LaTeXWriter.latex(lctx, node)
+    @test String(take!(lctx.io)) == "content"
+end
+
 # `nrows` includes the header row, matching how the writer counts.
 function _md_table(nrows)
     io = IOBuffer()

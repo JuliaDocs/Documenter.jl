@@ -354,6 +354,13 @@ function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
 end
 
 function latex(io::Context, node::Node, ai::Documenter.AnchoredInline)
+    # Inside a header the title is a moving argument that also ends up in the table of
+    # contents and the PDF bookmarks, where a \hypertarget does not belong -- so only the
+    # content is emitted there, as the PageLink method does for \hyperlinkref.
+    if io.in_header
+        latex(io, node.children)
+        return
+    end
     # A `\hypertarget` (matching the `\hyperlinkref` emitted for a resolved `@ref`, see the
     # PageLink method) wrapping the anchored inline content.
     id = _hash(Documenter.anchor_label(ai.anchor))

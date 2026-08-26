@@ -256,6 +256,7 @@ element, mirroring how `PageLink` replaces a `MarkdownAST.Link` in place.
 struct AnchoredInline <: AbstractDocumenterInline
     anchor::Anchor
 end
+MarkdownAST.iscontainer(::AnchoredInline) = true
 Base.show(io::IO, ::AnchoredInline) = print(io, "Documenter.AnchoredInline([...])")
 
 # Navigation

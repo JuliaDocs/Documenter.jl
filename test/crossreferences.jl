@@ -60,6 +60,7 @@ end
 # Arbitrary anchors on inline content via `[content](@id name)` (issue #745).
 @testset "Inline @id anchors" begin
     using CodecZlib: ZlibDecompressor, transcode
+    import IOCapture
 
     function build_doc(files::Vector{Pair{String, String}}; kwargs...)
         tmp = mktempdir()
@@ -69,11 +70,15 @@ end
         for (name, content) in files
             write(joinpath(src, name), content)
         end
-        Documenter.makedocs(;
-            root = tmp, sitename = "T", pages = [f.first for f in files],
-            format = Documenter.HTML(edit_link = nothing, disable_git = true, inventory_version = "1.0"),
-            remotes = nothing, kwargs...,
-        )
+        # Captured so that the many builds below do not drown the test log; errors still
+        # propagate, which the `@test_throws` cases below rely on.
+        IOCapture.capture() do
+            Documenter.makedocs(;
+                root = tmp, sitename = "T", pages = [f.first for f in files],
+                format = Documenter.HTML(edit_link = nothing, disable_git = true, inventory_version = "1.0"),
+                remotes = nothing, kwargs...,
+            )
+        end
         return tmp
     end
 
