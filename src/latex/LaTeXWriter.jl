@@ -723,28 +723,91 @@ function latex(io::Context, node::Node, math::MarkdownAST.DisplayMath)
     return
 end
 
+# Tables with at least this many rows are typeset with `xltabular` instead of a
+# `table` float, so that they can break across pages. A non-breakable float that
+# overflows a page is silently dropped by LaTeX, and since LaTeX 2026-06-01 it
+# aborts the build with "Dimension too large" instead.
+const LONGTABLE_ROW_THRESHOLD = 20
+
 function latex(io::Context, node::Node, table::MarkdownAST.Table)
-    rows = MarkdownAST.tablerows(node)
+    rows = collect(MarkdownAST.tablerows(node))
+
+    if length(rows) >= LONGTABLE_ROW_THRESHOLD
+        latex_longtable(io, table, rows)
+    else
+        latex_float_table(io, table, rows)
+    end
+
+    return
+end
+
+# Small tables: a centred, non-breaking float.
+function latex_float_table(io::Context, table::MarkdownAST.Table, rows)
     _println(io, "\n\\begin{table}[h]\n\\centering")
     _print(io, "\\begin{tabulary}{\\linewidth}")
     _println(io, "{", uppercase(join(spec_to_align.(table.spec), ' ')), "}")
     _println(io, "\\toprule")
+
     for (i, row) in enumerate(rows)
-        for (j, cell) in enumerate(row.children)
-            j === 1 || _print(io, " & ")
-            latex(io, cell.children)
-        end
-        _println(io, " \\\\")
-        if i === 1
-            _println(io, "\\toprule")
-        end
+        latex_table_row(io, row)
+        i === 1 && _println(io, "\\toprule")
     end
+
     _println(io, "\\bottomrule")
     _println(io, "\\end{tabulary}\n")
     _println(io, "\\end{table}\n")
     return
 end
+
+# Large tables: `xltabular` breaks across pages and repeats the header row.
+function latex_longtable(io::Context, table::MarkdownAST.Table, rows)
+    _print(io, "\n\\begin{xltabular}{\\linewidth}")
+    _println(io, "{", join(spec_to_xcolumn.(table.spec), ' '), "}")
+
+    header, body = Iterators.peel(rows)
+
+    # `\endfirsthead` ends the header used on the first page, `\endhead` the one
+    # repeated on every subsequent page. Both are needed, otherwise the header is
+    # printed only once.
+    _println(io, "\\toprule")
+    latex_table_row(io, header)
+    _println(io, "\\toprule")
+    _println(io, "\\endfirsthead")
+
+    _println(io, "\\toprule")
+    latex_table_row(io, header)
+    _println(io, "\\toprule")
+    _println(io, "\\endhead")
+
+    _println(io, "\\bottomrule")
+    _println(io, "\\endfoot")
+
+    for row in body
+        latex_table_row(io, row)
+    end
+
+    _println(io, "\\end{xltabular}\n")
+    return
+end
+
+function latex_table_row(io::Context, row::Node)
+    for (j, cell) in enumerate(row.children)
+        j === 1 || _print(io, " & ")
+        latex(io, cell.children)
+    end
+    _println(io, " \\\\")
+    return
+end
+
 spec_to_align(spec::Symbol) = Symbol(first(String(spec)))
+
+# `xltabular` needs width-bearing `X` columns; `l`/`c`/`r` would not wrap long cells.
+const XCOLUMN_ALIGNMENT = Dict(
+    :left => "\\raggedright",
+    :center => "\\centering",
+    :right => "\\raggedleft",
+)
+spec_to_xcolumn(spec::Symbol) = string(">{", XCOLUMN_ALIGNMENT[spec], "\\arraybackslash}X")
 
 function latex(io::Context, node::Node, raw::Documenter.RawNode)
     raw.name === :latex && _println(io, "\n", raw.text, "\n")

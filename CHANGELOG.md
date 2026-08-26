@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * The `[content](@id name)` syntax can now attach a named, cross-referenceable anchor to arbitrary inline content (such as text or a thumbnail image), not just headers. These anchors resolve via `@ref`, share a single id namespace with header labels, and are written to the `objects.inv` inventory as `std:label` entries. ([#745])
+* Large Markdown tables in LaTeX / PDF output now use `xltabular`, so they break across pages with a repeated header row instead of being silently dropped or aborting the build with `Dimension too large`. ([#2963])
 
 ### Changed
 
@@ -2298,6 +2299,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2958]: https://github.com/JuliaDocs/Documenter.jl/issues/2958
 [#2960]: https://github.com/JuliaDocs/Documenter.jl/issues/2960
 [#2961]: https://github.com/JuliaDocs/Documenter.jl/issues/2961
+[#2963]: https://github.com/JuliaDocs/Documenter.jl/issues/2963
 [#2973]: https://github.com/JuliaDocs/Documenter.jl/issues/2973
 [#2976]: https://github.com/JuliaDocs/Documenter.jl/issues/2976
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
