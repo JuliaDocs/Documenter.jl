@@ -421,7 +421,7 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     anchors = doc.internal.anchors
     if !anchor_exists(anchors, slug)
-        push!(errors, "Header with slug '$slug' in $(Documenter.locrepr(doc, page)) does not exist.")
+        push!(errors, "Header or `@id` anchor with slug '$slug' in $(Documenter.locrepr(doc, page)) does not exist.")
     end
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
@@ -434,7 +434,7 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
         page = doc.blueprint.pages[pagekey]
         node.element = Documenter.PageLink(page, anchor_label(anchor))
     else
-        push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(doc, page)).")
+        push!(errors, "Header or `@id` anchor with slug '$slug' is not unique in $(Documenter.locrepr(doc, page)).")
     end
     return
 end
