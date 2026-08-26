@@ -106,6 +106,8 @@ jobs:
             transparent
             upquote
             tabulary
+            ltablex
+            xltabular
             tcolorbox
       - uses: julia-actions/setup-julia@v3
         with:

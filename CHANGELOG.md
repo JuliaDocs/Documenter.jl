@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* Large Markdown tables in LaTeX / PDF output now use `xltabular`, so they break across pages with a repeated header row instead of being silently dropped or aborting the build with `Dimension too large`. ([#2963])
+
 ### Changed
 
 * Change type of `HTML.assets` field to `Vector{HTMLHeadContent}` to allow configuring dynamically in plugins. ([#2925])
@@ -2293,6 +2297,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2958]: https://github.com/JuliaDocs/Documenter.jl/issues/2958
 [#2960]: https://github.com/JuliaDocs/Documenter.jl/issues/2960
 [#2961]: https://github.com/JuliaDocs/Documenter.jl/issues/2961
+[#2963]: https://github.com/JuliaDocs/Documenter.jl/issues/2963
 [#2973]: https://github.com/JuliaDocs/Documenter.jl/issues/2973
 [#2976]: https://github.com/JuliaDocs/Documenter.jl/issues/2976
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
