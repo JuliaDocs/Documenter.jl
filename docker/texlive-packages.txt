@@ -1,0 +1,9 @@
+scheme-medium
+collection-latexextra
+hyperref
+minted
+newunicodechar
+tabulary
+tcolorbox
+transparent
+upquote
