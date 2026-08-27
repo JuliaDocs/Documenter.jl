@@ -295,13 +295,13 @@ other page. This manual therefore calls it an *`@id` anchor* rather than a link.
 
 An `@id` anchor may wrap a whole header, in which case it replaces the label that would
 otherwise be derived from the header text, and the Markdown link itself is dropped from the
-rendered document -- the header looks exactly as it would without it. See
-[Duplicate Headers](@ref) for the main use case.
+rendered document. The header looks exactly as it would without it. See [Duplicate
+Headers](@ref) for the main use case.
 
-On any other inline content -- text, code, an image -- the content is rendered as usual and
-wrapped in an anchor (`<span id="...">` in HTML, `\hypertarget` in ``\LaTeX``). That makes
-things other than headers referenceable, such as a full-size figure that thumbnails
-elsewhere in the document link to:
+On any other inline content like text, code, or an image, the content is rendered as usual.
+It is wrapped in an anchor. This is done with a span tag in HTML or a hypertarget command in
+LaTeX. That makes things other than headers referenceable, such as a full-size figure that
+thumbnails elsewhere in the document link to:
 
 ````markdown
 [![Figure 1](assets/figure-1.png)](@id figure-1)
