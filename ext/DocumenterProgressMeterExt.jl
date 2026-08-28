@@ -3,41 +3,30 @@ module DocumenterProgressMeterExt
 import Documenter
 using ProgressMeter: Progress, next!, finish!
 
-mutable struct ProgressIter{T}
+struct ProgressIter{T}
     iter::T
     progress::Progress
-    started::Bool
 end
 
 Base.length(p::ProgressIter) = length(p.iter)
+Base.size(p::ProgressIter, dim...) = size(p.iter, dim...)
+Base.axes(p::ProgressIter, dim...) = axes(p.iter, dim...)
 Base.eltype(::Type{ProgressIter{T}}) where {T} = eltype(T)
-Base.IteratorSize(::Type{<:ProgressIter}) = Base.HasLength()
+Base.IteratorSize(::Type{ProgressIter{T}}) where {T} = Base.IteratorSize(T)
 Base.IteratorEltype(::Type{ProgressIter{T}}) where {T} = Base.IteratorEltype(T)
 
-function Base.iterate(p::ProgressIter)
-    result = iterate(p.iter)
+function Base.iterate(p::ProgressIter, state...)
+    result = iterate(p.iter, state...)
     if result === nothing
         finish!(p.progress)
-        return nothing
-    end
-    p.started = true
-    return result
-end
-
-function Base.iterate(p::ProgressIter, state)
-    next!(p.progress)
-    result = iterate(p.iter, state)
-    if result === nothing
-        finish!(p.progress)
-        return nothing
+    elseif !isempty(state)
+        next!(p.progress)
     end
     return result
 end
 
-function Documenter.progress_iter(iter::AbstractVector; desc::AbstractString = "")
-    n = length(iter)
-    bar = Progress(n; desc = desc, color = :blue)
-    return ProgressIter(iter, bar, false)
+function Documenter.progress_iter(iter::AbstractVector)
+    return ProgressIter(iter, Progress(length(iter); desc = ""))
 end
 
 end # module
