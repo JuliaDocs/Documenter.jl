@@ -881,10 +881,7 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     end
 
     size_limit_successes = map(
-        Documenter.progress_iter(
-            collect(keys(doc.blueprint.pages));
-            desc = "Rendering HTML:   ",
-        )
+        Documenter.progress_iter(collect(keys(doc.blueprint.pages)))
     ) do page
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
         nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
