@@ -298,10 +298,10 @@ otherwise be derived from the header text, and the Markdown link itself is dropp
 rendered document. The header looks exactly as it would without it. See [Duplicate
 Headers](@ref) for the main use case.
 
-On any other inline content like text, code, or an image, the content is rendered as usual.
-It is wrapped in an anchor. This is done with a span tag in HTML or a hypertarget command in
-LaTeX. That makes things other than headers referenceable, such as a full-size figure that
-thumbnails elsewhere in the document link to:
+On any other inline content like text, code, or an image, the content is rendered as usual
+and wrapped in an anchor: `<span id="...">` in HTML, `\hypertarget` in LaTeX. That makes
+things other than headers referenceable, such as a full-size figure that thumbnails
+elsewhere in the document link to:
 
 ````markdown
 [![Figure 1](assets/figure-1.png)](@id figure-1)
@@ -311,7 +311,7 @@ thumbnails elsewhere in the document link to:
 ... see [Figure 1](@ref figure-1) ...
 ````
 
-Ids are slugified, so ```[x](@id My Anchor)``` defines the anchor `My-Anchor`.
+Ids are slugified, so `[x](@id My Anchor)` defines the anchor `My-Anchor`.
 
 Header and non-header anchors share a single id namespace, so a duplicate id is
 reported the same way a duplicate header is. They are written into the `objects.inv`
