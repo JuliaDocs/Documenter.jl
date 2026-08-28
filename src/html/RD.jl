@@ -6,7 +6,7 @@ using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
 const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
 const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
-const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css"
+const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.63.2/juliamono.min.css"
 const fontawesome_version = "6.4.2"
 const fontawesome_css = [
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",

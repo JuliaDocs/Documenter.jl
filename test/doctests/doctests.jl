@@ -92,7 +92,7 @@ function onormalize(s)
     s = replace(s, r"(Cannot extract version for inventory from )(.*):(.*)$"m => s"\1{PATH}:\3")
     # Remove line numbers from Julia source line references (like in stacktraces)
     # Note: currently only supports top-level files (e.g. ./error.jl, but not ./strings/basic.jl)
-    s = replace(s, r"Base \.[\\/]([A-Za-z0-9\.]+):[0-9]+\s*$"m => s"Base ./\1:LL")
+    s = replace(s, r"Base (\.[\\/])?([A-Za-z0-9\.]+):[0-9]+\s*$"m => s"Base ./\2:LL")
 
     # Remove stacktraces
     s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)(\n(│\s+)@.*)?+" => s"\1\\n\3{STACKTRACE}")
