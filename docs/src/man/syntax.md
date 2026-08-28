@@ -299,9 +299,9 @@ rendered document. The header looks exactly as it would without it. See [Duplica
 Headers](@ref) for the main use case.
 
 On any other inline content like text, code, or an image, the content is rendered as usual
-and wrapped in an anchor: `<span id="...">` in HTML, `\hypertarget` in LaTeX. That makes
-things other than headers referenceable, such as a full-size figure that thumbnails
-elsewhere in the document link to:
+and becomes a link target in its own right. That makes things other than headers
+referenceable, such as a full-size figure that thumbnails elsewhere in the document link
+to:
 
 ````markdown
 [![Figure 1](assets/figure-1.png)](@id figure-1)
