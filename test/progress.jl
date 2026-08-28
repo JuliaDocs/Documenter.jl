@@ -28,7 +28,7 @@ const EXT_LOADED = VERSION >= v"1.9"
 
     if EXT_LOADED
         @testset "a bar is actually drawn" begin
-            c = IOCapture.capture(passthrough=false) do
+            c = IOCapture.capture(passthrough = false) do
                 for _ in Documenter.progress_iter(collect(1:20))
                     sleep(0.02)  # exceed the default dt
                 end
@@ -43,13 +43,13 @@ const EXT_LOADED = VERSION >= v"1.9"
     end
 
     @testset "a build with ProgressMeter loaded succeeds" begin
-        c = IOCapture.capture(passthrough=false) do
+        c = IOCapture.capture(passthrough = false) do
             makedocs(
-                sitename="-",
-                root=@__DIR__,
-                source=joinpath("progress", "src"),
-                build=joinpath("progress", "build"),
-                warnonly=false,
+                sitename = "-",
+                root = @__DIR__,
+                source = joinpath("progress", "src"),
+                build = joinpath("progress", "build"),
+                warnonly = false,
             )
         end
         @test c.value === nothing
