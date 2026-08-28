@@ -58,6 +58,7 @@ on:
     tags: '*'
   pull_request:
   workflow_dispatch:
+
 jobs:
   build:
     # These permissions are needed to:
