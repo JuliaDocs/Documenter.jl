@@ -88,7 +88,7 @@ const THEMES = ["documenter-light", "documenter-dark", "catppuccin-latte", "catp
 "The root directory of the HTML assets."
 const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
 "The version of minisearch to use."
-const MINISEARCH_VERSION = "6.1.0"
+const MINISEARCH_VERSION = "6.2.0"
 "The directory where all the Sass/SCSS files needed for theme building are."
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."

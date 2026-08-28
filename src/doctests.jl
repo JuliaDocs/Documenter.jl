@@ -115,7 +115,7 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
 
         success, name, d = parse_codeblock_args(
             "jldoctest", block, ctx.doc, source;
-            allowed_kwargs = [:setup, :teardown, :filter, :syntax],
+            allowed_kwargs = [:setup, :teardown, :filter, :syntax, :output],
         )
         success || return false
 
