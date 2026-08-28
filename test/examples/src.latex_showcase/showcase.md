@@ -29,7 +29,7 @@ When the language is specified for the block, e.g. by starting the block with ``
 
 ```julia
 function foo(x::Integer)
-    @show x + 1
+    return @show x + 1
 end
 ```
 

@@ -25,7 +25,7 @@ themes:
 	$(MAKE) -C assets/html all
 
 format-julia:
-	julia --project=$(RUNIC) -e 'using Runic; exit(Runic.main(ARGS))' -- --inplace .
+	julia --project=$(RUNIC) -e 'using Runic; exit(Runic.main(ARGS))' -- --extensions=jl,md --docstrings --inplace .
 
 install-runic:
 	julia --project=$(RUNIC) -e 'using Pkg; Pkg.add("Runic")'
