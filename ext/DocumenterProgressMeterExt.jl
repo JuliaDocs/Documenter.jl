@@ -26,7 +26,7 @@ function Base.iterate(p::ProgressIter, state...)
 end
 
 function Documenter.progress_iter(iter::AbstractVector)
-    return ProgressIter(iter, Progress(length(iter); desc = ""))
+    return ProgressIter(iter, Progress(length(iter); desc = "", color = :blue))
 end
 
 end # module
