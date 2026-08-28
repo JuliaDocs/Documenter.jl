@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Large Markdown tables in LaTeX / PDF output now use `xltabular`, so they break across pages with a repeated header row instead of being silently dropped or aborting the build with `Dimension too large`. ([#2963])
-* Added documentation on how to use `IOContext` to limit the display size of large outputs in `@example` blocks. ([#2207])
 
 ### Changed
 
