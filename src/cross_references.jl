@@ -152,19 +152,22 @@ module XRefResolvers
 
     The steps for trying to resolve links are:
 
-    - [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
-    - [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
     - [`XRefResolvers.Docs`](@ref) for links like ```[`Documenter.makedocs`](@ref)```
+    - [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
+    - [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
+
+    A step only matches the link syntax it serves. Plain text is a header reference and
+    nothing else; backticked text is a docstring reference first and a header second, since
+    a header title may itself be code.
 
     Each step may or may not be able to resolve the link. Processing continues until the
-    link is resolved or the end of the pipeline is reached. If the link is still unresolved
-    after the last step, [`Documenter.xref`](@ref) issues an error that includes any
-    accumulated error messages from the steps. Failure to resolve an `@ref` link will fail
+    link is resolved or the end of the pipeline is reached. A step that cannot resolve a
+    link says why in `errors` and leaves the link alone; no step ends the pipeline early,
+    since plugins append steps to it and a step that stops decides for steps it cannot see
+    ([#2843](https://github.com/JuliaDocs/Documenter.jl/issues/2843)). If the link is still
+    unresolved after the last step, [`Documenter.xref`](@ref) issues an error that includes
+    any accumulated error messages. Failure to resolve an `@ref` link will fail
     [`Documenter.makedocs`](@ref) if it is not called with `warnonly=true`.
-    A step may choose to make the entire pipeline fail when it encounters a case that obviously
-    has to be resolved by this step, but cannot be resolved due to an error (for example,
-    a non-unique header slug). In that case, the step should set its [`Selectors.strict`](@ref)
-    to `true`.
 
     The default pipeline could be extended by plugins using the general [`Selectors`](@ref)
     machinery.
@@ -196,6 +199,10 @@ module XRefResolvers
 
     This runs if the `slug` corresponds to a known local section title, and resolves the
     `node` to link to that section.
+
+    It also makes a second attempt at backticked link text. That syntax ordinarily
+    references a docstring, which is why [`XRefResolvers.Docs`](@ref) gets it first, but a
+    header title may itself be code, as in ``` ### `JULIA_EDITOR` ```.
     """
     abstract type Header <: XRefResolverPipeline end
 
@@ -208,16 +215,16 @@ module XRefResolvers
 
     """Resolve `@ref` links for docstrings.
 
-    This runs unconditionally (if no previous step was able to resolve the link), and
-    tries to find a code binding for the given `slug`, linking to its docstring.
+    This runs first, since backticked link text is a docstring reference, and tries to find
+    a code binding for the given `slug`, linking to its docstring.
     """
     abstract type Docs <: XRefResolverPipeline end
 
 end
 
-Selectors.order(::Type{XRefResolvers.Header}) = 1.0
+Selectors.order(::Type{XRefResolvers.Docs}) = 1.0
 Selectors.order(::Type{XRefResolvers.Issue}) = 2.0
-Selectors.order(::Type{XRefResolvers.Docs}) = 3.0
+Selectors.order(::Type{XRefResolvers.Header}) = 3.0
 
 
 """
@@ -235,17 +242,16 @@ end
 
 function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
     xref_unresolved(node) || return false
-    return classifyxref(node, doc.internal.headers).kind ∈ (
-        :implicit_header, :explicit_header_title, :explicit_header_id,
-    )
+    info = classifyxref(node, doc.internal.headers)
+    info.kind ∈ (:implicit_header, :explicit_header_title, :explicit_header_id) && return true
+    # Backticked text naming a header, which XRefResolvers.Docs has already declined.
+    return info.kind === :implicit_docs && anchor_exists(doc.internal.headers, info.slug)
 end
 
 function Selectors.runner(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
     info = classifyxref(node, doc.internal.headers)
     return namedxref(node, info.slug, meta, page, doc, errors)
 end
-
-Selectors.strict(::Type{XRefResolvers.Header}) = true
 
 
 function Selectors.matcher(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)

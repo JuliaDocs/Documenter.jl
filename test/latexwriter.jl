@@ -99,6 +99,75 @@ end
     @test_logs (:warn, r"Raw HTML block is not supported in LaTeX output") _node_to_latex(htmlblock) == "y\n"
 end
 
+# `nrows` includes the header row, matching how the writer counts.
+function _md_table(nrows)
+    io = IOBuffer()
+    println(io, "| Column | Value |")
+    println(io, "|:------ |:----- |")
+    for i in 1:(nrows - 1)
+        println(io, "| ", i, " | x |")
+    end
+    return String(take!(io))
+end
+
+@testset "large tables span pages" begin
+    # Small tables stay in a centred `table` float, which cannot break across pages.
+    small = _mdblocks_to_latex(_md_table(LaTeXWriter.LONGTABLE_ROW_THRESHOLD - 1))
+    @test occursin("\\begin{table}", small)
+    @test occursin("\\begin{tabulary}", small)
+    @test !occursin("xltabular", small)
+
+    # Large tables must use a page-breaking environment instead, otherwise LaTeX
+    # either drops the oversized float or aborts with "Dimension too large".
+    large = _mdblocks_to_latex(_md_table(LaTeXWriter.LONGTABLE_ROW_THRESHOLD))
+    @test !occursin("\\begin{table}", large)
+    @test !occursin("tabulary", large)
+    @test occursin("\\begin{xltabular}{\\linewidth}", large)
+    @test occursin("\\end{xltabular}", large)
+
+    # The header row is repeated on every page.
+    @test occursin("\\endhead", large)
+    @test occursin("\\endfirsthead", large)
+    @test count("Column & Value", large) == 2
+end
+
+@testset "large table PDF regression reproducer" begin
+    pdflatex = Sys.which("pdflatex")
+    pdflatex === nothing && (@test_skip false; return)
+
+    table_tex = _mdblocks_to_latex(_md_table(200))
+
+    mktempdir() do tmp
+        texfile = joinpath(tmp, "big.tex")
+        write(
+            texfile,
+            """
+            \\documentclass{article}
+            \\usepackage{booktabs}
+            \\usepackage{xltabular}
+            \\begin{document}
+            $table_tex
+            \\end{document}
+            """,
+        )
+        cmd = `$(pdflatex) -interaction=nonstopmode -halt-on-error big.tex`
+        proc = cd(tmp) do
+            p = run(pipeline(cmd; stdout = devnull, stderr = devnull); wait = false)
+            wait(p)
+            p
+        end
+        log = read(joinpath(tmp, "big.log"), String)
+
+        @test success(proc)
+        @test !occursin("Dimension too large", log)
+
+        # The table must actually be typeset, spanning several pages, rather than
+        # dropped as an oversized float.
+        pages = match(r"Output written on .*\((\d+) pages", log)
+        @test pages !== nothing && parse(Int, pages[1]) > 1
+    end
+end
+
 @testset "latex table link fragment PDF regression reproducer" begin
     pdflatex = Sys.which("pdflatex")
     pdflatex === nothing && (@test_skip false; return)

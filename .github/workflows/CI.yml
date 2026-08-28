@@ -45,7 +45,7 @@ jobs:
             version: '1.6'
             arch: default
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.version }}
@@ -56,7 +56,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Submit coverage to Coveralls
@@ -78,7 +78,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: "Download and install DejaVu fonts"
         run: |
           Invoke-WebRequest "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip" -OutFile "DejaVu.zip"
@@ -89,7 +89,7 @@ jobs:
             $fonts.CopyHere($file.fullname)
           }
         if: matrix.os == 'windows-latest'
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
         if: matrix.os == 'windows-latest'
@@ -106,6 +106,8 @@ jobs:
             transparent
             upquote
             tabulary
+            ltablex
+            xltabular
             tcolorbox
       - uses: julia-actions/setup-julia@v3
         with:
@@ -119,7 +121,7 @@ jobs:
       - name: Run test/examples/tests_latex.jl
         run: julia --color=yes --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -142,7 +144,7 @@ jobs:
     name: "CSS for HTML themes"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
@@ -162,7 +164,7 @@ jobs:
           - windows-latest
           - ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
@@ -174,7 +176,7 @@ jobs:
             Pkg.develop(PackageSpec(path=pwd()))'
       - run: julia --color=yes --project=test/prerender --code-coverage test/prerender/prerender.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -202,7 +204,7 @@ jobs:
           - html
           - pdf
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
@@ -232,7 +234,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: docs
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: 1
@@ -266,7 +268,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1'
@@ -277,7 +279,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -296,7 +298,7 @@ jobs:
     name: "Linkcheck: Documenter manual"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1'
@@ -311,7 +313,7 @@ jobs:
     name: Biome (JS code formatting)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
@@ -322,7 +324,7 @@ jobs:
     name: "Runic (Julia code formatting)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1.11'
@@ -336,7 +338,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Actions Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Check spelling
         uses: crate-ci/typos@master
 
