@@ -1054,14 +1054,28 @@ function populate!(contents::ContentsNode, document::Document)
             end
         end
     end
-    # Sorting contents links.
-    pagesmap = precedence(contents.pages)
+    # Sorting contents links. Without an explicit `Pages = [...]`, fall back to the
+    # navigation order (i.e. the `pages` argument of `makedocs`) rather than the order
+    # in which the pages happened to be expanded.
+    pagesmap = precedence(isempty(contents.pages) ? navpages(document, dirname(contents.build)) : contents.pages)
     comparison = function (a, b)
         (x = _compare(pagesmap, 2, a, b)) == 0 || return x < 0 # page
         return a[1] < b[1]                                            # anchor order
     end
     sort!(contents.elements, lt = comparison)
     return contents
+end
+
+# The pages of the navigation menu, as paths relative to `dir`, matching the page
+# paths stored in the elements of a `ContentsNode`.
+function navpages(document::Document, dir::AbstractString)
+    pages = String[]
+    for navnode in document.internal.navlist
+        page = get(document.blueprint.pages, navnode.page, nothing)
+        page === nothing && continue
+        push!(pages, relpath(page.build, dir))
+    end
+    return pages
 end
 
 # some replacements for jldoctest blocks
