@@ -86,7 +86,7 @@ end
 
 # A `@contents`/`@index` block whose body does not parse must not fall back to the
 # default (whole-document) listing -- see issue #1140.
-@testset "Unparseable @contents/@index blocks" begin
+@testset "Unparsable @contents/@index blocks" begin
     import Documenter
     import IOCapture
 
