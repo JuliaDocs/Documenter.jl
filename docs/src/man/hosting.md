@@ -2,10 +2,9 @@
 
 After going through the [Package Guide](@ref) and [Doctests](@ref) page you will need to
 host the generated documentation somewhere for potential users to read. This guide will
-describe how to set up automatic updates for your package docs using either the Travis CI
-build service or GitHub Actions together with GitHub Pages for hosting the generated
-HTML files. This is the same approach used by this package to host its own docs --
-the docs you're currently reading.
+describe how to set up automatic updates for your package docs, using GitHub Actions to
+build them and GitHub Pages to host the generated HTML files. This is the same approach
+used by this package to host its own docs -- the docs you're currently reading.
 
 !!! note
 
@@ -14,34 +13,36 @@ the docs you're currently reading.
     proceed with the steps outlined here once you have successfully managed to build your
     documentation locally with Documenter.
 
-    This guide assumes that you already have [GitHub](https://github.com/) and
-    [Travis](https://www.travis-ci.com/) accounts set up. If not then go set those up first and
-    then return here.
+    This guide assumes that you already have a [GitHub](https://github.com/) account set
+    up. If not then go set that up first and then return here.
 
-    It is possible to deploy from other systems than Travis CI or GitHub Actions,
-    see the section on [Deployment systems](@ref).
+    Documenter can also deploy from other CI services, see [Other CI systems](@ref).
 
+```@contents
+Pages = ["hosting.md"]
+Depth = 2:3
+```
 
 ## Overview
 
 Once set up correctly, the following will happen each time you push new updates to your
 package repository:
 
-- Buildbots will start up and run your package tests in a "Test" stage.
-- After the Test stage completes, a single bot will run a new "Documentation" stage, which
-  will build the documentation.
-- If the documentation is built successfully, the bot will attempt to push the generated
+- Your CI service starts a job that builds the documentation, alongside the jobs that run
+  your package tests.
+- If the documentation is built successfully, that job will attempt to push the generated
   HTML pages back to GitHub.
 
 Note that the hosted documentation does not update when you (or other contributors)
 make pull requests; you see updates only when you merge to the trunk branch (typically,
 `master` or `main`) or push new tags.
 
-In the upcoming sections we describe how to configure the build service to run
-the documentation build stage. In general it is easiest to choose the same
-service as the one testing your package. If you don't explicitly select
-the service with the `deploy_config` keyword argument to `deploydocs`
-Documenter will try to automatically detect which system is running and use that.
+The next section describes how to configure [GitHub Actions](@ref) to run that job, and the
+sections after it cover the parts of the setup that are the same on every service. In
+general it is easiest to choose the same service as the one testing your package. If you
+don't explicitly select the service with the `deploy_config` keyword argument to
+`deploydocs` Documenter will try to automatically detect which system is running and use
+that.
 
 ## GitHub Actions
 
@@ -90,16 +91,19 @@ jobs:
 ```
 
 This will install Julia, checkout the correct commit of your repository, and run the
-build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entries decide
-the environment from which the docs are built and deployed. The example above builds and deploys
-the documentation from an Ubuntu worker running Julia 1.
+build of the documentation. The `runs-on:` key and the `version:` input to
+`julia-actions/setup-julia` decide the environment from which the docs are built and
+deployed. The example above builds and deploys the documentation from an Ubuntu worker
+running Julia 1.
+
+The `Install dependencies` step instantiates the doc-build environment
+(`docs/Project.toml`) and installs your package into it in development mode. The
+`Build and deploy` step then runs `docs/make.jl`, which builds the documentation and
+deploys it to the `gh-pages` branch.
 
 !!! tip
     The example above is a basic workflow that should suit most projects. For more information on
     how to further customize your action, check out the [GitHub Actions manual](https://docs.github.com/en/actions).
-
-The commands in the lines in the `run:` section do the same as for Travis,
-see the previous section.
 
 !!! warning "TagBot & tagged versions"
 
@@ -140,7 +144,8 @@ When running from GitHub Actions it is possible to authenticate using
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-to the configuration file, as shown in the [previous section](@ref GitHub-Actions).
+to the `env:` section of the configuration file, as shown in the
+[example workflow](@ref GitHub-Actions).
 
 !!! note
     You can only use `GITHUB_TOKEN` for authentication if the target repository
@@ -250,7 +255,7 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 ```
 
 to the `env:` section of the configuration file, as shown in the
-[previous section](@ref GitHub-Actions). See GitHub's manual on
+[example workflow](@ref GitHub-Actions). See GitHub's manual on
 [using secrets in GitHub Actions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
 for more information.
 
@@ -429,7 +434,7 @@ an alternative is to give GitHub workflows write permissions under the repo sett
 
 !!! note
     This section describes the default mode of deployment, which is by version.
-    See the following section on [Deploying without the versioning scheme](@ref)
+    See the section on [Deploying without the versioning scheme](@ref)
     if you want to deploy directly to the "root".
 
 By default the documentation is deployed as follows:
@@ -500,7 +505,7 @@ branches the CI runs on is broad enough etc).
 ### Deploying without the versioning scheme
 
 Documenter supports deployment directly to the website root ignoring any version
-subfolders as described in the previous section. This can be useful if you use
+subfolders as described in [Documentation Versions](@ref). This can be useful if you use
 Documenter for something that is not a versioned project, for example.
 To do this, pass `versions = nothing` to the [`deploydocs`](@ref) function.
 Now the pages should be found directly at
@@ -665,7 +670,8 @@ manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
 The three lines in the `script:` section do the following:
 
- 1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
+ 1. Instantiate the doc-building environment, i.e. install the dependencies listed in
+    `docs/Project.toml`.
  2. Install your package in the doc-build environment.
  3. Run the docs/make.jl script, which builds and deploys the documentation.
 
@@ -765,13 +771,14 @@ which you can modify to something else e.g. GitHub → gh-pages, Codeberg → pa
 
 ### Deployment systems
 
-It is possible to customize Documenter to use other systems than the ones described in
-the sections above. This is done by passing a configuration
+It is possible to customize Documenter to use CI systems other than the ones described
+above. This is done by passing a configuration
 (a [`DeployConfig`](@ref `Documenter.DeployConfig`)) to `deploydocs` by the `deploy_config`
 keyword argument. Documenter supports [`Travis`](@ref `Documenter.Travis`),
-[`GitHubActions`](@ref `Documenter.GitHubActions`), [`GitLab`](@ref `Documenter.GitLab`), and
-[`Buildkite`](@ref `Documenter.Buildkite`) natively, but it is easy to define your own by
-following the simple interface described below.
+[`GitHubActions`](@ref `Documenter.GitHubActions`), [`GitLab`](@ref `Documenter.GitLab`),
+[`Buildkite`](@ref `Documenter.Buildkite`) and [`Woodpecker`](@ref `Documenter.Woodpecker`)
+natively, but it is easy to define your own by following the simple interface described
+below.
 
 ```@docs
 Documenter.DeployConfig
