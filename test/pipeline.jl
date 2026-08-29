@@ -84,4 +84,49 @@ module HighlightSig
     end
 end
 
+# A `@contents`/`@index` block whose body does not parse must not fall back to the
+# default (whole-document) listing -- see issue #1140.
+@testset "Unparseable @contents/@index blocks" begin
+    import Documenter
+    import IOCapture
+
+    # `Pages` is missing a comma, so the whole assignment fails to parse.
+    broken_pages = """
+    Pages = [
+        "index.md"
+        "other.md",
+    ]
+    """
+
+    function build_doc(index_md; kwargs...)
+        tmp = mktempdir()
+        mkpath(joinpath(tmp, "src"))
+        write(joinpath(tmp, "src", "index.md"), index_md)
+        write(joinpath(tmp, "src", "other.md"), "# Other\n\n## Other section\n")
+        IOCapture.capture() do
+            Documenter.makedocs(;
+                root = tmp, sitename = "T", pages = ["index.md", "other.md"],
+                format = Documenter.HTML(edit_link = nothing, disable_git = true),
+                remotes = nothing, kwargs...,
+            )
+        end
+        return read(joinpath(tmp, "build", "index.html"), String)
+    end
+
+    for blocktype in ("@contents", "@index")
+        md = "# Top\n\n```$blocktype\n$broken_pages```\n\n## Section\n"
+        # The parse error is fatal unless it is explicitly downgraded to a warning.
+        @test_throws Exception build_doc(md)
+        # With `warnonly`, the block is left unexpanded rather than silently listing
+        # everything in the document.
+        html = build_doc(md; warnonly = true)
+        @test occursin("<pre><code", html)
+        @test !occursin("href=\"other/#Other-section\"", html)
+    end
+
+    # A well-formed block still expands.
+    html = build_doc("# Top\n\n```@contents\n```\n\n## Section\n")
+    @test occursin("href=\"#Section\"", html)
+end
+
 end
