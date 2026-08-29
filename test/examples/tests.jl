@@ -232,6 +232,14 @@ end
                             @test item.dispname == "X-ref target with id"
                             @test DocInventories.uri(item) == "xrefs/#xreftarget"
                         end
+                        # Inline `[content](@id name)` anchor on non-header content (#745)
+                        item = inv[":std:label:`inline-anchor-target`"]
+                        @test !isnothing(item)
+                        if !isnothing(item)
+                            @test item.name == "inline-anchor-target"
+                            @test item.dispname == "an anchored phrase"
+                            @test DocInventories.uri(item) == "xrefs/#inline-anchor-target"
+                        end
                         item = inv[":std:label:`Markdown-files-with-spaces`"]
                         @test !isnothing(item)
                         if !isnothing(item)

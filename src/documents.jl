@@ -245,6 +245,20 @@ struct LocalImage <: AbstractDocumenterInline
 end
 Base.show(io::IO, image::LocalImage) = print(io, "Documenter.LocalImage(\"", image.path, "\")")
 
+"""
+Represents a named anchor attached to arbitrary inline content via the `[content](@id name)`
+syntax. Unlike a header anchor (`AnchoredHeader`), this can wrap any inline content
+(text, images, code) so that it becomes a cross-reference target for `[text](@ref name)`.
+
+The wrapped content is stored as the child nodes of the `MarkdownAST.Node` holding this
+element, mirroring how `PageLink` replaces a `MarkdownAST.Link` in place.
+"""
+struct AnchoredInline <: AbstractDocumenterInline
+    anchor::Anchor
+end
+MarkdownAST.iscontainer(::AnchoredInline) = true
+Base.show(io::IO, ::AnchoredInline) = print(io, "Documenter.AnchoredInline([...])")
+
 # Navigation
 # ----------------------
 
@@ -376,7 +390,7 @@ struct Internal
     assets::String # Path where asset files will be copied to.
     navtree::Vector{NavNode} # A vector of top-level navigation items.
     navlist::Vector{NavNode} # An ordered list of `NavNode`s that point to actual pages
-    headers::AnchorMap # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    anchors::AnchorMap # See `modules/Anchors.jl`. Tracks `@id` anchors on headers and inline content.
     docs::AnchorMap # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings::IdDict{Any, Any} # Tracks insertion order of object per-binding.
     objects::IdDict{Any, Any} # Tracks which `Objects` are included in the `Document`.
@@ -1025,13 +1039,16 @@ end
 
 function populate!(contents::ContentsNode, document::Document)
     # Filtering valid contents links.
-    for (id, filedict) in document.internal.headers.map
+    for (id, filedict) in document.internal.anchors.map
         for (file, anchors) in filedict
             for anchor in anchors
                 page = relpath(anchor.file, dirname(contents.build))
                 # Note: This only filters based on contents.depth and *not* contents.mindepth.
                 #       Instead the writers who support this adjust this when rendering.
-                if _isvalid(page, contents.pages) && anchor.object.level ≤ contents.depth
+                # Only headers participate in `@contents` listings. The same AnchorMap also
+                # holds arbitrary `[content](@id name)` anchors (whose `.object` is an
+                # `AnchoredInline`), which must be skipped here.
+                if _isvalid(page, contents.pages) && anchor.object isa MarkdownAST.Heading && anchor.object.level ≤ contents.depth
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end
@@ -1130,6 +1147,7 @@ end
 
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = MDFlatten.mdflatten(io, node.children)
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredInline) = MDFlatten.mdflatten(io, node.children)
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = MDFlatten.mdflatten(io, node, e.codeblock)
