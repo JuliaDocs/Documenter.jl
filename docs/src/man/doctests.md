@@ -17,7 +17,7 @@ your package's documentation.
 
 ## "Script" Examples
 
-The first, of two, types of doctests is the "script" code block. To make Documenter detect
+The first of the two types of doctests is the "script" code block. To make Documenter detect
 this kind of code block the following format must be used:
 
 ````markdown
@@ -60,7 +60,7 @@ a + b
 ````
 
 Note that the output of the script will still be compared to the expected result,
-i.e. what is `# output` section, but the `# output` section will be suppressed in
+i.e. what is in the `# output` section, but the `# output` section will be suppressed in
 the rendered documentation.
 
 ## REPL Examples
@@ -82,9 +82,9 @@ julia> a + b + c
 ```
 ````
 
-As with script doctests, the code block must have it's language set to `jldoctest`. When a code
+As with script doctests, the code block must have its language set to `jldoctest`. When a code
 block contains one or more `julia> ` at the start of a line then it is assumed to be a REPL
-doctest. Semi-colons, `;`, at the end of a line works in the same way as in the Julia REPL
+doctest. Semi-colons, `;`, at the end of a line work in the same way as in the Julia REPL
 and will suppress the output, although the line is still evaluated.
 
 Note that not all features of the REPL are supported such as shell and help modes.
@@ -137,9 +137,9 @@ ERROR: DivideError: integer division error
 where line `115` is replaced with `114` then the doctest will fail.
 
 In the second `div(1, 0)`, where no stacktrace is shown, it may appear to the reader that
-it is expected that no stacktrace will actually be displayed when they attempt to try to
+it is expected that no stacktrace will actually be displayed when they attempt to
 recreate the error themselves. To indicate to readers that the output result is truncated
-and does not display the entire (or any of) the stacktrace you may write `[...]` at the
+and does not display the entire stacktrace (or any of it) you may write `[...]` at the
 line where checking should stop, i.e.
 
 ````markdown
@@ -216,7 +216,7 @@ There are three ways to specify setup and teardown code, each appropriate in a d
 ### `DocTestSetup` and `DocTestTeardown` in `@meta` blocks
 
 For doctests in the Markdown source files, an `@meta` block containing a `DocTestSetup =
-...` respectively `DocTestTeardown = ...` value can be used.
+...` or `DocTestTeardown = ...` value can be used.
 In the example below, the function `foo` is defined inside a `@meta`
 block. This setup block will be evaluated at the start and the teardown block at the end
 of the following doctest blocks:
@@ -245,8 +245,8 @@ DocTestTeardown = nothing
 ```
 ````
 
-The `DocTestSetup = nothing` respectively `DocTestTeardown = nothing`
-is not strictly necessary, but good practice nonetheless to
+The `DocTestSetup = nothing` and `DocTestTeardown = nothing`
+are not strictly necessary, but good practice nonetheless to
 help avoid unintentional definitions in following doctest blocks.
 
 While technically the `@meta` blocks also work within docstrings, their use there is
@@ -290,7 +290,7 @@ julia> foo(2)
 !!! note
 
     The `DocTestSetup`, `DocTestTeardown`, `setup` and `teardown` values are **re-evaluated**
-    at the start respectively end of *each* doctest block and no state is shared between any code blocks.
+    at the start and the end, respectively, of *each* doctest block and no state is shared between any code blocks.
     To preserve definitions see [Preserving Definitions Between Blocks](@ref).
 
 ## Filtering Doctests
@@ -309,7 +309,7 @@ julia> sqrt(2)
 ```
 ````
 
-The actual string that gets compared when determining whether the doctest is up to date is actually
+The string that actually gets compared when determining whether the doctest is up to date is
 
 ```
 1.4142***
@@ -322,7 +322,7 @@ The doctest filters can be applied globally, on a per-file basis or to each doct
 To apply them globally, i.e. to all doctests in the documentation, a list of filters can be passed to [`makedocs`](@ref) with the keyword `doctestfilters`.
 
 For more fine grained control it is possible to define filters in `@meta` blocks by assigning them
-to the `DocTestFilters` variable, either as a single regular expression (`DocTestFilters = [r"foo"]`)
+to the `DocTestFilters` variable, either as a single regular expression (`DocTestFilters = r"foo"`)
 or as a vector of several regexes (`DocTestFilters = [r"foo", r"bar"]`).
 As an example, to filter out some of the non-deterministic output from `@time`, the following filtering could be applied:
 
@@ -351,12 +351,12 @@ help avoid unintentional filtering in following doctest blocks.
 
 !!! info
     The filter match is replaced with an empty string in both the expected and actual output using `replace`, e.g. `replace(str, filter => substitution)`.
-    Note that this means that the same filter can match multiple times, and if you need the same filter to match multiple lines your regex need to account for that.
+    Note that this means that the same filter can match multiple times, and if you need the same filter to match multiple lines your regex needs to account for that.
 
 Another option is to use the `filter` keyword argument. This defines a doctest-local filter
 which is only active for the specific doctest. Note that such filters are not shared between
 named doctests either. It is possible to define a filter by a single regex (`filter = r"foo"`)
-or as a list of regex (`filter = [r"foo-[0-9]+", r"bar-([0-9]+)" => s"\1"]`). Example:
+or as a list of regexes (`filter = [r"foo-[0-9]+", r"bar-([0-9]+)" => s"\1"]`). Example:
 
 ````markdown
 ```jldoctest; filter = r"[0-9\.]+ seconds \(.*\)"
@@ -393,7 +393,7 @@ julia> @time [1,2,3,4]
 
 Documenter provides the [`doctest`](@ref) function which can be used to verify all doctests
 independently of manual builds. It behaves like a `@testset`, so it will return a testset
-if all the tests pass or throw a `TestSetException` if it does not.
+if all the tests pass or throw a `TestSetException` if they do not.
 
 For example, it can be used to verify doctests as part of the normal test suite by having
 e.g. the following in `runtests.jl`:

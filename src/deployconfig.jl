@@ -83,7 +83,7 @@ This function is called with the `repo`, `devbranch`, `push_preview`, `tag_prefi
 and `devurl` arguments from [`deploydocs`](@ref).
 
 !!! note
-    Implementations of this functions should accept trailing `kwargs...` for
+    Implementations of this function should accept trailing `kwargs...` for
     compatibility with future Documenter releases which may pass additional
     keyword arguments.
 """
@@ -133,7 +133,7 @@ env_nonempty(key) = !isempty(get(ENV, key, ""))
 
 Default implementation of `DeployConfig`.
 
-The following environment variables influences the build
+The following environment variables influence the build
 when using the `Travis` configuration:
 
  - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the repository.
@@ -299,7 +299,7 @@ end
 
 Implementation of `DeployConfig` for deploying from GitHub Actions.
 
-The following environment variables influences the build
+The following environment variables influence the build
 when using the `GitHubActions` configuration:
 
  - `GITHUB_EVENT_NAME`: must be set to `push`, `workflow_dispatch`, or `schedule`.
@@ -753,7 +753,7 @@ The following environment variables influence the build when using the
 
  - `BUILDKITE_TAG`: The commit tag name. Present only when building tags.
 
-The `BUILDKITE_*` variables are set automatically on GitLab. More information on how
+The `BUILDKITE_*` variables are set automatically on Buildkite. More information on how
 Buildkite sets the `BUILDKITE_*` variables can be found in the
 [Buildkite documentation](https://buildkite.com/docs/pipelines/configure/environment-variables).
 """
@@ -895,35 +895,35 @@ Implementation of `DeployConfig` for deploying from Woodpecker CI.
 
 ## Woodpecker 1.0.0 and onwards
 
-The following environmental variables are built-in from the Woodpecker pipeline
-influences how `Documenter` works.
+The following environment variables are built in to the Woodpecker pipeline and
+influence how `Documenter` works.
 
- - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
- - `CI_PIPELINE_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
+ - `CI_REPO`: must match the full name of the repository, `<owner>/<name>`, e.g. `JuliaDocs/Documenter.jl`
+ - `CI_PIPELINE_EVENT`: must be set to `push`, `tag`, `pull_request`, or `deployment`
  - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
- - `CI_COMMIT_TAG`: must match to a tag.
+ - `CI_COMMIT_TAG`: must match a tag.
  - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
- - `CI_FORGE_URL`: env var to build the url to be used for authentication.
+ - `CI_FORGE_URL`: used to build the URL for authentication.
 
 ## Woodpecker 0.15.x and pre-1.0.0
 
-The following environmental variables are built-in from the Woodpecker pipeline
-influences how `Documenter` works:
- - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
+The following environment variables are built in to the Woodpecker pipeline and
+influence how `Documenter` works:
+ - `CI_REPO`: must match the full name of the repository, `<owner>/<name>`, e.g. `JuliaDocs/Documenter.jl`
  - `CI_REPO_LINK`: must match the full link to the project repo
- - `CI_BUILD_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
+ - `CI_BUILD_EVENT`: must be set to `push`, `tag`, `pull_request`, or `deployment`
  - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
- - `CI_COMMIT_TAG`: must match to a tag.
+ - `CI_COMMIT_TAG`: must match a tag.
  - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
-## Documenter Specific Environmental Variables
+## Documenter-Specific Environment Variables
 
  - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
    repository. This variable should be somehow set in the CI environment, e.g.,
    provisioned by an agent environment plugin.
 
-Lastly, another environment-variable used for authentication is
-the `PROJECT_ACCESS_TOKEN` which is an access token you defined by
-the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea
+Lastly, another environment variable used for authentication is
+`PROJECT_ACCESS_TOKEN`, which is an access token you define on
+the forge you use, e.g. GitHub, GitLab, Codeberg, and other Gitea
 instances. Check their documentation on how to create an access token.
 This access token should be then added as a secret as documented in
 <https://woodpecker-ci.org/docs/usage/secrets>.
@@ -984,8 +984,8 @@ end
 """
     Woodpecker()
 
-Initialize woodpecker environment-variables. Further info of
-environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
+Initialize Woodpecker environment variables. Further info on the
+environment variables used is at <https://woodpecker-ci.org/docs/usage/environment>
 """
 function Woodpecker()
     m = match(r"(next)?-*", ENV["CI_SYSTEM_VERSION"])
@@ -997,9 +997,9 @@ function Woodpecker()
         woodpecker_ci_version = VersionNumber(ENV["CI_SYSTEM_VERSION"])
         @warn "Current Woodpecker version is $(woodpecker_ci_version). Make sure this is correct."
         if ENV["CI"] == "drone" && (v"1.0.0" > VersionNumber(ENV["CI_SYSTEM_VERSION"]) >= v"0.15.0")
-            @warn """Woodpecker prior version 1.0.0 is backward compatible to Drone
+            @warn """Woodpecker prior to version 1.0.0 is backward compatible with Drone
             but *there will be breaking changes in the future*. Please update
-            to a newer version """
+            to a newer version."""
         end
     end
 

@@ -7,7 +7,7 @@ module Remotes
     abstract type Remote
 
 Abstract supertype for implementing additional remote repositories that Documenter can use
-when generating links to files hosted on Git hosting service (such as GitHub, GitLab etc).
+when generating links to files hosted on a Git hosting service (such as GitHub, GitLab etc).
 For custom or less common Git hosting services, the user can create their own `Remote`
 subtype and pass that as the `repo` argument to [`makedocs`](@ref `Main.Documenter.makedocs`).
 
@@ -39,7 +39,7 @@ An internal Documenter function that **must** be extended when implementing a us
 [`Remote`](@ref). Should return the full remote URL to the source file `filename`,
 optionally including the line numbers.
 
-* **`ref`** is string containing the Git reference, such as a commit SHA, branch name or a tag
+* **`ref`** is a string containing the Git reference, such as a commit SHA, branch name or a tag
   name.
 
 * **`filename`** is a string containing the full path of the file in the repository without any
@@ -96,7 +96,7 @@ to the potentially user-defined `fileurl` implementations.
 function repofile(remote::Remote, ref, filename, linerange = nothing)
     # sanitize the file name
     filename = replace(filename, '\\' => '/') # remove backslashes on Windows
-    filename = lstrip(filename, '/') # remove leading spaces
+    filename = lstrip(filename, '/') # remove leading slashes
     # Only pass UnitRanges to user code (even though we require the users to support any
     # collection supporting first/last).
     return fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
@@ -150,7 +150,7 @@ makedocs(
 )
 ```
 
-The single argument constructor assumes that the end user and
+The single argument constructor assumes that the user and
 repository parts are separated by a slash (e.g.,
 `JuliaDocs/Documenter.jl`).
 """
@@ -188,7 +188,7 @@ makedocs(
 )
 ```
 
-The single argument constructor assumes that the host, end user and
+The single argument constructor assumes that the host, user and
 repository parts are separated by a slash (e.g.,
 `codeberg.org/JuliaDocs/Documenter.jl`).
 """
@@ -264,8 +264,6 @@ function fileurl(remote::URL, ref, filename, linerange)
     hosttype = repo_host_from_url(remote.urltemplate)
     lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(hosttype))
     ref = format_commit(ref, hosttype)
-    # lines = if linerange !== nothing
-    # end
     s = replace(remote.urltemplate, "{commit}" => ref)
     # template strings assume that {path} has a leading / whereas filename does not
     s = replace(s, "{path}" => "/$(filename)")

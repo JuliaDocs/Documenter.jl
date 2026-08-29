@@ -21,7 +21,7 @@ placed in the output (`build/`) directory.
 The `makedocs` argument `sitename` will be used for the `\title` field in the tex document,
 and if the build is for a release tag (i.e. when the `"TRAVIS_TAG"` environment variable is set)
 the version number will be appended to the title.
-The `makedocs` argument `authors` should also be specified, it will be used for the
+The `makedocs` argument `authors` should also be specified; it will be used for the
 `\authors` field in the tex document.
 
 !!! warning "Known issue"
@@ -39,7 +39,7 @@ The following is required to build the documentation:
 ### Compiling using Tectonic
 
 The documentation can be also built using the
-[Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. It is required to have a `tectonic`
+[Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. It is required to have a `tectonic` executable
 available in `PATH`, or to provide a path to the binary using the `tectonic` keyword:
 
 ```julia

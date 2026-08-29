@@ -15,7 +15,7 @@ the docs you're currently reading.
     documentation locally with Documenter.
 
     This guide assumes that you already have [GitHub](https://github.com/) and
-    [Travis](https://www.travis-ci.com/) accounts setup. If not then go set those up first and
+    [Travis](https://www.travis-ci.com/) accounts set up. If not then go set those up first and
     then return here.
 
     It is possible to deploy from other systems than Travis CI or GitHub Actions,
@@ -106,7 +106,7 @@ see the previous section.
     In order to deploy documentation for **tagged versions**, the GitHub Actions workflow
     needs to be triggered by the tag. However, by default, when the [Julia TagBot](https://github.com/marketplace/actions/julia-tagbot)
     uses just the `GITHUB_TOKEN` for authentication, it does not have the permission to trigger
-    any further workflows jobs, and so the documentation CI job never runs for the tag.
+    any further workflow jobs, and so the documentation CI job never runs for the tag.
 
     To work around that, TagBot should be [configured to use `DOCUMENTER_KEY`](https://github.com/marketplace/actions/julia-tagbot#ssh-deploy-keys)
     for authentication, by adding `ssh: ${{ secrets.DOCUMENTER_KEY }}` to the `with` section.
@@ -140,12 +140,12 @@ When running from GitHub Actions it is possible to authenticate using
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
+to the configuration file, as shown in the [previous section](@ref GitHub-Actions).
 
 !!! note
     You can only use `GITHUB_TOKEN` for authentication if the target repository
     of the deployment is the same as the current repository. In order to push
-    elsewhere you should instead use a SSH deploy key.
+    elsewhere you should instead use an SSH deploy key.
 
 ### [Authentication: SSH Deploy Keys](@id ssh-deploy-keys)
 
@@ -316,7 +316,7 @@ jobs:
 
 where the `julia:` and `os:` entries decide the worker from which the docs are built and
 deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1 (the latest stable version). For more information on how to setup a build stage, see the Travis
+worker running Julia 1 (the latest stable version). For more information on how to set up a build stage, see the Travis
 manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
 The three lines in the `script:` section do the following:
@@ -332,11 +332,11 @@ The three lines in the `script:` section do the following:
 
 !!! note "matrix: section in .travis.yml"
 
-    Travis CI used to use `matrix:` as the section to configure to build matrix in the config
+    Travis CI used to use `matrix:` as the section to configure the build matrix in the config
     file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
     `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
 
-    If your `.travis.yml` file still uses `matrix:`, it should be replaced with a a single
+    If your `.travis.yml` file still uses `matrix:`, it should be replaced with a single
     `jobs:` section.
 
 ### [Authentication: SSH Deploy Keys (Travis CI)](@id travis-ssh)
@@ -444,9 +444,9 @@ exist it will be created automatically by [`deploydocs`](@ref). If it does exist
 Documenter simply adds an additional commit with the built documentation. You should be
 aware that Documenter may overwrite existing content without warning.
 
-If you wish to create the `gh-pages` branch manually, that can be done [creating an "orphan" branch, with the `git checkout --orphan` option](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---orphanltnew-branchgt).
+If you wish to create the `gh-pages` branch manually, that can be done by [creating an "orphan" branch, with the `git checkout --orphan` option](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---orphanltnew-branchgt).
 
-You also need to make sure that you have `gh-pages branch` and `/ (root)` selected as
+You also need to make sure that you have the `gh-pages` branch and `/ (root)` selected as
 [the source of the GitHub Pages site in your GitHub repository
 settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
@@ -504,9 +504,9 @@ an alternative is to give GitHub workflows write permissions under the repo sett
 
 To run a documentation build from Woodpecker CI, one should create an access token
 from their forge of choice: GitHub, GitLab, or Codeberg (or any Gitea instance).
-This access token should be added to Woodpecker CI as a secret named as
+This access token should be added to Woodpecker CI as a secret named
 `project_access_token`. The case does not matter since this will be passed as
-uppercase environment variables to your pipeline. Next, create a new pipeline
+an uppercase environment variable to your pipeline. Next, create a new pipeline
 configuration file called `.woodpecker.yml` with the following contents:
 
 - Woodpecker 0.15.x and pre-1.0.0
@@ -576,7 +576,7 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/dev
 ```
 
 !!! tip
-    If you need Documenter to maintain [a `CNAME` file](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for you can use the `cname` argument of [`deploydocs`](@ref) to specify the domain.
+    If you need Documenter to maintain [a `CNAME` file](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for you, you can use the `cname` argument of [`deploydocs`](@ref) to specify the domain.
 
 By default Documenter will create a link called `stable` that points to the latest release
 
@@ -608,7 +608,7 @@ package README files.
 
 It can happen that, for one reason or another, the documentation for a tagged version of
 your package fails to deploy and a fix would require changes to the source code (e.g. a
-misconfigured `make.jl`). However, as registered tags should not be changed, you can not
+misconfigured `make.jl`). However, as registered tags should not be changed, you cannot
 simply update the original tag (e.g. `v1.2.3`) with the fix.
 
 In this situation, you can manually create and push a tag for the commit with the fix
@@ -642,7 +642,7 @@ Preview builds are still deployed to the `previews` subfolder.
 
 ### Out-of-repo deployment
 
-Sometimes the `gh-pages` branch can become really large, either just due to a large number of commits over time, or due figures and other large artifacts.
+Sometimes the `gh-pages` branch can become really large, either just due to a large number of commits over time, or due to figures and other large artifacts.
 In those cases, it can be useful to deploy the docs in the `gh-pages` of a separate repository.
 The following steps can be used to deploy the documentation of a "source"
 repository on a "target" repo. The key pair is split across the two repositories, so it is
@@ -736,7 +736,7 @@ run: julia --project=PackageA.jl/docs/ PackageA.jl/docs/make.jl
 run: julia --project=PackageB.jl/docs/ PackageB.jl/docs/make.jl
 ```
 
-Releases of each subpackage should be tagged with that same prefix, namely `v0.3.2` (for the top-level package), `PackageA-v0.1.2`, and `PackageB-v3.2+extra_build_tags`. which will then trigger versioned documentation deployments. Similarly to [Documentation Versions](@ref), unless a custom domain is used these three separate sets of pages will be found at:
+Releases of each subpackage should be tagged with that same prefix, namely `v0.3.2` (for the top-level package), `PackageA-v0.1.2`, and `PackageB-v3.2+extra_build_tags`, which will then trigger versioned documentation deployments. Similarly to [Documentation Versions](@ref), unless a custom domain is used these three separate sets of pages will be found at:
 
 ```
 https://USER_NAME.github.io/PACKAGE_NAME.jl/vX.Y.Z
@@ -759,7 +759,7 @@ While they won't automatically reference one another, such referencing can be ad
 
 ## Deployment systems
 
-It is possible to customize Documenter to use other systems then the ones described in
+It is possible to customize Documenter to use other systems than the ones described in
 the sections above. This is done by passing a configuration
 (a [`DeployConfig`](@ref `Documenter.DeployConfig`)) to `deploydocs` by the `deploy_config`
 keyword argument. Documenter supports [`Travis`](@ref `Documenter.Travis`),

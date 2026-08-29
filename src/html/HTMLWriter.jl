@@ -11,7 +11,7 @@ keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link
 `prettyurls`, `collapselevel`, `sidebar_sitename`, `highlights`, `mathengine` and `footer`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
-*navigation menu. It is also written into the inventory (see below).
+navigation menu. It is also written into the inventory (see below).
 This argument is mandatory for [`HTMLWriter`](@ref).
 
 **`pages`** defines the hierarchy of the navigation menu.
@@ -133,10 +133,10 @@ HTTP or HTTPS URL.
 It accepts the following keyword arguments:
 
 **`class`** can be used to override the asset class, which determines how exactly the asset
-gets included in the HTML page. This is necessary if the class can not be determined
+gets included in the HTML page. This is necessary if the class cannot be determined
 automatically (default).
 
-Should be one of: `:js`, `:css` or `:ico`. They become a `<script>`,
+Should be one of: `:js`, `:css` or `:ico`. They become `<script>`,
 `<link rel="stylesheet" type="text/css">` and `<link rel="icon" type="image/x-icon">`
 elements in `<head>`, respectively.
 
@@ -153,7 +153,7 @@ Documenter.HTML(
         "assets/extra_styles.css",
         # Standard remote asset (extension used to determine that class = :js)
         asset("https://example.com/jslibrary.js"),
-        # Setting asset class manually, since it can't be determined manually
+        # Setting asset class manually, since it can't be determined automatically
         asset("https://example.com/fonts", class = :css),
         # Same as above, but for a local asset
         asset("asset/foo.script", class = :js, islocal = true),
@@ -339,7 +339,7 @@ the links to the remote repository.
 
 **`edit_link`** can be used to specify which branch, tag or commit (when passed a `String`)
 in the remote repository the edit buttons point to. If a special `Symbol` value `:commit`
-is passed, the current commit will be used instead. If set to `nothing`, the link edit link
+is passed, the current commit will be used instead. If set to `nothing`, the edit link
 will be hidden altogether. By default, Documenter tries to determine it automatically by
 looking at the `origin` remote, and falls back to `"master"` if that fails.
 
@@ -357,7 +357,7 @@ Default is `nothing`, in which case no canonical link is set.
 **`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
 for more information.
 
-**`analytics`** can be used specify the Google Analytics tracking ID.
+**`analytics`** can be used to specify the Google Analytics tracking ID.
 
 **`collapselevel`** controls the navigation level visible in the sidebar. Defaults to `2`.
 To show fewer levels by default, set `collapselevel = 1`.
@@ -406,7 +406,7 @@ Setting it to `nothing` will disable writing to files, and setting to `0` means 
 will be written to files. Defaults to `8 KiB`.
 
 **`size_threshold`** sets the maximum allowed HTML file size (in bytes) that Documenter is allowed to
-generate for a page. If the generated HTML file is larged than this, Documenter will throw an error and
+generate for a page. If the generated HTML file is larger than this, Documenter will throw an error and
 the build will fail. If set to `nothing`, the file sizes are not checked. Defaults to `200 KiB` (but
 increases of this default value will be considered to be non-breaking).
 
@@ -422,20 +422,20 @@ over setting a high general limit, or disabling the size checking altogether.
 !!! note "Purpose of HTML size thresholds"
 
     The size threshold, with a reasonable default, exists so that users would not deploy huge pages
-    accidentally (which among other this will result in bad UX for the readers and negatively impacts
+    accidentally (which among other things will result in bad UX for the readers and negatively impacts
     SEO). It is relatively easy to have e.g. an `@example` produce a lot of output.
 
 ## Experimental options
 
-**`prerender`** a boolean (`true` or `false` (default)) for enabling prerendering/build
+**`prerender`** is a boolean (`true` or `false` (default)) for enabling prerendering/build
 time application of syntax highlighting of code blocks. Requires a `node` (NodeJS)
 executable to be available in `PATH` or to be passed as the `node` keyword.
 
-**`node`** path to a `node` (NodeJS) executable used for prerendering.
+**`node`** is the path to a `node` (NodeJS) executable used for prerendering.
 
-**`highlightjs`** file path to custom highglight.js library to be used with prerendering.
+**`highlightjs`** is the file path to a custom highlight.js library to be used with prerendering.
 
-**`inventory_version`** a version string to write to the header of the
+**`inventory_version`** is a version string to write to the header of the
 `objects.inv` inventory file. This should be a valid version number without a `v` prefix.
 Defaults to the `version` defined in the `Project.toml` file in the parent folder of the
 documentation root. Setting this to an empty string leaves the `version` in the inventory
@@ -447,7 +447,7 @@ unspecified until [`deploydocs`](@ref `Documenter.deploydocs`) runs and automati
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
 to the compiled site. It also copies a set of default assets from `/assets/html/`
 to the site's `assets/` directory, unless the user already had a file with the
-same name, in which case the user's files overrides the Documenter's file.
+same name, in which case the user's file overrides Documenter's file.
 This could, in principle, be used for customizing the site's style and scripting.
 
 The HTML output also links certain custom assets to the generated HTML documents,
@@ -463,7 +463,7 @@ themes.
 
 Similarly, for the **preview image**, Documenter checks for the existence of
 `assets/preview.{png,webp,gif,jpg,jpeg}` in order. Assuming that `canonical` has
-been set, the canonical URL for the image gets constructed, , and a set of
+been set, the canonical URL for the image gets constructed, and a set of
 HTML `<meta>` tags are generated for the image, ensuring that the image shows
 up in link previews. The preview image will not be shown if `canonical` is not set.
 
@@ -473,7 +473,7 @@ in the order in which they are given. The type of the asset (i.e. whether it is 
 included with a `<script>` or a `<link>` tag) is determined by the file's extension --
 either `.js`, `.ico`[^1], or `.css` (unless overridden with [`asset`](@ref)).
 
-Simple strings are assumed to be local assets and that each correspond to a file relative to
+Simple strings are assumed to be local assets, each corresponding to a file relative to
 the documentation source directory (conventionally `src/`). Non-local assets, identified by
 their absolute URLs, can be included with the [`asset`](@ref) function.
 
@@ -954,7 +954,7 @@ function Base.showerror(io::IO, ::HTMLSizeThresholdError)
 end
 
 """
-Copies an asset from Documenters `assets/html/` directory to `doc.user.build`.
+Copies an asset from Documenter's `assets/html/` directory to `doc.user.build`.
 Returns the path of the copied asset relative to `.build`.
 """
 function copy_asset(file, doc)
@@ -1491,7 +1491,7 @@ function edit_link(f, ctx, navnode)
         f(view_logo, title, editpath)
         return
     end
-    # If the user has disable Git, then we can not determine edit links
+    # If the user has disabled Git, then we cannot determine edit links
     ctx.settings.disable_git && return
     # If the user has passed HTML(edit_link = nothing), then all edit links (with relative
     # paths) are disabled.
@@ -2056,7 +2056,7 @@ function relhref(from, to)
 end
 
 """
-Returns the full path corresponding to a path of a `.md` page file. The the input and output
+Returns the full path corresponding to a path of a `.md` page file. The input and output
 paths are assumed to be relative to `src/`.
 """
 function get_url(ctx, path::AbstractString)
@@ -2075,7 +2075,7 @@ end
 
 """
 Generates a unique file for the output of an at-example block if it goes over the configured
-size threshold, and returns the filename (that should be in the same directory are the
+size threshold, and returns the filename (that should be in the same directory as the
 corresponding HTML file). If the data is under the threshold, no file is created, and the
 function returns `nothing`.
 """

@@ -4,7 +4,7 @@ Generate the `objects.inv` inventory file.
 Write the file `objects.inv` to the root of the HTML build folder, containing an
 inventory of all linkable targets in the documentation (pages, headings, and docstrings).
 
-The `objects.inv` file is compatible with [Sphinx](https://www.sphinx-doc.org/en/master/index.html)
+The `objects.inv` file is compatible with [Sphinx](https://www.sphinx-doc.org/en/master/index.html).
 See [DocInventories](https://juliadocs.org/DocInventories.jl/stable/formats/) for a
 description. The file can be used by [Intersphinx](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html)
 and the [DocumenterInterLinks](https://github.com/JuliaDocs/DocumenterInterLinks.jl/)

@@ -20,7 +20,7 @@ The public key usually looks something like this
 ssh-rsa [base64-encoded-key] [optional-comment]
 ```
 
-And the private key usually look something like this
+And the private key usually looks something like this
 
 ```
 -----BEGIN RSA PRIVATE KEY-----
@@ -104,12 +104,11 @@ to GitHub and the private key to your CI service.
 
 ## Adding the Public Key to GitHub or Gitea such as Codeberg
 
-In this section, we explain how to upload a public SSH key to GitHub and Gitea such as Codeberg. By this point
-, you should have generated a public key and saved it to a file. If you haven't done this, go read
+In this section, we explain how to upload a public SSH key to GitHub and Gitea such as Codeberg. By this point, you should have generated a public key and saved it to a file. If you haven't done this, go read
 [Generating an SSH Key](@ref).
 
-Go to `https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` for GitHub and `https://somegiteaname.org/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` and click "Add
-deploy key". You should get to a page that looks like,:
+Go to `https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` for GitHub, or `https://somegiteaname.org/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` for Gitea, and click "Add
+deploy key". You should get to a page that looks like:
 
 **GitHub**
 
@@ -144,12 +143,12 @@ julia> using Base64
 julia> read("path/to/private/key", String) |> base64encode |> println
 ```
 
-If you are in a unix and unix-like system, you can just use `openssl` command with `tr` 
-(for truncate) to generate your base64-encoded-key.
+If you are on a unix or unix-like system, you can just use the `openssl` command with `tr`
+to generate your base64-encoded key.
 
 ```bash
 $ openssl enc -base64 -in path/to/your/private/key -out path/to/your/base/64/encoded/key
-$ # We need to truncate the newlines
+$ # We need to remove the newlines
 $ cat path/to/your/base/64/encoded/key | tr -d "\n"
 ```
 

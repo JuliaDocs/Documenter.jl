@@ -242,7 +242,7 @@ module Expanders
     """
     Parses each code block where the language is `@contents` and replaces it with a nested list
     of all `Header` nodes in the generated document. The pages and depth of the list can be set
-    using `Pages = [...]` and `Depth = N` where `N` is and integer.
+    using `Pages = [...]` and `Depth = N` where `N` is an integer.
 
     ````markdown
     ```@contents

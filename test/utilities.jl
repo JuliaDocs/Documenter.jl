@@ -454,7 +454,7 @@ end
         ]
         @test mdparse("", mode = :blocks) == []
 
-        # Note: Markdown.parse() does not put any child nodes into adminition.contents
+        # Note: Markdown.parse() does not put any child nodes into admonition.contents
         # unless there is something non-empty there, which in turn means that the
         # MarkdownAST Admonition node has no children.
         @test mdparse("!!! adm"; mode = :single) == [
