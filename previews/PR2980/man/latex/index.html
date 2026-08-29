@@ -68,28 +68,37 @@ LaTeXEquation(raw&quot;&quot;&quot;
         x \\
         y
     \end{array}\right]
- \]</p><h2 id="Set-math-engine-and-define-macros-for-LaTeX"><a class="docs-heading-anchor" href="#Set-math-engine-and-define-macros-for-LaTeX">Set math engine and define macros for LaTeX</a><a id="Set-math-engine-and-define-macros-for-LaTeX-1"></a><a class="docs-heading-anchor-permalink" href="#Set-math-engine-and-define-macros-for-LaTeX" title="Permalink"></a></h2><p>The <code>mathengine</code> argument to <a href="../../lib/internals/writers/#Documenter.HTMLWriter.HTML"><code>Documenter.HTMLWriter.HTML</code></a> allows the math rendering engine to be specified, supporting both MathJax and KaTeX (with the latter being the default).</p><p>Furthermore, you can also pass custom configuration to the rendering engine. E.g. to add global LaTeX command definitions, you can set <code>mathengine</code> to:</p><pre><code class="language-julia hljs">mathengine = Documenter.MathJax(Dict(:TeX =&gt; Dict(
-    :equationNumbers =&gt; Dict(:autoNumber =&gt; &quot;AMS&quot;),
-    :Macros =&gt; Dict(
-        :ket =&gt; [&quot;|#1\\rangle&quot;, 1],
-        :bra =&gt; [&quot;\\langle#1|&quot;, 1],
-    ),
-)))</code></pre><p>Or with MathJax v3, the <a href="https://mirrors.ctan.org/macros/latex/contrib/physics/physics.pdf">physics package</a> can be loaded:</p><pre><code class="language-julia hljs">mathengine = MathJax3(Dict(
-    :loader =&gt; Dict(&quot;load&quot; =&gt; [&quot;[tex]/physics&quot;]),
-    :tex =&gt; Dict(
-        &quot;inlineMath&quot; =&gt; [[&quot;\$&quot;,&quot;\$&quot;], [&quot;\\(&quot;,&quot;\\)&quot;]],
-        &quot;tags&quot; =&gt; &quot;ams&quot;,
-        &quot;packages&quot; =&gt; [&quot;base&quot;, &quot;ams&quot;, &quot;autoload&quot;, &quot;physics&quot;],
-    ),
-))</code></pre><p>The syntax is slightly different if using KaTeX, the following example is what you might include in your <code>makedocs</code> function:</p><pre><code class="language-julia hljs">makedocs(
-    format = Documenter.HTML(; mathengine=
-        Documenter.KaTeX(
-            Dict(:delimiters =&gt; [
-                Dict(:left =&gt; raw&quot;$&quot;,   :right =&gt; raw&quot;$&quot;,   display =&gt; false),
-                Dict(:left =&gt; raw&quot;$$&quot;,  :right =&gt; raw&quot;$$&quot;,  display =&gt; true),
-                Dict(:left =&gt; raw&quot;\[&quot;,  :right =&gt; raw&quot;\]&quot;,  display =&gt; true),
+ \]</p><h2 id="Set-math-engine-and-define-macros-for-LaTeX"><a class="docs-heading-anchor" href="#Set-math-engine-and-define-macros-for-LaTeX">Set math engine and define macros for LaTeX</a><a id="Set-math-engine-and-define-macros-for-LaTeX-1"></a><a class="docs-heading-anchor-permalink" href="#Set-math-engine-and-define-macros-for-LaTeX" title="Permalink"></a></h2><p>The <code>mathengine</code> argument to <a href="../../lib/internals/writers/#Documenter.HTMLWriter.HTML"><code>Documenter.HTMLWriter.HTML</code></a> allows the math rendering engine to be specified, supporting both MathJax and KaTeX (with the latter being the default).</p><p>Furthermore, you can also pass custom configuration to the rendering engine. E.g. to add global LaTeX command definitions, you can set <code>mathengine</code> to:</p><pre><code class="language-julia hljs">mathengine = Documenter.MathJax(
+    Dict(
+        :TeX =&gt; Dict(
+            :equationNumbers =&gt; Dict(:autoNumber =&gt; &quot;AMS&quot;),
+            :Macros =&gt; Dict(
+                :ket =&gt; [&quot;|#1\\rangle&quot;, 1],
+                :bra =&gt; [&quot;\\langle#1|&quot;, 1],
+            ),
+        )
+    )
+)</code></pre><p>Or with MathJax v3, the <a href="https://mirrors.ctan.org/macros/latex/contrib/physics/physics.pdf">physics package</a> can be loaded:</p><pre><code class="language-julia hljs">mathengine = MathJax3(
+    Dict(
+        :loader =&gt; Dict(&quot;load&quot; =&gt; [&quot;[tex]/physics&quot;]),
+        :tex =&gt; Dict(
+            &quot;inlineMath&quot; =&gt; [[&quot;\$&quot;, &quot;\$&quot;], [&quot;\\(&quot;, &quot;\\)&quot;]],
+            &quot;tags&quot; =&gt; &quot;ams&quot;,
+            &quot;packages&quot; =&gt; [&quot;base&quot;, &quot;ams&quot;, &quot;autoload&quot;, &quot;physics&quot;],
+        ),
+    )
+)</code></pre><p>The syntax is slightly different if using KaTeX, the following example is what you might include in your <code>makedocs</code> function:</p><pre><code class="language-julia hljs">makedocs(
+    format = Documenter.HTML(;
+        mathengine =
+            Documenter.KaTeX(
+            Dict(
+                :delimiters =&gt; [
+                    Dict(:left =&gt; raw&quot;$&quot;, :right =&gt; raw&quot;$&quot;, display =&gt; false),
+                    Dict(:left =&gt; raw&quot;$$&quot;, :right =&gt; raw&quot;$$&quot;, display =&gt; true),
+                    Dict(:left =&gt; raw&quot;\[&quot;, :right =&gt; raw&quot;\]&quot;, display =&gt; true),
                 ],
-                :macros =&gt; Dict(&quot;\\RR&quot; =&gt; &quot;\\mathbb{R}&quot;,
+                :macros =&gt; Dict(
+                    &quot;\\RR&quot; =&gt; &quot;\\mathbb{R}&quot;,
                     raw&quot;\Xi&quot; =&gt; raw&quot;X_{i}&quot;,
                     raw&quot;\Ru&quot; =&gt; raw&quot;R_{\mathrm{univ.}}&quot;,
                     raw&quot;\Pstd&quot; =&gt; raw&quot;P_{\mathrm{std}}&quot;,
@@ -98,4 +107,4 @@ LaTeXEquation(raw&quot;&quot;&quot;
             )
         )
     )
-)</code></pre><p><a href="../../lib/internals/writers/#Documenter.HTMLWriter.MathJax2"><code>MathJax2</code></a>, <a href="../../lib/internals/writers/#Documenter.HTMLWriter.MathJax3"><code>MathJax3</code></a> and <a href="../../lib/internals/writers/#Documenter.HTMLWriter.KaTeX"><code>KaTeX</code></a> are available types for <code>mathengine</code>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../doctests/">« Doctests</a><a class="docs-footer-nextpage" href="../hosting/">Hosting Documentation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.18.0 on <span class="colophon-date" title="Friday 28 August 2026 08:32">Friday 28 August 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+)</code></pre><p><a href="../../lib/internals/writers/#Documenter.HTMLWriter.MathJax2"><code>MathJax2</code></a>, <a href="../../lib/internals/writers/#Documenter.HTMLWriter.MathJax3"><code>MathJax3</code></a> and <a href="../../lib/internals/writers/#Documenter.HTMLWriter.KaTeX"><code>KaTeX</code></a> are available types for <code>mathengine</code>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../doctests/">« Doctests</a><a class="docs-footer-nextpage" href="../hosting/">Hosting Documentation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.18.0 on <span class="colophon-date" title="Saturday 29 August 2026 11:02">Saturday 29 August 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
