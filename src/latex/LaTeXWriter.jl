@@ -80,8 +80,9 @@ mutable struct Context{I <: IO} <: IO
     depth::Int
     filename::String # currently active source file
     doc::Documenter.Document
+    pending_labels::Vector{String} # `\label`s deferred out of the current header title
 end
-Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc)
+Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc, String[])
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
@@ -353,6 +354,25 @@ function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     return
 end
 
+function latex(io::Context, node::Node, ai::Documenter.AnchoredInline)
+    id = _hash(Documenter.anchor_label(ai.anchor))
+    # Inside a header the title is a moving argument that also ends up in the table of
+    # contents and the PDF bookmarks, where a \hypertarget does not belong. Defer a
+    # `\label` to just after the title instead, as the AnchoredHeader method does, so that
+    # the anchor still has a target. `\hyperlinkref` resolves against either form.
+    if io.in_header
+        push!(io.pending_labels, id)
+        latex(io, node.children)
+        return
+    end
+    # A `\hypertarget` (matching the `\hyperlinkref` emitted for a resolved `@ref`, see the
+    # PageLink method) wrapping the anchored inline content.
+    _print(io, "\\hypertarget{", id, "}{")
+    latex(io, node.children)
+    _print(io, "}")
+    return
+end
+
 ## Documentation Nodes.
 
 function latex(io::Context, node::Node, ::Documenter.DocsNodesBlock)
@@ -546,6 +566,12 @@ function latex(io::Context, node::Node, heading::MarkdownAST.Heading)
     else
         _println(io, "}\n")
     end
+    # `@id` anchors in the title could not emit their target inside the moving argument, so
+    # they deferred it to here. See the AnchoredInline method.
+    for id in io.pending_labels
+        _println(io, "\\label{", id, "}{}\n")
+    end
+    empty!(io.pending_labels)
     return
 end
 

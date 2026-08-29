@@ -30,31 +30,144 @@ using Test
 end
 
 @testset "CrossReference classification" begin
-    headers = Documenter.AnchorMap()
-    Documenter.anchor_add!(headers, :dummy, "existing-id", "index.html")
-    Documenter.anchor_add!(headers, :dummy, "DocsReferencingMain.g", "index.html")
+    anchors = Documenter.AnchorMap()
+    Documenter.anchor_add!(anchors, :dummy, "existing-id", "index.html")
+    Documenter.anchor_add!(anchors, :dummy, "DocsReferencingMain.g", "index.html")
 
-    @test Documenter.classifyxref("", (:text, "Header title"), headers) ==
+    @test Documenter.classifyxref("", (:text, "Header title"), anchors) ==
         (kind = :implicit_header, target = "Header title", slug = "Header-title")
-    @test Documenter.classifyxref("", (:text, "#123"), headers) ==
+    @test Documenter.classifyxref("", (:text, "#123"), anchors) ==
         (kind = :issue, target = "123", slug = "#123")
-    @test Documenter.classifyxref("", (:code, "Main.f"), headers) ==
+    @test Documenter.classifyxref("", (:code, "Main.f"), anchors) ==
         (kind = :implicit_docs, target = "Main.f", slug = "Main.f")
 
-    @test Documenter.classifyxref("\"Header title\"", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("\"Header title\"", (:text, "label"), anchors) ==
         (kind = :explicit_header_title, target = "Header title", slug = "Header-title")
-    @test Documenter.classifyxref("#123", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("#123", (:text, "label"), anchors) ==
         (kind = :issue, target = "123", slug = "#123")
-    @test Documenter.classifyxref("`Main.f`", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("`Main.f`", (:text, "label"), anchors) ==
         (kind = :explicit_docs, target = "Main.f", slug = "Main.f")
-    @test Documenter.classifyxref("existing-id", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("existing-id", (:text, "label"), anchors) ==
         (kind = :explicit_header_id, target = "existing-id", slug = "existing-id")
-    @test Documenter.classifyxref("missing-id", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("missing-id", (:text, "label"), anchors) ==
         (kind = :explicit_header_id, target = "missing-id", slug = "missing-id")
-    @test Documenter.classifyxref("Main.f", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("Main.f", (:text, "label"), anchors) ==
         (kind = :explicit_docs, target = "Main.f", slug = "Main.f")
-    @test Documenter.classifyxref("DocsReferencingMain.g", (:text, "label"), headers) ==
+    @test Documenter.classifyxref("DocsReferencingMain.g", (:text, "label"), anchors) ==
         (kind = :explicit_header_id, target = "DocsReferencingMain.g", slug = "DocsReferencingMain.g")
+end
+
+# Arbitrary anchors on inline content via `[content](@id name)` (issue #745).
+@testset "Inline @id anchors" begin
+    using CodecZlib: ZlibDecompressor, transcode
+    import IOCapture
+
+    function build_doc(files::Vector{Pair{String, String}}; kwargs...)
+        tmp = mktempdir()
+        src = joinpath(tmp, "src")
+        mkpath(joinpath(src, "assets"))
+        write(joinpath(src, "assets", "logo.png"), "\x89PNG\r\n\x1a\n")
+        for (name, content) in files
+            write(joinpath(src, name), content)
+        end
+        # Captured so that the many builds below do not drown the test log; errors still
+        # propagate, which the `@test_throws` cases below rely on.
+        IOCapture.capture() do
+            Documenter.makedocs(;
+                root = tmp, sitename = "T", pages = [f.first for f in files],
+                format = Documenter.HTML(edit_link = nothing, disable_git = true, inventory_version = "1.0"),
+                remotes = nothing, kwargs...,
+            )
+        end
+        return tmp
+    end
+
+    function read_inventory(tmp)
+        bytes = read(joinpath(tmp, "build", "objects.inv"))
+        hdrend = findlast(codeunits("zlib.\n"), bytes)
+        return String(transcode(ZlibDecompressor, bytes[(last(hdrend) + 1):end]))
+    end
+
+    # Happy path: inline text anchor + a thumbnail-image anchor, both referenced.
+    tmp = build_doc(
+        [
+            "index.md" => """
+                # Header
+
+                Inline anchor: [my target](@id my-anchor) mid-sentence.
+
+                Thumbnail: [![thumb](assets/logo.png)](@id fig-anchor)
+
+                Refs: [go to target](@ref my-anchor) and [see figure](@ref fig-anchor).
+                """,
+        ]
+    )
+    html = read(joinpath(tmp, "build", "index.html"), String)
+    @test occursin("<span id=\"my-anchor\">", html)
+    @test occursin("<span id=\"fig-anchor\">", html)
+    @test occursin("href=\"#my-anchor\"", html)
+    @test occursin("href=\"#fig-anchor\"", html)
+    # The anchors are written to the inventory as std:label entries.
+    inv = read_inventory(tmp)
+    @test occursin("my-anchor std:label", inv)
+    @test occursin("fig-anchor std:label", inv)
+
+    # The id is slugified exactly like a header `@id`, so an id with spaces/mixed case
+    # yields a valid HTML id and resolves via its slug (matching header behaviour).
+    tmp = build_doc(
+        [
+            "index.md" => "# H\n\n[content](@id My Anchor Name).\n\nRef: [x](@ref My-Anchor-Name).\n",
+        ]
+    )
+    html = read(joinpath(tmp, "build", "index.html"), String)
+    @test occursin("<span id=\"My-Anchor-Name\">", html)
+    @test !occursin("id=\"My Anchor Name\"", html)
+    @test occursin("href=\"#My-Anchor-Name\"", html)
+
+    # Forward/cross-page reference to an inline anchor defined on a later page.
+    tmp = build_doc(
+        [
+            "a.md" => "# A\n\nSee [target](@ref cross-anchor).\n",
+            "b.md" => "# B\n\nHere: [the target](@id cross-anchor).\n",
+        ]
+    )
+    @test occursin("href=\"../b/#cross-anchor\"", read(joinpath(tmp, "build", "a", "index.html"), String))
+
+    # `@contents` must not trip over inline anchors sharing the header AnchorMap.
+    @test (build_doc(["index.md" => "# Top\n\n```@contents\n```\n\n## Sec\n\n[t](@id inline-a).\n"]); true)
+
+    # A referenced duplicate id is an error, not a silent pick.
+    @test_throws Exception build_doc(
+        [
+            "index.md" => "# H\n\n[a](@id dup) and [b](@id dup).\n\nRef: [x](@ref dup).\n",
+        ]
+    )
+
+    # Inline anchors are found inside nested containers (admonitions, lists, ...).
+    tmp = build_doc(
+        [
+            "index.md" => """
+                # H
+
+                !!! note
+                    An [anchored note](@id in-admon).
+
+                * a list item with [an anchor](@id in-list)
+
+                Refs: [x](@ref in-admon) and [y](@ref in-list).
+                """,
+        ]
+    )
+    html = read(joinpath(tmp, "build", "index.html"), String)
+    @test occursin("<span id=\"in-admon\">", html)
+    @test occursin("<span id=\"in-list\">", html)
+
+    # An inline id sharing the header namespace collides with a header slug of the same name.
+    @test_throws Exception build_doc(["index.md" => "# Foo\n\ntext [x](@id Foo).\n\nRef: [r](@ref Foo).\n"])
+
+    # An empty-content anchor `[](@id name)` uses `-` as its inventory display name.
+    tmp = build_doc(["index.md" => "# H\n\n[](@id empty1)\n\nRef [r](@ref empty1).\n"])
+    @test any(l -> startswith(l, "empty1 std:label -1 ") && endswith(strip(l), " -"), split(read_inventory(tmp), '\n'))
 end
 
 end

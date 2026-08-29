@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Added an opt-in `DocumenterProgressMeterExt` package extension that displays [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl) progress bars for the page-iterating loops of the `makedocs` pipeline (template expansion, doctests, and HTML/LaTeX rendering). Activate by adding `ProgressMeter` to your docs project and writing `using ProgressMeter` in `make.jl`. ([#2936])
+* Added an opt-in package extension on [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl)  that displays progress bars for the page-iterating loops of the `makedocs` pipeline (template expansion, doctests, and HTML/LaTeX rendering). Activate by adding `ProgressMeter` to your docs project and writing `using ProgressMeter` in `make.jl`. ([#2936])
+* The `[content](@id name)` syntax can now attach a named, cross-referenceable anchor to arbitrary inline content (such as text or a thumbnail image), not just headers. These anchors resolve via `@ref`, share a single id namespace with header labels, and are written to the `objects.inv` inventory as `std:label` entries. ([#745])
 * Large Markdown tables in LaTeX / PDF output now use `xltabular`, so they break across pages with a repeated header row instead of being silently dropped or aborting the build with `Dimension too large`. ([#2963])
 
 ### Changed
@@ -1672,6 +1673,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#697]: https://github.com/JuliaDocs/Documenter.jl/issues/697
 [#706]: https://github.com/JuliaDocs/Documenter.jl/issues/706
 [#744]: https://github.com/JuliaDocs/Documenter.jl/issues/744
+[#745]: https://github.com/JuliaDocs/Documenter.jl/issues/745
 [#756]: https://github.com/JuliaDocs/Documenter.jl/issues/756
 [#764]: https://github.com/JuliaDocs/Documenter.jl/issues/764
 [#774]: https://github.com/JuliaDocs/Documenter.jl/issues/774
