@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* The search index now records what an at-block actually renders, instead of its source: `@meta` and `@setup` blocks contribute nothing, `@example` and `@repl` blocks contribute their code *and* their output, and `@eval` blocks contribute only their result. Searching no longer turns up text such as `DocTestSetup` that appears nowhere on the page. ([#1929], [#2672])
+
 ## Version [v1.18.0] - 2026-08-28
 
 ### Added
@@ -2229,6 +2235,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2659]: https://github.com/JuliaDocs/Documenter.jl/issues/2659
 [#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
 [#2668]: https://github.com/JuliaDocs/Documenter.jl/issues/2668
+[#2672]: https://github.com/JuliaDocs/Documenter.jl/issues/2672
 [#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
 [#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
