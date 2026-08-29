@@ -690,7 +690,7 @@ end
 examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_simple_nondocker")
     @quietly makedocs(
-        format = Documenter.LaTeX(version = v"1.2.3"),
+        format = Documenter.LaTeX(version = v"1.2.3", latexmk_norc = true),
         sitename = "Documenter LaTeX Simple Non-Docker",
         root = examples_root,
         build = "builds/latex_simple_nondocker",
