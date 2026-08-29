@@ -43,7 +43,7 @@ Next, we need to encode the private key in Base64. Run the following command:
 ```julia-repl
 julia> using Base64
 
-julia> read("privatekey", String) |> base64encode |>  println
+julia> read("privatekey", String) |> base64encode |> println
 ```
 
 Copy and paste the output somewhere. This is your *private key* and is required for the last step.

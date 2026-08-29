@@ -57,6 +57,7 @@ on:
       - master # update to match your development branch (master, main, dev, trunk, ...)
     tags: '*'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -161,7 +162,7 @@ pkg> add DocumenterTools
 
 julia> using DocumenterTools
 
-julia> DocumenterTools.genkeys(user="MyUser", repo="MyPackage.jl")
+julia> DocumenterTools.genkeys(user = "MyUser", repo = "MyPackage.jl")
 ```
 
 If the package is checked out in development mode with `] dev MyPackage`, the
@@ -658,8 +659,8 @@ worth being precise about which half goes where (see
 
 ```julia
 deploydocs(
-  repo="github.com/SourceRepoOrg/SourceRepo",
-  deploy_repo="github.com/TargetRepoOrg/TargetRepo"
+    repo = "github.com/SourceRepoOrg/SourceRepo",
+    deploy_repo = "github.com/TargetRepoOrg/TargetRepo"
 )
 ```
 
@@ -701,23 +702,26 @@ The three respective `make.jl` scripts should contain [`deploydocs`](@ref) setti
 
 ```julia
 # In ./docs/make.jl
-deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-            # ...any additional kwargs
-            )
+deploydocs(;
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    # ...any additional kwargs
+)
 
 # In ./PackageA.jl/docs/make.jl
-deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-             dirname="PackageA",
-             tag_prefix="PackageA-",
-             # ...any additional kwargs
-             )
+deploydocs(;
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    dirname = "PackageA",
+    tag_prefix = "PackageA-",
+    # ...any additional kwargs
+)
 
 # In ./PackageB.jl/docs/make.jl
-deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-             dirname="PackageB",
-             tag_prefix="PackageB-",
-             # ...any additional kwargs
-             )
+deploydocs(;
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    dirname = "PackageB",
+    tag_prefix = "PackageB-",
+    # ...any additional kwargs
+)
 ```
 
 To build separate docs for each package, create three **separate** buildbot configurations, one for each package. Depending on the service used, the section that calls each `make.jl` script will need to be configured appropriately, e.g.,

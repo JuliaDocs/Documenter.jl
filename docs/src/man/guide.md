@@ -102,7 +102,7 @@ Add the following to your `make.jl` file
 ```julia
 using Documenter, Example
 
-makedocs(sitename="My Documentation")
+makedocs(sitename = "My Documentation")
 ```
 
 This assumes you've installed Documenter as discussed in [Installation](@ref) and that your

@@ -147,16 +147,18 @@ when it is necessary to override the asset class of a local asset.
 # Usage
 
 ```julia
-Documenter.HTML(assets = [
-    # Standard local asset
-    "assets/extra_styles.css",
-    # Standard remote asset (extension used to determine that class = :js)
-    asset("https://example.com/jslibrary.js"),
-    # Setting asset class manually, since it can't be determined manually
-    asset("https://example.com/fonts", class = :css),
-    # Same as above, but for a local asset
-    asset("asset/foo.script", class=:js, islocal=true),
-])
+Documenter.HTML(
+    assets = [
+        # Standard local asset
+        "assets/extra_styles.css",
+        # Standard remote asset (extension used to determine that class = :js)
+        asset("https://example.com/jslibrary.js"),
+        # Setting asset class manually, since it can't be determined manually
+        asset("https://example.com/fonts", class = :css),
+        # Same as above, but for a local asset
+        asset("asset/foo.script", class = :js, islocal = true),
+    ]
+)
 ```
 """
 function asset(uri; class = nothing, islocal = false, attributes = Dict{Symbol, String}())

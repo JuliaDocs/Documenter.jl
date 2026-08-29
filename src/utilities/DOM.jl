@@ -162,7 +162,7 @@ Defined within the scope of a function to avoid cluttering the global namespace:
 
 ```julia
 function template(args...)
-    @tags div ul li
+    return @tags div ul li
     # ...
 end
 ```
