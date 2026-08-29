@@ -296,81 +296,6 @@ are uploaded to Codecov:
       - uses: codecov/codecov-action@v7
 ```
 
-## Travis CI
-
-To tell Travis that we want a new build stage, we can add the following to an existing `.travis.yml`
-file. Note that the snippet below will not work by itself and must be accompanied by a complete Travis file.
-
-```yaml
-jobs:
-  include:
-    - stage: "Documentation"
-      julia: 1
-      os: linux
-      script:
-        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
-                                               Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
-      after_success: skip
-```
-
-where the `julia:` and `os:` entries decide the worker from which the docs are built and
-deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1 (the latest stable version). For more information on how to set up a build stage, see the Travis
-manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
-
-The three lines in the `script:` section do the following:
-
- 1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
- 2. Install your package in the doc-build environment.
- 3. Run the docs/make.jl script, which builds and deploys the documentation.
-
-!!! note
-    If your package has a build script you should call
-    `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
-    sure the package is built properly.
-
-!!! note "matrix: section in .travis.yml"
-
-    Travis CI used to use `matrix:` as the section to configure the build matrix in the config
-    file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
-    `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
-
-    If your `.travis.yml` file still uses `matrix:`, it should be replaced with a single
-    `jobs:` section.
-
-### [Authentication: SSH Deploy Keys (Travis CI)](@id travis-ssh)
-
-Travis CI also authenticates with an SSH deploy key. Generate the key pair with
-`DocumenterTools.genkeys` as described in the
-[SSH deploy key section](@ref ssh-deploy-keys) above. Only the private key is added
-elsewhere:
-
- 1. Add the public ssh key as a deploy key with write access on the
-    `https://github.com/USER/REPO/settings/keys` page of the GitHub repository.
-
- 2. Next add the long private key to the Travis settings page at
-    `https://app.travis-ci.com/USER/REPO/settings`.
-    Again note that you should include **no whitespace** when copying the key. In the **`Environment
-    Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
-    out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
-
-    !!! warning "Security warning"
-
-        To reiterate: make sure that this key is hidden. In particular, in the Travis CI settings
-        the "Display value in build log" option should be **OFF** for
-        the variable, so that it does not get printed when the tests run. This
-        base64-encoded string contains the *unencrypted* private key that gives full write
-        access to your repository, so it must be kept safe.  Also, make sure that you never
-        expose this variable in your tests, nor merge any code that does. You can read more
-        about Travis environment variables in [Travis User Documentation](https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings).
-
-!!! note
-
-    There are more explicit instructions for adding the keys to Travis in the
-    [SSH Deploy Keys Walkthrough](@ref) section of the manual.
-
-
 ## `docs/Project.toml`
 
 The doc-build environment `docs/Project.toml` includes Documenter and other doc-build
@@ -499,55 +424,6 @@ The `permissions:` line above is described in the
 [GitHub Docs](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token#modifying-the-permissions-for-the-github_token);
 an alternative is to give GitHub workflows write permissions under the repo settings, e.g.,
 `https://github.com/<USER>/<REPO>.jl/settings/actions`.
-
-## Woodpecker CI
-
-To run a documentation build from Woodpecker CI, one should create an access token
-from their forge of choice: GitHub, GitLab, or Codeberg (or any Gitea instance).
-This access token should be added to Woodpecker CI as a secret named
-`project_access_token`. The case does not matter since this will be passed as
-an uppercase environment variable to your pipeline. Next, create a new pipeline
-configuration file called `.woodpecker.yml` with the following contents:
-
-- Woodpecker 0.15.x and pre-1.0.0
-
-  ```yaml
-  pipeline:
-      docs:
-      when:
-          branch: main  # update to match your development branch
-      image: julia
-      commands:
-          - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-          - julia --project=docs/ docs/make.jl
-      secrets: [ project_access_token ]  # access token is a secret
-
-  ```
-
-- Woodpecker 1.0.x and onwards
-
-  ```yaml
-  steps:
-      docs:
-      when:
-          branch: main  # update to match your development branch
-      image: julia
-      commands:
-          - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-          - julia --project=docs/ docs/make.jl
-      secrets: [ project_access_token ]  # access token is a secret
-
-  ```
-
-This will pull an image of julia from docker and run the following commands from
-`commands:` which instantiates the project for development and then runs the `make.jl`
-file and builds and deploys the documentation to a branch which defaults to `pages`
-which you can modify to something else e.g. GitHub → gh-pages, Codeberg → pages.
-
-!!! tip
-	The example above is a basic pipeline that suits most projects. Further information
-	on how to customize your pipelines can be found in the official woodpecker
-	documentation: [Woodpecker CI](https://woodpecker-ci.org/docs/intro).
 
 ## Documentation Versions
 
@@ -757,7 +633,137 @@ While they won't automatically reference one another, such referencing can be ad
 !!! warning
     When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at `https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z`, and the rest of the subpackages' documentation will be unavailable.
 
-## Deployment systems
+## Other CI systems
+
+Documenter is not tied to GitHub Actions: everything from the `docs/Project.toml` section
+onwards applies wherever the build runs, and only the CI configuration file differs. The
+sections below cover the other services Documenter recognizes out of the box, and how to
+teach it about one it does not.
+
+### Travis CI
+
+To tell Travis that we want a new build stage, we can add the following to an existing `.travis.yml`
+file. Note that the snippet below will not work by itself and must be accompanied by a complete Travis file.
+
+```yaml
+jobs:
+  include:
+    - stage: "Documentation"
+      julia: 1
+      os: linux
+      script:
+        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
+                                               Pkg.instantiate()'
+        - julia --project=docs/ docs/make.jl
+      after_success: skip
+```
+
+where the `julia:` and `os:` entries decide the worker from which the docs are built and
+deployed. In the example above we will thus build and deploy the documentation from a linux
+worker running Julia 1 (the latest stable version). For more information on how to set up a build stage, see the Travis
+manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
+
+The three lines in the `script:` section do the following:
+
+ 1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
+ 2. Install your package in the doc-build environment.
+ 3. Run the docs/make.jl script, which builds and deploys the documentation.
+
+!!! note
+    If your package has a build script you should call
+    `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
+    sure the package is built properly.
+
+!!! note "matrix: section in .travis.yml"
+
+    Travis CI used to use `matrix:` as the section to configure the build matrix in the config
+    file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
+    `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
+
+    If your `.travis.yml` file still uses `matrix:`, it should be replaced with a single
+    `jobs:` section.
+
+#### [Authentication: SSH Deploy Keys (Travis CI)](@id travis-ssh)
+
+Travis CI also authenticates with an SSH deploy key. Generate the key pair with
+`DocumenterTools.genkeys` as described in the
+[SSH deploy key section](@ref ssh-deploy-keys) above. Only the private key is added
+elsewhere:
+
+ 1. Add the public ssh key as a deploy key with write access on the
+    `https://github.com/USER/REPO/settings/keys` page of the GitHub repository.
+
+ 2. Next add the long private key to the Travis settings page at
+    `https://app.travis-ci.com/USER/REPO/settings`.
+    Again note that you should include **no whitespace** when copying the key. In the **`Environment
+    Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
+    out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
+
+    !!! warning "Security warning"
+
+        To reiterate: make sure that this key is hidden. In particular, in the Travis CI settings
+        the "Display value in build log" option should be **OFF** for
+        the variable, so that it does not get printed when the tests run. This
+        base64-encoded string contains the *unencrypted* private key that gives full write
+        access to your repository, so it must be kept safe.  Also, make sure that you never
+        expose this variable in your tests, nor merge any code that does. You can read more
+        about Travis environment variables in [Travis User Documentation](https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings).
+
+!!! note
+
+    There are more explicit instructions for adding the keys to Travis in the
+    [SSH Deploy Keys Walkthrough](@ref) section of the manual.
+
+### Woodpecker CI
+
+To run a documentation build from Woodpecker CI, one should create an access token
+from their forge of choice: GitHub, GitLab, or Codeberg (or any Gitea instance).
+This access token should be added to Woodpecker CI as a secret named
+`project_access_token`. The case does not matter since this will be passed as
+an uppercase environment variable to your pipeline. Next, create a new pipeline
+configuration file called `.woodpecker.yml` with the following contents:
+
+- Woodpecker 0.15.x and pre-1.0.0
+
+  ```yaml
+  pipeline:
+      docs:
+      when:
+          branch: main  # update to match your development branch
+      image: julia
+      commands:
+          - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          - julia --project=docs/ docs/make.jl
+      secrets: [ project_access_token ]  # access token is a secret
+
+  ```
+
+- Woodpecker 1.0.x and onwards
+
+  ```yaml
+  steps:
+      docs:
+      when:
+          branch: main  # update to match your development branch
+      image: julia
+      commands:
+          - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          - julia --project=docs/ docs/make.jl
+      secrets: [ project_access_token ]  # access token is a secret
+
+  ```
+
+This will pull an image of julia from docker and run the following commands from
+`commands:` which instantiates the project for development and then runs the `make.jl`
+file and builds and deploys the documentation to a branch which defaults to `pages`
+which you can modify to something else e.g. GitHub → gh-pages, Codeberg → pages.
+
+!!! tip
+	The example above is a basic pipeline that suits most projects. Further information
+	on how to customize your pipelines can be found in the official woodpecker
+	documentation: [Woodpecker CI](https://woodpecker-ci.org/docs/intro).
+
+### Deployment systems
 
 It is possible to customize Documenter to use other systems than the ones described in
 the sections above. This is done by passing a configuration
