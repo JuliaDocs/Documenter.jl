@@ -373,6 +373,19 @@ end
                     @test read(joinpath(build_dir, "outputs", "outputs", "$(data.hash_slug).$(fmt)")) == data.bytes
                 end
             end
+
+            let html = read(joinpath(build_dir, "example-output", "index.html"), String)
+                tiny_png = AT_EXAMPLE_FILES[("png", :tiny)]
+                @test occursin(
+                    "<img src=\"data:image/png;base64,$(Base64.base64encode(tiny_png.bytes))\" alt=\"Example block output\" width=\"128\" height=\"68\"/>",
+                    html
+                )
+                big_png = AT_EXAMPLE_FILES[("png", :big)]
+                @test occursin(
+                    "<img src=\"$(big_png.hash_slug).png\" alt=\"Example block output\" width=\"800\" height=\"693\"/>",
+                    html
+                )
+            end
             # SVG on src/example-output.md
             @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg"))
             @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
@@ -438,6 +451,19 @@ end
                     @test isfile(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)"))
                     @test read(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)")) == data.bytes
                 end
+            end
+
+            let html = read(joinpath(build_dir, "example-output.html"), String)
+                tiny_png = AT_EXAMPLE_FILES[("png", :tiny)]
+                @test occursin(
+                    "<img src=\"data:image/png;base64,$(Base64.base64encode(tiny_png.bytes))\" alt=\"Example block output\" width=\"128\" height=\"68\"/>",
+                    html
+                )
+                big_png = AT_EXAMPLE_FILES[("png", :big)]
+                @test occursin(
+                    "<img src=\"example-output-$(big_png.hash_slug).png\" alt=\"Example block output\" width=\"800\" height=\"693\"/>",
+                    html
+                )
             end
             # SVG on src/example-output.md
             @test isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg"))
