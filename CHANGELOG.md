@@ -9,9 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `doctest` now accepts a `meta` keyword, like `makedocs` does, so that a global `DocTestSetup` can be set for the doctests on manual pages when they are run through `doctest`. ([#2512], [#2697])
 
-### Changed
-
-* The "Hosting Documentation" manual page is now organized around GitHub Actions: the shared setup and versioning sections follow it directly, while Travis CI, Woodpecker CI and the custom deployment interface have moved into a new "Other CI systems" section at the end. The page also gained a table of contents. ([#2131])
 
 ## Version [v1.18.0] - 2026-08-28
 
@@ -2094,7 +2091,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2114]: https://github.com/JuliaDocs/Documenter.jl/issues/2114
 [#2128]: https://github.com/JuliaDocs/Documenter.jl/issues/2128
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
-[#2131]: https://github.com/JuliaDocs/Documenter.jl/issues/2131
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
 [#2141]: https://github.com/JuliaDocs/Documenter.jl/issues/2141
 [#2142]: https://github.com/JuliaDocs/Documenter.jl/issues/2142
