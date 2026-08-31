@@ -390,7 +390,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/minisearch/6.2.0/umd/index.min.js",
   );
 
   let data = documenterSearchIndex.map((x, key) => {
