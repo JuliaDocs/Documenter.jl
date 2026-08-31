@@ -120,3 +120,16 @@ julia> :a / :b
 ERROR: MethodError: no method matching /(::Symbol, ::Symbol)
 [...]
 ```
+
+Blocks nested in a list are indented in the source file:
+
+- a list item
+
+  ```jldoctest
+  julia> Main.DocTestFixArray_2468
+  4-element Array{Int64,1}:
+   1
+   2
+   3
+   4
+  ```

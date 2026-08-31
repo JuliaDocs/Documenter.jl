@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `doctest` now accepts a `meta` keyword, like `makedocs` does, so that a global `DocTestSetup` can be set for the doctests on manual pages when they are run through `doctest`. ([#2512], [#2697])
 
 
+### Fixed
+
+* Large code blocks, such as `@raw html` blocks embedding a plot, no longer abort the build with `PCRE compilation error: regular expression is too large`. Locating a code block in its source file now matches line by line instead of compiling the entire block into a regular expression, which also stops line numbers in error messages from pointing at an unrelated earlier line containing the same text. ([#2992], [#2912])
+
+
 ## Version [v1.18.0] - 2026-08-28
 
 ### Added
@@ -2301,6 +2306,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
 [#2894]: https://github.com/JuliaDocs/Documenter.jl/issues/2894
 [#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
+[#2912]: https://github.com/JuliaDocs/Documenter.jl/issues/2912
 [#2925]: https://github.com/JuliaDocs/Documenter.jl/issues/2925
 [#2953]: https://github.com/JuliaDocs/Documenter.jl/issues/2953
 [#2956]: https://github.com/JuliaDocs/Documenter.jl/issues/2956
@@ -2310,6 +2316,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2963]: https://github.com/JuliaDocs/Documenter.jl/issues/2963
 [#2973]: https://github.com/JuliaDocs/Documenter.jl/issues/2973
 [#2976]: https://github.com/JuliaDocs/Documenter.jl/issues/2976
+[#2992]: https://github.com/JuliaDocs/Documenter.jl/issues/2992
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
