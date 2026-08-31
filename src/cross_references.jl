@@ -230,7 +230,7 @@ Selectors.order(::Type{XRefResolvers.Header}) = 3.0
 """
 $(SIGNATURES)
 
-checks whether `node` is a link with an `@ref` URL. Any step in the
+Checks whether `node` is a link with an `@ref` URL. Any step in the
 [`XRefResolvers.XRefResolverPipeline`](@ref) should use this to determine whether the `node`
 still needs to be resolved.
 """
@@ -296,7 +296,7 @@ follows:
 - For, e.g, ```[`Documenter.makedocs`](@ref)``` or ```[text](@ref `Documenter.makedocs`)```, the
   `slug` is `"Documenter.makedocs"`
 - For, e.g, ```[Hosting Documentation](@ref)``` or `[text](@ref "Hosting Documentation")`,
-  the `slug` is sluggified version of the given section title, `"Hosting-Documentation"` in
+  the `slug` is the sluggified version of the given section title, `"Hosting-Documentation"` in
   this case.
 """
 function xref(node::MarkdownAST.Node, meta, page, doc)
@@ -333,7 +333,7 @@ end
 
 """
 Parse the `link.url` field of an `@ref` link. Returns `nothing` if it's not an `@ref`,
-an empty string the reference link has no label, or a whitespace-stripped version the
+an empty string if the reference link has no label, or a whitespace-stripped version of the
 label.
 """
 function xrefname(link_url::AbstractString)

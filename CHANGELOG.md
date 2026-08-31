@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* `doctest` now accepts a `meta` keyword, like `makedocs` does, so that a global `DocTestSetup` can be set for the doctests on manual pages when they are run through `doctest`. ([#2512], [#2697])
+
 ### Fixed
 
 * The search index now records what an at-block actually renders, instead of its source: `@meta` and `@setup` blocks contribute nothing, `@example` and `@repl` blocks contribute their code *and* their output, and `@eval` blocks contribute only their result. Searching no longer turns up text such as `DocTestSetup` that appears nowhere on the page. ([#1929], [#2672])

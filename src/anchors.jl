@@ -6,7 +6,7 @@
 # ------
 
 """
-Stores an arbitrary object called `.object` and it's location within a document.
+Stores an arbitrary object called `.object` and its location within a document.
 
 **Fields**
 
