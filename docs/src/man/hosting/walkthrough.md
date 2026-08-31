@@ -1,6 +1,6 @@
 # SSH Deploy Keys Walkthrough
 
-If the instructions in [Authentication: SSH Deploy Keys](@ref) did not work for you (for example,
+If the instructions in [Authentication: SSH Deploy Keys](@ref ssh-deploy-keys) did not work for you (for example,
 `ssh-keygen` is not installed), don't worry! This walkthrough will guide you through the
 process. There are three main steps:
 
@@ -20,7 +20,7 @@ The public key usually looks something like this
 ssh-rsa [base64-encoded-key] [optional-comment]
 ```
 
-And the private key usually look something like this
+And the private key usually looks something like this
 
 ```
 -----BEGIN RSA PRIVATE KEY-----
@@ -43,7 +43,7 @@ Next, we need to encode the private key in Base64. Run the following command:
 ```julia-repl
 julia> using Base64
 
-julia> read("privatekey", String) |> base64encode |>  println
+julia> read("privatekey", String) |> base64encode |> println
 ```
 
 Copy and paste the output somewhere. This is your *private key* and is required for the last step.
@@ -98,18 +98,17 @@ Finally, we need to save the private key somewhere.
       wrong format.
 
 If you made it this far, congratulations! You now have the private and public keys needed to
-set up automatic deployment of your documentation. The next steps are to add the keys to
-GitHub and Travis.
+set up automatic deployment of your documentation. The next steps are to add the public key
+to GitHub and the private key to your CI service.
 
 
 ## Adding the Public Key to GitHub or Gitea such as Codeberg
 
-In this section, we explain how to upload a public SSH key to GitHub and Gitea such as Codeberg. By this point
-, you should have generated a public key and saved it to a file. If you haven't done this, go read
+In this section, we explain how to upload a public SSH key to GitHub and Gitea such as Codeberg. By this point, you should have generated a public key and saved it to a file. If you haven't done this, go read
 [Generating an SSH Key](@ref).
 
-Go to `https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` for GitHub and `https://somegiteaname.org/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` and click "Add
-deploy key". You should get to a page that looks like,:
+Go to `https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` for GitHub, or `https://somegiteaname.org/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` for Gitea, and click "Add
+deploy key". You should get to a page that looks like:
 
 **GitHub**
 
@@ -127,14 +126,14 @@ Now we need to fill in three pieces of information.
 3. Make sure that the "Allow write access" box is checked.
 
 Once you're done, click "Add key". Congratulations! You've added the public key
-to GitHub or your Gitea instance. The next step is to add the private key to Travis, GitHub, or 
-Woodpecker Secrets.
+to GitHub or your Gitea instance. The next step is to add the private key to GitHub Actions,
+Travis, or Woodpecker Secrets.
 
 ## Adding the Private Key
 
-In this section, we explain how to upload a private SSH key to Travis. By this point, you
-should have generated a private key and saved it to a file. If you haven't done this, go
-read [Generating an SSH Key](@ref).
+In this section, we explain how to upload a private SSH key to GitHub Actions or Travis. By
+this point, you should have generated a private key and saved it to a file. If you haven't
+done this, go read [Generating an SSH Key](@ref).
 
 First, we need to Base64 encode the private key. Open Julia, and run the command
 
@@ -144,18 +143,33 @@ julia> using Base64
 julia> read("path/to/private/key", String) |> base64encode |> println
 ```
 
-If you are in a unix and unix-like system, you can just use `openssl` command with `tr` 
-(for truncate) to generate your base64-encoded-key.
+If you are on a unix or unix-like system, you can just use the `openssl` command with `tr`
+to generate your base64-encoded key.
 
 ```bash
 $ openssl enc -base64 -in path/to/your/private/key -out path/to/your/base/64/encoded/key
-$ # We need to truncate the newlines
+$ # We need to remove the newlines
 $ cat path/to/your/base/64/encoded/key | tr -d "\n"
 ```
 
 Copy the resulting output.
 
-Go to `https://travis-ci.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings`. Scroll down
+### Adding the Key to GitHub Actions
+
+Go to `https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/secrets/actions`,
+i.e. **Settings** → **Secrets and variables** → **Actions**. On the **`Secrets`** tab, click
+**`New repository secret`**, name it `DOCUMENTER_KEY`, and paste the output from above as the
+value (with no whitespace and no surrounding quotes).
+
+Make sure you add it as a **repository secret** on the **`Secrets`** tab -- a value added
+under **`Variables`**, or as an **`Environment secret`**, is not visible to the workflow as
+`secrets.DOCUMENTER_KEY`. Then make the secret available to the doc build by adding it to the
+workflow's `env:` section, as described in the
+[SSH deploy key section](@ref ssh-deploy-keys).
+
+### Adding the Key to Travis CI
+
+Go to `https://app.travis-ci.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings`. Scroll down
 to the "Environment Variables" section. It should look like this:
 
 ![](travis-variables.png)

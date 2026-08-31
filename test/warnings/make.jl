@@ -232,21 +232,21 @@ module AtSetupWarningTests end
 julia> WarningTests.run_warnings_test("doctest")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
-┌ Warning: Unable to to evaluate doctest in src/doctest.md:4-8
+┌ Warning: Unable to evaluate doctest in src/doctest.md:4-8
 │ No empty lines are allowed before first `julia>` prompt.
 │
 │ ```jldoctest
 │
-│ julia> 1+1
+│ julia> 1 + 1
 │ 2
 │ ```
 └ @ Documenter
-┌ Warning: Unable to to evaluate doctest in src/doctest.md:11-15
+┌ Warning: Unable to evaluate doctest in src/doctest.md:11-15
 │ Consecutive `julia>` prompts must be separated by an empty line.
 │
 │ ```jldoctest
-│ julia> a=1;
-│ julia> a+1
+│ julia> a = 1;
+│ julia> a + 1
 │ 2
 │ ```
 └ @ Documenter

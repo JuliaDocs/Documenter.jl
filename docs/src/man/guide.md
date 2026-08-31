@@ -33,7 +33,7 @@ $ julia --project=docs
 (PkgName/docs) pkg> add Documenter PkgName
 ```
 
-This will create `Project.toml` file in the `docs/` subdirectory and add `Documenter` and the top-level package as available packages.
+This will create a `Project.toml` file in the `docs/` subdirectory and add `Documenter` and the top-level package as available packages.
 See also the [Pkg.jl](https://github.com/JuliaLang/Pkg.jl/) documentation on working with [project workspaces](https://pkgdocs.julialang.org/v1/toml-files/#The-[workspace]-section) and [environments](https://pkgdocs.julialang.org/v1/environments/).
 
 ### Julia v1.11 and earlier
@@ -47,7 +47,7 @@ pkg> activate docs/
 ```
 
 This will create `Project.toml` and `Manifest.toml` files in the `docs/` subdirectory.
-Note that for packages, you also likely need to have your package that you are documenting as a  ["dev dependency"](https://pkgdocs.julialang.org/v1/managing-packages/#developing) of the `docs/` environment.
+Note that for packages, you also likely need to have your package that you are documenting as a ["dev dependency"](https://pkgdocs.julialang.org/v1/managing-packages/#developing) of the `docs/` environment.
 See also [the Pkg.jl documentation on working with project environments](https://pkgdocs.julialang.org/v1/environments/).
 
 ## Setting up the Folder Structure
@@ -94,7 +94,7 @@ docs/
 
 ## Building an Empty Document
 
-With our `docs/` directory now setup we're going to build our first document. It'll just be
+With our `docs/` directory now set up we're going to build our first document. It'll just be
 a single empty file at the moment, but we'll be adding to it later on.
 
 Add the following to your `make.jl` file
@@ -102,7 +102,7 @@ Add the following to your `make.jl` file
 ```julia
 using Documenter, Example
 
-makedocs(sitename="My Documentation")
+makedocs(sitename = "My Documentation")
 ```
 
 This assumes you've installed Documenter as discussed in [Installation](@ref) and that your
@@ -337,7 +337,7 @@ func(x)
 ````
 
 So we just have to replace each link's url with `@ref` and write the name of the thing we'd
-link to cross-reference. For document headers it's just plain text that matches the name of
+like to cross-reference. For document headers it's just plain text that matches the name of
 the header and for docstrings enclose the object in backticks.
 
 This also works across different pages in the same way. Note that these sections and
@@ -350,7 +350,7 @@ Any project building its documentation with the most recent release of Documente
 generate an [`objects.inv` inventory](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
 that can be found in the root of the [deployed documentation](@ref Hosting-Documentation).
 The [`DocumenterInterLinks` plugin](https://github.com/JuliaDocs/DocumenterInterLinks.jl#readme)
-allows to define a mapping in your `make.jl` file between an external project name
+allows you to define a mapping in your `make.jl` file between an external project name
 and its inventory file, e.g.,
 
 ```julia
@@ -363,7 +363,7 @@ links = InterLinks(
 
 That `InterLinks` object should then be passed to [`makedocs`](@ref) as an element of
 `plugins`. This enables the ability to cross-reference into the external documentation,
-e.g.,  of the `Documenter` package, using an [`@extref` link](@ref) with a syntax similar
+e.g., of the `Documenter` package, using an [`@extref` link](@ref) with a syntax similar
 to the above [`@ref`](@ref Cross-Referencing), e.g.,
 
 ```markdown
@@ -409,7 +409,7 @@ Depth = 3
 ```
 ````
 
-The `@index` block will generate a flat list of links to all the docs that that have been
+The `@index` block will generate a flat list of links to all the docs that have been
 spliced into the document using `@docs` blocks. As with the `@contents` block the pages to
 be included can be set with a `Pages = [...]` line. Since the list is not nested `Depth` is
 not supported for `@index`.
@@ -419,7 +419,7 @@ not supported for `@index`.
 
 By default all the pages (`.md` files) in your source directory get added to the sidebar,
 sorted by their filenames. However, in most cases you want to use the `pages` argument to
-[`makedocs`](@ref) to control how the sidebar looks like. The basic usage is as follows:
+[`makedocs`](@ref) to control what the sidebar looks like. The basic usage is as follows:
 
 ```julia
 makedocs(
@@ -435,7 +435,7 @@ makedocs(
 ```
 
 Using the `pages` argument you can organize your pages into subsections and hide some pages
-from the sidebar with the help of the [`hide`](@ref) functions.
+from the sidebar with the help of the [`hide`](@ref) function.
 
 
 ## Adding a logo or icon

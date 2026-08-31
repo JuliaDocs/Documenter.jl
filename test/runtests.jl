@@ -37,6 +37,10 @@ end
     @info "Building docs_subanchors/make.jl"
     include("docs_subanchors/make.jl")
 
+  # Test that a non-unique header slug is reported and never resolved as a binding
+    @info "Building duplicate_headers/make.jl"
+    include("duplicate_headers/make.jl")
+
     # Warnings
     @info "Building warnings/make.jl"
     include("warnings/make.jl")

@@ -47,7 +47,7 @@ formatting. In addition, the following style guidelines should be followed:
 **Formatting.** You can run `make format-julia` to run Runic on the Documenter codebase.
 
 It expects that Runic is installed into the global, shared `--project=@runic` Julia environment.
-If the formatter fails to run because it can not load Runic, you can install it easily in the right place by calling `make install-runic`.
+If the formatter fails to run because it cannot load Runic, you can install it easily in the right place by calling `make install-runic`.
 
 ### JS, HTML and (S)CSS
 
@@ -67,7 +67,7 @@ We use [Biome](https://biomejs.dev) for formatting the JavaScript source code. Y
 
 All pull requests that make user visible changes should have a changelog entry
 formatted according to the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
-style
+style.
 
 ## Tests
 

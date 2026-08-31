@@ -12,19 +12,19 @@ selector code is described:
 abstract type MySelector <: Selectors.AbstractSelector end
 
 # The different cases we want to test.
-abstract type One    <: MySelector end
+abstract type One <: MySelector end
 abstract type NotOne <: MySelector end
 
 # The order in which to test the cases.
-Selectors.order(::Type{One})    = 0.0
+Selectors.order(::Type{One}) = 0.0
 Selectors.order(::Type{NotOne}) = 1.0
 
 # The predicate to test against.
-Selectors.matcher(::Type{One}, x)    = x === 1
+Selectors.matcher(::Type{One}, x) = x === 1
 Selectors.matcher(::Type{NotOne}, x) = x !== 1
 
 # What to do when a test is successful.
-Selectors.runner(::Type{One}, x)    = println("found one")
+Selectors.runner(::Type{One}, x) = println("found one")
 Selectors.runner(::Type{NotOne}, x) = println("not found")
 
 # Test our selector with some numbers.
@@ -37,7 +37,7 @@ end
 
 ```julia
 function dispatch(::Type{MySelector}, i::Int)
-    if matcher(One, i)
+    return if matcher(One, i)
         runner(One, i)
     elseif matcher(NotOne, i)
         runner(NotOne, i)
@@ -49,7 +49,7 @@ and further to
 
 ```julia
 function dispatch(::Type{MySelector}, i::Int)
-    if i === 1
+    return if i === 1
         println("found one")
     elseif i !== 1
         println("not found")
@@ -77,7 +77,7 @@ Root selector type. Each user-defined selector must subtype from this, i.e.
 ```julia
 abstract type MySelector <: Selectors.AbstractSelector end
 
-abstract type First  <: MySelector end
+abstract type First <: MySelector end
 abstract type Second <: MySelector end
 ```
 """
@@ -87,7 +87,7 @@ abstract type AbstractSelector end
 Define the precedence of each case in a selector, i.e.
 
 ```julia
-Selectors.order(::Type{First})  = 1.0
+Selectors.order(::Type{First}) = 1.0
 Selectors.order(::Type{Second}) = 2.0
 ```
 
@@ -100,7 +100,7 @@ function order end
 Define the matching test for each case in a selector, i.e.
 
 ```julia
-Selectors.matcher(::Type{First}, x)  = x == 1
+Selectors.matcher(::Type{First}, x) = x == 1
 Selectors.matcher(::Type{Second}, x) = true
 ```
 
@@ -115,7 +115,7 @@ Define the code that will run when a particular [`Selectors.matcher`](@ref) test
 `true`, i.e.
 
 ```julia
-Selectors.runner(::Type{First}, x)  = println("`x` is equal to `1`.")
+Selectors.runner(::Type{First}, x) = println("`x` is equal to `1`.")
 Selectors.runner(::Type{Second}, x) = println("`x` is not equal to `1`.")
 ```
 """

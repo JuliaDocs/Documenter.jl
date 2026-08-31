@@ -253,7 +253,7 @@ end
 # Finding submodules.
 
 """
-Returns the set of submodules of a given root module/s.
+Returns the set of submodules of the given root module(s).
 """
 function submodules(modules::Vector{Module}; ignore = Set{Module}())
     out = Set{Module}()
@@ -307,7 +307,7 @@ splitexpr(other) = error("Invalid @var syntax `$other`.")
 """
     object(ex, str)
 
-Returns a expression that, when evaluated, returns an [`Object`](@ref) representing `ex`.
+Returns an expression that, when evaluated, returns an [`Object`](@ref) representing `ex`.
 """
 function object(ex::Union{Symbol, Expr}, str::AbstractString)
     binding = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
@@ -389,8 +389,8 @@ if the directory is a "root". An example predicate is `is_git_repo_root` that ch
 the directory is a Git repository root.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
-determine if this is a repository or not. If there is a file called `dbdir`, then it's
-contents is checked under the assumption that it is a Git worktree or a submodule.
+determine if this is a repository or not. If there is a file called `dbdir`, then its
+contents are checked under the assumption that it is a Git worktree or a submodule.
 """
 function find_root_parent(f, path)
     ispath(path) || throw(ArgumentError("find_root_parent called with non-existent path\n path: $path"))
@@ -407,11 +407,11 @@ end
 """
     $(SIGNATURES)
 
-Check is `directory` is a Git repository root.
+Check if `directory` is a Git repository root.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
-determine if this is a repository or not. If there is a file called `dbdir`, then it's
-contents is checked under the assumption that it is a Git worktree or a submodule.
+determine if this is a repository or not. If there is a file called `dbdir`, then its
+contents are checked under the assumption that it is a Git worktree or a submodule.
 """
 function is_git_repo_root(directory::AbstractString; dbdir = ".git")
     isdir(directory) || error("is_git_repo_root called with non-directory path: $directory")
@@ -496,7 +496,7 @@ end
 $(TYPEDSIGNATURES)
 
 Determines the GitHub remote of a directory by checking `remote.origin.url` of the
-repository. Returns a [`Remotes.GitHub`](@ref), or `nothing` is something has gone wrong
+repository. Returns a [`Remotes.GitHub`](@ref), or `nothing` if something has gone wrong
 (e.g. it's run on a directory not in a Git repo, or `origin.url` points to a non-GitHub
 remote).
 
@@ -554,7 +554,7 @@ isabsurl(url) = occursin(ABSURL_REGEX, url)
 const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 """
-    mdparse(s::AbstractString; mode=:single)
+    mdparse(s::AbstractString; mode = :single)
 
 Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
 layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
@@ -634,9 +634,10 @@ keyword argument, or whether the keyword argument was not passed at all.
 
 ```julia
 function foo(; kwarg = Default("default value"))
-    if isa(kwarg, Default)
+    return if isa(kwarg, Default)
         # User did not explicitly pass a value for kwarg
-    else kwarg === "default value"
+    else
+        kwarg === "default value"
         # User passed "default value" explicitly
     end
 end
@@ -872,7 +873,7 @@ Calls `git remote show \$(remotename)` to try to determine the main (development
 of the remote repository. Returns `master` and prints a warning if it was unable to figure
 it out automatically.
 
-`root` is the the directory where `git` gets run. `varname` is just informational and used
+`root` is the directory where `git` gets run. `varname` is just informational and used
 to construct the warning messages.
 """
 function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")

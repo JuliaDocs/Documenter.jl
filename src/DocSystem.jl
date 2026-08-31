@@ -337,7 +337,7 @@ APIStatus(binding::Docs.Binding) = APIStatus(binding.mod, binding.var)
 
 """
 This error message is reused in duplicate docstring warnings when we detect
-the case when a duplicate docstring in a non-explored public name.
+the case where a duplicate docstring comes from a public but unexported name.
 """
 function public_unexported_msg(apistatus::APIStatus)
     return if apistatus.ispublic && !apistatus.isexported

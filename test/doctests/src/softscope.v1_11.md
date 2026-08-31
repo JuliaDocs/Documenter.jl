@@ -4,7 +4,7 @@ Julia 1.5's REPL softscope
 julia> s = 0 # global
 0
 
-julia> for i = 1:10
+julia> for i in 1:10
            t = s + i # new local `t`
            s = t # assign global `s`
        end

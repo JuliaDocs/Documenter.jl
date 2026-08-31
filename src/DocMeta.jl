@@ -36,6 +36,10 @@ const VALIDMETA = Dict{Symbol, Type}(
 )
 
 """
+    initdocmeta!(m::Module)
+
+Create the documentation metadata dictionary in module `m` if it does not exist yet, and
+return it. Warns and returns the existing dictionary if `m` already has one.
 """
 function initdocmeta!(m::Module)
     if !invokelatest(isdefined, m, META)
@@ -58,7 +62,7 @@ metadata values, [`DocMeta.setdocmeta!`](@ref) should be used instead.
 getdocmeta(m::Module) = invokelatest(isdefined, m, META) ? invokelatest(getfield, m, META) : METATYPE()
 
 """
-    getdocmeta(m::Module, key::Symbol, default=nothing)
+    getdocmeta(m::Module, key::Symbol, default = nothing)
 
 Return the `key` entry from the documentation metadata for module `m`, or `default` if the
 value is unset.
@@ -66,7 +70,7 @@ value is unset.
 getdocmeta(m::Module, key::Symbol, default = nothing) = get(getdocmeta(m), key, default)
 
 """
-    setdocmeta!(m::Module, key::Symbol, value; recursive=false, warn=true)
+    setdocmeta!(m::Module, key::Symbol, value; recursive = false, warn = true)
 
 Set the documentation metadata value `key` for module `m` to `value`.
 
