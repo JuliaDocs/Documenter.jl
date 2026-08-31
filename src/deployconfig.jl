@@ -73,15 +73,17 @@ function _decode_key_content(keycontent)
 end
 
 """
-    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl,
-                             tag_prefix, kwargs...)
+    Documenter.deploy_folder(
+        cfg::DeployConfig; repo, devbranch, push_preview, devurl,
+        tag_prefix, kwargs...
+    )
 
 Return a `DeployDecision`.
 This function is called with the `repo`, `devbranch`, `push_preview`, `tag_prefix`,
 and `devurl` arguments from [`deploydocs`](@ref).
 
 !!! note
-    Implementations of this functions should accept trailing `kwargs...` for
+    Implementations of this function should accept trailing `kwargs...` for
     compatibility with future Documenter releases which may pass additional
     keyword arguments.
 """
@@ -131,7 +133,7 @@ env_nonempty(key) = !isempty(get(ENV, key, ""))
 
 Default implementation of `DeployConfig`.
 
-The following environment variables influences the build
+The following environment variables influence the build
 when using the `Travis` configuration:
 
  - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the repository.
@@ -297,10 +299,7 @@ end
 
 Implementation of `DeployConfig` for deploying from GitHub Actions.
 
-For self-hosted GitHub installation use the `GitHubActions(pages_url)` constructor
-to specify the URL to the GitHub pages location.
-
-The following environment variables influences the build
+The following environment variables influence the build
 when using the `GitHubActions` configuration:
 
  - `GITHUB_EVENT_NAME`: must be set to `push`, `workflow_dispatch`, or `schedule`.
@@ -314,12 +313,6 @@ when using the `GitHubActions` configuration:
  - `GITHUB_TOKEN` or `DOCUMENTER_KEY`: used for authentication with GitHub,
    see the manual section for [GitHub Actions](@ref) for more information.
 
- - `GITHUB_API_URL`: specifies the GitHub API URL, which generally is `https://api.github.com`,
-   but may be different for self-hosted GitHub instances.
-
- - `GITHUB_ACTOR`: name of the person or app that initiated the workflow. For
-   example, `octocat`. This is used to construct API calls.
-
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
 [documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/variables#default-environment-variables).
 """
@@ -327,48 +320,12 @@ struct GitHubActions <: DeployConfig
     github_repository::String
     github_event_name::String
     github_ref::String
-    github_host::String
-    github_api::String
-    github_pages_url::String
 end
-
 function GitHubActions()
-    # Try to deduce GitHub Pages URL using GitHub API
-    github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
-    github_api = get(ENV, "GITHUB_API_URL", "") # https://api.github.com
-    github_token = get(ENV, "GITHUB_TOKEN", "")
-
-    try
-        # Construct the curl call
-        cmd = `curl -s`
-        push!(cmd.exec, "-H", "Authorization: token $(github_token)")
-        push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
-        push!(cmd.exec, "--fail")
-        push!(cmd.exec, "$(github_api)/repos/$(github_repository)/pages")
-
-        # Run the command (silently)
-        response = run_and_capture(cmd)
-        response = JSON.parse(response.stdout)
-
-        return GitHubActions(response["html_url"])
-    catch
-        @warn "Unable to deduce GitHub Pages URL using GitHub API; falling back guess from the repository name."
-        parts = split(github_repository, "/")
-        if length(parts) == 2
-            owner, repo = parts
-            return GitHubActions("https://$(owner).github.io/$(repo)/")
-        else
-            error("Can not construct GitHubActions - GitHub API failed and ENV['GITHUB_REPOSITORY'] is malformed")
-        end
-    end
-end
-
-function GitHubActions(pages_url)
     github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
     github_event_name = get(ENV, "GITHUB_EVENT_NAME", "") # "push", "pull_request" or "cron" (?)
     github_ref = get(ENV, "GITHUB_REF", "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
-    github_api = get(ENV, "GITHUB_API_URL", "") # https://api.github.com
-    return GitHubActions(github_repository, github_event_name, github_ref, Remotes.github_host(), github_api, pages_url)
+    return GitHubActions(github_repository, github_event_name, github_ref)
 end
 
 # Check criteria for deployment
@@ -438,7 +395,7 @@ function deploy_folder(
         all_ok &= pr_ok
         println(io, "- $(marker(pr_ok)) ENV[\"GITHUB_REF\"] corresponds to a PR number")
         if pr_ok
-            pr_origin_matches_repo = verify_github_pull_repository(cfg, pr_number)
+            pr_origin_matches_repo = verify_github_pull_repository(cfg.github_repository, pr_number)
             all_ok &= pr_origin_matches_repo
             println(io, "- $(marker(pr_origin_matches_repo)) PR originates from the same repository")
         end
@@ -497,7 +454,7 @@ end
 
 authentication_method(::GitHubActions) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
 function authenticated_repo_url(cfg::GitHubActions)
-    return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@$(cfg.github_host)/$(cfg.github_repository).git"
+    return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
 
 function version_tag_strip_build(tag; tag_prefix = "")
@@ -514,7 +471,7 @@ function version_tag_strip_build(tag; tag_prefix = "")
     return "$s0$s1$s2$s3$s4"
 end
 
-function post_status(gha::GitHubActions; type, subfolder = nothing, kwargs...)
+function post_status(gha::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
     try # make this non-fatal and silent
         # If we got this far it usually means everything is in
         # order so no need to check everything again.
@@ -534,20 +491,21 @@ function post_status(gha::GitHubActions; type, subfolder = nothing, kwargs...)
             sha = get(ENV, "GITHUB_SHA", nothing)
         end
         sha === nothing && return
-        return post_github_status(gha, type, sha, subfolder)
-    catch e
-        @debug "Failed to post status" exception = e
+        return post_github_status(type, gha.github_repository, repo, sha, subfolder)
+    catch
+        @debug "Failed to post status"
     end
 end
 
-function post_github_status(gha::GitHubActions, type::S, sha::S, subfolder = nothing) where {S <: String}
+function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
     try
-        if Sys.which("curl") === nothing
-            @warn "curl not found in PATH, cannot post status"
-            return
-        end
+        Sys.which("curl") === nothing && return
         ## Extract owner and repository names
-        source_owner, source_repo = split(gha.github_repository, '/')
+        source_owner, source_repo = split(source, '/')
+        m = match(r"^github.com\/(.+?)\/(.+?)(.git)?$", deploydocs_repo)
+        m === nothing && return
+        deploy_owner = String(m.captures[1])
+        deploy_repo = String(m.captures[2])
 
         ## Need an access token for this
         auth = get(ENV, "GITHUB_TOKEN", nothing)
@@ -562,9 +520,9 @@ function post_github_status(gha::GitHubActions, type::S, sha::S, subfolder = not
             json["description"] = "Documentation build in progress"
         elseif type == "success"
             json["description"] = "Documentation build succeeded"
-            target_url = gha.github_pages_url
-            if !isempty(target_url) && subfolder !== nothing
-                target_url = rstrip(target_url, '/') * "/$(subfolder)/"
+            target_url = "https://$(deploy_owner).github.io/$(deploy_repo)/"
+            if subfolder !== nothing
+                target_url *= "$(subfolder)/"
             end
             json["target_url"] = target_url
         elseif type == "error"
@@ -575,19 +533,18 @@ function post_github_status(gha::GitHubActions, type::S, sha::S, subfolder = not
             error("unsupported type: $type")
         end
         push!(cmd.exec, "-d", JSON.json(json))
-        push!(cmd.exec, "$(gha.github_api)/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
+        push!(cmd.exec, "https://api.github.com/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
         res = run(pipeline(cmd; stdout = io, stderr = devnull))
         @debug "Response of curl POST request" response = String(take!(io))
-    catch e
-        @debug "Failed to post status" exception = e
+    catch
+        @debug "Failed to post status"
     end
     return nothing
 end
 
-function verify_github_pull_repository(cfg::GitHubActions, prnr)
-    repo = cfg.github_repository
+function verify_github_pull_repository(repo, prnr)
     github_token = get(ENV, "GITHUB_TOKEN", nothing)
     if github_token === nothing
         @warn "GITHUB_TOKEN is missing, unable to verify if PR comes from destination repository -- assuming it doesn't."
@@ -598,7 +555,7 @@ function verify_github_pull_repository(cfg::GitHubActions, prnr)
     push!(cmd.exec, "-H", "Authorization: token $(github_token)")
     push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
     push!(cmd.exec, "--fail")
-    push!(cmd.exec, "$(cfg.github_api)/repos/$(repo)/pulls/$(prnr)")
+    push!(cmd.exec, "https://api.github.com/repos/$(repo)/pulls/$(prnr)")
     try
         # Run the command (silently)
         response = run_and_capture(cmd)
@@ -796,7 +753,7 @@ The following environment variables influence the build when using the
 
  - `BUILDKITE_TAG`: The commit tag name. Present only when building tags.
 
-The `BUILDKITE_*` variables are set automatically on GitLab. More information on how
+The `BUILDKITE_*` variables are set automatically on Buildkite. More information on how
 Buildkite sets the `BUILDKITE_*` variables can be found in the
 [Buildkite documentation](https://buildkite.com/docs/pipelines/configure/environment-variables).
 """
@@ -938,35 +895,35 @@ Implementation of `DeployConfig` for deploying from Woodpecker CI.
 
 ## Woodpecker 1.0.0 and onwards
 
-The following environmental variables are built-in from the Woodpecker pipeline
-influences how `Documenter` works.
+The following environment variables are built in to the Woodpecker pipeline and
+influence how `Documenter` works.
 
- - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
- - `CI_PIPELINE_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
+ - `CI_REPO`: must match the full name of the repository, `<owner>/<name>`, e.g. `JuliaDocs/Documenter.jl`
+ - `CI_PIPELINE_EVENT`: must be set to `push`, `tag`, `pull_request`, or `deployment`
  - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
- - `CI_COMMIT_TAG`: must match to a tag.
+ - `CI_COMMIT_TAG`: must match a tag.
  - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
- - `CI_FORGE_URL`: env var to build the url to be used for authentication.
+ - `CI_FORGE_URL`: used to build the URL for authentication.
 
 ## Woodpecker 0.15.x and pre-1.0.0
 
-The following environmental variables are built-in from the Woodpecker pipeline
-influences how `Documenter` works:
- - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
+The following environment variables are built in to the Woodpecker pipeline and
+influence how `Documenter` works:
+ - `CI_REPO`: must match the full name of the repository, `<owner>/<name>`, e.g. `JuliaDocs/Documenter.jl`
  - `CI_REPO_LINK`: must match the full link to the project repo
- - `CI_BUILD_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
+ - `CI_BUILD_EVENT`: must be set to `push`, `tag`, `pull_request`, or `deployment`
  - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
- - `CI_COMMIT_TAG`: must match to a tag.
+ - `CI_COMMIT_TAG`: must match a tag.
  - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
-## Documenter Specific Environmental Variables
+## Documenter-Specific Environment Variables
 
  - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
    repository. This variable should be somehow set in the CI environment, e.g.,
    provisioned by an agent environment plugin.
 
-Lastly, another environment-variable used for authentication is
-the `PROJECT_ACCESS_TOKEN` which is an access token you defined by
-the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea
+Lastly, another environment variable used for authentication is
+`PROJECT_ACCESS_TOKEN`, which is an access token you define on
+the forge you use, e.g. GitHub, GitLab, Codeberg, and other Gitea
 instances. Check their documentation on how to create an access token.
 This access token should be then added as a secret as documented in
 <https://woodpecker-ci.org/docs/usage/secrets>.
@@ -1027,8 +984,8 @@ end
 """
     Woodpecker()
 
-Initialize woodpecker environment-variables. Further info of
-environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
+Initialize Woodpecker environment variables. Further info on the
+environment variables used is at <https://woodpecker-ci.org/docs/usage/environment>
 """
 function Woodpecker()
     m = match(r"(next)?-*", ENV["CI_SYSTEM_VERSION"])
@@ -1040,9 +997,9 @@ function Woodpecker()
         woodpecker_ci_version = VersionNumber(ENV["CI_SYSTEM_VERSION"])
         @warn "Current Woodpecker version is $(woodpecker_ci_version). Make sure this is correct."
         if ENV["CI"] == "drone" && (v"1.0.0" > VersionNumber(ENV["CI_SYSTEM_VERSION"]) >= v"0.15.0")
-            @warn """Woodpecker prior version 1.0.0 is backward compatible to Drone
+            @warn """Woodpecker prior to version 1.0.0 is backward compatible with Drone
             but *there will be breaking changes in the future*. Please update
-            to a newer version """
+            to a newer version."""
         end
     end
 

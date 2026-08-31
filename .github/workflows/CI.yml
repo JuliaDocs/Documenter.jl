@@ -106,6 +106,8 @@ jobs:
             transparent
             upquote
             tabulary
+            ltablex
+            xltabular
             tcolorbox
       - uses: julia-actions/setup-julia@v3
         with:
@@ -316,7 +318,7 @@ jobs:
         with:
           version: '1'
       - run: make install-biome
-      - run: make format-js
+      - run: make check-js
 
   runic:
     name: "Runic (Julia code formatting)"
@@ -325,11 +327,13 @@ jobs:
       - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
-          version: '1.11'
+          version: '1.12'
       - uses: julia-actions/cache@v3
       - uses: fredrikekre/runic-action@v1
         with:
-          version: '1.2'
+          version: '1.7'
+          docstrings: true
+          extensions: 'jl,md'
 
   typos:
     name: Spell Check with Typos

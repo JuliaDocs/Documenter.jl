@@ -60,6 +60,11 @@ function expand(doc::Documenter.Document)
             Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
             expand_recursively(node, page, doc)
         end
+        # Register arbitrary `[content](@id name)` anchors. This runs after the per-node
+        # expansion above (so header `@id` links have already been consumed by TrackHeaders)
+        # and, crucially, before the CrossReferences pipeline stage, so that `@ref`s to these
+        # anchors — including forward references to later pages — can be resolved.
+        collect_named_anchors!(page, doc)
         pagecheck(doc, page)
         clear_modules!(page.globals.meta)
     end
@@ -237,7 +242,7 @@ module Expanders
     """
     Parses each code block where the language is `@contents` and replaces it with a nested list
     of all `Header` nodes in the generated document. The pages and depth of the list can be set
-    using `Pages = [...]` and `Depth = N` where `N` is and integer.
+    using `Pages = [...]` and `Depth = N` where `N` is an integer.
 
     ````markdown
     ```@contents
@@ -331,7 +336,7 @@ function Selectors.runner(::Type{Expanders.TrackHeaders}, node, page, doc)
         link_node = first(node.children)
         MarkdownAST.unlink!(link_node)
         append!(node.children, link_node.children)
-        text = match(NAMEDHEADER_REGEX, link_node.element.destination)[1]
+        text = match(NAMED_ANCHOR_REGEX, link_node.element.destination)[1]
     else
         # TODO: remove this hack (replace with mdflatten?)
         ast = MarkdownAST.@ast MarkdownAST.Document() do
@@ -342,7 +347,7 @@ function Selectors.runner(::Type{Expanders.TrackHeaders}, node, page, doc)
     end
     slug = Documenter.slugify(text)
     # Add the header to the document's header map.
-    anchor = Documenter.anchor_add!(doc.internal.headers, header, slug, page.build)
+    anchor = Documenter.anchor_add!(doc.internal.anchors, header, slug, page.build)
     # Create an AnchoredHeader node and push the
     ah = MarkdownAST.Node(Documenter.AnchoredHeader(anchor))
     anchor.node = ah
@@ -1117,16 +1122,50 @@ iscode(x::MarkdownAST.CodeBlock, r::Regex) = occursin(r, x.info)
 iscode(x::MarkdownAST.CodeBlock, lang) = x.info == lang
 iscode(x, lang) = false
 
-const NAMEDHEADER_REGEX = r"^@id (.+)$"
+# Matches the destination of an `@id` link, both for named headers (`# [H](@id name)`,
+# handled by TrackHeaders) and for inline anchors on arbitrary content (handled by
+# collect_named_anchors!).
+const NAMED_ANCHOR_REGEX = r"^@id (.+)$"
 
 function namedheader(node::Node)
     @assert node.element isa MarkdownAST.Heading
     if length(node.children) == 1 && first(node.children).element isa MarkdownAST.Link
         url = first(node.children).element.destination
-        return occursin(NAMEDHEADER_REGEX, url)
+        return occursin(NAMED_ANCHOR_REGEX, url)
     else
         return false
     end
+end
+
+# Walk the whole page tree and turn every `[content](@id name)` link on non-header content
+# into an `AnchoredInline`, registering the anchor in `doc.internal.anchors`. Sharing that
+# AnchorMap with headers gives all `@id` anchors a single id namespace (so collisions are
+# caught by the existing uniqueness checks), lets them resolve through the existing `@ref`
+# header pipeline, and gets them written to the `objects.inv` inventory automatically.
+function collect_named_anchors!(page, doc)
+    for node in AbstractTrees.PreOrderDFS(page.mdast)
+        node.element isa MarkdownAST.Link || continue
+        m = match(NAMED_ANCHOR_REGEX, node.element.destination)
+        isnothing(m) && continue
+        # Links that are the sole child of a Heading are header anchors, handled (and removed
+        # from the tree) by TrackHeaders; guard against re-registering one here.
+        parent = node.parent
+        if !isnothing(parent) && parent.element isa MarkdownAST.Heading && length(parent.children) == 1
+            continue
+        end
+        # Slugify the id exactly as TrackHeaders does for named headers, so that inline and
+        # header `@id` anchors share identical id semantics (and never emit an invalid HTML
+        # id, e.g. one containing spaces).
+        id = Documenter.slugify(String(m[1]))
+        # The anchor and the element carrying it are mutually referential, so the anchor is
+        # registered with no object and told about the AnchoredInline once that exists.
+        anchor = Documenter.anchor_add!(doc.internal.anchors, nothing, id, page.build)
+        element = Documenter.AnchoredInline(anchor)
+        anchor.object = element
+        node.element = element
+        anchor.node = node
+    end
+    return
 end
 
 # Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.

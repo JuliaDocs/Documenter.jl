@@ -112,7 +112,7 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
 
         success, name, d = parse_codeblock_args(
             "jldoctest", block, ctx.doc, source;
-            allowed_kwargs = [:setup, :teardown, :filter, :syntax],
+            allowed_kwargs = [:setup, :teardown, :filter, :syntax, :output],
         )
         success || return false
 
@@ -583,7 +583,7 @@ function repl_splitter(code, doc::Documenter.Document, file, src_lines)
             @docerror(
                 doc, :doctest,
                 """
-                Unable to to evaluate doctest in $(Documenter.locrepr(file, src_lines))
+                Unable to evaluate doctest in $(Documenter.locrepr(file, src_lines))
                 No empty lines are allowed before first `julia>` prompt.
 
                 ```jldoctest
@@ -611,7 +611,7 @@ function repl_splitter(code, doc::Documenter.Document, file, src_lines)
                 @docerror(
                     doc, :doctest,
                     """
-                    Unable to to evaluate doctest in $(Documenter.locrepr(file, src_lines))
+                    Unable to evaluate doctest in $(Documenter.locrepr(file, src_lines))
                     Consecutive `julia>` prompts must be separated by an empty line.
 
                     ```jldoctest

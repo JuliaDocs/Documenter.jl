@@ -51,7 +51,7 @@ The deployment procedure consists of the following steps:
 * Generate `index.html`, and `versions.js` in the `branch` root and
   `siteinfo.js` in the deployment directory.
 * Add all files on the deployment `branch` (`git add -A .`), commit them, and
-  push the `repo`. Note that any `.gitignore` files in the `target` directory
+  push to the `repo`. Note that any `.gitignore` files in the `target` directory
   affect which files will be committed to `branch`.
 
 !!! note
@@ -104,10 +104,10 @@ used to generate the `CNAME` file, which has a higher priority than the GitHub P
 documentation. By default Documenter tries to figure this out using `git`. Can be set
 explicitly as a string (typically `"master"` or `"main"`).
 
-**`devurl`** the folder that in-development version of the docs will be deployed.
+**`devurl`** is the folder to which the in-development version of the docs will be deployed.
 Defaults to `"dev"`.
 
-**`forcepush`** a boolean that specifies the behavior of the git-deployment.
+**`forcepush`** is a boolean that specifies the behavior of the git-deployment.
 The default (`forcepush = false`) is to push a new commit, but when
 `forcepush = true` the changes will be combined with the previous commit and
 force pushed (with lease), erasing the Git history on the deployment branch.
@@ -135,9 +135,9 @@ used when the documentation is deployed to a dedicated "docs hosting repository"
 to avoid issues with the main repository's `gh-pages` branch getting too large. The
 expected format of the argument is the same as for `repo`.
 
-**`push_preview`** a boolean that specifies if preview documentation should be
+**`push_preview`** is a boolean that specifies if preview documentation should be
 deployed from pull requests or not. If your published documentation is hosted
-at `"https://USER.github.io/PACKAGE.jl/stable`, by default the preview will be
+at `"https://USER.github.io/PACKAGE.jl/stable"`, by default the preview will be
 hosted at `"https://USER.github.io/PACKAGE.jl/previews/PR##"`. This feature
 works for pull requests with head branch in the same repository, i.e. not from
 forks.
@@ -194,18 +194,28 @@ GitHub.
 function deploydocs(;
         root = currentdir(),
         target = "build",
-        dirname = "", repo = error("no 'repo' keyword provided."),
+        dirname = "",
+
+        repo = error("no 'repo' keyword provided."),
         branch = "gh-pages",
-        deploy_repo = nothing, repo_previews = nothing,
-        branch_previews = branch, deps = nothing,
-        make = nothing, cname = nothing,
+        deploy_repo = nothing,
+
+        repo_previews = nothing,
+        branch_previews = branch,
+
+        deps = nothing,
+        make = nothing,
+
+        cname = nothing,
         devbranch = nothing,
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview::Bool = false,
-        tag_prefix = "", archive = nothing, # experimental and undocumented
+        tag_prefix = "",
+
+        archive = nothing, # experimental and undocumented
     )
 
     # Try to figure out default branch (see #1443 and #1727)
@@ -346,13 +356,13 @@ end
 """
     git_push(
         root, tmp, repo;
-        branch="gh-pages", dirname="", target="site", sha="",
-        cname=nothing, devurl="dev",
+        branch = "gh-pages", dirname = "", target = "site", sha = "",
+        cname = nothing, devurl = "dev",
         deploy_config, subfolder
     )
 
 Handles pushing changes to the remote documentation branch.
-The documentation are placed in the folder specified by `subfolder`.
+The documentation is placed in the folder specified by `subfolder`.
 """
 function git_push(
         root, temp, repo;
@@ -483,10 +493,10 @@ function git_push(
                     cd(() -> git_commands(sshconfig), temp)
                 end
             end
-            post_status(deploy_config; type = "success", subfolder = subfolder)
+            post_status(deploy_config; repo = repo, type = "success", subfolder = subfolder)
         catch e
             @error "Failed to push:" exception = (e, catch_backtrace())
-            post_status(deploy_config; type = "error")
+            post_status(deploy_config; repo = repo, type = "error")
             rethrow(e)
         finally
             # Remove the unencrypted private key.
@@ -497,10 +507,10 @@ function git_push(
         upstream = authenticated_repo_url(deploy_config)
         try
             cd(() -> withenv(git_commands, NO_KEY_ENV...), temp)
-            post_status(deploy_config; type = "success", subfolder = subfolder)
+            post_status(deploy_config; repo = repo, type = "success", subfolder = subfolder)
         catch e
             @error "Failed to push:" exception = (e, catch_backtrace())
-            post_status(deploy_config; type = "error")
+            post_status(deploy_config; repo = repo, type = "error")
             rethrow(e)
         end
     end
@@ -616,7 +626,7 @@ end
     gitrm_copy(src, dst)
 
 Uses `git rm -r` to remove `dst` and then copies `src` to `dst`. Assumes that the working
-directory is within the git repository of `dst` is when the function is called.
+directory is within the git repository of `dst` when the function is called.
 
 This is to get around [#507](https://github.com/JuliaDocs/Documenter.jl/issues/507) on
 filesystems that are case-insensitive (e.g. on OS X, Windows). Without doing a `git rm`

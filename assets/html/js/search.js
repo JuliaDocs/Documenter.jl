@@ -67,7 +67,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    "https://cdn.jsdelivr.net/npm/minisearch@__MINISEARCH_VERSION__/dist/umd/index.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/minisearch/__MINISEARCH_VERSION__/umd/index.min.js",
   );
 
   let data = documenterSearchIndex.map((x, key) => {

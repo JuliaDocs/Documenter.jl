@@ -3,12 +3,11 @@ Types and functions for handling repository remotes.
 """
 module Remotes
 
-using URIs: URI
 """
     abstract type Remote
 
 Abstract supertype for implementing additional remote repositories that Documenter can use
-when generating links to files hosted on Git hosting service (such as GitHub, GitLab etc).
+when generating links to files hosted on a Git hosting service (such as GitHub, GitLab etc).
 For custom or less common Git hosting services, the user can create their own `Remote`
 subtype and pass that as the `repo` argument to [`makedocs`](@ref `Main.Documenter.makedocs`).
 
@@ -40,7 +39,7 @@ An internal Documenter function that **must** be extended when implementing a us
 [`Remote`](@ref). Should return the full remote URL to the source file `filename`,
 optionally including the line numbers.
 
-* **`ref`** is string containing the Git reference, such as a commit SHA, branch name or a tag
+* **`ref`** is a string containing the Git reference, such as a commit SHA, branch name or a tag
   name.
 
 * **`filename`** is a string containing the full path of the file in the repository without any
@@ -89,7 +88,7 @@ function issueurl end
 issueurl(::Remote, ::Any) = nothing
 
 """
-    repofile(remote::Remote, ref, filename, linerange=nothing)
+    repofile(remote::Remote, ref, filename, linerange = nothing)
 
 Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
 to the potentially user-defined `fileurl` implementations.
@@ -97,52 +96,15 @@ to the potentially user-defined `fileurl` implementations.
 function repofile(remote::Remote, ref, filename, linerange = nothing)
     # sanitize the file name
     filename = replace(filename, '\\' => '/') # remove backslashes on Windows
-    filename = lstrip(filename, '/') # remove leading spaces
+    filename = lstrip(filename, '/') # remove leading slashes
     # Only pass UnitRanges to user code (even though we require the users to support any
     # collection supporting first/last).
     return fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
 end
 
 """
-    parse_url(url)
-
-Return tuple with values `authority` and `path` fragments of the given URL string.
-This function is not strictly following URI specification as it will parse "github.com/user/repo" into `("github.com", "/user/repo")`
-    returning authority even if scheme is missing.
-"""
-function parse_url(url)::Tuple{String, String}
-    if contains(url, "://") == false
-        url = "https://$(url)"
-    end
-    u = URI(url)
-
-    authority = u.host
-    if u.userinfo != ""
-        authority = "$(u.userinfo)@$(authority)"
-    end
-
-    if u.port != ""
-        authority = "$(authority):$(u.port)"
-    end
-    return (authority, u.path)
-end
-
-"""
-    github_host()
-
-Returns hostname of the GitHub installation where this code is running on at the moment.
-This is derived from the `ENV[GITHUB_SERVER_URL]` variable which is set in every GitHub Actions workflow.
-If this variable is not set, return "github.com".
-"""
-function github_host()
-    haskey(ENV, "GITHUB_SERVER_URL") || return "github.com"
-    url = ENV["GITHUB_SERVER_URL"]
-    return parse_url(url)[1]
-end
-
-"""
-    GitHub(user :: AbstractString, repo :: AbstractString, [host :: AbstractString])
-    GitHub(remote :: AbstractString)
+    GitHub(user::AbstractString, repo::AbstractString)
+    GitHub(remote::AbstractString)
 
 Represents a remote Git repository hosted on GitHub. The repository is identified by the
 names of the user (or organization) and the repository: `GitHub(user, repository)`. E.g.:
@@ -155,28 +117,16 @@ makedocs(
 
 The single-argument constructor assumes that the user and repository parts are separated by
 a slash (e.g. `JuliaDocs/Documenter.jl`).
-
-A `host` can be provided to point to the location of the self-hosted GitHub installation.
 """
 struct GitHub <: Remote
     user::String
     repo::String
-    host::String
-
-    GitHub(user::AbstractString, repo::AbstractString, host::AbstractString = github_host()) = new(user, repo, host)
 end
 function GitHub(remote::AbstractString)
-    url_authority, url_path = parse_url(remote)
-    path = url_path[1] == '/' ? url_path[2:end] : url_path
-
-    if occursin("/", path)
-        user, repo = split(path, "/")
-        return GitHub(user, repo, url_authority)
-    else
-        return GitHub(url_authority, path)
-    end
+    user, repo = split(remote, '/')
+    return GitHub(user, repo)
 end
-repourl(remote::GitHub) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
+repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)
     url = "$(repourl(remote))/blob/$(ref)/$(filename)"
     isnothing(linerange) && return url
@@ -200,7 +150,7 @@ makedocs(
 )
 ```
 
-The single argument constructor assumes that the end user and
+The single argument constructor assumes that the user and
 repository parts are separated by a slash (e.g.,
 `JuliaDocs/Documenter.jl`).
 """
@@ -238,7 +188,7 @@ makedocs(
 )
 ```
 
-The single argument constructor assumes that the host, end user and
+The single argument constructor assumes that the host, user and
 repository parts are separated by a slash (e.g.,
 `codeberg.org/JuliaDocs/Documenter.jl`).
 """
@@ -274,7 +224,7 @@ issueurl(
 # Handling of URL string templates (deprecated, for backwards compatibility)
 #
 """
-    URL(urltemplate, repourl=nothing)
+    URL(urltemplate, repourl = nothing)
 
 A [`Remote`](@ref) type used internally in Documenter when the user passes a URL template
 string as the `repo` argument. Will return `nothing` from `repourl` if the optional
@@ -314,8 +264,6 @@ function fileurl(remote::URL, ref, filename, linerange)
     hosttype = repo_host_from_url(remote.urltemplate)
     lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(hosttype))
     ref = format_commit(ref, hosttype)
-    # lines = if linerange !== nothing
-    # end
     s = replace(remote.urltemplate, "{commit}" => ref)
     # template strings assume that {path} has a leading / whereas filename does not
     s = replace(s, "{path}" => "/$(filename)")

@@ -15,7 +15,7 @@ the docs you're currently reading.
     documentation locally with Documenter.
 
     This guide assumes that you already have [GitHub](https://github.com/) and
-    [Travis](https://www.travis-ci.com/) accounts setup. If not then go set those up first and
+    [Travis](https://www.travis-ci.com/) accounts set up. If not then go set those up first and
     then return here.
 
     It is possible to deploy from other systems than Travis CI or GitHub Actions,
@@ -57,6 +57,7 @@ on:
       - master # update to match your development branch (master, main, dev, trunk, ...)
     tags: '*'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -70,11 +71,11 @@ jobs:
       statuses: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v2
+      - uses: actions/checkout@v7
+      - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Install dependencies
         shell: julia --color=yes --project=docs {0}
         run: |
@@ -105,7 +106,7 @@ see the previous section.
     In order to deploy documentation for **tagged versions**, the GitHub Actions workflow
     needs to be triggered by the tag. However, by default, when the [Julia TagBot](https://github.com/marketplace/actions/julia-tagbot)
     uses just the `GITHUB_TOKEN` for authentication, it does not have the permission to trigger
-    any further workflows jobs, and so the documentation CI job never runs for the tag.
+    any further workflow jobs, and so the documentation CI job never runs for the tag.
 
     To work around that, TagBot should be [configured to use `DOCUMENTER_KEY`](https://github.com/marketplace/actions/julia-tagbot#ssh-deploy-keys)
     for authentication, by adding `ssh: ${{ secrets.DOCUMENTER_KEY }}` to the `with` section.
@@ -139,29 +140,134 @@ When running from GitHub Actions it is possible to authenticate using
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
+to the configuration file, as shown in the [previous section](@ref GitHub-Actions).
 
 !!! note
     You can only use `GITHUB_TOKEN` for authentication if the target repository
     of the deployment is the same as the current repository. In order to push
-    elsewhere you should instead use a SSH deploy key.
+    elsewhere you should instead use an SSH deploy key.
 
-### Authentication: SSH Deploy Keys
+### [Authentication: SSH Deploy Keys](@id ssh-deploy-keys)
 
-It is also possible to authenticate using a SSH deploy key, just as described in
-the [SSH Deploy Keys section for Travis CI](@ref travis-ssh). You can generate the
-key in the same way, and then set the encoded key as a secret environment variable
-in your repository settings. You also need to make the key available for the doc
-building workflow by adding
+Instead of `GITHUB_TOKEN`, deployment can be authenticated with an SSH deploy key.
+A deploy key grants push access to a *single* repository, and, unlike `GITHUB_TOKEN`,
+it can point at a repository other than the one running the workflow (see
+[Out-of-repo deployment](@ref)).
+
+The key pair is generated with `DocumenterTools.genkeys` from the
+[DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl) package:
+
+```julia-repl
+pkg> add DocumenterTools
+
+julia> using DocumenterTools
+
+julia> DocumenterTools.genkeys(user = "MyUser", repo = "MyPackage.jl")
+```
+
+If the package is checked out in development mode with `] dev MyPackage`, the
+repository can also be inferred from the package itself:
+
+```julia-repl
+julia> using MyPackage
+
+julia> DocumenterTools.genkeys(MyPackage)
+```
+
+The output looks similar to this:
+
+```
+[ Info: Add the key below as a new 'Deploy key' on GitHub
+  (https://github.com/USER/REPO/settings/keys) with read and write access. [...]
+
+[SSH PUBLIC KEY HERE]
+
+[ Info: Add a secure 'Repository secret' named 'DOCUMENTER_KEY' (to
+  https://github.com/USER/REPO/settings/secrets if you deploy using GitHub Actions)
+  with value:
+
+[LONG BASE64 ENCODED PRIVATE KEY]
+```
+
+!!! note
+
+    You will need several command line programs (`which`, `git` and `ssh-keygen`) to be
+    installed for the above to work. If DocumenterTools fails, see the
+    [SSH Deploy Keys Walkthrough](@ref) section for instructions on how to generate the keys
+    manually (including on Windows).
+
+The two halves of the key pair go to two different places in the GitHub settings.
+GitHub reorganizes these pages every so often; the paths below are the ones in the
+current UI, and the direct URLs are stable.
+
+#### Step 1: add the public key as a deploy key
+
+Go to **Settings** → **Deploy keys** (in the **Security** section of the sidebar) of the
+repository the documentation is deployed **to**, i.e.
+`https://github.com/USER/REPO/settings/keys`, and click **`Add deploy key`**:
+
+* **`Title`**: e.g. `documenter` (can be left empty, GitHub then infers it from the key comment).
+* **`Key`**: the public key from the `genkeys` output.
+* **`Allow write access`**: must be **checked**, otherwise Documenter cannot push.
+
+#### Step 2: add the private key as a repository secret
+
+Go to **Settings** → **Secrets and variables** → **Actions** of the repository the
+documentation workflow runs **in**, i.e.
+`https://github.com/USER/REPO/settings/secrets/actions`, and, on the **`Secrets`** tab,
+click **`New repository secret`**:
+
+* **`Name`**: `DOCUMENTER_KEY`
+* **`Secret`**: the base64-encoded private key from the `genkeys` output, with
+  **no whitespace** and no surrounding quotes.
+
+!!! warning "Pick the right box"
+
+    That page has several similar-looking sections, and putting the key in the wrong one is a
+    common cause of failing deployments:
+
+    * Use the **`Secrets`** tab, not the **`Variables`** tab. Variables are not encrypted
+      and are not exposed through `secrets.*`.
+    * Use **`Repository secrets`**, not **`Environment secrets`**. Environment secrets are
+      only visible to jobs that explicitly opt into that environment with an
+      `environment:` key, which the workflow above does not have.
+    * **`Organization secrets`** work too, if the organization grants the repository access
+      to the secret.
+
+!!! warning "Security warning"
+
+    The base64-encoded string contains the *unencrypted* private key that gives full write
+    access to the target repository, so it must be kept secret. Never print it in a build
+    log, and never merge code that exposes it.
+
+#### Step 3: pass the secret to the doc build
+
+Secrets are not automatically available to a workflow. Make the key available to the
+doc-building step by adding
 
 ```yaml
 DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 ```
 
-to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
-See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
+to the `env:` section of the configuration file, as shown in the
+[previous section](@ref GitHub-Actions). See GitHub's manual on
+[using secrets in GitHub Actions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
 for more information.
+
+!!! tip "Deployment fails with a `github-actions[bot]` permission error"
+
+    An error such as
+
+    ```
+    remote: Permission to USER/REPO.git denied to github-actions[bot].
+    fatal: unable to access 'https://github.com/USER/REPO.git/': ... error: 403
+    ```
+
+    means Documenter fell back to `GITHUB_TOKEN` because `DOCUMENTER_KEY` did not reach the
+    build. Documenter logs its deployment criteria before pushing; if that list shows
+    `ENV["GITHUB_TOKEN"] exists` rather than `ENV["DOCUMENTER_KEY"] exists`, the secret did
+    not arrive. Check that it is a repository secret (step 2) *and* that it is listed in the
+    `env:` section of the workflow (step 3).
 
 ### Permissions
 
@@ -187,7 +293,7 @@ are uploaded to Codecov:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
 ```
 
 ## Travis CI
@@ -210,7 +316,7 @@ jobs:
 
 where the `julia:` and `os:` entries decide the worker from which the docs are built and
 deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1 (the latest stable version). For more information on how to setup a build stage, see the Travis
+worker running Julia 1 (the latest stable version). For more information on how to set up a build stage, see the Travis
 manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
 The three lines in the `script:` section do the following:
@@ -226,80 +332,25 @@ The three lines in the `script:` section do the following:
 
 !!! note "matrix: section in .travis.yml"
 
-    Travis CI used to use `matrix:` as the section to configure to build matrix in the config
+    Travis CI used to use `matrix:` as the section to configure the build matrix in the config
     file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
     `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
 
-    If your `.travis.yml` file still uses `matrix:`, it should be replaced with a a single
+    If your `.travis.yml` file still uses `matrix:`, it should be replaced with a single
     `jobs:` section.
 
-### [Authentication: SSH Deploy Keys](@id travis-ssh)
+### [Authentication: SSH Deploy Keys (Travis CI)](@id travis-ssh)
 
-In order to push the generated documentation from Travis you need to add deploy keys.
-Deploy keys provide push access to a *single* repository, to allow secure deployment of
-generated documentation from the builder to GitHub. The SSH keys can be generated with
-`DocumenterTools.genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl) package.
+Travis CI also authenticates with an SSH deploy key. Generate the key pair with
+`DocumenterTools.genkeys` as described in the
+[SSH deploy key section](@ref ssh-deploy-keys) above. Only the private key is added
+elsewhere:
 
-!!! note
+ 1. Add the public ssh key as a deploy key with write access on the
+    `https://github.com/USER/REPO/settings/keys` page of the GitHub repository.
 
-    You will need several command line programs (`which`, `git` and `ssh-keygen`) to be
-    installed for the following steps to work. If DocumenterTools fails, please see the the
-    [SSH Deploy Keys Walkthrough](@ref) section for instruction on how to generate the keys
-    manually (including in Windows).
-
-
-Install and load DocumenterTools with
-
-```
-pkg> add DocumenterTools
-```
-```julia-repl
-julia> using DocumenterTools
-```
-
-Then call the [`DocumenterTools.genkeys`](@ref) function as follows:
-
-```julia-repl
-julia> using DocumenterTools
-julia> DocumenterTools.genkeys(user="MyUser", repo="MyPackage.jl")
-```
-
-where `MyPackage` is the name of the package you would like to create deploy keys for and
-`MyUser` is your GitHub username. Note that the keyword arguments are optional and can be
-omitted.
-
-If the package is checked out in development mode with `] dev MyPackage`, you can also use
-`DocumenterTools.genkeys` as follows:
-
-```julia-repl
-julia> using MyPackage
-julia> DocumenterTools.genkeys(MyPackage)
-```
-
-where `MyPackage` is the package you would like to create deploy keys for. The output will
-look similar to the text below:
-
-```
-[ Info: add the public key below to https://github.com/USER/REPO/settings/keys
-      with read/write access:
-
-[SSH PUBLIC KEY HERE]
-
-[ Info: add a secure environment variable named 'DOCUMENTER_KEY' to
-  https://travis-ci.com/USER/REPO/settings with value:
-
-[LONG BASE64 ENCODED PRIVATE KEY]
-```
-
-Follow the instructions that are printed out, namely:
-
- 1. Add the public ssh key to your settings page for the GitHub repository that you are
-    setting up by following the `.../settings/keys` link provided. Click on **`Add deploy
-    key`**, enter the name **`documenter`** as the title, and copy the public key into the
-    **`Key`** field. Check **`Allow write access`** to allow Documenter to commit the
-    generated documentation to the repo.
-
- 2. Next add the long private key to the Travis settings page using the provided link.
+ 2. Next add the long private key to the Travis settings page at
+    `https://app.travis-ci.com/USER/REPO/settings`.
     Again note that you should include **no whitespace** when copying the key. In the **`Environment
     Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
     out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
@@ -393,9 +444,9 @@ exist it will be created automatically by [`deploydocs`](@ref). If it does exist
 Documenter simply adds an additional commit with the built documentation. You should be
 aware that Documenter may overwrite existing content without warning.
 
-If you wish to create the `gh-pages` branch manually, that can be done [creating an "orphan" branch, with the `git checkout --orphan` option](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---orphanltnew-branchgt).
+If you wish to create the `gh-pages` branch manually, that can be done by [creating an "orphan" branch, with the `git checkout --orphan` option](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---orphanltnew-branchgt).
 
-You also need to make sure that you have `gh-pages branch` and `/ (root)` selected as
+You also need to make sure that you have the `gh-pages` branch and `/ (root)` selected as
 [the source of the GitHub Pages site in your GitHub repository
 settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
@@ -425,7 +476,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: gh-pages
       - name: Delete preview and history + push changes
@@ -453,9 +504,9 @@ an alternative is to give GitHub workflows write permissions under the repo sett
 
 To run a documentation build from Woodpecker CI, one should create an access token
 from their forge of choice: GitHub, GitLab, or Codeberg (or any Gitea instance).
-This access token should be added to Woodpecker CI as a secret named as
+This access token should be added to Woodpecker CI as a secret named
 `project_access_token`. The case does not matter since this will be passed as
-uppercase environment variables to your pipeline. Next, create a new pipeline
+an uppercase environment variable to your pipeline. Next, create a new pipeline
 configuration file called `.woodpecker.yml` with the following contents:
 
 - Woodpecker 0.15.x and pre-1.0.0
@@ -525,7 +576,7 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/dev
 ```
 
 !!! tip
-    If you need Documenter to maintain [a `CNAME` file](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for you can use the `cname` argument of [`deploydocs`](@ref) to specify the domain.
+    If you need Documenter to maintain [a `CNAME` file](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for you, you can use the `cname` argument of [`deploydocs`](@ref) to specify the domain.
 
 By default Documenter will create a link called `stable` that points to the latest release
 
@@ -557,7 +608,7 @@ package README files.
 
 It can happen that, for one reason or another, the documentation for a tagged version of
 your package fails to deploy and a fix would require changes to the source code (e.g. a
-misconfigured `make.jl`). However, as registered tags should not be changed, you can not
+misconfigured `make.jl`). However, as registered tags should not be changed, you cannot
 simply update the original tag (e.g. `v1.2.3`) with the fix.
 
 In this situation, you can manually create and push a tag for the commit with the fix
@@ -591,22 +642,37 @@ Preview builds are still deployed to the `previews` subfolder.
 
 ### Out-of-repo deployment
 
-Sometimes the `gh-pages` branch can become really large, either just due to a large number of commits over time, or due figures and other large artifacts.
+Sometimes the `gh-pages` branch can become really large, either just due to a large number of commits over time, or due to figures and other large artifacts.
 In those cases, it can be useful to deploy the docs in the `gh-pages` of a separate repository.
 The following steps can be used to deploy the documentation of a "source"
-repository on a "target" repo:
+repository on a "target" repo. The key pair is split across the two repositories, so it is
+worth being precise about which half goes where (see
+[Authentication: SSH Deploy Keys](@ref ssh-deploy-keys) for the exact GitHub settings pages):
 
-1. Run `DocumenterTools.genkeys()` to generate a pair of keys
-2. Add the **deploy key** to the **"target"** repository
-3. Add the `DOCUMENTER_KEY` **secret** to the **"source"** repository (that runs the documentation workflow)
+1. Run `DocumenterTools.genkeys()` to generate a pair of keys.
+2. Add the public key as a **deploy key** with write access to the **"target"** repository,
+   under **Settings** → **Deploy keys**.
+3. Add the private key as the `DOCUMENTER_KEY` **repository secret** to the **"source"**
+   repository (the one that runs the documentation workflow), under **Settings** →
+   **Secrets and variables** → **Actions**.
 4. Adapt `docs/make.jl` to deploy on "target" repository:
 
 ```julia
 deploydocs(
-  repo="github.com/SourceRepoOrg/SourceRepo",
-  deploy_repo="github.com/TargetRepoOrg/TargetRepo"
+    repo = "github.com/SourceRepoOrg/SourceRepo",
+    deploy_repo = "github.com/TargetRepoOrg/TargetRepo"
 )
 ```
+
+Note that, as for `repo`, no protocol (`https://` or `git@`) may be given in `deploy_repo`;
+a trailing `.git` is optional. Setting the `GITHUB_REPOSITORY` environment variable around
+the `deploydocs` call is *not* necessary.
+
+!!! note
+
+    Out-of-repo deployment requires SSH deploy keys. `GITHUB_TOKEN` only ever grants access
+    to the repository the workflow runs in, so a build that falls back to it fails with a
+    `Permission to TargetRepoOrg/TargetRepo.git denied to github-actions[bot]` error.
 
 ## Deploying from a monorepo
 
@@ -636,23 +702,26 @@ The three respective `make.jl` scripts should contain [`deploydocs`](@ref) setti
 
 ```julia
 # In ./docs/make.jl
-deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-            # ...any additional kwargs
-            )
+deploydocs(;
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    # ...any additional kwargs
+)
 
 # In ./PackageA.jl/docs/make.jl
-deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-             dirname="PackageA",
-             tag_prefix="PackageA-",
-             # ...any additional kwargs
-             )
+deploydocs(;
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    dirname = "PackageA",
+    tag_prefix = "PackageA-",
+    # ...any additional kwargs
+)
 
 # In ./PackageB.jl/docs/make.jl
-deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-             dirname="PackageB",
-             tag_prefix="PackageB-",
-             # ...any additional kwargs
-             )
+deploydocs(;
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    dirname = "PackageB",
+    tag_prefix = "PackageB-",
+    # ...any additional kwargs
+)
 ```
 
 To build separate docs for each package, create three **separate** buildbot configurations, one for each package. Depending on the service used, the section that calls each `make.jl` script will need to be configured appropriately, e.g.,
@@ -667,7 +736,7 @@ run: julia --project=PackageA.jl/docs/ PackageA.jl/docs/make.jl
 run: julia --project=PackageB.jl/docs/ PackageB.jl/docs/make.jl
 ```
 
-Releases of each subpackage should be tagged with that same prefix, namely `v0.3.2` (for the top-level package), `PackageA-v0.1.2`, and `PackageB-v3.2+extra_build_tags`. which will then trigger versioned documentation deployments. Similarly to [Documentation Versions](@ref), unless a custom domain is used these three separate sets of pages will be found at:
+Releases of each subpackage should be tagged with that same prefix, namely `v0.3.2` (for the top-level package), `PackageA-v0.1.2`, and `PackageB-v3.2+extra_build_tags`, which will then trigger versioned documentation deployments. Similarly to [Documentation Versions](@ref), unless a custom domain is used these three separate sets of pages will be found at:
 
 ```
 https://USER_NAME.github.io/PACKAGE_NAME.jl/vX.Y.Z
@@ -690,7 +759,7 @@ While they won't automatically reference one another, such referencing can be ad
 
 ## Deployment systems
 
-It is possible to customize Documenter to use other systems then the ones described in
+It is possible to customize Documenter to use other systems than the ones described in
 the sections above. This is done by passing a configuration
 (a [`DeployConfig`](@ref `Documenter.DeployConfig`)) to `deploydocs` by the `deploy_config`
 keyword argument. Documenter supports [`Travis`](@ref `Documenter.Travis`),

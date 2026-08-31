@@ -5,6 +5,7 @@ On the *page* (unlike in the `g` docstring) can link directly to [`AbstractSelec
 Implicit link to a header (single word): [API](@ref).
 Explicit link to a header (single word): [header link](@ref "API").
 Explicit link to a header via `@id`: [header id link](@ref api-reference).
+Explicit link to a header via multi-dash `@id`: [multi-dash id link](@ref multi-word-section-id).
 
 Implicit link to a header (multiple words): [Two words](@ref).
 Explicit link to a header (multiple words): [header link](@ref "Two words").
@@ -28,6 +29,11 @@ Implicit link to a non-existent docstring: [`foobar`](@ref).
 Explicit link to a non-existent docstring: [docstring link](@ref Main.foobar).
 Explicit link to a non-existent docstring with backticks: [docstring code link](@ref `Main.foobar`).
 
+Plain text naming a docstring is not a docstring reference: [DocsReferencingMain.f](@ref).
+Implicit link to a name that is both a header and a docstring: [DocsReferencingMain.g](@ref).
+Implicit link to a header whose title is code: [`ENVVAR`](@ref).
+Implicit link that is neither a header nor a binding: [Some-Hyphenated-Target](@ref).
+
 Conflicting header/docstring label: [conflict link](@ref DocsReferencingMain.g).
 Conflicting header/docstring label with backticks: [conflict docs link](@ref `DocsReferencingMain.g`).
 
@@ -47,8 +53,12 @@ Documenter.hide
 
 ## Two words
 
+## `ENVVAR`
+
 Something
 
 ## [Header/docstring conflict](@id DocsReferencingMain.g)
 
 Something else
+
+## [Multi-word section with dashes](@id multi-word-section-id)

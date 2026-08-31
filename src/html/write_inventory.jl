@@ -4,7 +4,7 @@ Generate the `objects.inv` inventory file.
 Write the file `objects.inv` to the root of the HTML build folder, containing an
 inventory of all linkable targets in the documentation (pages, headings, and docstrings).
 
-The `objects.inv` file is compatible with [Sphinx](https://www.sphinx-doc.org/en/master/index.html)
+The `objects.inv` file is compatible with [Sphinx](https://www.sphinx-doc.org/en/master/index.html).
 See [DocInventories](https://juliadocs.org/DocInventories.jl/stable/formats/) for a
 description. The file can be used by [Intersphinx](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html)
 and the [DocumenterInterLinks](https://github.com/JuliaDocs/DocumenterInterLinks.jl/)
@@ -41,9 +41,9 @@ function write_inventory(doc, ctx)
     domain = "std"
     role = "label"
     priority = -1
-    for name in keys(doc.internal.headers.map)
+    for name in keys(doc.internal.anchors.map)
         isempty(name) && continue  # skip empty heading
-        anchor = Documenter.anchor(doc.internal.headers, name)
+        anchor = Documenter.anchor(doc.internal.anchors, name)
         if isnothing(anchor)
             # anchor not unique -> exclude from inventory
             continue
@@ -135,7 +135,10 @@ end
 # dispname for :std:label
 function _get_inventory_dispname(doc, ctx, name::AbstractString, anchor::Documenter.Anchor)
     dispname = mdflatten(anchor.node)
-    if dispname == name
+    # `-` is the inventory convention for "display name is the same as the name". Empty
+    # content (e.g. `[](@id name)`) has no display name, so use `-` rather than emitting a
+    # trailing-empty field.
+    if isempty(dispname) || dispname == name
         dispname = "-"
     end
     return dispname

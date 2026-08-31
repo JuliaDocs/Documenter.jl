@@ -1,6 +1,9 @@
 name: 'Regression Tests'
 on:
   workflow_dispatch:
+  schedule:
+    # Once a week on Monday morning; scheduled runs always use `master`
+    - cron: '17 5 * * 1'
   push:
     branches:
       - master
@@ -10,12 +13,34 @@ on:
       - '*/*-runci'
     tags: '*'
   pull_request:
-    paths:
-      - '.github/workflows/regression-tests.yml'
-      - 'Project.toml'
+    # 'labeled' so that adding the opt-in label to an open PR starts a new run
+    types: [opened, synchronize, reopened, labeled]
 jobs:
+  # The path filter that used to live on the `pull_request` trigger lives here
+  # instead: a trigger-level filter would keep the workflow from starting at
+  # all, leaving no place to check for the opt-in label.
+  gate:
+    name: 'Gate'
+    runs-on: ubuntu-latest
+    outputs:
+      run-tests: ${{ steps.decide.outputs.run-tests }}
+    steps:
+      - uses: dorny/paths-filter@v4
+        id: filter
+        if: github.event_name == 'pull_request'
+        with:
+          filters: |
+            ci:
+              - '.github/workflows/regression-tests.yml'
+              - 'Project.toml'
+      - id: decide
+        run: |
+          echo "run-tests=${{ github.event_name != 'pull_request' || steps.filter.outputs.ci == 'true' || contains(github.event.pull_request.labels.*.name, 'Run Regression Tests') }}" >> "$GITHUB_OUTPUT"
+
   test-dependent-packages:
     name: Tests / ${{ matrix.package }}
+    needs: gate
+    if: needs.gate.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     env:
       PACKAGE: ${{ matrix.package }}
@@ -46,6 +71,8 @@ jobs:
 
   test-documentation-build:
     name: "Docs / ${{ matrix.package }}"
+    needs: gate
+    if: needs.gate.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -84,6 +111,8 @@ jobs:
 
   test-julia-manual-build:
     name: "Julia Manual"
+    needs: gate
+    if: needs.gate.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -110,3 +139,87 @@ jobs:
         with:
           name: "regression-tests-julia-manual"
           path: julia/doc/_build/html
+
+  # Report the outcome of a run on `master` (scheduled, merged or dispatched) by
+  # opening an issue, and close that issue once the tests pass again. Runs on
+  # pull requests are ignored: they must neither open nor close an issue.
+  report-status:
+    name: 'Report status'
+    needs: [gate, test-dependent-packages, test-documentation-build, test-julia-manual-build]
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v9
+        env:
+          FAILED: ${{ contains(needs.*.result, 'failure') }}
+        with:
+          script: |
+            const label = "Status: Regression Tests Failing";
+            const title = "Regression tests are failing on master";
+            const failed = process.env.FAILED === "true";
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
+                           `/actions/runs/${context.runId}`;
+            const { owner, repo } = context.repo;
+
+            // A single label identifies the report issue, so that repeated
+            // failures update the existing issue instead of opening new ones.
+            const { data: open } = await github.rest.issues.listForRepo({
+              owner, repo, state: "open", labels: label
+            });
+            const issue = open[0];
+
+            if (!failed) {
+              if (!issue) {
+                console.log("Tests passed and no issue is open — nothing to do.");
+                return;
+              }
+
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: `The regression tests [passed again](${runUrl}) on \`master\`. Closing.`
+              });
+              await github.rest.issues.update({
+                owner, repo, issue_number: issue.number, state: "closed"
+              });
+              console.log(`Closed #${issue.number}.`);
+              return;
+            }
+
+            if (issue) {
+              // A reminder on every failing merge would be noise, so only the
+              // weekly scheduled run nags about a failure that is still open.
+              if (context.eventName !== "schedule") {
+                console.log(`Failure already reported in #${issue.number}.`);
+                return;
+              }
+
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: `Still [failing](${runUrl}) on \`master\` (${context.sha}).`
+              });
+              console.log(`Commented on existing #${issue.number}.`);
+              return;
+            }
+
+            // The label has to exist before it can be applied
+            try {
+              await github.rest.issues.createLabel({
+                owner, repo, name: label, color: "b60205",
+                description: "Automatically filed report of a regression test failure on master"
+              });
+            } catch (error) {
+              if (error.status !== 422) throw error; // 422 == label already exists
+            }
+
+            const { data: created } = await github.rest.issues.create({
+              owner, repo, title, labels: [label],
+              body: [
+                `The [regression tests](${runUrl}) failed on \`master\` (${context.sha}).`,
+                "",
+                "This issue was opened automatically and will be closed again as",
+                "soon as the regression tests pass on `master`.",
+              ].join("\n")
+            });
+            console.log(`Opened #${created.number}.`);

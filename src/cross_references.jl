@@ -152,19 +152,22 @@ module XRefResolvers
 
     The steps for trying to resolve links are:
 
-    - [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
-    - [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
     - [`XRefResolvers.Docs`](@ref) for links like ```[`Documenter.makedocs`](@ref)```
+    - [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
+    - [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
+
+    A step only matches the link syntax it serves. Plain text is a header reference and
+    nothing else; backticked text is a docstring reference first and a header second, since
+    a header title may itself be code.
 
     Each step may or may not be able to resolve the link. Processing continues until the
-    link is resolved or the end of the pipeline is reached. If the link is still unresolved
-    after the last step, [`Documenter.xref`](@ref) issues an error that includes any
-    accumulated error messages from the steps. Failure to resolve an `@ref` link will fail
+    link is resolved or the end of the pipeline is reached. A step that cannot resolve a
+    link says why in `errors` and leaves the link alone; no step ends the pipeline early,
+    since plugins append steps to it and a step that stops decides for steps it cannot see
+    ([#2843](https://github.com/JuliaDocs/Documenter.jl/issues/2843)). If the link is still
+    unresolved after the last step, [`Documenter.xref`](@ref) issues an error that includes
+    any accumulated error messages. Failure to resolve an `@ref` link will fail
     [`Documenter.makedocs`](@ref) if it is not called with `warnonly=true`.
-    A step may choose to make the entire pipeline fail when it encounters a case that obviously
-    has to be resolved by this step, but cannot be resolved due to an error (for example,
-    a non-unique header slug). In that case, the step should set its [`Selectors.strict`](@ref)
-    to `true`.
 
     The default pipeline could be extended by plugins using the general [`Selectors`](@ref)
     machinery.
@@ -196,6 +199,10 @@ module XRefResolvers
 
     This runs if the `slug` corresponds to a known local section title, and resolves the
     `node` to link to that section.
+
+    It also makes a second attempt at backticked link text. That syntax ordinarily
+    references a docstring, which is why [`XRefResolvers.Docs`](@ref) gets it first, but a
+    header title may itself be code, as in ``` ### `JULIA_EDITOR` ```.
     """
     abstract type Header <: XRefResolverPipeline end
 
@@ -208,22 +215,22 @@ module XRefResolvers
 
     """Resolve `@ref` links for docstrings.
 
-    This runs unconditionally (if no previous step was able to resolve the link), and
-    tries to find a code binding for the given `slug`, linking to its docstring.
+    This runs first, since backticked link text is a docstring reference, and tries to find
+    a code binding for the given `slug`, linking to its docstring.
     """
     abstract type Docs <: XRefResolverPipeline end
 
 end
 
-Selectors.order(::Type{XRefResolvers.Header}) = 1.0
+Selectors.order(::Type{XRefResolvers.Docs}) = 1.0
 Selectors.order(::Type{XRefResolvers.Issue}) = 2.0
-Selectors.order(::Type{XRefResolvers.Docs}) = 3.0
+Selectors.order(::Type{XRefResolvers.Header}) = 3.0
 
 
 """
 $(SIGNATURES)
 
-checks whether `node` is a link with an `@ref` URL. Any step in the
+Checks whether `node` is a link with an `@ref` URL. Any step in the
 [`XRefResolvers.XRefResolverPipeline`](@ref) should use this to determine whether the `node`
 still needs to be resolved.
 """
@@ -235,37 +242,36 @@ end
 
 function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
     xref_unresolved(node) || return false
-    return classifyxref(node, doc.internal.headers).kind ∈ (
-        :implicit_header, :explicit_header_title, :explicit_header_id,
-    )
+    info = classifyxref(node, doc.internal.anchors)
+    info.kind ∈ (:implicit_header, :explicit_header_title, :explicit_header_id) && return true
+    # Backticked text naming a header, which XRefResolvers.Docs has already declined.
+    return info.kind === :implicit_docs && anchor_exists(doc.internal.anchors, info.slug)
 end
 
 function Selectors.runner(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
-    info = classifyxref(node, doc.internal.headers)
+    info = classifyxref(node, doc.internal.anchors)
     return namedxref(node, info.slug, meta, page, doc, errors)
 end
-
-Selectors.strict(::Type{XRefResolvers.Header}) = true
 
 
 function Selectors.matcher(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)
     xref_unresolved(node) || return false
-    return classifyxref(node, doc.internal.headers).kind == :issue
+    return classifyxref(node, doc.internal.anchors).kind == :issue
 end
 
 function Selectors.runner(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)
-    info = classifyxref(node, doc.internal.headers)
+    info = classifyxref(node, doc.internal.anchors)
     return issue_xref(node, info.target, meta, page, doc, errors)
 end
 
 
 function Selectors.matcher(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
     xref_unresolved(node) || return false
-    return classifyxref(node, doc.internal.headers).kind ∈ (:implicit_docs, :explicit_docs)
+    return classifyxref(node, doc.internal.anchors).kind ∈ (:implicit_docs, :explicit_docs)
 end
 
 function Selectors.runner(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
-    info = classifyxref(node, doc.internal.headers)
+    info = classifyxref(node, doc.internal.anchors)
     return docsxref(node, info.target, meta, page, doc, errors)
 end
 
@@ -290,12 +296,12 @@ follows:
 - For, e.g, ```[`Documenter.makedocs`](@ref)``` or ```[text](@ref `Documenter.makedocs`)```, the
   `slug` is `"Documenter.makedocs"`
 - For, e.g, ```[Hosting Documentation](@ref)``` or `[text](@ref "Hosting Documentation")`,
-  the `slug` is sluggified version of the given section title, `"Hosting-Documentation"` in
+  the `slug` is the sluggified version of the given section title, `"Hosting-Documentation"` in
   this case.
 """
 function xref(node::MarkdownAST.Node, meta, page, doc)
     @assert node.element isa MarkdownAST.Link
-    info = classifyxref(node, doc.internal.headers)
+    info = classifyxref(node, doc.internal.anchors)
     errors = String[]
     Selectors.dispatch(
         XRefResolvers.XRefResolverPipeline, node, info.slug, meta, page, doc, errors
@@ -327,7 +333,7 @@ end
 
 """
 Parse the `link.url` field of an `@ref` link. Returns `nothing` if it's not an `@ref`,
-an empty string the reference link has no label, or a whitespace-stripped version the
+an empty string if the reference link has no label, or a whitespace-stripped version of the
 label.
 """
 function xrefname(link_url::AbstractString)
@@ -352,14 +358,14 @@ function linkcontent(node::MarkdownAST.Node)
     return (:complex, text)
 end
 
-function classifyxref(node::MarkdownAST.Node, headers::AnchorMap)
+function classifyxref(node::MarkdownAST.Node, anchors::AnchorMap)
     @assert node.element isa MarkdownAST.Link
     dest = xrefname(node.element.destination)
     @assert !isnothing(dest)
-    return classifyxref(dest, linkcontent(node), headers)
+    return classifyxref(dest, linkcontent(node), anchors)
 end
 
-function classifyxref(dest::AbstractString, content::Tuple{Symbol, <:AbstractString}, headers::AnchorMap)
+function classifyxref(dest::AbstractString, content::Tuple{Symbol, <:AbstractString}, anchors::AnchorMap)
     content_kind, content_text = content
     if isempty(dest)
         if occursin(ISSUE_REGEX, content_text)
@@ -385,7 +391,7 @@ function classifyxref(dest::AbstractString, content::Tuple{Symbol, <:AbstractStr
     elseif occursin(BACKTICK_XREF_REGEX, dest)
         code = strip_wrapping(dest)
         return (kind = :explicit_docs, target = code, slug = code)
-    elseif anchor_exists(headers, dest) || occursin(DASHED_XREF_ID_REGEX, dest)
+    elseif anchor_exists(anchors, dest) || occursin(DASHED_XREF_ID_REGEX, dest)
         return (kind = :explicit_header_id, target = dest, slug = dest)
     else
         return (kind = :explicit_docs, target = dest, slug = dest)
@@ -413,22 +419,22 @@ const DASHED_XREF_ID_REGEX = r"^[^-]+(?:-[^-]+)+$"
 
 function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
-    headers = doc.internal.headers
-    if !anchor_exists(headers, slug)
-        push!(errors, "Header with slug '$slug' in $(Documenter.locrepr(doc, page)) does not exist.")
+    anchors = doc.internal.anchors
+    if !anchor_exists(anchors, slug)
+        push!(errors, "Header or `@id` anchor with slug '$slug' in $(Documenter.locrepr(doc, page)) does not exist.")
     end
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
     # Error checking: `slug` should exist and be unique.
     # TODO: handle non-unique slugs.
-    if anchor_isunique(headers, slug)
+    if anchor_isunique(anchors, slug)
         # Replace the `@ref` url with a path to the referenced header.
-        anchor = Documenter.anchor(headers, slug)
+        anchor = Documenter.anchor(anchors, slug)
         pagekey = relpath(anchor.file, doc.user.build)
         page = doc.blueprint.pages[pagekey]
         node.element = Documenter.PageLink(page, anchor_label(anchor))
     else
-        push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(doc, page)).")
+        push!(errors, "Header or `@id` anchor with slug '$slug' is not unique in $(Documenter.locrepr(doc, page)).")
     end
     return
 end

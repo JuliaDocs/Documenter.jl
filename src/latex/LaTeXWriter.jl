@@ -9,7 +9,7 @@ A module for rendering `Document` objects to LaTeX and PDF.
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 navigation menu. It goes into the `\\title` LaTeX command.
 
-**`authors`** can be used to specify the authors of. It goes into the `\\author` LaTeX command.
+**`authors`** can be used to specify the authors of the document. It goes into the `\\author` LaTeX command.
 
 """
 module LaTeXWriter
@@ -36,7 +36,7 @@ in the tex document. Finally, a version number can be specified with the `versio
 # Keyword arguments
 
 **`platform`** sets the platform where the tex-file is compiled, either `"native"` (default),
-`"tectonic"`, `"docker"`, or "none" which doesn't compile the tex. The option `tectonic`
+`"tectonic"`, `"docker"`, or `"none"`, which doesn't compile the tex. The option `tectonic`
 requires a `tectonic` executable to be available in `PATH` or to be passed as the `tectonic`
 keyword.
 
@@ -44,9 +44,9 @@ keyword.
 It defaults to the value in the `TRAVIS_TAG` environment variable (although this behaviour is
 considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 
-**`tectonic`** path to a `tectonic` executable used for compilation.
+**`tectonic`** is the path to a `tectonic` executable used for compilation.
 
-**`show_log`** if `true`, dump the generated LaTeX log files to stdout when PDF compilation
+**`show_log`**, if `true`, dumps the generated LaTeX log files to stdout when PDF compilation
 fails. This can be useful in CI where temporary build directories are not preserved. If
 the environment variable `DOCUMENTER_LATEX_SHOW_LOGS` is set, log dumping is always enabled.
 
@@ -80,8 +80,9 @@ mutable struct Context{I <: IO} <: IO
     depth::Int
     filename::String # currently active source file
     doc::Documenter.Document
+    pending_labels::Vector{String} # `\label`s deferred out of the current header title
 end
-Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc)
+Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc, String[])
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
@@ -353,6 +354,25 @@ function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     return
 end
 
+function latex(io::Context, node::Node, ai::Documenter.AnchoredInline)
+    id = _hash(Documenter.anchor_label(ai.anchor))
+    # Inside a header the title is a moving argument that also ends up in the table of
+    # contents and the PDF bookmarks, where a \hypertarget does not belong. Defer a
+    # `\label` to just after the title instead, as the AnchoredHeader method does, so that
+    # the anchor still has a target. `\hyperlinkref` resolves against either form.
+    if io.in_header
+        push!(io.pending_labels, id)
+        latex(io, node.children)
+        return
+    end
+    # A `\hypertarget` (matching the `\hyperlinkref` emitted for a resolved `@ref`, see the
+    # PageLink method) wrapping the anchored inline content.
+    _print(io, "\\hypertarget{", id, "}{")
+    latex(io, node.children)
+    _print(io, "}")
+    return
+end
+
 ## Documentation Nodes.
 
 function latex(io::Context, node::Node, ::Documenter.DocsNodesBlock)
@@ -363,7 +383,7 @@ function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     node, ast = docs, node
     # latex(io::IO, node::Documenter.DocsNode, page, doc)
     id = _hash(Documenter.anchor_label(node.anchor))
-    # Docstring header based on the name of the binding and it's category.
+    # Docstring header based on the name of the binding and its category.
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
     latexesc(io, Documenter.bindingstring(node.object.binding))
     _print(io, "}} ")
@@ -539,13 +559,19 @@ function latex(io::Context, node::Node, heading::MarkdownAST.Heading)
     io.in_header = true
     latex(io, node.children)
     io.in_header = false
-    # {sub}pagragraphs need an explicit `\indent` after them
+    # {sub}paragraphs need an explicit `\indent` after them
     # to ensure the following text is on a new line. Others
     if endswith(tag, "paragraph")
         _println(io, "}\\indent\n")
     else
         _println(io, "}\n")
     end
+    # `@id` anchors in the title could not emit their target inside the moving argument, so
+    # they deferred it to here. See the AnchoredInline method.
+    for id in io.pending_labels
+        _println(io, "\\label{", id, "}{}\n")
+    end
+    empty!(io.pending_labels)
     return
 end
 
@@ -713,28 +739,91 @@ function latex(io::Context, node::Node, math::MarkdownAST.DisplayMath)
     return
 end
 
+# Tables with at least this many rows are typeset with `xltabular` instead of a
+# `table` float, so that they can break across pages. A non-breakable float that
+# overflows a page is silently dropped by LaTeX, and since LaTeX 2026-06-01 it
+# aborts the build with "Dimension too large" instead.
+const LONGTABLE_ROW_THRESHOLD = 20
+
 function latex(io::Context, node::Node, table::MarkdownAST.Table)
-    rows = MarkdownAST.tablerows(node)
+    rows = collect(MarkdownAST.tablerows(node))
+
+    if length(rows) >= LONGTABLE_ROW_THRESHOLD
+        latex_longtable(io, table, rows)
+    else
+        latex_float_table(io, table, rows)
+    end
+
+    return
+end
+
+# Small tables: a centred, non-breaking float.
+function latex_float_table(io::Context, table::MarkdownAST.Table, rows)
     _println(io, "\n\\begin{table}[h]\n\\centering")
     _print(io, "\\begin{tabulary}{\\linewidth}")
     _println(io, "{", uppercase(join(spec_to_align.(table.spec), ' ')), "}")
     _println(io, "\\toprule")
+
     for (i, row) in enumerate(rows)
-        for (j, cell) in enumerate(row.children)
-            j === 1 || _print(io, " & ")
-            latex(io, cell.children)
-        end
-        _println(io, " \\\\")
-        if i === 1
-            _println(io, "\\toprule")
-        end
+        latex_table_row(io, row)
+        i === 1 && _println(io, "\\toprule")
     end
+
     _println(io, "\\bottomrule")
     _println(io, "\\end{tabulary}\n")
     _println(io, "\\end{table}\n")
     return
 end
+
+# Large tables: `xltabular` breaks across pages and repeats the header row.
+function latex_longtable(io::Context, table::MarkdownAST.Table, rows)
+    _print(io, "\n\\begin{xltabular}{\\linewidth}")
+    _println(io, "{", join(spec_to_xcolumn.(table.spec), ' '), "}")
+
+    header, body = Iterators.peel(rows)
+
+    # `\endfirsthead` ends the header used on the first page, `\endhead` the one
+    # repeated on every subsequent page. Both are needed, otherwise the header is
+    # printed only once.
+    _println(io, "\\toprule")
+    latex_table_row(io, header)
+    _println(io, "\\toprule")
+    _println(io, "\\endfirsthead")
+
+    _println(io, "\\toprule")
+    latex_table_row(io, header)
+    _println(io, "\\toprule")
+    _println(io, "\\endhead")
+
+    _println(io, "\\bottomrule")
+    _println(io, "\\endfoot")
+
+    for row in body
+        latex_table_row(io, row)
+    end
+
+    _println(io, "\\end{xltabular}\n")
+    return
+end
+
+function latex_table_row(io::Context, row::Node)
+    for (j, cell) in enumerate(row.children)
+        j === 1 || _print(io, " & ")
+        latex(io, cell.children)
+    end
+    _println(io, " \\\\")
+    return
+end
+
 spec_to_align(spec::Symbol) = Symbol(first(String(spec)))
+
+# `xltabular` needs width-bearing `X` columns; `l`/`c`/`r` would not wrap long cells.
+const XCOLUMN_ALIGNMENT = Dict(
+    :left => "\\raggedright",
+    :center => "\\centering",
+    :right => "\\raggedleft",
+)
+spec_to_xcolumn(spec::Symbol) = string(">{", XCOLUMN_ALIGNMENT[spec], "\\arraybackslash}X")
 
 function latex(io::Context, node::Node, raw::Documenter.RawNode)
     raw.name === :latex && _println(io, "\n", raw.text, "\n")

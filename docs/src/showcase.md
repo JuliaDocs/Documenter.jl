@@ -22,7 +22,7 @@ You can use all the usual markdown syntax, such as **bold text** and _italic tex
 Code blocks are rendered as follows:
 
 ```
-This is an non-highlighted code block.
+This is a non-highlighted code block.
 ... Rendered in monospace.
 ```
 
@@ -30,7 +30,7 @@ When the language is specified for the block, e.g. by starting the block with ``
 
 ```julia
 function foo(x::Integer)
-    @show x + 1
+    return @show x + 1
 end
 ```
 
@@ -126,7 +126,7 @@ Documenter supports a range of admonition types for different circumstances.
     This is a `!!! todo`-type admonition.
 
 ###### Details admonition
-Admonitions with type `details` is rendered as a collapsed `<details>` block in
+Admonitions with type `details` are rendered as a collapsed `<details>` block in
 the HTML output, with the admonition title as the `<summary>`.
 
 !!! details "'details' admonition"
@@ -250,6 +250,46 @@ The footnote label can be an arbitrary string and even consist of block-level el
     > Any sufficiently advanced technology is indistinguishable from magic.
     Arthur C. Clarke, _Profiles of the Future_ (1961): Clarke's Third Law.
 
+In the HTML output, hovering over a reference shows a preview of the footnote. The preview
+must not be clipped by the surrounding table[^table], and a preview too tall for the
+viewport must stay hoverable so that it can be scrolled[^code].
+
+| object | footnote     |
+| :----- | :----------- |
+| `A`    | see[^table]  |
+| `B`    | see[^code]   |
+
+[^table]: A footnote referenced from inside a table, which is a horizontally scrolling
+    container in the HTML output.
+
+[^code]: A footnote containing a code block:
+
+    ```julia
+    function f(x)
+        # A long line that does not fit into the preview box, so that the code block gets
+        # its own horizontal scrollbar.
+        return x
+    end
+    ```
+
+    Followed by enough text that the preview does not fit into the viewport:
+
+    1. one
+    1. two
+    1. three
+    1. four
+    1. five
+    1. six
+    1. seven
+    1. eight
+    1. nine
+    1. ten
+    1. eleven
+    1. twelve
+    1. thirteen
+    1. fourteen
+    1. fifteen
+
 ## Headings
 
 Finally, headings render as follows
@@ -262,7 +302,7 @@ Finally, headings render as follows
 To see an example of a level 1 heading see the page title and for level 2 heading, see the one just under this paragraph.
 
 !!! note "Headings in sidebars"
-    Level 1 and 2 heading show up in the sidebar, for the current page.
+    Level 1 and 2 headings show up in the sidebar, for the current page.
 
 Note that in docstrings, the headings get rewritten as just bold text right now:
 
@@ -277,7 +317,7 @@ from your package in the manual. The following example docstrings come from the 
 [`DocumenterShowcase`](@ref) module, the source of which can be found in
 `docs/DocumenterShowcase.jl`.
 
-To include a docstrings into a manual page, you needs to use an [`@docs` block](@ref)
+To include a docstring in a manual page, you need to use an [`@docs` block](@ref)
 
 ````markdown
 ```@docs
@@ -368,7 +408,7 @@ DocumenterShowcase.Foo{T}()
 
 ## Doctesting example
 
-Often you want to write code example such as this:
+Often you want to write a code example such as this:
 
 ```jldoctest
 julia> f(x) = x^2
@@ -391,7 +431,7 @@ Script-style doctests are supported too:
 ### Setup code
 
 You can have setup code for doctests that gets executed before the actual doctest.
-For example, the following doctest needs to have the `Documenter` module to be present.
+For example, the following doctest needs the `Documenter` module to be present.
 
 ```jldoctest; setup=:(using Documenter)
 julia> Documenter.splitexpr(:(Foo.Bar.baz))
@@ -513,7 +553,7 @@ DocTestTeardown = nothing
 
 ## Running interactive code
 
-[`@example` block](@ref reference-at-example) run a code snippet and insert the output into the document.
+[`@example` block](@ref reference-at-example)s run a code snippet and insert the output into the document.
 E.g. the following Markdown
 
 ````markdown
@@ -544,7 +584,7 @@ Markdown.parse("""
 """)
 ```
 
-If the last value in an `@example` block is a `nothing`, the standard output from the blocks' evaluation gets displayed instead
+If the last value in an `@example` block is a `nothing`, the standard output from the block's evaluation gets displayed instead
 
 ```@example
 println("Hello World")
@@ -630,7 +670,7 @@ sum(xs)
 ```
 ````
 
-It gets expanded into something that looks like as if it was evaluated in the REPL, with the `julia>` prompt prepended etc.:
+It gets expanded into something that looks as if it was evaluated in the REPL, with the `julia>` prompt prepended etc.:
 
 ```@repl
 using Statistics
@@ -641,7 +681,7 @@ sum(xs)
 
 ### Named blocks
 
-Generally, each blocks gets evaluated in a separate, clean context (i.e. no variables from previous blocks will be polluting the namespace etc).
+Generally, each block gets evaluated in a separate, clean context (i.e. no variables from previous blocks will be polluting the namespace etc).
 However, you can also re-use a namespace by giving the blocks a name.
 
 ````markdown
