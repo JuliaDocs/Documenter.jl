@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `doctest` now accepts a `meta` keyword, like `makedocs` does, so that a global `DocTestSetup` can be set for the doctests on manual pages when they are run through `doctest`. ([#2512], [#2697])
 
+### Fixed
+
+* PNG images from `@example` blocks are now displayed at the size implied by the pixel density stored in the file, instead of being blown up to their raw pixel dimensions. ([#2993])
+
 
 ## Version [v1.18.0] - 2026-08-28
 
@@ -2310,6 +2314,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2963]: https://github.com/JuliaDocs/Documenter.jl/issues/2963
 [#2973]: https://github.com/JuliaDocs/Documenter.jl/issues/2973
 [#2976]: https://github.com/JuliaDocs/Documenter.jl/issues/2976
+[#2993]: https://github.com/JuliaDocs/Documenter.jl/issues/2993
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
