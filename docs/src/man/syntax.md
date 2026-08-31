@@ -52,7 +52,7 @@ will only display the documentation string of `f` that is related to these types
 This can be useful when your module extends a function and adds a documentation
 string to that new method.
 
-Note that when specifying signatures, it should match the method definition exactly.
+Note that when specifying signatures, they should match the method definition exactly.
 Documenter will not match methods based on dispatch rules. For example, assuming you
 have a docstring attached to `foo(::Integer) = ...`, then neither `foo(::Number)` nor
 `foo(::Int64)` will match it in an at-docs block (even though `Int64 <: Integer <: Number`).
@@ -177,7 +177,7 @@ Order = [:type]
     explicitly.
 
 As with `@docs`, you can use `@autodocs; canonical=false` to indicate that the
-`@autodocs` block in non-canonical. See [`@docs; canonical=false` block](@ref
+`@autodocs` block is non-canonical. See [`@docs; canonical=false` block](@ref
 noncanonical-block).
 
 ## [`@ref` links and `@id` anchors](@id at-ref-at-id-links)
@@ -225,7 +225,7 @@ the built-in rules, between them, or after them. See [`@extref` link](@ref) for 
 A reference is reported as unresolvable only after every resolver has declined it.
 
 The code enclosed in the backticks for such a reference will be evaluated in the
-`CurrentModule`  given in the `@meta` block of the current page (`Main` by default). For
+`CurrentModule` given in the `@meta` block of the current page (`Main` by default). For
 `@ref` links inside a docstring, the `CurrentModule` is automatically set to the module
 containing the docstring.
 
@@ -593,7 +593,7 @@ savefig("g-plot.svg"); nothing # hide
 ````
 
 Note that `@example` blocks are evaluated within the directory of `build` where the file
-will be rendered . This means that in the above example `savefig` will output the `.svg`
+will be rendered. This means that in the above example `savefig` will output the `.svg`
 files into that directory. This allows the images to be easily referenced without needing to
 worry about relative paths.
 

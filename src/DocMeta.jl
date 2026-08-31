@@ -36,6 +36,10 @@ const VALIDMETA = Dict{Symbol, Type}(
 )
 
 """
+    initdocmeta!(m::Module)
+
+Create the documentation metadata dictionary in module `m` if it does not exist yet, and
+return it. Warns and returns the existing dictionary if `m` already has one.
 """
 function initdocmeta!(m::Module)
     if !invokelatest(isdefined, m, META)

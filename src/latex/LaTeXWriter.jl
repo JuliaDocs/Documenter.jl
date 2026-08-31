@@ -9,7 +9,7 @@ A module for rendering `Document` objects to LaTeX and PDF.
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 navigation menu. It goes into the `\\title` LaTeX command.
 
-**`authors`** can be used to specify the authors of. It goes into the `\\author` LaTeX command.
+**`authors`** can be used to specify the authors of the document. It goes into the `\\author` LaTeX command.
 
 """
 module LaTeXWriter
@@ -36,7 +36,7 @@ in the tex document. Finally, a version number can be specified with the `versio
 # Keyword arguments
 
 **`platform`** sets the platform where the tex-file is compiled, either `"native"` (default),
-`"tectonic"`, `"docker"`, or "none" which doesn't compile the tex. The option `tectonic`
+`"tectonic"`, `"docker"`, or `"none"`, which doesn't compile the tex. The option `tectonic`
 requires a `tectonic` executable to be available in `PATH` or to be passed as the `tectonic`
 keyword.
 
@@ -44,9 +44,9 @@ keyword.
 It defaults to the value in the `TRAVIS_TAG` environment variable (although this behaviour is
 considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 
-**`tectonic`** path to a `tectonic` executable used for compilation.
+**`tectonic`** is the path to a `tectonic` executable used for compilation.
 
-**`show_log`** if `true`, dump the generated LaTeX log files to stdout when PDF compilation
+**`show_log`**, if `true`, dumps the generated LaTeX log files to stdout when PDF compilation
 fails. This can be useful in CI where temporary build directories are not preserved. If
 the environment variable `DOCUMENTER_LATEX_SHOW_LOGS` is set, log dumping is always enabled.
 
@@ -383,7 +383,7 @@ function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     node, ast = docs, node
     # latex(io::IO, node::Documenter.DocsNode, page, doc)
     id = _hash(Documenter.anchor_label(node.anchor))
-    # Docstring header based on the name of the binding and it's category.
+    # Docstring header based on the name of the binding and its category.
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
     latexesc(io, Documenter.bindingstring(node.object.binding))
     _print(io, "}} ")
@@ -559,7 +559,7 @@ function latex(io::Context, node::Node, heading::MarkdownAST.Heading)
     io.in_header = true
     latex(io, node.children)
     io.in_header = false
-    # {sub}pagragraphs need an explicit `\indent` after them
+    # {sub}paragraphs need an explicit `\indent` after them
     # to ensure the following text is on a new line. Others
     if endswith(tag, "paragraph")
         _println(io, "}\\indent\n")

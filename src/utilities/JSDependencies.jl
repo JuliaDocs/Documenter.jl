@@ -39,7 +39,7 @@ end
 """
     struct Snippet
 
-Declares a JS code snipped that should be loaded with RequireJS. This gets wrapped in
+Declares a JS code snippet that should be loaded with RequireJS. This gets wrapped in
 `require([deps...], function(args...) {script...})` in the output.
 
 # Fields
@@ -85,7 +85,6 @@ RequireJS(libraries::AbstractVector{RemoteLibrary}, snippets::AbstractVector{Sni
 # API
 
 * The `push!` function can be used to add additional libraries and snippets.
-*
 """
 struct RequireJS
     libraries::Dict{String, RemoteLibrary}

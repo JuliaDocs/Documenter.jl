@@ -28,7 +28,8 @@ function doctest(package::Module; manual = true, testset = nothing, kwargs...)
             msg = """
             Package $(package) does not have a documentation source directory at standard location.
             Searched at: $(source)
-            If ...
+            If the manual pages are elsewhere, pass their directory as the `manual` keyword
+            argument, or `manual = false` to skip doctesting them.
             """
             throw(ArgumentError(msg))
         end
@@ -49,9 +50,9 @@ manual pages can be disabled if `source` is set to `nothing`.
 
 # Keywords
 
-**`testset`** specifies the name of test testset (default `"Doctests"`).
+**`testset`** specifies the name of the testset (default `"Doctests"`).
 
-**`doctestfilters`** vector of regex or regex/substitution pairs to filter tests (see the manual on [Filtering Doctests](@ref))
+**`doctestfilters`** is a vector of regexes or regex/substitution pairs to filter tests (see the manual on [Filtering Doctests](@ref))
 
 **`fix`**, if set to `true`, updates all the doctests that fail with the correct output
 (default `false`).

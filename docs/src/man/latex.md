@@ -5,7 +5,7 @@ documentation.
 
 ## Escaping Characters in Docstrings
 
-Since some characters used in ``\LaTeX`` syntax, such as `$` and `\`, are treated differently in docstrings. They
+Some characters used in ``\LaTeX`` syntax, such as `$` and `\`, are treated differently in docstrings. They
 need to be escaped using a `\` character as in the following example:
 
 ```julia
@@ -22,7 +22,7 @@ func(x) = # ...
 ```
 
 Note that for equations on the manual pages (in `.md` files) the escaping is not necessary. So, when moving equations
-between the manual and docstrings, the escaping `\` characters have to the appropriately added or removed.
+between the manual and docstrings, the escaping `\` characters have to be appropriately added or removed.
 
 To avoid needing to escape the special characters in docstrings the `raw""` string macro can be used, combined with `@doc`:
 
