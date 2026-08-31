@@ -134,7 +134,9 @@ end
 
 # dispname for :std:label
 function _get_inventory_dispname(doc, ctx, name::AbstractString, anchor::Documenter.Anchor)
-    dispname = mdflatten(anchor.node)
+    # For an anchored admonition (`AnchoredBlock`) the display name is its title; flattening
+    # `anchor.node` would also pull in the entire admonition body.
+    dispname = anchor.object isa MarkdownAST.Admonition ? anchor.object.title : mdflatten(anchor.node)
     # `-` is the inventory convention for "display name is the same as the name". Empty
     # content (e.g. `[](@id name)`) has no display name, so use `-` rather than emitting a
     # trailing-empty field.

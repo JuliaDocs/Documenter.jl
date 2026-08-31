@@ -128,6 +128,27 @@ end
     @test _node_to_latex(heading) == "\\part{Title content}\n\n\\label{$(id)}{}\n\n"
 end
 
+@testset "admonition @id anchors" begin
+    anchor = Documenter.Anchor(nothing)
+    anchor.id = "note-anchor"
+    admonition = Documenter.MarkdownAST.Admonition("note", "Named note")
+    node = Documenter.MarkdownAST.Node(Documenter.AnchoredBlock(anchor, admonition))
+    push!(
+        node.children, Documenter.MarkdownAST.@ast Documenter.MarkdownAST.Paragraph() do
+            Documenter.MarkdownAST.Text("content")
+        end
+    )
+    id = LaTeXWriter._hash(Documenter.anchor_label(anchor))
+
+    # An empty \hypertarget right before the admonition, which otherwise renders as usual
+    # (with the @id link already stripped from the title by the expander).
+    out = _node_to_latex(node)
+    @test startswith(out, "\\hypertarget{$(id)}{}\n\\begin{tcolorbox}")
+    @test occursin("title=\\textbf{Named note}", out)
+    @test occursin("content", out)
+    @test endswith(out, "\\end{tcolorbox}\n")
+end
+
 # `nrows` includes the header row, matching how the writer counts.
 function _md_table(nrows)
     io = IOBuffer()

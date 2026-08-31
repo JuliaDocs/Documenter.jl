@@ -240,6 +240,14 @@ end
                             @test item.dispname == "an anchored phrase"
                             @test DocInventories.uri(item) == "xrefs/#inline-anchor-target"
                         end
+                        # `[title](@id name)` anchor in an admonition title
+                        item = inv[":std:label:`admonition-anchor-target`"]
+                        @test !isnothing(item)
+                        if !isnothing(item)
+                            @test item.name == "admonition-anchor-target"
+                            @test item.dispname == "An anchored note"
+                            @test DocInventories.uri(item) == "xrefs/#admonition-anchor-target"
+                        end
                         item = inv[":std:label:`Markdown-files-with-spaces`"]
                         @test !isnothing(item)
                         if !isnothing(item)

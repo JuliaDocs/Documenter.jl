@@ -1119,6 +1119,18 @@ struct AnchoredHeader <: AbstractDocumenterBlock
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 
+"""
+Represents a named anchor attached to a block element via the `[title](@id name)` syntax in
+the title of an admonition. Unlike [`AnchoredHeader`](@ref), which wraps the anchored node,
+this element replaces the block's own element in the tree (keeping the block's children in
+place, mirroring [`AnchoredInline`](@ref)), with the original element stored in `.block`.
+"""
+struct AnchoredBlock <: AbstractDocumenterBlock
+    anchor::Anchor
+    block::MarkdownAST.AbstractBlock
+end
+MarkdownAST.iscontainer(::AnchoredBlock) = true
+
 # A DocsNodesBlock corresponds to one @docs (or @autodocs) code block, and contains
 # a list of docstrings, which are represented as child nodes of type DocsNode.
 # In addition, the child node can also be an Admonition in case there was an error
@@ -1148,6 +1160,7 @@ end
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = MDFlatten.mdflatten(io, node.children)
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredInline) = MDFlatten.mdflatten(io, node.children)
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AnchoredBlock) = MDFlatten.mdflatten(io, node, e.block)
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = MDFlatten.mdflatten(io, node, e.codeblock)

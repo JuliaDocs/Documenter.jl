@@ -2509,7 +2509,16 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     return DOM.Node[]
 end
 
-function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
+# An admonition with a `[title](@id name)` title: the anchor's label becomes the HTML id of
+# the admonition element itself (instead of the content-hash based one), so the permalink is
+# stable and matches what `@ref`/`objects.inv` links point at.
+function domify(dctx::DCtx, node::Node, ab::Documenter.AnchoredBlock)
+    @assert ab.block isa MarkdownAST.Admonition # currently the only block that can carry an anchor
+    id = lstrip(Documenter.anchor_fragment(ab.anchor), '#')
+    return domify(dctx, node, ab.block; id = id)
+end
+
+function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition; id::Union{AbstractString, Nothing} = nothing)
     @tags header div details summary
     colorclass =
         (a.category == "danger") ? ".is-danger" :
@@ -2539,13 +2548,19 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             # apply a class
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-    node_repr = strip(mdflatten(node))
-    content_hash = string(hash(node_repr), base = 16)
-    admonition_id = if !isempty(a.title)
-        base_id = Documenter.slugify(a.title)
-        "$(base_id)-$(content_hash)"
+    admonition_id = if !isnothing(id)
+        id
     else
-        "$(a.category)-$(content_hash)"
+        # Without an explicit `@id` anchor in the title, the id is derived from a hash of
+        # the admonition's content (so it changes whenever the content is edited).
+        node_repr = strip(mdflatten(node))
+        content_hash = string(hash(node_repr), base = 16)
+        if !isempty(a.title)
+            base_id = Documenter.slugify(a.title)
+            "$(base_id)-$(content_hash)"
+        else
+            "$(a.category)-$(content_hash)"
+        end
     end
     anchor_link = DOM.Tag(:a)[".admonition-anchor", :href => "#$(admonition_id)", :title => "Permalink"]()
     inner_div = div[".admonition-body"](domify(dctx, node.children))

@@ -12,8 +12,12 @@ Named x-refs:
 * [docstring target via backticks](@ref `Mod.func`)
 * [string target](@ref "X-ref target")
 * [inline anchor target](@ref inline-anchor-target)
+* [admonition anchor target](@ref admonition-anchor-target)
 
 Inline anchor on arbitrary (non-header) content: [an anchored phrase](@id inline-anchor-target).
+
+!!! note "[An anchored note](@id admonition-anchor-target)"
+    An admonition with an anchor in its title.
 
 ## X-ref target
 

@@ -60,7 +60,8 @@ function expand(doc::Documenter.Document)
             Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
             expand_recursively(node, page, doc)
         end
-        # Register arbitrary `[content](@id name)` anchors. This runs after the per-node
+        # Register arbitrary `[content](@id name)` anchors, on inline content as well as in
+        # admonition titles. This runs after the per-node
         # expansion above (so header `@id` links have already been consumed by TrackHeaders)
         # and, crucially, before the CrossReferences pipeline stage, so that `@ref`s to these
         # anchors — including forward references to later pages — can be resolved.
@@ -1127,6 +1128,26 @@ iscode(x, lang) = false
 # collect_named_anchors!).
 const NAMED_ANCHOR_REGEX = r"^@id (.+)$"
 
+# Detects an admonition title of the form `[title](@id name)`, i.e. the whole title being a
+# single `@id` link, mirroring named headers. Since `MarkdownAST.Admonition.title` is a
+# plain string (admonition titles are never parsed as markdown), the title is parsed here,
+# and the anchor is accepted under the same conditions as `namedheader`: the parse must
+# yield a single paragraph whose only child is a link with an `@id` destination. Returns
+# `(title = <plain title text>, name = <anchor name>)`, or `nothing` if the title does not
+# carry an anchor.
+function admonition_title_anchor(title::AbstractString)
+    mdast = convert(MarkdownAST.Node, Markdown.parse(title))
+    length(mdast.children) == 1 || return nothing
+    paragraph = first(mdast.children)
+    paragraph.element isa MarkdownAST.Paragraph || return nothing
+    length(paragraph.children) == 1 || return nothing
+    link = first(paragraph.children)
+    link.element isa MarkdownAST.Link || return nothing
+    m = match(NAMED_ANCHOR_REGEX, link.element.destination)
+    isnothing(m) && return nothing
+    return (title = MDFlatten.mdflatten(link), name = String(m[1]))
+end
+
 function namedheader(node::Node)
     @assert node.element isa MarkdownAST.Heading
     if length(node.children) == 1 && first(node.children).element isa MarkdownAST.Link
@@ -1138,32 +1159,48 @@ function namedheader(node::Node)
 end
 
 # Walk the whole page tree and turn every `[content](@id name)` link on non-header content
-# into an `AnchoredInline`, registering the anchor in `doc.internal.anchors`. Sharing that
+# into an `AnchoredInline`, and every admonition with a `[title](@id name)` title into an
+# `AnchoredBlock`, registering the anchors in `doc.internal.anchors`. Sharing that
 # AnchorMap with headers gives all `@id` anchors a single id namespace (so collisions are
 # caught by the existing uniqueness checks), lets them resolve through the existing `@ref`
 # header pipeline, and gets them written to the `objects.inv` inventory automatically.
 function collect_named_anchors!(page, doc)
     for node in AbstractTrees.PreOrderDFS(page.mdast)
-        node.element isa MarkdownAST.Link || continue
-        m = match(NAMED_ANCHOR_REGEX, node.element.destination)
-        isnothing(m) && continue
-        # Links that are the sole child of a Heading are header anchors, handled (and removed
-        # from the tree) by TrackHeaders; guard against re-registering one here.
-        parent = node.parent
-        if !isnothing(parent) && parent.element isa MarkdownAST.Heading && length(parent.children) == 1
-            continue
+        if node.element isa MarkdownAST.Link
+            m = match(NAMED_ANCHOR_REGEX, node.element.destination)
+            isnothing(m) && continue
+            # Links that are the sole child of a Heading are header anchors, handled (and removed
+            # from the tree) by TrackHeaders; guard against re-registering one here.
+            parent = node.parent
+            if !isnothing(parent) && parent.element isa MarkdownAST.Heading && length(parent.children) == 1
+                continue
+            end
+            # Slugify the id exactly as TrackHeaders does for named headers, so that inline and
+            # header `@id` anchors share identical id semantics (and never emit an invalid HTML
+            # id, e.g. one containing spaces).
+            id = Documenter.slugify(String(m[1]))
+            # The anchor and the element carrying it are mutually referential, so the anchor is
+            # registered with no object and told about the AnchoredInline once that exists.
+            anchor = Documenter.anchor_add!(doc.internal.anchors, nothing, id, page.build)
+            element = Documenter.AnchoredInline(anchor)
+            anchor.object = element
+            node.element = element
+            anchor.node = node
+        elseif node.element isa MarkdownAST.Admonition
+            admonition = node.element
+            title_anchor = admonition_title_anchor(admonition.title)
+            isnothing(title_anchor) && continue
+            # Strip the `@id` link from the title, leaving just the title text, so that the
+            # title renders exactly as it would without the anchor (mirroring named headers).
+            admonition.title = title_anchor.title
+            id = Documenter.slugify(title_anchor.name)
+            # The Admonition element is stored as the anchor's object so that consumers can
+            # distinguish block anchors from header and inline ones (e.g. `@contents` skips
+            # them, and the inventory uses the admonition title as the display name).
+            anchor = Documenter.anchor_add!(doc.internal.anchors, admonition, id, page.build)
+            node.element = Documenter.AnchoredBlock(anchor, admonition)
+            anchor.node = node
         end
-        # Slugify the id exactly as TrackHeaders does for named headers, so that inline and
-        # header `@id` anchors share identical id semantics (and never emit an invalid HTML
-        # id, e.g. one containing spaces).
-        id = Documenter.slugify(String(m[1]))
-        # The anchor and the element carrying it are mutually referential, so the anchor is
-        # registered with no object and told about the AnchoredInline once that exists.
-        anchor = Documenter.anchor_add!(doc.internal.anchors, nothing, id, page.build)
-        element = Documenter.AnchoredInline(anchor)
-        anchor.object = element
-        node.element = element
-        anchor.node = node
     end
     return
 end

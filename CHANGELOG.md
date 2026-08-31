@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+* Admonitions can now carry a named anchor in their title with the `!!! note "[title](@id name)"` syntax, mirroring named headers. The anchor resolves via `@ref`, is written to the `objects.inv` inventory as a `std:label` entry, and becomes the HTML `id` of the admonition element (which is otherwise derived from a hash of the admonition's content, and hence changes whenever the admonition is edited). ([#745])
+
 ## Version [v1.18.0] - 2026-08-28
 
 ### Added

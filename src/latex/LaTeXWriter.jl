@@ -373,6 +373,15 @@ function latex(io::Context, node::Node, ai::Documenter.AnchoredInline)
     return
 end
 
+function latex(io::Context, node::Node, ab::Documenter.AnchoredBlock)
+    id = _hash(Documenter.anchor_label(ab.anchor))
+    # An empty `\hypertarget` just before the anchored block (currently always an
+    # admonition), so that `\hyperlinkref` jumps to the top of the block.
+    _println(io, "\\hypertarget{", id, "}{}")
+    latex(io, node, ab.block)
+    return
+end
+
 ## Documentation Nodes.
 
 function latex(io::Context, node::Node, ::Documenter.DocsNodesBlock)

@@ -311,6 +311,21 @@ to:
 ... see [Figure 1](@ref figure-1) ...
 ````
 
+An `@id` anchor may also wrap the title of an admonition, making the admonition itself the
+link target:
+
+````markdown
+!!! note "[Named note](@id note-anchor)"
+    ...
+
+... see [the note above](@ref note-anchor) ...
+````
+
+As with headers, the Markdown link is dropped from the rendered title. The anchor name
+(after slugification) also becomes the HTML `id` of the admonition element, so its permalink
+points at `#note-anchor`. Without an `@id` anchor the id is instead derived from a hash of
+the admonition's content, and hence changes whenever the admonition is edited.
+
 Ids are slugified, so `[x](@id My Anchor)` defines the anchor `My-Anchor`.
 
 Header and non-header anchors share a single id namespace, so a duplicate id is
