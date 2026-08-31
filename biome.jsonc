@@ -11,9 +11,6 @@
     "ignoreUnknown": false,
     "includes": [
       "biome.jsonc",
-      // Hidden directories may hold nested checkouts (e.g. git worktrees) with
-      // their own biome.jsonc, which Biome rejects as a second root config.
-      "!.*",
       "assets/html/**",
       "!!assets/html/themes",
       "!!assets/html/scss/highlightjs"
