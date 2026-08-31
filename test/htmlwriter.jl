@@ -320,6 +320,17 @@ end
         @test HTMLWriter.format_units(typemax(Int)) == "(no limit)"
     end
 
+    @testset "HTML: png_image_metadata" begin
+        images = joinpath(@__DIR__, "examples", "images")
+        # tiny-hidpi.png is tiny.png with a pHYs chunk declaring twice the CSS reference of 96 dpi
+        @test HTMLWriter.png_image_metadata(read(joinpath(images, "tiny.png"))) == (width = 128, height = 68)
+        @test HTMLWriter.png_image_metadata(read(joinpath(images, "tiny-hidpi.png"))) == (width = 64, height = 34)
+        @test_throws ArgumentError HTMLWriter.png_image_metadata(read(joinpath(images, "tiny.jpeg")))
+
+        @test HTMLWriter.png_size_attributes(read(joinpath(images, "tiny-hidpi.png"))) == (:width => "64", :height => "34")
+        @test HTMLWriter.png_size_attributes(read(joinpath(images, "tiny.jpeg"))) == ()
+    end
+
     @testset "HTML: _strip_latex_math_delimiters" begin
         for content in [
                 "a",
