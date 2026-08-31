@@ -60,6 +60,11 @@ manual pages can be disabled if `source` is set to `nothing`.
 **`plugins`** is a list of [`Documenter.Plugin`](@ref) objects to be forwarded to
 [`makedocs`](@ref). Use as directed by the documentation of a third-party plugin.
 
+**`meta`** can be used to provide default values for the `@meta` blocks of every page, in
+the same way as the `meta` keyword of [`makedocs`](@ref). For example
+`meta = Dict(:DocTestSetup => :(using MyPackage))` sets `DocTestSetup` for every doctest,
+complementing [`DocMeta.setdocmeta!`](@ref) which only applies to docstrings.
+
 !!! warning
     When running `doctest(...; fix=true)`, Documenter will modify the Markdown and Julia
     source files. It is strongly recommended that you only run it on packages in Pkg's
@@ -74,6 +79,7 @@ function doctest(
         testset = "Doctests",
         doctestfilters = Regex[],
         plugins = Plugin[],
+        meta::Dict{Symbol} = Dict{Symbol, Any}(),
     )
     function all_doctests()
         dir = mktempdir()
@@ -94,6 +100,7 @@ function doctest(
                 # related to determining the remote repositories for edit URLs and such
                 remotes = nothing,
                 plugins = plugins,
+                meta = meta,
             )
             return true
         catch err
