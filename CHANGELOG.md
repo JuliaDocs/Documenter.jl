@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* In the HTML output, each docstring `<section>` of an aggregated docstring block (e.g. a bare `Foo.bar` in `@docs`, which includes all of the binding's docstrings) now has an `id` attribute matching the anchor the docstring would have had as an explicit signature entry (e.g. `Foo.bar-Tuple{Any, Any}`), with a positional fallback (e.g. `Foo.bar-doc-2`) when the signature is unavailable or the anchor is already taken elsewhere. This makes it possible to deep-link to a specific method's docstring within an aggregated entry.
 * `doctest` now accepts a `meta` keyword, like `makedocs` does, so that a global `DocTestSetup` can be set for the doctests on manual pages when they are run through `doctest`. ([#2512], [#2697])
-
 
 ## Version [v1.18.0] - 2026-08-28
 

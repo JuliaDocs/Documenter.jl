@@ -178,8 +178,12 @@ struct DocsNode <: AbstractDocumenterBlock
     mdasts::Vector{MarkdownAST.Node{Nothing}}
     results::Vector{Base.Docs.DocStr}
     metas::Vector{Dict{Symbol, Any}}
+    # Per-docstring anchor ids, parallel to .mdasts/.results/.metas, filled in by
+    # populate_subslugs! once all pages have been expanded. `nothing` means that
+    # the docstring gets no id of its own (it is already addressed by .anchor).
+    subslugs::Vector{Union{String, Nothing}}
     function DocsNode(anchor, object, page)
-        return new(anchor, object, page, [], [], [])
+        return new(anchor, object, page, [], [], [], [])
     end
 end
 

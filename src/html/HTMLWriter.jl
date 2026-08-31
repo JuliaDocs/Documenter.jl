@@ -1948,8 +1948,16 @@ function domify_doc(dctx::DCtx, node::Node)
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
-    return map(zip(node.element.mdasts, node.element.results)) do (markdown, result)
+    return map(eachindex(node.element.mdasts)) do i
+        markdown, result = node.element.mdasts[i], node.element.results[i]
         ret = section(div(domify(dctx, markdown)))
+        # Add the per-docstring anchor id, if any (cf. DocsNode.subslugs). The `get`
+        # guards against DocsNodes constructed outside of the normal expander pipeline,
+        # for which .subslugs may not have been populated.
+        subslug = get(node.element.subslugs, i, nothing)
+        if subslug !== nothing
+            push!(ret.attributes, :id => subslug)
+        end
         # When a source link is available then print the link.
         if !ctx.settings.disable_git
             url = Documenter.source_url(ctx.doc, result)

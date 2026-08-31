@@ -68,6 +68,7 @@ function expand(doc::Documenter.Document)
         pagecheck(doc, page)
         clear_modules!(page.globals.meta)
     end
+    populate_subslugs!(doc)
     return
 end
 
@@ -1204,6 +1205,43 @@ function create_docsnode(docstrings, results, object, page, doc)
         push!(docsnode.metas, markdown.meta)
     end
     return Node(docsnode)
+end
+
+# Compute the per-docstring anchor ids (cf. DocsNode.subslugs) for every DocsNode in the
+# document. Must run after all pages have been expanded so that collisions with any real
+# docstring anchor in the document can be detected.
+function populate_subslugs!(doc::Documenter.Document)
+    for (_, docsnode) in doc.internal.objects
+        populate_subslugs!(docsnode, doc)
+    end
+    return
+end
+
+function populate_subslugs!(docsnode::Documenter.DocsNode, doc::Documenter.Document)
+    n = length(docsnode.results)
+    used = Set{String}()
+    for (i, result) in enumerate(docsnode.results)
+        # Keyword docstrings have no :typesig (cf. DocSystem.docstr).
+        typesig = get(result.data, :typesig, nothing)
+        subslug = nothing
+        if typesig !== nothing
+            # The slug this docstring would have gotten as an explicit signature entry.
+            candidate = Documenter.slugify(
+                Documenter.Object(docsnode.object.binding, typesig, docsnode.object.noncanonical_extra)
+            )
+            if !Documenter.anchor_exists(doc.internal.docs, candidate) && !(candidate in used)
+                subslug = candidate
+            end
+        end
+        if subslug === nothing && n > 1
+            # Positional fallback. Omitted for single-docstring nodes, where the
+            # DocsNode's own anchor already identifies the docstring.
+            subslug = string(docsnode.anchor.id, "-doc-", i)
+        end
+        subslug === nothing || push!(used, subslug)
+        push!(docsnode.subslugs, subslug)
+    end
+    return
 end
 
 function highlightsig!(node::Node)

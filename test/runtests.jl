@@ -33,7 +33,11 @@ end
     @info "Building xref_signatures/make.jl"
     include("xref_signatures/make.jl")
 
-    # Test that a non-unique header slug is reported and never resolved as a binding
+    # Per-docstring anchors in aggregated @docs entries
+    @info "Building docs_subanchors/make.jl"
+    include("docs_subanchors/make.jl")
+
+  # Test that a non-unique header slug is reported and never resolved as a binding
     @info "Building duplicate_headers/make.jl"
     include("duplicate_headers/make.jl")
 
