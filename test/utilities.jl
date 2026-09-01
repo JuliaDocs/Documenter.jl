@@ -605,6 +605,58 @@ end
         end
     end
 
+    @testset "find_block_in_file" begin
+        # The Markdown parser hands over the block body without the surrounding
+        # fences and with the indentation of nested blocks stripped.
+        markdown = """
+        # Title
+
+        ```julia
+        f(x) = 2x
+        ```
+
+        - a list item
+
+          ```@example
+          g(y) = y
+          h(z) = z
+          ```
+
+        > ```@repl
+        > k = 1
+        > ```
+
+        !!! note
+            ```@raw html
+            <p>hi</p>
+            ```
+        """
+        mktempdir() do dir
+            file = joinpath(dir, "index.md")
+            write(file, markdown)
+
+            # the returned range covers the fences, not the body
+            @test Documenter.find_block_in_file("f(x) = 2x", file) == (3 => 5)
+            @test Documenter.find_block_in_file("g(y) = y\nh(z) = z", file) == (9 => 12)
+            @test Documenter.find_block_in_file("k = 1", file) == (14 => 16)
+            @test Documenter.find_block_in_file("<p>hi</p>", file) == (19 => 21)
+
+            @test Documenter.find_block_in_file("not in the file", file) === nothing
+            @test Documenter.find_block_in_file("", file) === nothing
+            @test Documenter.find_block_in_file("f(x) = 2x", joinpath(dir, "nope.md")) === nothing
+
+            crlf = joinpath(dir, "crlf.md")
+            write(crlf, replace(markdown, "\n" => "\r\n"))
+            @test Documenter.find_block_in_file("f(x) = 2x", crlf) == (3 => 5)
+
+            # a block far too large to compile into a regex (issue #2992)
+            huge = join(("<div>line $(i)</div>" for i in 1:5000), "\n")
+            hugefile = joinpath(dir, "huge.md")
+            write(hugefile, "# Title\n\n```@raw html\n$(huge)\n```\n")
+            @test Documenter.find_block_in_file(huge, hugefile) == (3 => 5004)
+        end
+    end
+
     @testset "codelang" begin
         @test Documenter.codelang("") == ""
         @test Documenter.codelang(" ") == ""
