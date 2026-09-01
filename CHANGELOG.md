@@ -11,13 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Default values supplied through the `meta` keyword of `makedocs` now also reach pages that carry no `@meta` block of their own. They used to be discarded before cross-referencing, so on such a page `@ref` lost `CurrentModule`, and `CollapsedDocStrings`, `Description`, `EditURL` and `IgnorePage` never reached the writer. ([#2512], [#2697], [#2987])
-
-
-### Fixed
-
 * Large code blocks, such as `@raw html` blocks embedding a plot, no longer abort the build with `PCRE compilation error: regular expression is too large`. Locating a code block in its source file now matches line by line instead of compiling the entire block into a regular expression, which also stops line numbers in error messages from pointing at an unrelated earlier line containing the same text. ([#2992], [#2912])
-
+* Default values supplied through the `meta` keyword of `makedocs` now also reach pages that carry no `@meta` block of their own. They used to be discarded before cross-referencing, so on such a page `@ref` lost `CurrentModule`, and `CollapsedDocStrings`, `Description`, `EditURL` and `IgnorePage` never reached the writer. ([#2512], [#2697], [#2987])
 
 ## Version [v1.18.0] - 2026-08-28
 
