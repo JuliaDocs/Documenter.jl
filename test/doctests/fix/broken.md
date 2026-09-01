@@ -133,3 +133,21 @@ Blocks nested in a list are indented in the source file:
    3
    4
   ```
+
+Blocks in a block quote carry a `>` marker, blank lines included:
+
+> ```jldoctest
+> julia> Main.DocTestFixArray_2468
+> 4-element Array{Int64,1}:
+>  1
+>  2
+>  3
+>  4
+>
+> julia> Main.DocTestFixArray_1234
+> 4-element Array{Int64,1}:
+>  1
+>  2
+>  3
+>  4
+> ```

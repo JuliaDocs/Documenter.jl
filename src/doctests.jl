@@ -548,7 +548,16 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     for i in 1:(first(block) - 1)
         write(io, lines[i], '\n')
     end
-    write(io, replace(newcode, r"^(.+)$"m => Base.SubstitutionString(indent * "\\1")))
+
+    # A blank line includes the prefix but removes any trailing whitespace.
+    # Standard indentation should not result in trailing spaces. However, a
+    # block quote marker must remain on the line, because a blank line that
+    # lacks the marker will terminate the quote.
+    blank_indent = rstrip(indent)
+    for (i, line) in enumerate(split(newcode, '\n'))
+        i == 1 || write(io, '\n')
+        write(io, isempty(line) ? blank_indent : indent * line)
+    end
     for i in (last(block) + 1):length(lines)
         write(io, '\n', lines[i])
     end
