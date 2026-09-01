@@ -4,6 +4,7 @@ using Test
 
 import Markdown
 using MarkdownAST: MarkdownAST, @ast
+using Documenter: Documenter
 using Documenter.MDFlatten
 
 parse(s) = convert(MarkdownAST.Node, Markdown.parse(s))
@@ -95,6 +96,45 @@ struct UnsupportedElement <: MarkdownAST.AbstractElement end
 
     @test mdflatten([@ast("x"), @ast("y"), @ast("z")]) == "xyz"
     @test_throws Exception mdflatten(@ast(UnsupportedElement()))
+end
+
+@testset "MDFlatten: Documenter blocks" begin
+    codeblock(info, code) = MarkdownAST.CodeBlock(info, code)
+
+    # @meta and @setup blocks render nothing, so they contribute nothing to the
+    # search index either.
+    @test mdflatten(
+        MarkdownAST.Node(Documenter.MetaNode(codeblock("@meta", "DocTestSetup = :(using Foo)"), Dict{Symbol, Any}()))
+    ) == ""
+    @test mdflatten(MarkdownAST.Node(Documenter.SetupNode("@setup foo", "x = 1"))) == ""
+
+    # @example blocks flatten to their source and their output, mirroring what
+    # actually ends up in the rendered page.
+    example = MarkdownAST.Node(Documenter.MultiOutput(codeblock("@example", "1 + 1")))
+    push!(example.children, MarkdownAST.Node(codeblock("julia", "1 + 1")))
+    push!(example.children, MarkdownAST.Node(Documenter.MultiOutputElement(Dict{MIME, Any}(MIME"text/plain"() => "2"))))
+    @test mdflatten(example) == "1 + 1\n2"
+
+    # Non-textual output (e.g. images) has nothing to contribute.
+    image_example = MarkdownAST.Node(Documenter.MultiOutput(codeblock("@example", "plot()")))
+    push!(image_example.children, MarkdownAST.Node(codeblock("julia", "plot()")))
+    push!(image_example.children, MarkdownAST.Node(Documenter.MultiOutputElement(Dict{MIME, Any}(MIME"image/png"() => "..."))))
+    @test mdflatten(image_example) == "plot()"
+
+    # @repl blocks interleave inputs and outputs as children.
+    repl = MarkdownAST.Node(Documenter.MultiCodeBlock(codeblock("@repl", "1 + 1"), "julia-repl", Markdown.Code[]))
+    push!(repl.children, MarkdownAST.Node(MarkdownAST.Code("julia> 1 + 1")))
+    push!(repl.children, MarkdownAST.Node(MarkdownAST.Code("2")))
+    @test mdflatten(repl) == "julia> 1 + 1\n2"
+
+    # @eval blocks only render their result.
+    evalresult = @ast MarkdownAST.Document() do
+        MarkdownAST.Paragraph() do
+            "the result"
+        end
+    end
+    @test mdflatten(MarkdownAST.Node(Documenter.EvalNode(codeblock("@eval", "md\"the result\""), evalresult))) == "the result\n\n"
+    @test mdflatten(MarkdownAST.Node(Documenter.EvalNode(codeblock("@eval", "nothing"), nothing))) == ""
 end
 
 end

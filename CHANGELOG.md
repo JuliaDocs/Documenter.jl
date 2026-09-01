@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Large code blocks, such as `@raw html` blocks embedding a plot, no longer abort the build with `PCRE compilation error: regular expression is too large`. Locating a code block in its source file now matches line by line instead of compiling the entire block into a regular expression, which also stops line numbers in error messages from pointing at an unrelated earlier line containing the same text. ([#2992], [#2912])
 * Default values supplied through the `meta` keyword of `makedocs` now also reach pages that carry no `@meta` block of their own. They used to be discarded before cross-referencing, so on such a page `@ref` lost `CurrentModule`, and `CollapsedDocStrings`, `Description`, `EditURL` and `IgnorePage` never reached the writer. ([#2512], [#2697], [#2987])
+* The search index now records what an at-block actually renders, instead of its source: `@meta` and `@setup` blocks contribute nothing, `@example` and `@repl` blocks contribute their code *and* their output, and `@eval` blocks contribute only their result. Searching no longer turns up text such as `DocTestSetup` that appears nowhere on the page. ([#1929], [#2672])
 
 ## Version [v1.18.0] - 2026-08-28
 
@@ -2240,6 +2241,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2659]: https://github.com/JuliaDocs/Documenter.jl/issues/2659
 [#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
 [#2668]: https://github.com/JuliaDocs/Documenter.jl/issues/2668
+[#2672]: https://github.com/JuliaDocs/Documenter.jl/issues/2672
 [#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
 [#2675]: https://github.com/JuliaDocs/Documenter.jl/issues/2675
 [#2676]: https://github.com/JuliaDocs/Documenter.jl/issues/2676
