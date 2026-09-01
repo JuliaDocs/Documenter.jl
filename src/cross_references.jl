@@ -13,7 +13,9 @@ references.
 """
 function crossref(doc::Documenter.Document)
     for (src, page) in doc.blueprint.pages
-        empty!(page.globals.meta)
+        # Seed with the global defaults, just like the expander does; page-local
+        # `@meta` blocks are re-applied on top while walking the AST below.
+        copy!(page.globals.meta, doc.user.meta)
         crossref(doc, page, page.mdast)
     end
     return
