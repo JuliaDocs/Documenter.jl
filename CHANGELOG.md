@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed an `Unexpected repository roots` error when `makedocs` runs in a Git repository nested inside a directory configured in `remotes`; the repository's own remote is now used for the main repository, and the `remotes` entry applies to the surrounding paths. ([#2868])
 * Fixed headers hidden by the navbar. ([#2905])
+* Doctest failures are now reported as warnings rather than errors when doctesting is non-strict (e.g. `warnonly = true`), matching the behaviour of other non-strict checks. ([#2090])
 * Tightened `@ref` classification so references are matched more consistently by syntax. Plain link text is now a header reference only; a docstring must be written as ```[`makedocs`](@ref)``` rather than `[makedocs](@ref)`. Backticked text still falls back to a header, since a header title may itself be code. ([#2678], [#2961])
 * Reverted the eager failure on a non-unique header slug added in [#2787], which also rejected references that resolve correctly ([#2843]) and prevented plugin resolvers from running; see [#2960] for details. ([#2668], [#2787], [#2843], [#2960], [#2961])
 * Footnote previews are no longer clipped by a surrounding table or code block, are kept within the viewport, and stay open while the pointer is over them, so that long previews can be scrolled. ([#2894], [#2956])
@@ -2092,6 +2093,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
 [#2083]: https://github.com/JuliaDocs/Documenter.jl/issues/2083
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
+[#2090]: https://github.com/JuliaDocs/Documenter.jl/issues/2090
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
 [#2103]: https://github.com/JuliaDocs/Documenter.jl/issues/2103
 [#2114]: https://github.com/JuliaDocs/Documenter.jl/issues/2114

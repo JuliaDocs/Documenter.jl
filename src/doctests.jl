@@ -464,28 +464,31 @@ function report(result::Result, str, doc::Documenter.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Documenter.find_block_in_file(result.block.code, result.file)
     line = lines === nothing ? nothing : first(lines)
-    @error(
-        """
-        doctest failure in $(Documenter.locrepr(result.file, lines))
+    msg = """
+    doctest failure in $(Documenter.locrepr(result.file, lines))
 
-        ```$(result.block.info)
-        $(result.block.code)
-        ```
+    ```$(result.block.info)
+    $(result.block.code)
+    ```
 
-        Subexpression:
+    Subexpression:
 
-        $(result.input)
+    $(result.input)
 
-        Evaluated output:
+    Evaluated output:
 
-        $(rstrip(str))
+    $(rstrip(str))
 
-        Expected output:
+    Expected output:
 
-        $(result.output)
+    $(result.output)
 
-        """, diff, _file = result.file, _line = line
-    )
+    """
+    if Documenter.is_strict(doc, :doctest)
+        @error(msg, diff, _file = result.file, _line = line)
+    else
+        @warn(msg, diff, _file = result.file, _line = line)
+    end
     return
 end
 
