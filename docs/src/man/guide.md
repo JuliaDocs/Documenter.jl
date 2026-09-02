@@ -464,3 +464,16 @@ There's a `sidebar_sitename` keyword option for
 [`Documenter.HTML`](@ref) that lets you hide the sitename
 that's usually displayed below a logo. This is useful if the
 logo already contains the name.
+
+## Build Progress
+
+Large documents can take a while to build. Loading
+[ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl) in `make.jl` displays a
+progress bar for each of the page-iterating stages of the build: expanding pages, running
+doctests, and rendering the HTML and LaTeX output:
+
+```julia
+using Documenter, ProgressMeter
+
+makedocs(sitename = "MyPackage")
+```
