@@ -8,7 +8,8 @@ A module for rendering `Document` objects to HTML.
 The behavior of [`HTMLWriter`](@ref) can be further customized by setting the `format`
 keyword of [`Documenter.makedocs`](@ref) to a [`HTML`](@ref), which accepts the following
 keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link`,
-`prettyurls`, `collapselevel`, `sidebar_sitename`, `highlights`, `mathengine` and `footer`.
+`prettyurls`, `referrerpolicy`, `collapselevel`, `sidebar_sitename`, `highlights`,
+`mathengine` and `footer`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 navigation menu. It is also written into the inventory (see below).
@@ -359,6 +360,14 @@ for more information.
 
 **`analytics`** can be used to specify the Google Analytics tracking ID.
 
+**`referrerpolicy`** sets the [referrer policy][mdn-referrer] of the generated pages via a
+`<meta name="referrer">` tag. The default, `"no-referrer"`, stops the browser from telling
+the CDNs that host the fonts, stylesheets and scripts (and any external site the reader
+navigates to) which page the request originated from. Set it to `nothing` to omit the tag
+and fall back to the browser default.
+
+[mdn-referrer]: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/referrer
+
 **`collapselevel`** controls the navigation level visible in the sidebar. Defaults to `2`.
 To show fewer levels by default, set `collapselevel = 1`.
 
@@ -487,6 +496,7 @@ struct HTML <: Documenter.Writer
     canonical::Union{String, Nothing}
     assets::Vector{HTMLHeadContent}
     analytics::String
+    referrerpolicy::Union{String, Nothing}
     collapselevel::Int
     sidebar_sitename::Bool
     highlights::Vector{String}
@@ -514,6 +524,7 @@ struct HTML <: Documenter.Writer
             canonical::Union{String, Nothing} = nothing,
             assets::Vector = String[],
             analytics::String = "",
+            referrerpolicy::Union{String, Nothing} = "no-referrer",
             collapselevel::Integer = 2,
             sidebar_sitename::Bool = true,
             highlights::Vector{String} = String[],
@@ -596,7 +607,7 @@ struct HTML <: Documenter.Writer
         size_threshold_ignore = normpath.(size_threshold_ignore)
         return new(
             prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
+            referrerpolicy, collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
             search_size_threshold_warn,
@@ -1091,6 +1102,7 @@ function render_head(ctx, navnode)
     return head(
         meta[:charset => "UTF-8"],
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
+        referrerpolicy_meta_tag(ctx.settings.referrerpolicy),
 
         # Title tag and meta tags
         title(page_title),
@@ -1215,6 +1227,17 @@ function asset_links(src::AbstractString, assets::Vector{<:HTMLHeadContent})
         push!(links, node)
     end
     return links
+end
+
+"""
+Renders the `<meta name="referrer">` tag that sets the referrer policy for the whole page.
+Unlike a `referrerpolicy` attribute on individual tags, this also covers the dependencies
+that are loaded dynamically at runtime (e.g. by requirejs).
+"""
+function referrerpolicy_meta_tag(policy::Union{AbstractString, Nothing})
+    @tags meta
+    isnothing(policy) && return DOM.VOID
+    return meta[:name => "referrer", :content => policy]
 end
 
 function analytics_script(tracking_id::AbstractString)
