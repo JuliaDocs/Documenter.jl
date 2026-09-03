@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* An `@contents` or `@index` block whose body fails to parse is now left unexpanded instead of falling back to the defaults, which silently listed the whole document. ([#1140])
+
 ## Version [v1.19.0] - 2026-09-01
 
 ### Added
@@ -1794,6 +1800,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1119]: https://github.com/JuliaDocs/Documenter.jl/issues/1119
 [#1121]: https://github.com/JuliaDocs/Documenter.jl/issues/1121
 [#1137]: https://github.com/JuliaDocs/Documenter.jl/issues/1137
+[#1140]: https://github.com/JuliaDocs/Documenter.jl/issues/1140
 [#1144]: https://github.com/JuliaDocs/Documenter.jl/issues/1144
 [#1147]: https://github.com/JuliaDocs/Documenter.jl/issues/1147
 [#1148]: https://github.com/JuliaDocs/Documenter.jl/issues/1148

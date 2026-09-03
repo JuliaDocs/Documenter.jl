@@ -825,6 +825,8 @@ function Selectors.runner(::Type{Expanders.IndexBlocks}, node, page, doc)
     x = node.element
 
     indexnode = Documenter.buildnode(Documenter.IndexNode, x, doc, page)
+    # Leave a block that failed to parse unexpanded, as the code block it already is.
+    indexnode === nothing && return
     push!(doc.internal.indexnodes, indexnode)
     node.element = indexnode
     return
@@ -838,6 +840,8 @@ function Selectors.runner(::Type{Expanders.ContentsBlocks}, node, page, doc)
     x = node.element
 
     contentsnode = Documenter.buildnode(Documenter.ContentsNode, x, doc, page)
+    # Leave a block that failed to parse unexpanded, as the code block it already is.
+    contentsnode === nothing && return
     push!(doc.internal.contentsnodes, contentsnode)
     node.element = contentsnode
     return
