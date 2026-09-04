@@ -309,20 +309,38 @@ Selectors.order(::Type{Expanders.RawBlocks}) = 11.0
 
 Selectors.matcher(::Type{Expanders.TrackHeaders}, node, page, doc) = isa(node.element, MarkdownAST.Heading)
 Selectors.matcher(::Type{Expanders.MetaBlocks}, node, page, doc) = iscode(node, "@meta")
-Selectors.matcher(::Type{Expanders.DocsBlocks}, node, page, doc) = iscode(node, r"^@docs")
-Selectors.matcher(::Type{Expanders.AutoDocsBlocks}, node, page, doc) = iscode(node, r"^@autodocs")
-Selectors.matcher(::Type{Expanders.EvalBlocks}, node, page, doc) = iscode(node, r"^@eval")
+Selectors.matcher(::Type{Expanders.DocsBlocks}, node, page, doc) = iscodelang(node, "@docs")
+Selectors.matcher(::Type{Expanders.AutoDocsBlocks}, node, page, doc) = iscodelang(node, "@autodocs")
+Selectors.matcher(::Type{Expanders.EvalBlocks}, node, page, doc) = iscodelang(node, "@eval")
 Selectors.matcher(::Type{Expanders.IndexBlocks}, node, page, doc) = iscode(node, "@index")
 Selectors.matcher(::Type{Expanders.ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
-Selectors.matcher(::Type{Expanders.ExampleBlocks}, node, page, doc) = iscode(node, r"^@example")
-Selectors.matcher(::Type{Expanders.REPLBlocks}, node, page, doc) = iscode(node, r"^@repl")
-Selectors.matcher(::Type{Expanders.SetupBlocks}, node, page, doc) = iscode(node, r"^@setup")
-Selectors.matcher(::Type{Expanders.RawBlocks}, node, page, doc) = iscode(node, r"^@raw")
+Selectors.matcher(::Type{Expanders.ExampleBlocks}, node, page, doc) = iscodelang(node, "@example")
+Selectors.matcher(::Type{Expanders.REPLBlocks}, node, page, doc) = iscodelang(node, "@repl")
+Selectors.matcher(::Type{Expanders.SetupBlocks}, node, page, doc) = iscodelang(node, "@setup")
+Selectors.matcher(::Type{Expanders.RawBlocks}, node, page, doc) = iscodelang(node, "@raw")
+
+# Every language Documenter gives a meaning to on a manual page.
+const AT_BLOCK_LANGS = [
+    "@meta", "@docs", "@autodocs", "@eval", "@index",
+    "@contents", "@example", "@repl", "@setup", "@raw",
+]
 
 # Default Expander.
 
-Selectors.runner(::Type{Expanders.ExpanderPipeline}, node, page, doc) = nothing
-Selectors.runner(::Type{Expanders.NestedExpanderPipeline}, node, page, doc) = nothing
+Selectors.runner(::Type{Expanders.ExpanderPipeline}, node, page, doc) = warn_misspelled_at_block(node, page, doc)
+Selectors.runner(::Type{Expanders.NestedExpanderPipeline}, node, page, doc) = warn_misspelled_at_block(node, page, doc)
+
+# Nothing claimed this node. If it is a code block whose language looks like an
+# at-block but is none (```@examples```), that is most likely a typo, and the
+# block would be silently rendered as plain code.
+function warn_misspelled_at_block(node, page, doc)
+    node.element isa MarkdownAST.CodeBlock || return
+    misspelling = Documenter.misspelled_blocklang(node.element.info, AT_BLOCK_LANGS)
+    misspelling === nothing && return
+
+    lines = Documenter.find_block_in_file(node.element.code, page.source)
+    return Documenter.warn_misspelled_blocklang(misspelling, Documenter.locrepr(doc, page, lines))
+end
 
 # Track Headers.
 # --------------
@@ -1118,7 +1136,6 @@ end
 # ----------
 
 iscode(node::Node, lang) = iscode(node.element, lang)
-iscode(x::MarkdownAST.CodeBlock, r::Regex) = occursin(r, x.info)
 iscode(x::MarkdownAST.CodeBlock, lang) = x.info == lang
 iscode(x, lang) = false
 

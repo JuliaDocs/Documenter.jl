@@ -711,6 +711,52 @@ function codelang(infostring::AbstractString)
 end
 
 """
+    $(SIGNATURES)
+
+Extracts the language of a Markdown code block from its info string, that is,
+everything up to the first whitespace character or `;`.
+
+Unlike [`codelang`](@ref), which yields the language used for syntax
+highlighting, this is the name Documenter dispatches on: `@example name; k = v`
+and `jldoctest; setup = :(x = 1)` are written in the languages `@example` and
+`jldoctest`.
+"""
+function blocklang(infostring::AbstractString)
+    i = findfirst(c -> isspace(c) || c == ';', infostring)
+    return i === nothing ? String(infostring) : infostring[1:prevind(infostring, i)]
+end
+
+"""
+    $(SIGNATURES)
+
+Whether a code block is written in the language `lang`, that is, its info string
+is `lang` optionally followed by a name and `; key = value` arguments.
+"""
+iscodelang(block::MarkdownAST.CodeBlock, lang::AbstractString) = blocklang(block.info) == lang
+iscodelang(node::MarkdownAST.Node, lang::AbstractString) = iscodelang(node.element, lang)
+iscodelang(x, lang::AbstractString) = false
+
+"""
+    $(SIGNATURES)
+
+If the language of a code block is not one of `langs` but starts with one of
+them — `jldoctests` for `jldoctest`, say — return the pair
+`(language, intended language)`, and `nothing` otherwise.
+"""
+function misspelled_blocklang(infostring::AbstractString, langs)
+    lang = blocklang(infostring)
+    i = findfirst(l -> lang != l && startswith(lang, l), langs)
+    return i === nothing ? nothing : (lang, langs[i])
+end
+
+# Such a block is passed through as an ordinary code block, which is what someone
+# writing e.g. `jldoctest_special` on purpose wants; only warn, never error.
+function warn_misspelled_blocklang((lang, intended), source)
+    @warn "In $(source): unknown code block language `$(lang)`; did you mean `$(intended)`?"
+    return
+end
+
+"""
     parse_codelang(block::MarkdownAST.CodeBlock)
 
 Parse the "codelang" part of code blocks, that is, the `info` field
