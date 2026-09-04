@@ -315,6 +315,29 @@ module UnbalancedDollarWarningTests end
 
 ###########################################################################################
 
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("blocklang")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+┌ Warning: In src/blocklang.md:4-7: unknown code block language `jldoctests`; did you mean `jldoctest`?
+└ @ Documenter
+┌ Warning: In src/blocklang.md:15-18: unknown code block language `jldoctest_special`; did you mean `jldoctest`?
+└ @ Documenter
+[ Info: ExpandTemplates: expanding markdown templates.
+┌ Warning: In src/blocklang.md:10-12: unknown code block language `@examples`; did you mean `@example`?
+└ @ Documenter
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+module BlockLangWarningTests end
+
+###########################################################################################
+
 fixtests = haskey(ENV, "DOCUMENTER_FIXTESTS")
 
 # run the doctests in Julia >= 1.10 (some outputs have minor difference in

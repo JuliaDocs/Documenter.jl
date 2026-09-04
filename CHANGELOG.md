@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * An `@contents` or `@index` block whose body fails to parse is now left unexpanded instead of falling back to the defaults, which silently listed the whole document. ([#1140])
 * `@contents` blocks without an explicit `Pages = [...]` now list the pages in the order given by the `pages` argument of `makedocs`, instead of alphabetically by source path. ([#936])
+* A fenced code block whose language merely starts with the name of a Documenter block, such as ```` ```jldoctests ```` or ```` ```@examples ````, no longer aborts the build with an `internal error`. Documenter now dispatches on the whole language, so such a block is again passed through as an ordinary code block — and reported with a warning, since it is usually a typo. ([#2997], [#2912])
 
 ## Version [v1.19.0] - 2026-09-01
 
@@ -2329,6 +2330,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2976]: https://github.com/JuliaDocs/Documenter.jl/issues/2976
 [#2987]: https://github.com/JuliaDocs/Documenter.jl/issues/2987
 [#2992]: https://github.com/JuliaDocs/Documenter.jl/issues/2992
+[#2997]: https://github.com/JuliaDocs/Documenter.jl/issues/2997
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
