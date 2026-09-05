@@ -77,7 +77,7 @@ function _doctest(docstr::Docs.DocStr, mod::Module, doc::Documenter.Document)
 end
 
 function parse_metablock(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
-    @assert startswith(block.info, "@meta")
+    @assert Documenter.iscodelang(block, "@meta")
     meta = Dict{Symbol, Any}()
     for (ex, str) in Documenter.parseblock(block.code, ctx.doc, ctx.file)
         if Documenter.isassign(ex)
@@ -94,18 +94,32 @@ end
 function _doctest(ctx::DocTestContext, mdast::MarkdownAST.Node)
     for node in AbstractTrees.Leaves(mdast)
         isa(node.element, MarkdownAST.CodeBlock) || continue
-        if startswith(node.element.info, "jldoctest")
+        if Documenter.iscodelang(node.element, "jldoctest")
             _doctest(ctx, node.element)
-        elseif startswith(node.element.info, "@meta")
+        elseif Documenter.iscodelang(node.element, "@meta")
             merge!(ctx.meta, parse_metablock(ctx, node.element))
+        else
+            warn_misspelled_doctest(ctx, node.element)
         end
     end
     return
 end
 
+# The doctest pass is the only one that looks at the code blocks of docstrings, so
+# it also reports doctests whose language is misspelled (```jldoctests```) and which
+# would therefore never be run.
+function warn_misspelled_doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
+    misspelling = Documenter.misspelled_blocklang(block.info, ["jldoctest"])
+    misspelling === nothing && return
+
+    file = something(ctx.meta[:CurrentFile], ctx.file)
+    lines = Documenter.find_block_in_file(block.code, file)
+    return Documenter.warn_misspelled_blocklang(misspelling, Documenter.locrepr(file, lines))
+end
+
 function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
     lang = block.info
-    if startswith(lang, "jldoctest")
+    if Documenter.iscodelang(block, "jldoctest")
         file = ctx.meta[:CurrentFile]
         lines = Documenter.find_block_in_file(block.code, file)
         source = Documenter.locrepr(file, lines)

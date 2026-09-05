@@ -1079,7 +1079,7 @@ function doctest_replace!(ast::MarkdownAST.Node)
 end
 doctest_replace!(docsnode::DocsNode) = foreach(doctest_replace!, docsnode.mdasts)
 function doctest_replace!(block::MarkdownAST.CodeBlock)
-    startswith(block.info, "jldoctest") || return
+    iscodelang(block, "jldoctest") || return
     # suppress output for `#output`-style doctests with `output=false` kwarg
     if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.info)
         input = first(split(block.code, "# output\n", limit = 2))
