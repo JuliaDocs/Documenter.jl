@@ -72,6 +72,7 @@ using Base64: Base64
 using SHA: SHA
 using CodecZlib: ZlibCompressorStream
 using ANSIColoredPrinters: ANSIColoredPrinters
+using SimpleImageMetadata: SimpleImageMetadata
 
 using ..Documenter: Documenter, Default, Remotes, locrepr
 using ...JSDependencies: JSDependencies
@@ -2740,71 +2741,14 @@ ignoring any higher pixel density the file declares.
 Returns no attributes if the bytes cannot be parsed as a PNG.
 """
 function png_size_attributes(bytes::Vector{UInt8})
-    metadata = try
-        png_image_metadata(bytes)
+    image_size = try
+        SimpleImageMetadata.display_size(bytes)
     catch e
         @debug "Unable to determine the size of a PNG @example output" exception = (e, catch_backtrace())
         return ()
     end
-    return (:width => string(metadata.width), :height => string(metadata.height))
-end
-
-# Taken from https://github.com/PumasAI/QuartoNotebookRunner.jl/, MIT licensed
-function png_image_metadata(bytes::Vector{UInt8})
-    if @view(bytes[1:8]) != b"\x89PNG\r\n\x1a\n"
-        throw(ArgumentError("Not a png file"))
-    end
-
-    chunk_start::Int = 9
-
-    _load(T, bytes, index) = ntoh(reinterpret(T, @view(bytes[index:(index + sizeof(T) - 1)]))[])
-
-    function read_chunk!()
-        chunk_start > lastindex(bytes) && return nothing
-        chunk_data_length = _load(UInt32, bytes, chunk_start)
-        type = @view(bytes[(chunk_start + 4):(chunk_start + 7)])
-        data = @view(bytes[(chunk_start + 8):(chunk_start + 8 + chunk_data_length - 1)])
-        result = (; chunk_start, type, data)
-
-        # advance the chunk_start state variable
-        chunk_start += 4 + 4 + chunk_data_length + 4 # length, type, data, crc
-
-        return result
-    end
-
-    chunk = read_chunk!()
-    if chunk === nothing
-        error("PNG file had no chunks")
-    end
-    if chunk.type != b"IHDR"
-        error("PNG file must start with IHDR chunk, started with $(chunk.type)")
-    end
-
-    width = Int(_load(UInt32, chunk.data, 1))
-    height = Int(_load(UInt32, chunk.data, 5))
-
-    # if the png reports a physical pixel size, i.e., it has a pHYs chunk
-    # with the pixels per meter unit flag set, correct the basic width and height
-    # by those physical pixel sizes
-    while true
-        chunk = read_chunk!()
-        chunk === nothing && break
-        chunk.type == b"IDAT" && break
-        if chunk.type == b"pHYs"
-            is_in_meters = Bool(_load(UInt8, chunk.data, 9))
-            is_in_meters || break
-            x_px_per_meter = _load(UInt32, chunk.data, 1)
-            y_px_per_meter = _load(UInt32, chunk.data, 5)
-            # it seems sensible to round the final image size to full CSS pixels,
-            # especially given that png doesn't store dpi but px per meter
-            # in an integer format, losing some precision
-            width = round(Int, width / x_px_per_meter * (96 / 0.0254))
-            height = round(Int, height / y_px_per_meter * (96 / 0.0254))
-            break
-        end
-    end
-
-    return (; width, height)
+    width, height = image_size.display_size
+    return (:width => string(width), :height => string(height))
 end
 
 # filehrefs
