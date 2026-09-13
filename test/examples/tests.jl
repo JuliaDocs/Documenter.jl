@@ -385,6 +385,11 @@ end
                     "<img src=\"$(big_png.hash_slug).png\" alt=\"Example block output\" width=\"800\" height=\"693\"/>",
                     html
                 )
+                tiny_jpeg = AT_EXAMPLE_FILES[("jpeg", :tiny)]
+                @test occursin(
+                    "<img src=\"data:image/jpeg;base64,$(Base64.base64encode(tiny_jpeg.bytes))\" alt=\"Example block output\" width=\"128\" height=\"68\"/>",
+                    html
+                )
             end
             # SVG on src/example-output.md
             @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg"))
@@ -462,6 +467,11 @@ end
                 big_png = AT_EXAMPLE_FILES[("png", :big)]
                 @test occursin(
                     "<img src=\"example-output-$(big_png.hash_slug).png\" alt=\"Example block output\" width=\"800\" height=\"693\"/>",
+                    html
+                )
+                tiny_jpeg = AT_EXAMPLE_FILES[("jpeg", :tiny)]
+                @test occursin(
+                    "<img src=\"data:image/jpeg;base64,$(Base64.base64encode(tiny_jpeg.bytes))\" alt=\"Example block output\" width=\"128\" height=\"68\"/>",
                     html
                 )
             end
