@@ -64,6 +64,7 @@ clean:
 	rm -rf test/missingdocs/build
 	rm -rf test/nongit/build
 	rm -rf test/plugins/build
+	rm -rf test/progress/build
 	rm -rf test/quietly-logs
 	rm -rf test/workdir/builds
 	rm -f test/search/search_benchmark_results_*.txt

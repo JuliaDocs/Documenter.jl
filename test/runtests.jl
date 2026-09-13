@@ -121,4 +121,8 @@ end
     # Running doctest() on our own manual
     @info "doctest() Documenter's manual"
     @quietly include("manual.jl")
+
+    # Last: loading ProgressMeter would draw bars in every subsequent build.
+    @info "Running tests in progress.jl"
+    @quietly include("progress.jl")
 end
