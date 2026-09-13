@@ -52,8 +52,63 @@ macro docerror(doc, tag, msg, exs...)
     end
 end
 
-# escape characters that has a meaning in regex
-regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
+# Locating fenced code blocks in their source file.
+#
+# The Markdown AST carries no source positions, so the only way to report where a
+# code block came from is to search the file for its body. The parser strips the
+# indentation and block quote markers of nested blocks, so the body shows up
+# prefixed in the file:
+#
+#     > - a list item
+#     >
+#     >   ```julia      <- opening fence
+#     >   f(x) = 2x     <- block body, i.e. `code`
+#     >   ```           <- closing fence
+#
+# Matching line by line keeps this working for blocks of any size. Compiling the
+# body into a single regex does not: PCRE rejects patterns beyond ~64 kB, which
+# `@raw html` blocks easily exceed (issue #2992).
+
+const BLOCK_PREFIX_CHARS = (UInt8(' '), UInt8('\t'), UInt8('>'))
+
+rstrip_hspace(str::AbstractString) = rstrip(c -> c == ' ' || c == '\t', str)
+
+"""
+    block_line_prefix_length(line, codeline)
+
+Number of code units that `line` prepends to `codeline`, or `nothing` if `line` is
+not `codeline` preceded by `BLOCK_PREFIX_CHARS` only. Trailing spaces and
+tabs are ignored on both sides.
+"""
+function block_line_prefix_length(line::AbstractString, codeline::AbstractString)
+    line, codeline = rstrip_hspace(line), rstrip_hspace(codeline)
+    n = ncodeunits(line) - ncodeunits(codeline)
+    n < 0 && return nothing
+    for i in 1:n
+        codeunit(line, i) in BLOCK_PREFIX_CHARS || return nothing
+    end
+    return SubString(line, n + 1) == codeline ? n : nothing
+end
+
+"""
+    find_block_lines(lines, code)
+
+Range of indices into `lines` occupied by the body of the code block `code`, or
+`nothing` if the block does not occur in `lines`.
+"""
+function find_block_lines(lines::AbstractVector{<:AbstractString}, code::AbstractString)
+    isempty(code) && return nothing
+    codelines = split(chomp(code), '\n')
+    for start in 1:(length(lines) - length(codelines) + 1)
+        block = start:(start + length(codelines) - 1)
+        matches = all(
+            block_line_prefix_length(lines[i], codelines[j]) !== nothing
+                for (j, i) in enumerate(block)
+        )
+        matches && return block
+    end
+    return nothing
+end
 
 # helper to display linerange for error printing
 function find_block_in_file(code, file)
@@ -62,13 +117,10 @@ function find_block_in_file(code, file)
     isfile(source_file) || return nothing
     content = read(source_file, String)
     content = replace(content, "\r\n" => "\n")
-    # make a regex of the code that matches leading whitespace
-    rcode = "\\h*" * replace(regex_escape(code), "\\n" => "\\n\\h*")
-    blockidx = findfirst(Regex(rcode), content)
-    blockidx === nothing && return nothing
-    startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
-    endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
-    return startline => endline
+    block = find_block_lines(split(content, '\n'), code)
+    block === nothing && return nothing
+    # report the fences rather than the body
+    return (first(block) - 1) => (last(block) + 1)
 end
 
 # Pretty-printing locations

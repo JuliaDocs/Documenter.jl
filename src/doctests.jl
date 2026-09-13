@@ -494,36 +494,31 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     filename = Base.find_source_file(result.file)
     # read the file containing the code block
     content = read(filename, String)
-    # output stream
-    io = IOBuffer(sizehint = sizeof(content))
+    lines = split(content, '\n')
+    codelines = split(code, '\n')
+
     # first look for the entire code block
-    # make a regex of the code that matches leading whitespace
-    rcode = "(\\h*)" * replace(Documenter.regex_escape(code), "\\n" => "\\n\\h*")
-    r = Regex(rcode)
-    codeidx = findfirst(r, content)
-    if codeidx === nothing
+    block = Documenter.find_block_lines(lines, code)
+    if block === nothing
         @warn "could not find code block in source file $filename"
         return
     end
-    # use the capture group to identify indentation
-    indent = match(r, content).captures[1]
-    # write everything up until the code block
-    data = content[1:prevind(content, first(codeidx))]
-    write(io, data)
+    # the prefix the Markdown parser stripped off the block, restored when writing it back
+    firstline = lines[first(block)]
+    indent = SubString(firstline, 1, Documenter.block_line_prefix_length(firstline, codelines[1]))
+
     # next look for the particular input string in the given code block
-    # make a regex of the input that matches leading whitespace (for multiline input)
     composed = prefix.content * result.raw_input
-    rinput = replace(Documenter.regex_escape(composed), "\\n" => "\\n\\h*")
-    r = Regex(rinput)
-    inputidx = findfirst(r, code)
-    if inputidx === nothing
-        startline = count("\n", data)
-        @warn "could not find input line in code block in $filename:$startline"
+    inputlines = Documenter.find_block_lines(codelines, composed)
+    if inputlines === nothing
+        @warn "could not find input line in code block in $filename:$(first(block) - 1)"
         return
     end
     # construct the new code-snippet (without indent)
-    # first part: everything up until the last index of the input string
-    newcode = code[1:last(inputidx)]
+    # first part: everything up until the last line of the input string
+    newcode = join(view(codelines, 1:last(inputlines)), '\n')
+    rest = last(inputlines) < length(codelines) ?
+        "\n" * join(view(codelines, (last(inputlines) + 1):length(codelines)), '\n') : ""
     prefix.content = newcode * "\n"
     if str != ""
         prefix.content *= str * "\n"
@@ -535,23 +530,37 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
         # This works around a regression in Julia 1.5.0 (https://github.com/JuliaLang/julia/issues/36953)
         # Technically, it is only necessary if VERSION >= v"1.5.0-DEV.826"
         newcode *= str
-        newcode *= code[nextind(code, last(inputidx)):end]
+        newcode *= rest
     else
         if str == ""
-            newcode *= replace(code[nextind(code, last(inputidx)):end], result.output * "\n" => str, count = 1)
+            newcode *= replace(rest, result.output * "\n" => str, count = 1)
         else
-            newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+            newcode *= replace(rest, result.output => str, count = 1)
         end
     end
     # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later
     result.block.code = newcode
-    # write the new code snippet to the stream, with indent
-    newcode = replace(newcode, r"^(.+)$"m => Base.SubstitutionString(indent * "\\1"))
-    write(io, newcode)
-    # write rest of the file
-    write(io, content[nextind(content, last(codeidx)):end])
-    # write to file
+
+    # write the file back out: everything before the block, the new code snippet
+    # with the indent restored, and everything after the block
+    io = IOBuffer(sizehint = sizeof(content))
+    for i in 1:(first(block) - 1)
+        write(io, lines[i], '\n')
+    end
+
+    # A blank line includes the prefix but removes any trailing whitespace.
+    # Standard indentation should not result in trailing spaces. However, a
+    # block quote marker must remain on the line, because a blank line that
+    # lacks the marker will terminate the quote.
+    blank_indent = rstrip(indent)
+    for (i, line) in enumerate(split(newcode, '\n'))
+        i == 1 || write(io, '\n')
+        write(io, isempty(line) ? blank_indent : indent * line)
+    end
+    for i in (last(block) + 1):length(lines)
+        write(io, '\n', lines[i])
+    end
     write(filename, seekstart(io))
     return
 end

@@ -1148,9 +1148,40 @@ end
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = MDFlatten.mdflatten(io, node.children)
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredInline) = MDFlatten.mdflatten(io, node.children)
-MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = MDFlatten.mdflatten(io, node, e.codeblock)
+
+# The at-blocks below flatten to what the writers actually render, rather than to
+# the source of the at-block, so that the search index does not pick up text that
+# is nowhere to be seen on the rendered page (issue #1929).
+
+# @meta and @setup blocks render nothing at all.
+MDFlatten.mdflatten(io, ::MarkdownAST.Node, ::Union{MetaNode, SetupNode}) = nothing
+
+# @example and @repl blocks render their children: the input code and, for
+# @example, the output of evaluating it.
+function MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::Union{MultiOutput, MultiCodeBlock})
+    # Children that flatten to nothing (e.g. image output) must not leave a
+    # stray separator behind.
+    parts = filter(!isempty, [MDFlatten.mdflatten(child) for child in node.children])
+    print(io, join(parts, '\n'))
+    return
+end
+
+# Of the MIME representations of an @example output, only the plain text one is
+# meaningful as flattened text; images and the like are dropped.
+function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::MultiOutputElement)
+    mime = MIME"text/plain"()
+    e.element isa AbstractDict && haskey(e.element, mime) && print(io, e.element[mime])
+    return
+end
+
+# @eval blocks render only the result of evaluating the block.
+function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::EvalNode)
+    isnothing(e.result) || MDFlatten.mdflatten(io, e.result)
+    return
+end
+
 function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
     # this special case separates top level blocks with newlines
     for node in e.mdasts
