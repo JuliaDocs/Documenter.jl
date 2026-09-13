@@ -320,12 +320,14 @@ end
         @test HTMLWriter.format_units(typemax(Int)) == "(no limit)"
     end
 
-    @testset "HTML: png_size_attributes" begin
+    @testset "HTML: image_size_attributes" begin
         images = joinpath(@__DIR__, "examples", "images")
-        # tiny-hidpi.png is tiny.png with a pHYs chunk declaring twice the CSS reference of 96 dpi
-        @test HTMLWriter.png_size_attributes(read(joinpath(images, "tiny.png"))) == (:width => "128", :height => "68")
-        @test HTMLWriter.png_size_attributes(read(joinpath(images, "tiny-hidpi.png"))) == (:width => "64", :height => "34")
-        @test HTMLWriter.png_size_attributes(collect(b"not an image")) == ()
+        # the -hidpi files declare twice the CSS reference of 96 dpi, the others declare no resolution
+        @test HTMLWriter.image_size_attributes(read(joinpath(images, "tiny.png"))) == (:width => "128", :height => "68")
+        @test HTMLWriter.image_size_attributes(read(joinpath(images, "tiny-hidpi.png"))) == (:width => "64", :height => "34")
+        @test HTMLWriter.image_size_attributes(read(joinpath(images, "tiny.jpeg"))) == (:width => "128", :height => "68")
+        @test HTMLWriter.image_size_attributes(read(joinpath(images, "tiny-hidpi.jpeg"))) == (:width => "64", :height => "34")
+        @test HTMLWriter.image_size_attributes(collect(b"not an image")) == ()
     end
 
     @testset "HTML: _strip_latex_math_delimiters" begin

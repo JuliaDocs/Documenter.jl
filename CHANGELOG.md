@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* PNG images from `@example` blocks are now displayed at the size implied by the pixel density stored in the file, instead of being blown up to their raw pixel dimensions. ([#2993])
+* PNG and JPEG images from `@example` blocks are now displayed at the size implied by the pixel density stored in the file, instead of being blown up to their raw pixel dimensions. ([#2993])
 
 
 ## Version [v1.18.0] - 2026-08-28

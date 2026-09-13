@@ -2723,7 +2723,7 @@ function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{
     bytes = Base64.base64decode(data_base64)
     filename = write_data_file(dctx, bytes; suffix = ".$filetype")
     alt = (:alt => "Example block output")
-    size_attributes = filetype == "png" ? png_size_attributes(bytes) : ()
+    size_attributes = filetype in ("png", "jpeg") ? image_size_attributes(bytes) : ()
     dom = if isnothing(filename)
         src = string("data:$(mime_name);base64,", data_base64)
         img[:src => src, alt, size_attributes...]
@@ -2735,16 +2735,16 @@ end
 
 """
 Returns the `width` and `height` attributes, in CSS pixels, for an `img` tag showing the
-PNG in `bytes`. Without them the browser lays a PNG out at its raw pixel dimensions,
-ignoring any higher pixel density the file declares.
+PNG or JPEG in `bytes`. Without them the browser lays the image out at its raw pixel
+dimensions, ignoring any higher pixel density the file declares.
 
-Returns no attributes if the bytes cannot be parsed as a PNG.
+Returns no attributes if the bytes cannot be parsed.
 """
-function png_size_attributes(bytes::Vector{UInt8})
+function image_size_attributes(bytes::Vector{UInt8})
     image_size = try
         SimpleImageMetadata.display_size(bytes)
     catch e
-        @debug "Unable to determine the size of a PNG @example output" exception = (e, catch_backtrace())
+        @debug "Unable to determine the size of an image @example output" exception = (e, catch_backtrace())
         return ()
     end
     width, height = image_size.display_size
