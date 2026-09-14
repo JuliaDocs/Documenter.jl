@@ -656,23 +656,21 @@ function mdparse(s::AbstractString; mode = :single)::Vector{MarkdownAST.Node{Not
 end
 
 # Capturing output in different representations similar to IJulia.jl
-function limitstringmime(m::MIME"text/plain", x; context = nothing)
-    io = IOBuffer()
-    ioc = IOContext(context === nothing ? io : IOContext(io, context), :limit => true)
-    show(ioc, m, x)
-    return String(take!(io))
-end
 function display_dict(x; context = nothing)
     out = Dict{MIME, Any}()
     x === nothing && return out
+    # Set :limit for every MIME, like the REPL, IJulia and Pluto do, so that e.g.
+    # a DataFrame truncates its text/html table just as it truncates text/plain.
+    io = IOBuffer()
+    ctx = IOContext(context === nothing ? io : IOContext(io, context), :limit => true)
     # Always generate text/plain
-    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context = context)
+    out[MIME"text/plain"()] = stringmime(MIME"text/plain"(), x, context = ctx)
     for m in [
             MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
             MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
             MIME"text/latex"(), MIME"text/markdown"(),
         ]
-        showable(m, x) && (out[m] = stringmime(m, x, context = context))
+        showable(m, x) && (out[m] = stringmime(m, x, context = ctx))
     end
     return out
 end
