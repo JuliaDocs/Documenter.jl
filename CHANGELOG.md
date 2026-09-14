@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* `@example` output is now rendered with `:limit => true` for every MIME, not only `text/plain`, so that e.g. a large `DataFrame` truncates its HTML table as it does in the REPL and IJulia. ([#3001])
+
 ## Version [v1.19.0] - 2026-09-01
 
 ### Added
@@ -2320,6 +2326,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2976]: https://github.com/JuliaDocs/Documenter.jl/issues/2976
 [#2987]: https://github.com/JuliaDocs/Documenter.jl/issues/2987
 [#2992]: https://github.com/JuliaDocs/Documenter.jl/issues/2992
+[#3001]: https://github.com/JuliaDocs/Documenter.jl/issues/3001
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
