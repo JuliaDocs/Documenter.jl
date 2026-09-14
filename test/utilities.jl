@@ -33,6 +33,12 @@ module UnitTests
     const TA = Vector{UInt128}
     const TB = Array{T, 8} where {T}
     const TC = Union{Int64, Float64, String}
+
+    # Reports whether :limit and :color are set in the IOContext it is shown into.
+    struct LimitReporter end
+    function Base.show(io::IO, ::MIME"text/html", ::LimitReporter)
+        return print(io, get(io, :limit, false) ? "limited" : "full", ",", get(io, :color, false))
+    end
 end
 
 module OuterModule
@@ -891,6 +897,16 @@ end
             ]
             @test Documenter.slugify(test) == answer
         end
+    end
+
+    @testset "display_dict" begin
+        out = Documenter.display_dict(UnitTests.LimitReporter())
+        @test out[MIME"text/html"()] == "limited,false"
+        # :limit is set for every MIME, and a user-passed context is still honoured
+        out = Documenter.display_dict(UnitTests.LimitReporter(), context = :color => true)
+        @test out[MIME"text/html"()] == "limited,true"
+        @test haskey(out, MIME"text/plain"())
+        @test Documenter.display_dict(nothing) == Dict{MIME, Any}()
     end
 end
 
