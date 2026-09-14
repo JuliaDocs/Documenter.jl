@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* PNG and JPEG images from `@example` blocks are now displayed at the size implied by the pixel density stored in the file, instead of being blown up to their raw pixel dimensions. ([#2993])
+
+
 ## Version [v1.19.0] - 2026-09-01
 
 ### Added
@@ -2320,6 +2327,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2976]: https://github.com/JuliaDocs/Documenter.jl/issues/2976
 [#2987]: https://github.com/JuliaDocs/Documenter.jl/issues/2987
 [#2992]: https://github.com/JuliaDocs/Documenter.jl/issues/2992
+[#2993]: https://github.com/JuliaDocs/Documenter.jl/issues/2993
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

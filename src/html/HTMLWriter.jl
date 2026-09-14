@@ -72,6 +72,7 @@ using Base64: Base64
 using SHA: SHA
 using CodecZlib: ZlibCompressorStream
 using ANSIColoredPrinters: ANSIColoredPrinters
+using SimpleImageMetadata: SimpleImageMetadata
 
 using ..Documenter: Documenter, Default, Remotes, locrepr
 using ...JSDependencies: JSDependencies
@@ -2719,15 +2720,35 @@ function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{
     # base64-encodes the bytes, so the values in the dictionary are base64-encoded.
     # So if we do write it to a file, we need to decode it first.
     data_base64 = d[mime]
-    filename = write_data_file(dctx, Base64.base64decode(data_base64); suffix = ".$filetype")
+    bytes = Base64.base64decode(data_base64)
+    filename = write_data_file(dctx, bytes; suffix = ".$filetype")
     alt = (:alt => "Example block output")
+    size_attributes = filetype in ("png", "jpeg") ? image_size_attributes(bytes) : ()
     dom = if isnothing(filename)
         src = string("data:$(mime_name);base64,", data_base64)
-        img[:src => src, alt]
+        img[:src => src, alt, size_attributes...]
     else
-        img[:src => filename, alt]
+        img[:src => filename, alt, size_attributes...]
     end
     return (; dom, mime = mime_name)
+end
+
+"""
+Returns the `width` and `height` attributes, in CSS pixels, for an `img` tag showing the
+PNG or JPEG in `bytes`. Without them the browser lays the image out at its raw pixel
+dimensions, ignoring any higher pixel density the file declares.
+
+Returns no attributes if the bytes cannot be parsed.
+"""
+function image_size_attributes(bytes::Vector{UInt8})
+    image_size = try
+        SimpleImageMetadata.display_size(bytes)
+    catch e
+        @debug "Unable to determine the size of an image @example output" exception = (e, catch_backtrace())
+        return ()
+    end
+    width, height = image_size.display_size
+    return (:width => string(width), :height => string(height))
 end
 
 # filehrefs
