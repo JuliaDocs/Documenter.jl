@@ -69,6 +69,9 @@ end
     # CrossReferences
     include("crossreferences.jl")
 
+    # @contents blocks
+    include("contents.jl")
+
     # DocTest unit tests.
     @info "Running tests in doctests/"
     include("doctests/docmeta.jl")

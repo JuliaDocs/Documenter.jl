@@ -445,7 +445,8 @@ Depth = 5
 ```
 ````
 
-As with `@index` if `Pages` is not provided then all pages are included. The default
+As with `@index` if `Pages` is not provided then all pages are included, in the order they
+appear in the `pages` argument of [`makedocs`](@ref). The default
 `Depth` value is `2`, i.e. header levels 1 and 2 are included. `Depth` also accepts
 `UnitRange`s, to make it possible to configure also the minimum header level to be shown.
 `Depth = 2:3` can be used to include only headers with levels 2-3, for example.

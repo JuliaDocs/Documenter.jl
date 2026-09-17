@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * An `@contents` or `@index` block whose body fails to parse is now left unexpanded instead of falling back to the defaults, which silently listed the whole document. ([#1140])
+* `@contents` blocks without an explicit `Pages = [...]` now list the pages in the order given by the `pages` argument of `makedocs`, instead of alphabetically by source path. ([#936])
 
 ## Version [v1.19.0] - 2026-09-01
 
@@ -1733,6 +1734,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#929]: https://github.com/JuliaDocs/Documenter.jl/issues/929
 [#934]: https://github.com/JuliaDocs/Documenter.jl/issues/934
 [#935]: https://github.com/JuliaDocs/Documenter.jl/issues/935
+[#936]: https://github.com/JuliaDocs/Documenter.jl/issues/936
 [#937]: https://github.com/JuliaDocs/Documenter.jl/issues/937
 [#938]: https://github.com/JuliaDocs/Documenter.jl/issues/938
 [#941]: https://github.com/JuliaDocs/Documenter.jl/issues/941
