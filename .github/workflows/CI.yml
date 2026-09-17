@@ -318,7 +318,7 @@ jobs:
         with:
           version: '1'
       - run: make install-biome
-      - run: make format-js
+      - run: make check-js
 
   runic:
     name: "Runic (Julia code formatting)"

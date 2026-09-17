@@ -138,3 +138,37 @@ julia> :a / :b
 ERROR: MethodError: no method matching /(::Symbol, ::Symbol)
 [...]
 ```
+
+Blocks nested in a list are indented in the source file:
+
+- a list item
+
+  ```jldoctest
+  julia> Main.DocTestFixArray_2468
+  4×1×1 Array{Int64,3}:
+  [:, :, 1] =
+   2
+   4
+   6
+   8
+  ```
+
+Blocks in a block quote carry a `>` marker, blank lines included:
+
+> ```jldoctest
+> julia> Main.DocTestFixArray_2468
+> 4×1×1 Array{Int64,3}:
+> [:, :, 1] =
+>  2
+>  4
+>  6
+>  8
+>
+> julia> Main.DocTestFixArray_1234
+> 4×1×1 Array{Int64,3}:
+> [:, :, 1] =
+>  1
+>  2
+>  3
+>  4
+> ```
