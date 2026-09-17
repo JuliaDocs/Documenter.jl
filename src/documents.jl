@@ -1090,10 +1090,15 @@ function doctest_replace!(block::MarkdownAST.CodeBlock)
 end
 doctest_replace!(@nospecialize _) = nothing
 
+# Builds a ContentsNode or IndexNode from the settings assigned in `block`. Returns
+# `nothing` if the block does not parse -- a broken block must not silently fall back to
+# the defaults, which would list the whole document (issue #1140).
 function buildnode(T::Type, block, doc, page)
     mod = get(page.globals.meta, :CurrentModule, Main)
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in parseblock(block.code, doc, page)
+    exprs = parseblock(block.code, doc, page; parse_error_result = nothing)
+    exprs === nothing && return nothing
+    for (ex, str) in exprs
         if isassign(ex)
             cd(dirname(page.source)) do
                 dict[ex.args[1]] = Core.eval(mod, ex.args[2])

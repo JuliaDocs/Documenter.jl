@@ -206,6 +206,10 @@ If `raise=false` is passed, the `Meta.parse` does not raise an exception on pars
 but instead returns an expression that will raise an error when evaluated. `parseblock`
 returns this expression normally and it must be handled appropriately by the caller.
 
+On a parse error, `parseblock` reports the error and returns `parse_error_result`, which
+defaults to an empty vector. Callers that must distinguish a broken block from an empty one
+can pass e.g. `parse_error_result = nothing`.
+
 The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
 and starting line number of the block (requires Julia 1.6 or higher).
 
@@ -218,7 +222,8 @@ If not specified, the default parser is used. When both `syntax_version` and `mo
 """
 function parseblock(
         code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
-        linenumbernode = nothing, lines = nothing, syntax_version = nothing, mod = nothing
+        linenumbernode = nothing, lines = nothing, syntax_version = nothing, mod = nothing,
+        parse_error_result = []
     )
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
@@ -252,7 +257,7 @@ function parseblock(
                 end
             catch err
                 @docerror(doc, :parse_error, "failed to parse code block in $(locrepr(file, lines))", exception = err)
-                return []
+                return parse_error_result
             end
         end
         str = SubString(code, cursor, prevind(code, ncursor))
