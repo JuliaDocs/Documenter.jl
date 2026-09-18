@@ -672,6 +672,23 @@ end
         @test Documenter.codelang("&%^ ***") == "&%^"
     end
 
+    @testset "blocklang" begin
+        @test Documenter.blocklang("") == ""
+        @test Documenter.blocklang("jldoctest") == "jldoctest"
+        @test Documenter.blocklang("jldoctests") == "jldoctests"
+        @test Documenter.blocklang("jldoctest; setup = :(x = 1)") == "jldoctest"
+        @test Documenter.blocklang("@example name; k = v") == "@example"
+        @test Documenter.blocklang("@docs; canonical=false") == "@docs"
+        @test Documenter.blocklang("@raw\thtml") == "@raw"
+
+        @test Documenter.iscodelang(MarkdownAST.CodeBlock("jldoctest", ""), "jldoctest")
+        @test Documenter.iscodelang(MarkdownAST.CodeBlock("jldoctest name", ""), "jldoctest")
+        @test Documenter.iscodelang(MarkdownAST.CodeBlock("jldoctest;a=1", ""), "jldoctest")
+        @test !Documenter.iscodelang(MarkdownAST.CodeBlock("jldoctests", ""), "jldoctest")
+        @test !Documenter.iscodelang(MarkdownAST.CodeBlock("jldoctest_special", ""), "jldoctest")
+        @test !Documenter.iscodelang(MarkdownAST.CodeBlock("@examples", ""), "@example")
+    end
+
     @testset "parse fenced code block language" begin
         @test Documenter.parse_codelang(MarkdownAST.CodeBlock("jldoctest", "julia> 1+1")) ==
             ("jldoctest", nothing, nothing)
