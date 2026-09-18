@@ -3,7 +3,7 @@
 
 // Manages the showing and hiding of the sidebar.
 $(document).ready(function () {
-  var sidebar = $("#documenter > .docs-sidebar");
+  var sidebar = $("#documenter .docs-sidebar");
   var sidebar_button = $("#documenter-sidebar-button");
   sidebar_button.click(function (ev) {
     ev.preventDefault();
@@ -13,7 +13,7 @@ $(document).ready(function () {
       $("#documenter .docs-menu a.is-active").focus();
     }
   });
-  $("#documenter > .docs-main").bind("click", function (ev) {
+  $("#documenter .docs-main").bind("click", function (ev) {
     if ($(ev.target).is(sidebar_button)) {
       return;
     }
@@ -40,6 +40,32 @@ $(document).ready(function () {
   resize();
   $(window).resize(resize);
   $(window).on("orientationchange", resize);
+});
+
+// Dynamically update --topmenu-height so that the sidebar, content wrapper, and
+// sticky navbar all stay correctly positioned when top menu items wrap to a new line.
+$(document).ready(function () {
+  var topMenu = $("#documenter .docs-top-menu");
+  if (topMenu.length === 0) return;
+  var documenter = document.getElementById("documenter");
+  function updateTopMenuHeight() {
+    var height = topMenu[0].offsetHeight + "px";
+    documenter.style.setProperty("--topmenu-height", height);
+    // Offset anchor-scroll targets so the fixed top menu doesn't cover them
+    document.documentElement.style.scrollPaddingTop = height;
+  }
+  updateTopMenuHeight();
+  $(window).resize(updateTopMenuHeight);
+  $(window).on("orientationchange", updateTopMenuHeight);
+  // Re-scroll to the hash anchor now that scroll-padding-top is set.
+  // The browser may have already scrolled to the anchor before JS ran,
+  // causing the header to be hidden under the fixed top menu.
+  if (location.hash) {
+    var target = document.getElementById(
+      decodeURIComponent(location.hash.substring(1))
+    );
+    if (target) target.scrollIntoView();
+  }
 });
 
 // Scroll the navigation bar to the currently selected menu item
