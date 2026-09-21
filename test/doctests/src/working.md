@@ -61,7 +61,7 @@ DocTestSetup = quote
 end
 ```
 ```jldoctest
-julia> f()=0
+julia> f() = 0
 f (generic function with 1 method)
 
 julia> methods(f)

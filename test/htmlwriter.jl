@@ -310,6 +310,24 @@ end
         @test html.size_threshold_warn == 1234
     end
 
+    @testset "HTML: referrerpolicy" begin
+        @test Documenter.HTML().referrerpolicy == "no-referrer"
+        @test Documenter.HTML(referrerpolicy = "strict-origin").referrerpolicy == "strict-origin"
+        @test Documenter.HTML(referrerpolicy = nothing).referrerpolicy === nothing
+
+        # An invalid token would be silently ignored by the browser.
+        @test_throws ArgumentError Documenter.HTML(referrerpolicy = "strict_origin")
+        @test_throws ArgumentError Documenter.HTML(referrerpolicy = "")
+        for policy in HTMLWriter.REFERRER_POLICIES
+            @test Documenter.HTML(referrerpolicy = policy).referrerpolicy == policy
+        end
+
+        tag = HTMLWriter.referrerpolicy_meta_tag("no-referrer")
+        @test string(tag) == """<meta name="referrer" content="no-referrer"/>"""
+        # No tag at all means the browser default applies.
+        @test string(HTMLWriter.referrerpolicy_meta_tag(nothing)) == ""
+    end
+
     @testset "HTML: format_units" begin
         @test HTMLWriter.format_units(0) == "0.0 (bytes)"
         @test HTMLWriter.format_units(1) == "1.0 (bytes)"

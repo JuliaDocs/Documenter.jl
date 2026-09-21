@@ -1,9 +1,9 @@
-# Search 
+# Search
 
 ## Overview
 
-The search system provides full-text search functionality for documentation sites through a two-phase architecture. 
-During build time, a Julia-based indexer processes all documentation content and generates a searchable index. 
+The search system provides full-text search functionality for documentation sites through a two-phase architecture.
+During build time, a Julia-based indexer processes all documentation content and generates a searchable index.
 At runtime, a JavaScript client-side interface performs real-time search operations against this pre-built index using a Web Worker for performance optimization.
 
 ## Architecture
@@ -11,7 +11,7 @@ At runtime, a JavaScript client-side interface performs real-time search operati
 The search implementation consists of three primary components operating in sequence:
 
 1. **Build-time Index Generation** - Julia code in `src/html/HTMLWriter.jl` processes documentation content during site generation.
-2. **Client-side Search Interface** - JavaScript code in `assets/html/js/search.js` handles user interactions and search execution. 
+2. **Client-side Search Interface** - JavaScript code in `assets/html/js/search.js` handles user interactions and search execution.
 3. **Web Worker Processing** - Background thread execution prevents UI blocking during search operations.
 
 ## Index Generation Process
@@ -51,7 +51,7 @@ The search index is written to `search_index.js` in the following format:
 var documenterSearchIndex = {"docs": [
   {
     "location": "page.html#fragment",
-    "page": "Page Title", 
+    "page": "Page Title",
     "title": "Content Title",
     "category": "section",
     "text": "Searchable content text..."
@@ -64,7 +64,7 @@ var documenterSearchIndex = {"docs": [
 
 The indexer excludes specific node types from search index generation (`src/html/HTMLWriter.jl`):
 - `MetaNode` - Metadata annotation blocks containing non-searchable directives
-- `DocsNodesBlock` - Internal documentation node structures  
+- `DocsNodesBlock` - Internal documentation node structures
 - `SetupNode` - Configuration and setup directive blocks
 
 ## Client-Side Search Implementation
@@ -179,7 +179,7 @@ makedocs(
 - MiniSearch library loaded from CDN (`__MINISEARCH_VERSION__` placeholder)
 - Dependencies managed through `JSDependencies.jl`
 
-### 2. Theme Integration  
+### 2. Theme Integration
 - Search UI styled using Bulma CSS framework
 - Responsive design for mobile devices
 - Dark/light theme support
@@ -199,7 +199,7 @@ makedocs(
 ### 2. Search Validation
 The testing system provides:
 - Index generation validation
-- Search result accuracy verification  
+- Search result accuracy verification
 - Performance benchmarking capabilities
 - Edge case handling verification
 

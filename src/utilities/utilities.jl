@@ -52,8 +52,63 @@ macro docerror(doc, tag, msg, exs...)
     end
 end
 
-# escape characters that has a meaning in regex
-regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
+# Locating fenced code blocks in their source file.
+#
+# The Markdown AST carries no source positions, so the only way to report where a
+# code block came from is to search the file for its body. The parser strips the
+# indentation and block quote markers of nested blocks, so the body shows up
+# prefixed in the file:
+#
+#     > - a list item
+#     >
+#     >   ```julia      <- opening fence
+#     >   f(x) = 2x     <- block body, i.e. `code`
+#     >   ```           <- closing fence
+#
+# Matching line by line keeps this working for blocks of any size. Compiling the
+# body into a single regex does not: PCRE rejects patterns beyond ~64 kB, which
+# `@raw html` blocks easily exceed (issue #2992).
+
+const BLOCK_PREFIX_CHARS = (UInt8(' '), UInt8('\t'), UInt8('>'))
+
+rstrip_hspace(str::AbstractString) = rstrip(c -> c == ' ' || c == '\t', str)
+
+"""
+    block_line_prefix_length(line, codeline)
+
+Number of code units that `line` prepends to `codeline`, or `nothing` if `line` is
+not `codeline` preceded by `BLOCK_PREFIX_CHARS` only. Trailing spaces and
+tabs are ignored on both sides.
+"""
+function block_line_prefix_length(line::AbstractString, codeline::AbstractString)
+    line, codeline = rstrip_hspace(line), rstrip_hspace(codeline)
+    n = ncodeunits(line) - ncodeunits(codeline)
+    n < 0 && return nothing
+    for i in 1:n
+        codeunit(line, i) in BLOCK_PREFIX_CHARS || return nothing
+    end
+    return SubString(line, n + 1) == codeline ? n : nothing
+end
+
+"""
+    find_block_lines(lines, code)
+
+Range of indices into `lines` occupied by the body of the code block `code`, or
+`nothing` if the block does not occur in `lines`.
+"""
+function find_block_lines(lines::AbstractVector{<:AbstractString}, code::AbstractString)
+    isempty(code) && return nothing
+    codelines = split(chomp(code), '\n')
+    for start in 1:(length(lines) - length(codelines) + 1)
+        block = start:(start + length(codelines) - 1)
+        matches = all(
+            block_line_prefix_length(lines[i], codelines[j]) !== nothing
+                for (j, i) in enumerate(block)
+        )
+        matches && return block
+    end
+    return nothing
+end
 
 # helper to display linerange for error printing
 function find_block_in_file(code, file)
@@ -62,13 +117,10 @@ function find_block_in_file(code, file)
     isfile(source_file) || return nothing
     content = read(source_file, String)
     content = replace(content, "\r\n" => "\n")
-    # make a regex of the code that matches leading whitespace
-    rcode = "\\h*" * replace(regex_escape(code), "\\n" => "\\n\\h*")
-    blockidx = findfirst(Regex(rcode), content)
-    blockidx === nothing && return nothing
-    startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
-    endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
-    return startline => endline
+    block = find_block_lines(split(content, '\n'), code)
+    block === nothing && return nothing
+    # report the fences rather than the body
+    return (first(block) - 1) => (last(block) + 1)
 end
 
 # Pretty-printing locations
@@ -154,6 +206,10 @@ If `raise=false` is passed, the `Meta.parse` does not raise an exception on pars
 but instead returns an expression that will raise an error when evaluated. `parseblock`
 returns this expression normally and it must be handled appropriately by the caller.
 
+On a parse error, `parseblock` reports the error and returns `parse_error_result`, which
+defaults to an empty vector. Callers that must distinguish a broken block from an empty one
+can pass e.g. `parse_error_result = nothing`.
+
 The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
 and starting line number of the block (requires Julia 1.6 or higher).
 
@@ -166,7 +222,8 @@ If not specified, the default parser is used. When both `syntax_version` and `mo
 """
 function parseblock(
         code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
-        linenumbernode = nothing, lines = nothing, syntax_version = nothing, mod = nothing
+        linenumbernode = nothing, lines = nothing, syntax_version = nothing, mod = nothing,
+        parse_error_result = []
     )
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
@@ -200,7 +257,7 @@ function parseblock(
                 end
             catch err
                 @docerror(doc, :parse_error, "failed to parse code block in $(locrepr(file, lines))", exception = err)
-                return []
+                return parse_error_result
             end
         end
         str = SubString(code, cursor, prevind(code, ncursor))
@@ -253,7 +310,7 @@ end
 # Finding submodules.
 
 """
-Returns the set of submodules of a given root module/s.
+Returns the set of submodules of the given root module(s).
 """
 function submodules(modules::Vector{Module}; ignore = Set{Module}())
     out = Set{Module}()
@@ -307,7 +364,7 @@ splitexpr(other) = error("Invalid @var syntax `$other`.")
 """
     object(ex, str)
 
-Returns a expression that, when evaluated, returns an [`Object`](@ref) representing `ex`.
+Returns an expression that, when evaluated, returns an [`Object`](@ref) representing `ex`.
 """
 function object(ex::Union{Symbol, Expr}, str::AbstractString)
     binding = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
@@ -389,8 +446,8 @@ if the directory is a "root". An example predicate is `is_git_repo_root` that ch
 the directory is a Git repository root.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
-determine if this is a repository or not. If there is a file called `dbdir`, then it's
-contents is checked under the assumption that it is a Git worktree or a submodule.
+determine if this is a repository or not. If there is a file called `dbdir`, then its
+contents are checked under the assumption that it is a Git worktree or a submodule.
 """
 function find_root_parent(f, path)
     ispath(path) || throw(ArgumentError("find_root_parent called with non-existent path\n path: $path"))
@@ -407,11 +464,11 @@ end
 """
     $(SIGNATURES)
 
-Check is `directory` is a Git repository root.
+Check if `directory` is a Git repository root.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
-determine if this is a repository or not. If there is a file called `dbdir`, then it's
-contents is checked under the assumption that it is a Git worktree or a submodule.
+determine if this is a repository or not. If there is a file called `dbdir`, then its
+contents are checked under the assumption that it is a Git worktree or a submodule.
 """
 function is_git_repo_root(directory::AbstractString; dbdir = ".git")
     isdir(directory) || error("is_git_repo_root called with non-directory path: $directory")
@@ -496,7 +553,7 @@ end
 $(TYPEDSIGNATURES)
 
 Determines the GitHub remote of a directory by checking `remote.origin.url` of the
-repository. Returns a [`Remotes.GitHub`](@ref), or `nothing` is something has gone wrong
+repository. Returns a [`Remotes.GitHub`](@ref), or `nothing` if something has gone wrong
 (e.g. it's run on a directory not in a Git repo, or `origin.url` points to a non-GitHub
 remote).
 
@@ -554,7 +611,7 @@ isabsurl(url) = occursin(ABSURL_REGEX, url)
 const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 """
-    mdparse(s::AbstractString; mode=:single)
+    mdparse(s::AbstractString; mode = :single)
 
 Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
 layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
@@ -634,9 +691,10 @@ keyword argument, or whether the keyword argument was not passed at all.
 
 ```julia
 function foo(; kwarg = Default("default value"))
-    if isa(kwarg, Default)
+    return if isa(kwarg, Default)
         # User did not explicitly pass a value for kwarg
-    else kwarg === "default value"
+    else
+        kwarg === "default value"
         # User passed "default value" explicitly
     end
 end
@@ -655,6 +713,52 @@ Extracts the language identifier from the info string of a Markdown code block.
 function codelang(infostring::AbstractString)
     m = match(r"^\s*(\S*)", infostring)
     return m[1]
+end
+
+"""
+    $(SIGNATURES)
+
+Extracts the language of a Markdown code block from its info string, that is,
+everything up to the first whitespace character or `;`.
+
+Unlike [`codelang`](@ref), which yields the language used for syntax
+highlighting, this is the name Documenter dispatches on: `@example name; k = v`
+and `jldoctest; setup = :(x = 1)` are written in the languages `@example` and
+`jldoctest`.
+"""
+function blocklang(infostring::AbstractString)
+    i = findfirst(c -> isspace(c) || c == ';', infostring)
+    return i === nothing ? String(infostring) : infostring[1:prevind(infostring, i)]
+end
+
+"""
+    $(SIGNATURES)
+
+Whether a code block is written in the language `lang`, that is, its info string
+is `lang` optionally followed by a name and `; key = value` arguments.
+"""
+iscodelang(block::MarkdownAST.CodeBlock, lang::AbstractString) = blocklang(block.info) == lang
+iscodelang(node::MarkdownAST.Node, lang::AbstractString) = iscodelang(node.element, lang)
+iscodelang(x, lang::AbstractString) = false
+
+"""
+    $(SIGNATURES)
+
+If the language of a code block is not one of `langs` but starts with one of
+them — `jldoctests` for `jldoctest`, say — return the pair
+`(language, intended language)`, and `nothing` otherwise.
+"""
+function misspelled_blocklang(infostring::AbstractString, langs)
+    lang = blocklang(infostring)
+    i = findfirst(l -> lang != l && startswith(lang, l), langs)
+    return i === nothing ? nothing : (lang, langs[i])
+end
+
+# Such a block is passed through as an ordinary code block, which is what someone
+# writing e.g. `jldoctest_special` on purpose wants; only warn, never error.
+function warn_misspelled_blocklang((lang, intended), source)
+    @warn "In $(source): unknown code block language `$(lang)`; did you mean `$(intended)`?"
+    return
 end
 
 """
@@ -872,7 +976,7 @@ Calls `git remote show \$(remotename)` to try to determine the main (development
 of the remote repository. Returns `master` and prints a warning if it was unable to figure
 it out automatically.
 
-`root` is the the directory where `git` gets run. `varname` is just informational and used
+`root` is the directory where `git` gets run. `varname` is just informational and used
 to construct the warning messages.
 """
 function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")

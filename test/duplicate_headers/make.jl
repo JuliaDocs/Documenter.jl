@@ -38,7 +38,7 @@ end
 
     # The ambiguity is reported ...
     @test contains(output, "Cannot resolve @ref for md\"[Blow-Ups](@ref)\"")
-    @test contains(output, "Header with slug 'Blow-Ups' is not unique")
+    @test contains(output, "Header or `@id` anchor with slug 'Blow-Ups' is not unique")
     # ... and not papered over by a docstring lookup.
     @test !contains(output, "binding `Base.-`")
 

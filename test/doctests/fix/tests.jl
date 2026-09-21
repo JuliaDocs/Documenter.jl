@@ -24,8 +24,8 @@ function normalize_line_endings(filename)
     return replace(s, "\r\n" => "\n")
 end
 
-# 1.12 introduced stricted world age requirements, so we need to do some Base.invokelatest
-# shenaningans to make sure that we are passing the updated Foo module to makedocs.
+# 1.12 introduced stricter world age requirements, so we need to do some Base.invokelatest
+# shenanigans to make sure that we are passing the updated Foo module to makedocs.
 _Foo() = Base.invokelatest(getfield, @__MODULE__, :Foo)
 makedocs(args...; kwargs...) = Base.invokelatest(Documenter.makedocs, args...; kwargs...)
 

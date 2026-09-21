@@ -307,7 +307,7 @@ function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, use
     # case of docs.github.com, the server returns a 403 with a page saying "The request
     # is blocked". However, spoofing a realistic browser User-Agent string is enough to
     # get around this, and so here we simply pass the example Chrome UA string from the
-    # Mozilla developer docs, but only is it's a HTTP(S) request.
+    # Mozilla developer docs, but only if it's an HTTP(S) request.
     #
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
     if startswith(uppercase(url), "HTTP")

@@ -24,11 +24,11 @@ What about the other edge cases: \ % \% %\ %% %\%%
 `\begin{minted}` is used for highlighted blocks:
 
 ```julia
-xor:    ⊻
-forall: ∀
-exists: ∃
-check:  ✓
-oplus:  ⊕
+xor:⊻
+forall:∀
+exists:∃
+check:✓
+oplus:⊕
 ```
 
 Inlines:

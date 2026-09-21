@@ -232,21 +232,21 @@ module AtSetupWarningTests end
 julia> WarningTests.run_warnings_test("doctest")
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
-┌ Warning: Unable to to evaluate doctest in src/doctest.md:4-8
+┌ Warning: Unable to evaluate doctest in src/doctest.md:4-8
 │ No empty lines are allowed before first `julia>` prompt.
 │
 │ ```jldoctest
 │
-│ julia> 1+1
+│ julia> 1 + 1
 │ 2
 │ ```
 └ @ Documenter
-┌ Warning: Unable to to evaluate doctest in src/doctest.md:11-15
+┌ Warning: Unable to evaluate doctest in src/doctest.md:11-15
 │ Consecutive `julia>` prompts must be separated by an empty line.
 │
 │ ```jldoctest
-│ julia> a=1;
-│ julia> a+1
+│ julia> a = 1;
+│ julia> a + 1
 │ 2
 │ ```
 └ @ Documenter
@@ -314,6 +314,127 @@ julia> WarningTests.run_warnings_test("dollar")
 module UnbalancedDollarWarningTests end
 
 ###########################################################################################
+
+@doc raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("blocklang")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+┌ Warning: In src/blocklang.md:4-7: unknown code block language `jldoctests`; did you mean `jldoctest`?
+└ @ Documenter
+┌ Warning: In src/blocklang.md:15-18: unknown code block language `jldoctest_special`; did you mean `jldoctest`?
+└ @ Documenter
+[ Info: ExpandTemplates: expanding markdown templates.
+┌ Warning: In src/blocklang.md:10-12: unknown code block language `@examples`; did you mean `@example`?
+└ @ Documenter
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+module BlockLangWarningTests end
+
+###########################################################################################
+
+module WindowsPathWarningTests end
+
+# On Windows, colons in link targets are rejected outright; everywhere else the links
+# below are merely reported as pointing at files that do not exist. So we keep one
+# reference output per platform, and only turn the matching one into a doctest.
+const windows_paths_reference_unix = raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("windows_paths")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+┌ Warning: invalid local link/image: file does not exist in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link("some:path", "") do
+│      MarkdownAST.Text("Colons not allowed on Windows ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code("some:path")
+│    end
+│
+└ @ Documenter
+┌ Warning: invalid local link/image: file does not exist in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link(":path", "") do
+│      MarkdownAST.Text("No 'drive' ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code(":path")
+│    end
+│
+└ @ Documenter
+┌ Warning: invalid local link/image: file does not exist in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link("X:\\some\\path", "") do
+│      MarkdownAST.Text("Absolute Windows paths ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code("X:\\some\\path")
+│    end
+│
+└ @ Documenter
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+
+const windows_paths_reference_windows = raw"""
+```jldoctest; setup=:(using ..WarningTests)
+julia> WarningTests.run_warnings_test("windows_paths")
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+┌ Warning: invalid local link/image: colons not allowed in paths on Windows in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link("some:path", "") do
+│      MarkdownAST.Text("Colons not allowed on Windows ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code("some:path")
+│    end
+│
+└ @ Documenter
+┌ Warning: invalid local link/image: colons not allowed in paths on Windows in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link(":path", "") do
+│      MarkdownAST.Text("No 'drive' ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code(":path")
+│    end
+│
+└ @ Documenter
+┌ Warning: invalid local link/image: colons not allowed in paths on Windows in src/windows_paths.md
+│   link =
+│    @ast MarkdownAST.Link("X:\\some\\path", "") do
+│      MarkdownAST.Text("Absolute Windows paths ")
+│      MarkdownAST.Text("–")
+│      MarkdownAST.Text(" ")
+│      MarkdownAST.Code("X:\\some\\path")
+│    end
+│
+└ @ Documenter
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
+```
+"""
+
+@doc(
+    Sys.iswindows() ? windows_paths_reference_windows : windows_paths_reference_unix,
+    WindowsPathWarningTests,
+)
 
 fixtests = haskey(ENV, "DOCUMENTER_FIXTESTS")
 

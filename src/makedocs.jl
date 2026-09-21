@@ -95,12 +95,12 @@ also be passed (interpreted according to the rules described in [`Remotes.URL`](
 the use of the template strings is discouraged, in favor of concrete
 [`Remotes.Remote`](@ref) objects.
 
-**`remotes`** can be used to declare a list additional
+**`remotes`** can be used to declare a list of additional
 `path::AbstractString => remote` pairs that are used to determine the remote
 repository URLs for local filesystem files, such as the edit links for manual Markdown
 pages, or docstring source links. `path` should be an absolute local filesystem path to a
 directory, and will be interpreted as the root of the remote repository specified with
-`remote`. `remote` would normally be [`Remote`](@ref `Remotes.Remote`) object, but can also be
+`remote`. `remote` would normally be a [`Remote`](@ref `Remotes.Remote`) object, but can also be
 a `(remote::Remote, commit::AbstractString)` tuple, where the second argument specifies the
 commit within the repository. This is necessary when `path` is not pointing to a proper Git
 repository, and so determining the commit automatically is not possible.
@@ -143,7 +143,7 @@ The `pages` keyword must be a list where each element must be one of the followi
 
 1. A string containing the full path of a Markdown file _within_ the source directory (i.e. relative to the `docs/src/` root in standard deployments).
 2. A `"Page title" => "path/to/page.md"` pair, where `Page title` overrides the page title in the navigation menu (but not on the page itself).
-3. A `"Subsection title" => [...]` pair, indicating a subsection of pages with the given title in the navigation menu. The list of pages for the subsection follow the same rules as the top-level `pages` keyword.
+3. A `"Subsection title" => [...]` pair, indicating a subsection of pages with the given title in the navigation menu. The list of pages for the subsection follows the same rules as the top-level `pages` keyword.
 
 See also [`hide`](@ref), which can be used to hide certain pages in the navigation menu.
 
@@ -152,7 +152,7 @@ render _all_ Markdown files it finds, even if they are not present in `pages`. T
 `pagesonly` keyword can be used to change this behaviour.
 
 **`pagesonly`** can be set to `true` (default: `false`) to make Documenter process only the
-pages listed in with the `pages` keyword. In that case, the Markdown files not present in
+pages listed with the `pages` keyword. In that case, the Markdown files not present in
 `pages` are ignored, i.e. code blocks do not run, docstrings do not get included, and the
 pages are not rendered in the output in any way.
 
@@ -183,11 +183,11 @@ are `:all` (check all names; the default), `:exports` (check only exported names
 `:public` (check exported names and those marked with the `public` keyword in Julia ≥ 1.11),
 and `:none` (no checks are performed).
 
-By default, if the document check detect any errors, it will fail the documentation build.
+By default, if the document checks detect any errors, it will fail the documentation build.
 This behavior can be relaxed with the `warnonly` or `checkdocs_ignored_modules` keywords.
 
 **`checkdocs_ignored_modules`** prevents `checkdocs` from checking modules supplied as a list
-of module objects. It will also cause all submodules of these module to be ignored. It can be
+of module objects. It will also cause all submodules of these modules to be ignored. It can be
 useful for completely private modules including modules which have been vendored from
 elsewhere.
 
@@ -234,7 +234,7 @@ The only case where you may want to consider passing `true` is when you are auto
 deploying the documentation for a package release. In that case, `warnonly` should be set
 dynamically by checking the relevant environment variables set by the CI system.
 
-**`treat_markdown_warnings_as_error`** can be used to control whether a build fails with error, or
+**`treat_markdown_warnings_as_error`** can be used to control whether a build fails with an error, or
 simply prints a warning if it detects unintended julia values within the markdown.
 
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
@@ -263,7 +263,7 @@ PDF output via the [`Documenter.LaTeX`](@ref) writer.
 
 Other formats can be enabled by using other addon-packages. For example, the
 [DocumenterMarkdown](https://github.com/JuliaDocs/DocumenterMarkdown.jl) package provides
-the original Markdown -> Markdown output. See the [Other Output Formats](@ref) for more
+the original Markdown -> Markdown output. See [Other Output Formats](@ref) for more
 information.
 
 # See Also
@@ -400,7 +400,7 @@ function Base.showerror(io::IO, e::MissingRemoteError)
         io, """
         Documenter was unable to automatically determine the remote repository for this file.
         This can happen if you are including docstrings or pages from secondary packages. Those packages
-        must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
+        must be cloned as Git repositories (i.e. Pkg.develop instead of Pkg.add), or the `remotes` keyword
         must be configured appropriately. See the 'Remote repository links' section in the manual for
         more information."""
     )

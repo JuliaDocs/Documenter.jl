@@ -29,7 +29,7 @@ module XRefSignaturesContent
     g(::Float64) = "Specialized to Float64."
 
     """
-        g(::X) where X
+        g(::X) where {X}
 
     This is a parametric method `g`, with UnionAll signature (::X) where X
 
@@ -40,7 +40,7 @@ module XRefSignaturesContent
     end
 
     """
-        g(::AbstractArray{T}) where T <: Number
+        g(::AbstractArray{T}) where {T <: Number}
 
     This is another parametric method `g`, this time with a constrained type parameter.
 

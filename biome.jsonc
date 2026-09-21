@@ -11,6 +11,10 @@
     "ignoreUnknown": false,
     "includes": [
       "biome.jsonc",
+      // Claude Code puts additional checkouts of this repo here. Biome treats
+      // every biome.jsonc it walks into as a config and rejects the nested
+      // ones; a negated pattern is what stops it descending in the first place.
+      "!.claude/worktrees",
       "assets/html/**",
       "!!assets/html/themes",
       "!!assets/html/scss/highlightjs"

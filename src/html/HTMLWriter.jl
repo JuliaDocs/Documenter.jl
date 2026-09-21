@@ -8,10 +8,11 @@ A module for rendering `Document` objects to HTML.
 The behavior of [`HTMLWriter`](@ref) can be further customized by setting the `format`
 keyword of [`Documenter.makedocs`](@ref) to a [`HTML`](@ref), which accepts the following
 keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link`,
-`prettyurls`, `collapselevel`, `sidebar_sitename`, `highlights`, `mathengine` and `footer`.
+`prettyurls`, `referrerpolicy`, `collapselevel`, `sidebar_sitename`, `highlights`,
+`mathengine` and `footer`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
-*navigation menu. It is also written into the inventory (see below).
+navigation menu. It is also written into the inventory (see below).
 This argument is mandatory for [`HTMLWriter`](@ref).
 
 **`pages`** defines the hierarchy of the navigation menu.
@@ -83,6 +84,22 @@ export HTML
 "Data attribute for the script inserting a warning for outdated docs."
 const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 
+"""
+The referrer policy tokens defined by the [Referrer Policy specification](https://www.w3.org/TR/referrer-policy/#referrer-policies).
+A browser ignores any other value and silently falls back to its own default, so the values
+passed to `HTML(referrerpolicy = ...)` are checked against this list.
+"""
+const REFERRER_POLICIES = [
+    "no-referrer",
+    "no-referrer-when-downgrade",
+    "same-origin",
+    "origin",
+    "strict-origin",
+    "origin-when-cross-origin",
+    "strict-origin-when-cross-origin",
+    "unsafe-url",
+]
+
 "List of Documenter native themes."
 const THEMES = ["documenter-light", "documenter-dark", "catppuccin-latte", "catppuccin-frappe", "catppuccin-macchiato", "catppuccin-mocha"]
 "The root directory of the HTML assets."
@@ -133,10 +150,10 @@ HTTP or HTTPS URL.
 It accepts the following keyword arguments:
 
 **`class`** can be used to override the asset class, which determines how exactly the asset
-gets included in the HTML page. This is necessary if the class can not be determined
+gets included in the HTML page. This is necessary if the class cannot be determined
 automatically (default).
 
-Should be one of: `:js`, `:css` or `:ico`. They become a `<script>`,
+Should be one of: `:js`, `:css` or `:ico`. They become `<script>`,
 `<link rel="stylesheet" type="text/css">` and `<link rel="icon" type="image/x-icon">`
 elements in `<head>`, respectively.
 
@@ -147,16 +164,18 @@ when it is necessary to override the asset class of a local asset.
 # Usage
 
 ```julia
-Documenter.HTML(assets = [
-    # Standard local asset
-    "assets/extra_styles.css",
-    # Standard remote asset (extension used to determine that class = :js)
-    asset("https://example.com/jslibrary.js"),
-    # Setting asset class manually, since it can't be determined manually
-    asset("https://example.com/fonts", class = :css),
-    # Same as above, but for a local asset
-    asset("asset/foo.script", class=:js, islocal=true),
-])
+Documenter.HTML(
+    assets = [
+        # Standard local asset
+        "assets/extra_styles.css",
+        # Standard remote asset (extension used to determine that class = :js)
+        asset("https://example.com/jslibrary.js"),
+        # Setting asset class manually, since it can't be determined automatically
+        asset("https://example.com/fonts", class = :css),
+        # Same as above, but for a local asset
+        asset("asset/foo.script", class = :js, islocal = true),
+    ]
+)
 ```
 """
 function asset(uri; class = nothing, islocal = false, attributes = Dict{Symbol, String}())
@@ -337,7 +356,7 @@ the links to the remote repository.
 
 **`edit_link`** can be used to specify which branch, tag or commit (when passed a `String`)
 in the remote repository the edit buttons point to. If a special `Symbol` value `:commit`
-is passed, the current commit will be used instead. If set to `nothing`, the link edit link
+is passed, the current commit will be used instead. If set to `nothing`, the edit link
 will be hidden altogether. By default, Documenter tries to determine it automatically by
 looking at the `origin` remote, and falls back to `"master"` if that fails.
 
@@ -355,7 +374,17 @@ Default is `nothing`, in which case no canonical link is set.
 **`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
 for more information.
 
-**`analytics`** can be used specify the Google Analytics tracking ID.
+**`analytics`** can be used to specify the Google Analytics tracking ID.
+
+**`referrerpolicy`** sets the [referrer policy][mdn-referrer] of the generated pages via a
+`<meta name="referrer">` tag. The default, `"no-referrer"`, stops the browser from telling
+the CDNs that host the fonts, stylesheets and scripts (and any external site the reader
+navigates to) which page the request originated from. Any of the [referrer policy
+tokens][mdn-referrer] is accepted -- e.g. `"strict-origin"` reveals the site, but not the
+page, to the CDNs. Set it to `nothing` to omit the tag and fall back to the browser
+default.
+
+[mdn-referrer]: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/referrer
 
 **`collapselevel`** controls the navigation level visible in the sidebar. Defaults to `2`.
 To show fewer levels by default, set `collapselevel = 1`.
@@ -404,7 +433,7 @@ Setting it to `nothing` will disable writing to files, and setting to `0` means 
 will be written to files. Defaults to `8 KiB`.
 
 **`size_threshold`** sets the maximum allowed HTML file size (in bytes) that Documenter is allowed to
-generate for a page. If the generated HTML file is larged than this, Documenter will throw an error and
+generate for a page. If the generated HTML file is larger than this, Documenter will throw an error and
 the build will fail. If set to `nothing`, the file sizes are not checked. Defaults to `200 KiB` (but
 increases of this default value will be considered to be non-breaking).
 
@@ -420,20 +449,20 @@ over setting a high general limit, or disabling the size checking altogether.
 !!! note "Purpose of HTML size thresholds"
 
     The size threshold, with a reasonable default, exists so that users would not deploy huge pages
-    accidentally (which among other this will result in bad UX for the readers and negatively impacts
+    accidentally (which among other things will result in bad UX for the readers and negatively impacts
     SEO). It is relatively easy to have e.g. an `@example` produce a lot of output.
 
 ## Experimental options
 
-**`prerender`** a boolean (`true` or `false` (default)) for enabling prerendering/build
+**`prerender`** is a boolean (`true` or `false` (default)) for enabling prerendering/build
 time application of syntax highlighting of code blocks. Requires a `node` (NodeJS)
 executable to be available in `PATH` or to be passed as the `node` keyword.
 
-**`node`** path to a `node` (NodeJS) executable used for prerendering.
+**`node`** is the path to a `node` (NodeJS) executable used for prerendering.
 
-**`highlightjs`** file path to custom highglight.js library to be used with prerendering.
+**`highlightjs`** is the file path to a custom highlight.js library to be used with prerendering.
 
-**`inventory_version`** a version string to write to the header of the
+**`inventory_version`** is a version string to write to the header of the
 `objects.inv` inventory file. This should be a valid version number without a `v` prefix.
 Defaults to the `version` defined in the `Project.toml` file in the parent folder of the
 documentation root. Setting this to an empty string leaves the `version` in the inventory
@@ -445,7 +474,7 @@ unspecified until [`deploydocs`](@ref `Documenter.deploydocs`) runs and automati
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
 to the compiled site. It also copies a set of default assets from `/assets/html/`
 to the site's `assets/` directory, unless the user already had a file with the
-same name, in which case the user's files overrides the Documenter's file.
+same name, in which case the user's file overrides Documenter's file.
 This could, in principle, be used for customizing the site's style and scripting.
 
 The HTML output also links certain custom assets to the generated HTML documents,
@@ -461,7 +490,7 @@ themes.
 
 Similarly, for the **preview image**, Documenter checks for the existence of
 `assets/preview.{png,webp,gif,jpg,jpeg}` in order. Assuming that `canonical` has
-been set, the canonical URL for the image gets constructed, , and a set of
+been set, the canonical URL for the image gets constructed, and a set of
 HTML `<meta>` tags are generated for the image, ensuring that the image shows
 up in link previews. The preview image will not be shown if `canonical` is not set.
 
@@ -471,7 +500,7 @@ in the order in which they are given. The type of the asset (i.e. whether it is 
 included with a `<script>` or a `<link>` tag) is determined by the file's extension --
 either `.js`, `.ico`[^1], or `.css` (unless overridden with [`asset`](@ref)).
 
-Simple strings are assumed to be local assets and that each correspond to a file relative to
+Simple strings are assumed to be local assets, each corresponding to a file relative to
 the documentation source directory (conventionally `src/`). Non-local assets, identified by
 their absolute URLs, can be included with the [`asset`](@ref) function.
 
@@ -485,6 +514,7 @@ struct HTML <: Documenter.Writer
     canonical::Union{String, Nothing}
     assets::Vector{HTMLHeadContent}
     analytics::String
+    referrerpolicy::Union{String, Nothing}
     collapselevel::Int
     sidebar_sitename::Bool
     highlights::Vector{String}
@@ -512,6 +542,7 @@ struct HTML <: Documenter.Writer
             canonical::Union{String, Nothing} = nothing,
             assets::Vector = String[],
             analytics::String = "",
+            referrerpolicy::Union{String, Nothing} = "no-referrer",
             collapselevel::Integer = 2,
             sidebar_sitename::Bool = true,
             highlights::Vector{String} = String[],
@@ -583,6 +614,16 @@ struct HTML <: Documenter.Writer
         elseif example_size_threshold < 0
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
+        if !isnothing(referrerpolicy) && !(referrerpolicy in REFERRER_POLICIES)
+            throw(
+                ArgumentError(
+                    """
+                    Invalid referrerpolicy: $(repr(referrerpolicy))
+                    Must be `nothing` or one of: $(join(repr.(REFERRER_POLICIES), ", "))
+                    """
+                )
+            )
+        end
         if isnothing(search_size_threshold_warn)
             search_size_threshold_warn = typemax(Int)
         elseif search_size_threshold_warn <= 0
@@ -594,7 +635,7 @@ struct HTML <: Documenter.Writer
         size_threshold_ignore = normpath.(size_threshold_ignore)
         return new(
             prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
+            referrerpolicy, collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
             search_size_threshold_warn,
@@ -952,7 +993,7 @@ function Base.showerror(io::IO, ::HTMLSizeThresholdError)
 end
 
 """
-Copies an asset from Documenters `assets/html/` directory to `doc.user.build`.
+Copies an asset from Documenter's `assets/html/` directory to `doc.user.build`.
 Returns the path of the copied asset relative to `.build`.
 """
 function copy_asset(file, doc)
@@ -1089,6 +1130,7 @@ function render_head(ctx, navnode)
     return head(
         meta[:charset => "UTF-8"],
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
+        referrerpolicy_meta_tag(ctx.settings.referrerpolicy),
 
         # Title tag and meta tags
         title(page_title),
@@ -1213,6 +1255,17 @@ function asset_links(src::AbstractString, assets::Vector{<:HTMLHeadContent})
         push!(links, node)
     end
     return links
+end
+
+"""
+Renders the `<meta name="referrer">` tag that sets the referrer policy for the whole page.
+Unlike a `referrerpolicy` attribute on individual tags, this also covers the dependencies
+that are loaded dynamically at runtime (e.g. by requirejs).
+"""
+function referrerpolicy_meta_tag(policy::Union{AbstractString, Nothing})
+    @tags meta
+    isnothing(policy) && return DOM.VOID
+    return meta[:name => "referrer", :content => policy]
 end
 
 function analytics_script(tracking_id::AbstractString)
@@ -1489,7 +1542,7 @@ function edit_link(f, ctx, navnode)
         f(view_logo, title, editpath)
         return
     end
-    # If the user has disable Git, then we can not determine edit links
+    # If the user has disabled Git, then we cannot determine edit links
     ctx.settings.disable_git && return
     # If the user has passed HTML(edit_link = nothing), then all edit links (with relative
     # paths) are disabled.
@@ -1833,6 +1886,16 @@ function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     )
 end
 
+function domify(dctx::DCtx, node::Node, ai::Documenter.AnchoredInline)
+    @tags span
+    id = lstrip(Documenter.anchor_fragment(ai.anchor), '#')
+    # A `<span id=...>` (rather than `<a id=...>`) so the anchored content renders exactly as
+    # it would without the anchor: it is a valid fragment/scroll target, but avoids link
+    # styling on non-link content and nesting an <a> inside the content (which may itself be a
+    # link or image).
+    return span[:id => id](domify(dctx, node.children))
+end
+
 struct ListBuilder
     es::Vector
 end
@@ -2044,7 +2107,7 @@ function relhref(from, to)
 end
 
 """
-Returns the full path corresponding to a path of a `.md` page file. The the input and output
+Returns the full path corresponding to a path of a `.md` page file. The input and output
 paths are assumed to be relative to `src/`.
 """
 function get_url(ctx, path::AbstractString)
@@ -2063,7 +2126,7 @@ end
 
 """
 Generates a unique file for the output of an at-example block if it goes over the configured
-size threshold, and returns the filename (that should be in the same directory are the
+size threshold, and returns the filename (that should be in the same directory as the
 corresponding HTML file). If the data is under the threshold, no file is created, and the
 function returns `nothing`.
 """

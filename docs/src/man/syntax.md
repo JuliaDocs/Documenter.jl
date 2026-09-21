@@ -52,7 +52,7 @@ will only display the documentation string of `f` that is related to these types
 This can be useful when your module extends a function and adds a documentation
 string to that new method.
 
-Note that when specifying signatures, it should match the method definition exactly.
+Note that when specifying signatures, they should match the method definition exactly.
 Documenter will not match methods based on dispatch rules. For example, assuming you
 have a docstring attached to `foo(::Integer) = ...`, then neither `foo(::Number)` nor
 `foo(::Int64)` will match it in an at-docs block (even though `Int64 <: Integer <: Number`).
@@ -177,10 +177,10 @@ Order = [:type]
     explicitly.
 
 As with `@docs`, you can use `@autodocs; canonical=false` to indicate that the
-`@autodocs` block in non-canonical. See [`@docs; canonical=false` block](@ref
+`@autodocs` block is non-canonical. See [`@docs; canonical=false` block](@ref
 noncanonical-block).
 
-## [`@ref` and `@id` links](@id at-ref-at-id-links)
+## [`@ref` links and `@id` anchors](@id at-ref-at-id-links)
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference
 automatically. The text part of the link can be a code object (between backticks), header name, or GitHub PR/Issue number (`#` followed by a number).
@@ -225,7 +225,7 @@ the built-in rules, between them, or after them. See [`@extref` link](@ref) for 
 A reference is reported as unresolvable only after every resolver has declined it.
 
 The code enclosed in the backticks for such a reference will be evaluated in the
-`CurrentModule`  given in the `@meta` block of the current page (`Main` by default). For
+`CurrentModule` given in the `@meta` block of the current page (`Main` by default). For
 `@ref` links inside a docstring, the `CurrentModule` is automatically set to the module
 containing the docstring.
 
@@ -276,6 +276,48 @@ Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
     that matches a header label, including one introduced with
     [`@id`](@ref at-ref-at-id-links), resolves to that header rather than to the docstring.
 
+### `@id` anchors
+
+Where `@ref` creates a cross-reference, `@id` defines the target that a cross-reference can
+point at:
+
+````markdown
+# [Header](@id my-header)
+
+... an anchor on inline text: [some text](@id my-anchor) ...
+
+... [go to the header](@ref my-header) and [to the text](@ref my-anchor) ...
+````
+
+Although `[content](@id name)` is written with Markdown link syntax, it is not a link: it
+defines a named anchor `name` that `[text](@ref name)` links can point at, from this or any
+other page. This manual therefore calls it an *`@id` anchor* rather than a link.
+
+An `@id` anchor may wrap a whole header, in which case it replaces the label that would
+otherwise be derived from the header text, and the Markdown link itself is dropped from the
+rendered document. The header looks exactly as it would without it. See [Duplicate
+Headers](@ref) for the main use case.
+
+On any other inline content like text, code, or an image, the content is rendered as usual
+and becomes a link target in its own right. That makes things other than headers
+referenceable, such as a full-size figure that thumbnails elsewhere in the document link
+to:
+
+````markdown
+[![Figure 1](assets/figure-1.png)](@id figure-1)
+
+... elsewhere ...
+
+... see [Figure 1](@ref figure-1) ...
+````
+
+Ids are slugified, so `[x](@id My Anchor)` defines the anchor `My-Anchor`.
+
+Header and non-header anchors share a single id namespace, so a duplicate id is
+reported the same way a duplicate header is. They are written into the `objects.inv`
+inventory as `std:label` entries, which means other projects can link to them with `@extref`
+via the `DocumenterInterLinks` plugin (see [`@extref` link](@ref)).
+
 ### Duplicate Headers
 
 In some cases a document may contain multiple headers with the same name, but on different
@@ -292,9 +334,9 @@ be given a name as in the following example
 ... [Custom Header](@ref my_custom_header_name) ...
 ```
 
-The link that wraps the named header is removed in the final document. The text for a named
-`@ref ...` does not need to match the header that it references. Named `@ref ...`s may refer
-to headers on different pages in the same way as unnamed ones do.
+The Markdown link that wraps the named header is removed in the final document. The text
+for a named `@ref ...` does not need to match the header that it references. Named
+`@ref ...`s may refer to headers on different pages in the same way as unnamed ones do.
 
 Duplicate docstring references do not occur since splicing the same docstring into a
 document more than once is disallowed.
@@ -403,7 +445,8 @@ Depth = 5
 ```
 ````
 
-As with `@index` if `Pages` is not provided then all pages are included. The default
+As with `@index` if `Pages` is not provided then all pages are included, in the order they
+appear in the `pages` argument of [`makedocs`](@ref). The default
 `Depth` value is `2`, i.e. header levels 1 and 2 are included. `Depth` also accepts
 `UnitRange`s, to make it possible to configure also the minimum header level to be shown.
 `Depth = 2:3` can be used to include only headers with levels 2-3, for example.
@@ -551,7 +594,7 @@ savefig("g-plot.svg"); nothing # hide
 ````
 
 Note that `@example` blocks are evaluated within the directory of `build` where the file
-will be rendered . This means that in the above example `savefig` will output the `.svg`
+will be rendered. This means that in the above example `savefig` will output the `.svg`
 files into that directory. This allows the images to be easily referenced without needing to
 worry about relative paths.
 

@@ -10,7 +10,7 @@ using Documenter.DOM
 @tags div p em strong ul li
 
 div(
-    p("This ", em("is"), " a ", strong("paragraph."),
+    p("This ", em("is"), " a ", strong("paragraph.")),
     p("And this is ", strong("another"), " one"),
     ul(
         li("and"),
@@ -135,7 +135,7 @@ const EMPTY_STRING = ""
 const TEXT = Symbol(EMPTY_STRING)
 
 """
-Represents a empty and attribute-less HTML element.
+Represents an empty and attribute-less HTML element.
 
 Use [`@tags`](@ref) to define instances of this type rather than manually
 creating them via `Tag(:tagname)`.
@@ -162,7 +162,7 @@ Defined within the scope of a function to avoid cluttering the global namespace:
 
 ```julia
 function template(args...)
-    @tags div ul li
+    return @tags div ul li
     # ...
 end
 ```
@@ -218,7 +218,7 @@ flatten!(f!, out, x::Atom)
 flatten!(f!, out, xs)
 ```
 
-Flatten the contents the third argument into the second after applying the
+Flatten the contents of the third argument into the second after applying the
 function `f!` to the element.
 """
 flatten!(f!, out, x::Atom) = f!(out, x)
@@ -310,7 +310,7 @@ function escapehtml(text::AbstractString)
 end
 
 """
-A HTML node that wraps around the root node of the document and adds a DOCTYPE
+An HTML node that wraps around the root node of the document and adds a DOCTYPE
 to it.
 """
 mutable struct HTMLDocument

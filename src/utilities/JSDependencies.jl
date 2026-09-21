@@ -21,7 +21,7 @@ Declares a remote JS dependency that should be declared in the RequireJS configu
 # Constructors
 
 ```julia
-RemoteLibrary(name::AbstractString, url::AbstractString; deps=String[], exports=nothing)
+RemoteLibrary(name::AbstractString, url::AbstractString; deps = String[], exports = nothing)
 ```
 """
 struct RemoteLibrary
@@ -39,7 +39,7 @@ end
 """
     struct Snippet
 
-Declares a JS code snipped that should be loaded with RequireJS. This gets wrapped in
+Declares a JS code snippet that should be loaded with RequireJS. This gets wrapped in
 `require([deps...], function(args...) {script...})` in the output.
 
 # Fields
@@ -85,7 +85,6 @@ RequireJS(libraries::AbstractVector{RemoteLibrary}, snippets::AbstractVector{Sni
 # API
 
 * The `push!` function can be used to add additional libraries and snippets.
-*
 """
 struct RequireJS
     libraries::Dict{String, RemoteLibrary}
@@ -116,7 +115,7 @@ end
 Base.push!(r::RequireJS, s::Snippet) = push!(r.snippets, s)
 
 """
-    verify(r::RequireJS; verbose=false) -> Bool
+    verify(r::RequireJS; verbose = false) -> Bool
 
 Checks that none of the dependencies are missing (returns `false` if some are). If `verbose`
 is set to `true`, it will also log an error with the missing dependency.

@@ -245,12 +245,26 @@ struct LocalImage <: AbstractDocumenterInline
 end
 Base.show(io::IO, image::LocalImage) = print(io, "Documenter.LocalImage(\"", image.path, "\")")
 
+"""
+Represents a named anchor attached to arbitrary inline content via the `[content](@id name)`
+syntax. Unlike a header anchor (`AnchoredHeader`), this can wrap any inline content
+(text, images, code) so that it becomes a cross-reference target for `[text](@ref name)`.
+
+The wrapped content is stored as the child nodes of the `MarkdownAST.Node` holding this
+element, mirroring how `PageLink` replaces a `MarkdownAST.Link` in place.
+"""
+struct AnchoredInline <: AbstractDocumenterInline
+    anchor::Anchor
+end
+MarkdownAST.iscontainer(::AnchoredInline) = true
+Base.show(io::IO, ::AnchoredInline) = print(io, "Documenter.AnchoredInline([...])")
+
 # Navigation
 # ----------------------
 
 """
 Element in the navigation tree of a document, containing navigation references
-to other page, reference to the [`Page`](@ref) object etc.
+to other pages, a reference to the [`Page`](@ref) object etc.
 """
 mutable struct NavNode
     """
@@ -376,7 +390,7 @@ struct Internal
     assets::String # Path where asset files will be copied to.
     navtree::Vector{NavNode} # A vector of top-level navigation items.
     navlist::Vector{NavNode} # An ordered list of `NavNode`s that point to actual pages
-    headers::AnchorMap # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    anchors::AnchorMap # See `modules/Anchors.jl`. Tracks `@id` anchors on headers and inline content.
     docs::AnchorMap # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings::IdDict{Any, Any} # Tracks insertion order of object per-binding.
     objects::IdDict{Any, Any} # Tracks which `Objects` are included in the `Document`.
@@ -642,7 +656,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
             # happen.
             error(
                 """
-                Unexpected repository roots -- must have common  prefix.
+                Unexpected repository roots -- must have a common prefix.
                 makedocs_root_remoteref.root: $(makedocs_root_remoteref.root)
                 makedocs_root_repo: $(makedocs_root_repo)
                 """
@@ -818,7 +832,7 @@ end
 """
     $(SIGNATURES)
 
-Returns the the the remote that contains the file, and the relative path of the
+Returns the remote that contains the file, and the relative path of the
 file within the repo (or `nothing, nothing` if the file is not in a known repo).
 """
 function relpath_from_remote_root(doc::Document, path::AbstractString)
@@ -896,12 +910,12 @@ end
 #  - rev: indicates a Git revision; if omitted, the current repo commit is used.
 # May return nothing if it is unable to determine the local path.
 function edit_url(doc::Document, path; rev::Union{AbstractString, Nothing})
-    # If the user has disable remote links, we abort immediately
+    # If the user has disabled remote links, we abort immediately
     isnothing(doc.user.remotes) && return nothing
     # We'll prepend doc.user.root, unless already an absolute path.
     path = abspath(doc.user.root, path)
     if !ispath(path)
-        error("Unable to generate remote link (local path does not exists)\n path: $(path)")
+        error("Unable to generate remote link (local path does not exist)\n path: $(path)")
     end
     remoteref = relpath_from_remote_root(doc, path)
     if isnothing(remoteref)
@@ -917,7 +931,7 @@ source_url(doc::Document, docstring) = source_url(
 )
 
 function source_url(doc::Document, mod::Module, file::AbstractString, linerange)
-    # If the user has disable remote links, we abort immediately
+    # If the user has disabled remote links, we abort immediately
     isnothing(doc.user.remotes) && return nothing
     # needed since julia v0.6, see #689
     file === nothing && return nothing
@@ -943,7 +957,7 @@ end
 """
     Documenter.getplugin(doc::Document, T) -> Plugin
 
-Retrieves the object for the [`Plugin`](@ref ) sub-type `T` stored in `doc`. If an
+Retrieves the object for the [`Plugin`](@ref) sub-type `T` stored in `doc`. If an
 object of type `T` was an element of the `plugins` list passed to [`makedocs`](@ref),
 that object will be returned. Otherwise, a new `T` object will be created using the default
 constructor `T()`. Subsequent calls to `getplugin(doc, T)` return the same object.
@@ -1025,26 +1039,43 @@ end
 
 function populate!(contents::ContentsNode, document::Document)
     # Filtering valid contents links.
-    for (id, filedict) in document.internal.headers.map
+    for (id, filedict) in document.internal.anchors.map
         for (file, anchors) in filedict
             for anchor in anchors
                 page = relpath(anchor.file, dirname(contents.build))
                 # Note: This only filters based on contents.depth and *not* contents.mindepth.
                 #       Instead the writers who support this adjust this when rendering.
-                if _isvalid(page, contents.pages) && anchor.object.level ≤ contents.depth
+                # Only headers participate in `@contents` listings. The same AnchorMap also
+                # holds arbitrary `[content](@id name)` anchors (whose `.object` is an
+                # `AnchoredInline`), which must be skipped here.
+                if _isvalid(page, contents.pages) && anchor.object isa MarkdownAST.Heading && anchor.object.level ≤ contents.depth
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end
         end
     end
-    # Sorting contents links.
-    pagesmap = precedence(contents.pages)
+    # Sorting contents links. Without an explicit `Pages = [...]`, fall back to the
+    # navigation order (i.e. the `pages` argument of `makedocs`) rather than the order
+    # in which the pages happened to be expanded.
+    pagesmap = precedence(isempty(contents.pages) ? navpages(document, dirname(contents.build)) : contents.pages)
     comparison = function (a, b)
         (x = _compare(pagesmap, 2, a, b)) == 0 || return x < 0 # page
         return a[1] < b[1]                                            # anchor order
     end
     sort!(contents.elements, lt = comparison)
     return contents
+end
+
+# The pages of the navigation menu, as paths relative to `dir`, matching the page
+# paths stored in the elements of a `ContentsNode`.
+function navpages(document::Document, dir::AbstractString)
+    pages = String[]
+    for navnode in document.internal.navlist
+        page = get(document.blueprint.pages, navnode.page, nothing)
+        page === nothing && continue
+        push!(pages, relpath(page.build, dir))
+    end
+    return pages
 end
 
 # some replacements for jldoctest blocks
@@ -1062,7 +1093,7 @@ function doctest_replace!(ast::MarkdownAST.Node)
 end
 doctest_replace!(docsnode::DocsNode) = foreach(doctest_replace!, docsnode.mdasts)
 function doctest_replace!(block::MarkdownAST.CodeBlock)
-    startswith(block.info, "jldoctest") || return
+    iscodelang(block, "jldoctest") || return
     # suppress output for `#output`-style doctests with `output=false` kwarg
     if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.info)
         input = first(split(block.code, "# output\n", limit = 2))
@@ -1073,10 +1104,15 @@ function doctest_replace!(block::MarkdownAST.CodeBlock)
 end
 doctest_replace!(@nospecialize _) = nothing
 
+# Builds a ContentsNode or IndexNode from the settings assigned in `block`. Returns
+# `nothing` if the block does not parse -- a broken block must not silently fall back to
+# the defaults, which would list the whole document (issue #1140).
 function buildnode(T::Type, block, doc, page)
     mod = get(page.globals.meta, :CurrentModule, Main)
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in parseblock(block.code, doc, page)
+    exprs = parseblock(block.code, doc, page; parse_error_result = nothing)
+    exprs === nothing && return nothing
+    for (ex, str) in exprs
         if isassign(ex)
             cd(dirname(page.source)) do
                 dict[ex.args[1]] = Core.eval(mod, ex.args[2])
@@ -1130,9 +1166,41 @@ end
 
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = MDFlatten.mdflatten(io, node.children)
-MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredInline) = MDFlatten.mdflatten(io, node.children)
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = MDFlatten.mdflatten(io, node, e.codeblock)
+
+# The at-blocks below flatten to what the writers actually render, rather than to
+# the source of the at-block, so that the search index does not pick up text that
+# is nowhere to be seen on the rendered page (issue #1929).
+
+# @meta and @setup blocks render nothing at all.
+MDFlatten.mdflatten(io, ::MarkdownAST.Node, ::Union{MetaNode, SetupNode}) = nothing
+
+# @example and @repl blocks render their children: the input code and, for
+# @example, the output of evaluating it.
+function MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::Union{MultiOutput, MultiCodeBlock})
+    # Children that flatten to nothing (e.g. image output) must not leave a
+    # stray separator behind.
+    parts = filter(!isempty, [MDFlatten.mdflatten(child) for child in node.children])
+    print(io, join(parts, '\n'))
+    return
+end
+
+# Of the MIME representations of an @example output, only the plain text one is
+# meaningful as flattened text; images and the like are dropped.
+function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::MultiOutputElement)
+    mime = MIME"text/plain"()
+    e.element isa AbstractDict && haskey(e.element, mime) && print(io, e.element[mime])
+    return
+end
+
+# @eval blocks render only the result of evaluating the block.
+function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::EvalNode)
+    isnothing(e.result) || MDFlatten.mdflatten(io, e.result)
+    return
+end
+
 function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
     # this special case separates top level blocks with newlines
     for node in e.mdasts

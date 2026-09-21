@@ -14,7 +14,7 @@ using MarkdownAST: MarkdownAST, Node
 """
 Convert a Markdown object to a `String` of only text (i.e. not formatting info).
 
-It drop most of the extra information (e.g. language of a code block, URLs)
+It drops most of the extra information (e.g. language of a code block, URLs)
 and formatting (e.g. emphasis, headers). This "flattened" representation can
 then be used as input for search engines.
 """

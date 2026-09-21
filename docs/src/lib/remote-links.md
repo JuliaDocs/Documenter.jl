@@ -48,7 +48,7 @@ For released packages (those added using `Pkg.add(...)` rather than `Pkg.develop
 In this case, Documenter will guess that a tag `v$VERSION` exists in the repository on GitHub.
 Note that these tags are created automatically by the widely used JuliaRegistries/TagBot action.
 Since this is sometimes not the case, and could cause dead or incorrect links, setting the `linkcheck` keyword to `true` to [`makedocs`](@ref) will check these guessed links have an existing target and that the existing target matches the published package.
-(Note this will also all other external links from your documentation.)
+(Note that this will also check all other external links from your documentation.)
 Note that enabling this option can cause documentation builds to fail due to network errors or intermittent downtime of external services.
 
 !!! note
@@ -56,9 +56,9 @@ Note that enabling this option can cause documentation builds to fail due to net
     The [`Remotes` API](@ref remotes-api) can be used to implement the methods to compute the remote URLs (for now, Documenter supports [GitHub](@ref `Remotes.GitHub`), [GitLab](@ref `Remotes.GitLab`) and [Forgejo](@ref `Remotes.Forgejo`) natively).
 
 [^1]: There is an exception to this: links to Julia `Base` module source files.
-      But Documenter already known how to handle those correctly, and they are really only relevant to the Julia main manual build.
-[^2]: GitHub is the most common case, but this could be extended to cover other Git hosting services in the future (as long as the remote can reliably determined from the `origin` URL).
-[^3]: One thing to be aware here is that Documenter builds up a cache of the Git repositories it finds on every `makedocs` call.
+      But Documenter already knows how to handle those correctly, and they are really only relevant to the Julia main manual build.
+[^2]: GitHub is the most common case, but this could be extended to cover other Git hosting services in the future (as long as the remote can be reliably determined from the `origin` URL).
+[^3]: One thing to be aware of here is that Documenter builds up a cache of the Git repositories it finds on every `makedocs` call.
       This is for performance reasons, to reduce the number of file system accesses and, in particular, `git` calls, which are relatively slow.
 
 ## [`repo` & `remotes` interaction](@id repo-remote-interaction)
@@ -69,7 +69,7 @@ This means that usually it is not necessary to specify either explicitly in the 
 The rules are as follows:
 
 * If `repo` _is not_ specified, it is essentially [determined like any other remote link](@ref remotes-for-files), by trying to figure out the repository that contains the `root` path argument of [`makedocs`](@ref) (defaulting to the directory of the `make.jl` script; usually the `docs/` directory).
-  The [`Remote`](@ref `Remotes.Remote`) object will one of the `remotes`, which in turn may have been determined automatically via the `origin` URL of the containing Git repository.
+  The [`Remote`](@ref `Remotes.Remote`) object will be one of the `remotes`, which in turn may have been determined automatically via the `origin` URL of the containing Git repository.
 
 * If `repo` _is_ specified, but the `remotes` for the repository root is not, `repo` will function as a `remotes` entry for the repository root.
   This is so that it would not be necessary to specify the same argument twice (i.e. once for general repository links, once for file links).
@@ -87,7 +87,7 @@ Documenter.Remotes.GitLab
 Documenter.Remotes.Forgejo
 ```
 
-The following types and functions and relevant when creating custom
+The following types and functions are relevant when creating custom
 [`Remote`](@ref `Documenter.Remotes.Remote`) types:
 
 ```@docs

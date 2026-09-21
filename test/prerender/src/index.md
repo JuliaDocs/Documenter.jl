@@ -2,13 +2,13 @@
 
 ```julia
 function f()
-    print("hello, world")
+    return print("hello, world")
 end
 ```
 
 ```julia-repl
 julia> function f()
-           print("hello, world")
+           return print("hello, world")
        end
 ```
 

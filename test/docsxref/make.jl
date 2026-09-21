@@ -81,14 +81,14 @@ end
         output,
         """
         ┌ Warning: Cannot resolve @ref for md"[header](@ref)" in docsxref/src/index.md.
-        │ - Header with slug 'header' in docsxref/src/index.md does not exist.
+        │ - Header or `@id` anchor with slug 'header' in docsxref/src/index.md does not exist.
         """
     )
     @test contains(
         output,
         """
         ┌ Warning: Cannot resolve @ref for md"[header link](@ref \\\"header\\\")" in docsxref/src/index.md.
-        │ - Header with slug 'header' in docsxref/src/index.md does not exist.
+        │ - Header or `@id` anchor with slug 'header' in docsxref/src/index.md does not exist.
         """
     )
 
@@ -96,28 +96,28 @@ end
         output,
         """
         ┌ Warning: Cannot resolve @ref for md"[Multiple words](@ref)" in docsxref/src/index.md.
-        │ - Header with slug 'Multiple-words' in docsxref/src/index.md does not exist.
+        │ - Header or `@id` anchor with slug 'Multiple-words' in docsxref/src/index.md does not exist.
         """
     )
     @test contains(
         output,
         """
         ┌ Warning: Cannot resolve @ref for md"[header link](@ref \\\"Multiple words\\\")" in docsxref/src/index.md.
-        │ - Header with slug 'Multiple-words' in docsxref/src/index.md does not exist.
+        │ - Header or `@id` anchor with slug 'Multiple-words' in docsxref/src/index.md does not exist.
         """
     )
     @test contains(
         output,
         """
         ┌ Warning: Cannot resolve @ref for md"[header id link](@ref missing-header-id)" in docsxref/src/index.md.
-        │ - Header with slug 'missing-header-id' in docsxref/src/index.md does not exist.
+        │ - Header or `@id` anchor with slug 'missing-header-id' in docsxref/src/index.md does not exist.
         """
     )
     @test contains(
         output,
         """
         ┌ Warning: Cannot resolve @ref for md"[dashed header id link](@ref missing-header-id-with-dashes)" in docsxref/src/index.md.
-        │ - Header with slug 'missing-header-id-with-dashes' in docsxref/src/index.md does not exist.
+        │ - Header or `@id` anchor with slug 'missing-header-id-with-dashes' in docsxref/src/index.md does not exist.
         """
     )
 
@@ -149,7 +149,7 @@ end
         output,
         """
         ┌ Warning: Cannot resolve @ref for md"[Some-Hyphenated-Target](@ref)" in docsxref/src/index.md.
-        │ - Header with slug 'Some-Hyphenated-Target' in docsxref/src/index.md does not exist.
+        │ - Header or `@id` anchor with slug 'Some-Hyphenated-Target' in docsxref/src/index.md does not exist.
         """
     )
     @test !contains(output, "binding `Base.-`")
