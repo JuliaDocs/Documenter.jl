@@ -32,10 +32,13 @@ linkcheck_ignore = [
 if get(ENV, "GITHUB_ACTIONS", nothing) == "true"
     # It seems that CTAN blocks GitHub Actions?
     push!(linkcheck_ignore, "https://ctan.org/pkg/minted")
+    push!(linkcheck_ignore, "https://mirrors.ctan.org/macros/latex/contrib/physics/physics.pdf")
     # Putty homepage times out from Actions runners (curl exit 28).
     push!(linkcheck_ignore, "https://www.chiark.greenend.org.uk/~sgtatham/putty/")
     # Codeberg answers 403 to Actions runners.
     push!(linkcheck_ignore, r"^https://codeberg.org")
+    # W3C returns 403 to Actions runners.
+    push!(linkcheck_ignore, "https://www.w3.org/TR/referrer-policy/#referrer-policies")
 end
 
 makedocs(
