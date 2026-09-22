@@ -239,6 +239,34 @@ end
         end
     end
 
+    # The doctest failure log is emitted at @warn level when doctesting is non-strict and at
+    # @error level otherwise (https://github.com/JuliaDocs/Documenter.jl/issues/2090). The
+    # captured output prefixes these with "Warning:" and "Error:" respectively. The log level
+    # tracks strictness independently of whether the build is failed.
+    run_makedocs(["broken.md"]; warnonly = true) do result, success, backtrace, output
+        @test success
+        @test occursin("Warning: doctest failure", output)
+        @test !occursin("Error: doctest failure", output)
+    end
+    run_makedocs(["broken.md"]; warnonly = Documenter.except(:meta_block)) do result, success, backtrace, output
+        @test success
+        @test occursin("Warning: doctest failure", output)
+        @test !occursin("Error: doctest failure", output)
+    end
+    run_makedocs(["broken.md"]) do result, success, backtrace, output
+        @test !success
+        @test occursin("Error: doctest failure", output)
+        @test !occursin("Warning: doctest failure", output)
+    end
+    # Under doctest = :only the build is failed regardless of warnonly, but the log level
+    # still follows strictness: warnonly = true downgrades the log to @warn while the build
+    # remains failed.
+    run_makedocs(["broken.md"]; modules = [FooBroken], doctest = :only, warnonly = true) do result, success, backtrace, output
+        @test !success
+        @test occursin("Warning: doctest failure", output)
+        @test !occursin("Error: doctest failure", output)
+    end
+
     # Tests for doctest = :only. The output should reflect that the docs themselves do not
     # get built.
     run_makedocs(["working.md"]; modules = [FooWorking], doctest = :only) do result, success, backtrace, output
