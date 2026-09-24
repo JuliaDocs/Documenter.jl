@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * An `@contents` or `@index` block whose body fails to parse is now left unexpanded instead of falling back to the defaults, which silently listed the whole document. ([#1140])
 * `@contents` blocks without an explicit `Pages = [...]` now list the pages in the order given by the `pages` argument of `makedocs`, instead of alphabetically by source path. ([#936])
+* The number of missing docstrings reported by `checkdocs` no longer varies from run to run. A binding whose last unmatched docstring was reached by a reference to another of its methods, such as one documented in a module that does not make it public, was counted as covered or missing depending on the order the included docstrings were visited in. ([#2781])
+* `checkdocs_ignored_modules` now also applies to modules that are passed to `modules` directly, not only to their submodules. ([#2781])
 * A fenced code block whose language merely starts with the name of a Documenter block, such as ```` ```jldoctests ```` or ```` ```@examples ````, no longer aborts the build with an `internal error`. Documenter now dispatches on the whole language, so such a block is again passed through as an ordinary code block — and reported with a warning, since it is usually a typo. ([#2997], [#2912])
 
 ## Version [v1.19.0] - 2026-09-01
@@ -2294,6 +2296,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2772]: https://github.com/JuliaDocs/Documenter.jl/issues/2772
 [#2773]: https://github.com/JuliaDocs/Documenter.jl/issues/2773
 [#2774]: https://github.com/JuliaDocs/Documenter.jl/issues/2774
+[#2781]: https://github.com/JuliaDocs/Documenter.jl/issues/2781
 [#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
 [#2792]: https://github.com/JuliaDocs/Documenter.jl/issues/2792
 [#2793]: https://github.com/JuliaDocs/Documenter.jl/issues/2793
