@@ -111,6 +111,67 @@ const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
+"""
+A section of the top menu, built from one top-level entry of the `pages` argument when
+`HTML(top_menu = true)` is used.
+
+- `title`: the section title shown in the top menu.
+- `visible`: `false` if the section was hidden with [`hide`](@ref Documenter.hide).
+- `navtree`: the navigation tree shown in the sidebar for the pages of the section.
+- `navlist`: all the pages of the section, in navigation order.
+"""
+struct TopMenuSection
+    title::String
+    visible::Bool
+    navtree::Vector{Documenter.NavNode}
+    navlist::Vector{Documenter.NavNode}
+end
+
+function _collect_navlist!(list, node)
+    node.page !== nothing && push!(list, node)
+    for child in node.children
+        _collect_navlist!(list, child)
+    end
+    return
+end
+
+"""
+    build_top_menu_sections(navtree) -> (sections, page_section)
+
+Builds the [`TopMenuSection`](@ref)s from the top-level nodes of the navigation tree,
+and a dictionary mapping each page to the index of the section it belongs to.
+"""
+function build_top_menu_sections(navtree::Vector{Documenter.NavNode})
+    sections = TopMenuSection[]
+    page_section = Dict{String, Int}()
+    for top_node in navtree
+        title = top_node.title_override
+        if title === nothing || isempty(title)
+            error(
+                """
+                With `HTML(top_menu = true)`, each entry in the first layer of `pages` must be a
+                `"Section Title" => pages` pair, but the entry for '$(top_node.page)' has no title."""
+            )
+        end
+        # A section that is just a page, or a page with sub-pages (as created with `hide`),
+        # shows the node itself in the sidebar, so that its own page is not lost. A plain
+        # `"Title" => [...]` section shows its children.
+        section_navtree = top_node.page === nothing ? top_node.children : [top_node]
+        navlist = Documenter.NavNode[]
+        _collect_navlist!(navlist, top_node)
+        for nn in navlist
+            if haskey(page_section, nn.page)
+                @warn "Page '$(nn.page)' appears in multiple top_menu sections. " *
+                    "Each page should belong to only one section for proper navigation."
+            else
+                page_section[nn.page] = length(sections) + 1
+            end
+        end
+        push!(sections, TopMenuSection(title, top_node.visible, section_navtree, navlist))
+    end
+    return sections, page_section
+end
+
 abstract type HTMLHeadContent end
 
 struct HTMLAsset <: HTMLHeadContent
@@ -505,6 +566,37 @@ the documentation source directory (conventionally `src/`). Non-local assets, id
 their absolute URLs, can be included with the [`asset`](@ref) function.
 
 [^1]: Adding an ICO asset is primarily useful for setting a custom `favicon`.
+
+**`top_menu`** (Boolean, default: `false`) enables building a top-level navigation bar
+above the sidebar navigation. When set to `true`, the first layer of the `pages` argument
+to [`makedocs`](@ref `Documenter.makedocs`) is used as the top menu (each entry becomes a
+section with its own sidebar navigation).
+
+```julia
+makedocs(
+    format = HTML(top_menu = true),
+    pages = [
+        "Getting Started" => [
+            "Home" => "index.md",
+            "Installation" => "install.md",
+        ],
+        "User Guide" => [
+            "Guide" => "guide/index.md",
+        ],
+    ],
+)
+```
+
+Each entry in the first layer of `pages` must be a `"Section Title" => pages_array` pair
+(or a `"Section Title" => "page.md"` pair for a single-page section); an error is thrown
+otherwise. The first page in each section will be used as the link destination when clicking
+the section title in the top bar, and the previous/next page links stay within each section.
+Sections hidden with [`hide`](@ref Documenter.hide) are not shown in the top bar.
+
+!!! note "Landing page and unique pages"
+    The section containing `index.md` will be displayed first when the documentation is opened,
+    since `index.md` becomes the landing page. Additionally, each page should appear in only
+    one section — having the same page in multiple sections will cause navigation issues.
 """
 struct HTML <: Documenter.Writer
     prettyurls::Bool
@@ -533,6 +625,7 @@ struct HTML <: Documenter.Writer
     example_size_threshold::Int
     search_size_threshold_warn::Int
     inventory_version::Union{String, Nothing}
+    top_menu::Bool
 
     function HTML(;
             prettyurls::Bool = true,
@@ -564,6 +657,7 @@ struct HTML <: Documenter.Writer
             example_size_threshold::Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
             search_size_threshold_warn::Union{Integer, Nothing} = 500 * 2^10, # 500 KiB
             inventory_version = nothing,
+            top_menu::Bool = false,
 
             # deprecated keywords
             edit_branch::Union{String, Nothing, Default} = Default(nothing),
@@ -639,7 +733,8 @@ struct HTML <: Documenter.Writer
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
             search_size_threshold_warn,
-            (isnothing(inventory_version) ? nothing : string(inventory_version))
+            (isnothing(inventory_version) ? nothing : string(inventory_version)),
+            top_menu
         )
     end
 end
@@ -725,11 +820,16 @@ mutable struct HTMLContext
     search_index_js::String
     search_navnode::Documenter.NavNode
     atexample_warnings::Vector{AtExampleFallbackWarning}
+    top_menu_sections::Vector{TopMenuSection}
+    # Maps a page to the index of its section in top_menu_sections
+    top_menu_page_section::Dict{String, Int}
 
     HTMLContext(doc, settings = nothing) = new(
         doc, settings, [], "", "", "", [], "",
         Documenter.NavNode("search", "Search", nothing),
         AtExampleFallbackWarning[],
+        TopMenuSection[],
+        Dict{String, Int}(),
     )
 end
 
@@ -882,6 +982,9 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
     end
 
     ctx = HTMLContext(doc, settings)
+    if settings.top_menu
+        ctx.top_menu_sections, ctx.top_menu_page_section = build_top_menu_sections(doc.internal.navtree)
+    end
     ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
     ctx.warner_js = copy_asset("warner.js", doc)
@@ -1036,7 +1139,7 @@ function render_page(ctx, navnode)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
     extras = render_extras(ctx, navnode)
-    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras)
+    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer, extras)
     return write_html(ctx, navnode, htmldoc)
 end
 
@@ -1044,20 +1147,127 @@ end
 # ------------------------------------------------------------------------------
 
 """
+Find the first descendant NavNode that has an associated page, or the node itself
+if it has a page. Returns `nothing` if no such node exists in the subtree.
+"""
+function first_page_navnode(nn::Documenter.NavNode)
+    nn.page !== nothing && return nn
+    for child in nn.children
+        result = first_page_navnode(child)
+        result !== nothing && return result
+    end
+    return nothing
+end
+
+"""
+Renders the top navigation bar when `top_menu` is configured.
+Returns `nothing` if `top_menu` is not being used.
+"""
+function render_top_menu(ctx, navnode)
+    sections = ctx.top_menu_sections
+    isempty(sections) && return nothing
+
+    @tags nav div a ul li span
+
+    # The section the current page belongs to (0 if none, e.g. for the search page)
+    current_section_idx = get(ctx.top_menu_page_section, navnode.page, 0)
+
+    items = DOM.Node[]
+    for (idx, section) in enumerate(sections)
+        section.visible || continue
+        is_active = idx == current_section_idx
+        href = isempty(section.navlist) ? "#" : navhref(ctx, first(section.navlist), navnode)
+
+        # Build dropdown items from the section's visible top-level navtree entries
+        dropdown_items = DOM.Node[]
+        for nn in section.navtree
+            nn.visible || continue
+            target_nn = first_page_navnode(nn)
+            target_nn === nothing && continue
+            item_href = navhref(ctx, target_nn, navnode)
+            dctx_nn = DCtx(ctx, nn, true)
+            item_title = domify(dctx_nn, pagetitle(dctx_nn))
+            push!(dropdown_items, li(a[".docs-top-dropdown-item", :href => item_href](item_title)))
+        end
+
+        link_attributes = is_active ? [:href => href, Symbol("aria-current") => "true"] : [:href => href]
+        li_class = is_active ? ".docs-top-dropdown.is-active" : ".docs-top-dropdown"
+        push!(
+            items, li[li_class](
+                a[".docs-top-menu-link", link_attributes...](
+                    section.title,
+                    span[".docs-top-dropdown-caret", Symbol("aria-hidden") => "true"](),
+                ),
+                ul[".docs-top-dropdown-menu"](dropdown_items...),
+            )
+        )
+    end
+
+    return nav[".docs-top-menu", Symbol("aria-label") => "Documentation sections"](
+        div[".container"](
+            ul[".docs-top-menu-list"](items...)
+        )
+    )
+end
+
+"""
+Returns the [`TopMenuSection`](@ref) the page of `navnode` belongs to, or `nothing` if
+`top_menu` is not being used or the page is not part of any section.
+"""
+function top_menu_section(ctx, navnode)
+    idx = get(ctx.top_menu_page_section, navnode.page, 0)
+    return idx == 0 ? nothing : ctx.top_menu_sections[idx]
+end
+
+"""
+Get the correct navtree for the current page based on top_menu sections.
+"""
+function get_section_navtree(ctx, navnode)
+    section = top_menu_section(ctx, navnode)
+    return section === nothing ? ctx.doc.internal.navtree : section.navtree
+end
+
+"""
+Returns the previous and next pages of `navnode`. When `top_menu` is being used, these
+are restricted to the pages of the section the page belongs to.
+"""
+function prev_next_navnodes(ctx, navnode)
+    section = top_menu_section(ctx, navnode)
+    section === nothing && return navnode.prev, navnode.next
+    i = findfirst(nn -> nn === navnode, section.navlist)
+    # The page may appear in several sections, but only the first one is associated with it
+    i === nothing && return navnode.prev, navnode.next
+    prev = i > 1 ? section.navlist[i - 1] : nothing
+    next = i < length(section.navlist) ? section.navlist[i + 1] : nothing
+    return prev, next
+end
+
+"""
 Renders the main `<html>` tag.
 """
-function render_html(ctx, head, sidebar, navbar, article, footer, extras)
+function render_html(ctx, navnode, head, sidebar, navbar, article, footer, extras)
     @tags html body div
+    top_menu = render_top_menu(ctx, navnode)
+    main_content = if isnothing(top_menu)
+        div["#documenter"](
+            sidebar,
+            div[".docs-main"](navbar, article, footer),
+            render_settings(),
+        )
+    else
+        div["#documenter.has-top-menu"](
+            top_menu,
+            div[".docs-content-wrapper"](
+                sidebar,
+                div[".docs-main"](navbar, article, footer),
+            ),
+            render_settings(),
+        )
+    end
     return DOM.HTMLDocument(
         html[:lang => ctx.settings.lang](
             head,
-            body(
-                div["#documenter"](
-                    sidebar,
-                    div[".docs-main"](navbar, article, footer),
-                    render_settings(),
-                ),
-            ),
+            body(main_content),
             extras...
         )
     )
@@ -1379,7 +1589,7 @@ It gets called recursively to construct the whole tree.
 It always returns a [`DOM.Node`](@ref). If there's nothing to display (e.g. the node is set
 to be invisible), it returns an empty text node (`DOM.Node("")`).
 """
-navitem(nctx) = navitem(nctx, nctx.htmlctx.doc.internal.navtree)
+navitem(nctx) = navitem(nctx, get_section_navtree(nctx.htmlctx, nctx.current))
 function navitem(nctx, nns::Vector)
     push!(nctx.idstack, 0)
     nodes = map(nns) do nn
@@ -1594,16 +1804,17 @@ function render_footer(ctx, navnode)
     @tags a div nav
     # Navigation links (previous/next page), if there are any
     navlinks = DOM.Node[]
-    if navnode.prev !== nothing
-        dctx = DCtx(ctx, navnode.prev, true)
+    prev, next = prev_next_navnodes(ctx, navnode)
+    if prev !== nothing
+        dctx = DCtx(ctx, prev, true)
         title = domify(dctx, pagetitle(dctx))
-        link = a[".docs-footer-prevpage", :href => navhref(ctx, navnode.prev, navnode)]("« ", title)
+        link = a[".docs-footer-prevpage", :href => navhref(ctx, prev, navnode)]("« ", title)
         push!(navlinks, link)
     end
-    if navnode.next !== nothing
-        dctx = DCtx(ctx, navnode.next, true)
+    if next !== nothing
+        dctx = DCtx(ctx, next, true)
         title = domify(dctx, pagetitle(dctx))
-        link = a[".docs-footer-nextpage", :href => navhref(ctx, navnode.next, navnode)](title, " »")
+        link = a[".docs-footer-nextpage", :href => navhref(ctx, next, navnode)](title, " »")
         push!(navlinks, link)
     end
 
