@@ -19,12 +19,10 @@ Documenter version.
 | JuliaMono | not used by default; available to custom preambles |
 | Pygments (`pygmentize`) | the `minted` backend for source highlighting |
 
-[`texlive-packages.txt`](texlive-packages.txt) is shared with the
-`zauguin/install-texlive` step in `.github/workflows/CI.yml`, so the containerised
-and natively installed TeX toolchains cannot drift apart. Keep it a bare list, one
-package per line: that action passes the file to `tlmgr` verbatim, so a `#` comment
-in it becomes a package name and the install silently comes out wrong. Its entries
-are, and why:
+[`texlive-packages.txt`](texlive-packages.txt) lists the TeX Live packages installed
+in the image. Keep it a bare list, one package per line: the `Dockerfile` passes the
+file to `tlmgr` verbatim, so a `#` comment in it becomes a package name and the
+install silently comes out wrong. Its entries are, and why:
 
 | Package | Why |
 | --- | --- |

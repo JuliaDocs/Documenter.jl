@@ -3,12 +3,12 @@ using Test
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl, and we need to set it to the relevant LaTeX builds.
 #
-# On CI, Windows has no Docker, so it only compiles natively and with Tectonic. Linux
-# has no TeX Live installed, so it compiles in the container and with Tectonic instead.
+# CI installs no TeX Live, so it skips the native compile: Linux compiles in the
+# container and with Tectonic, and Windows, which has no Docker, only with Tectonic.
 const on_ci = get(ENV, "GITHUB_ACTIONS", nothing) == "true"
-const test_native = !(on_ci && Sys.islinux())
+const test_native = !on_ci
 if on_ci && Sys.iswindows()
-    ENV["DOCUMENTER_TEST_EXAMPLES"] = "latex_simple_nondocker latex_simple_tectonic"
+    ENV["DOCUMENTER_TEST_EXAMPLES"] = "latex_simple_tectonic"
 else
     ENV["DOCUMENTER_TEST_EXAMPLES"] =
         "latex latex_simple latex_cover_page latex_toc_style latex_simple_tectonic latex_showcase" *

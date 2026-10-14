@@ -34,9 +34,8 @@ RUN apt-get update && \
 COPY texlive-packages.txt /tmp/texlive-packages.txt
 
 # scheme-infraonly installs only tlmgr itself; the actual package set then comes
-# from texlive-packages.txt, so it stays in sync with the native CI install. That
-# file must stay a bare list: zauguin/install-texlive passes it to tlmgr verbatim,
-# so a comment in it becomes a package name (see docker/README.md).
+# from texlive-packages.txt. That file must stay a bare list: it is passed to tlmgr
+# verbatim, so a comment in it becomes a package name (see docker/README.md).
 # `tlmgr path add` symlinks the binaries into /usr/local/bin, which keeps the image
 # architecture-independent (no .../bin/x86_64-linux on PATH). It has to run after
 # the packages, since it only links what is installed at the time.
