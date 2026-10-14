@@ -7,3 +7,4 @@ tabulary
 tcolorbox
 transparent
 upquote
+microtype
