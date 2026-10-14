@@ -113,10 +113,12 @@ if "pdf" in ARGS
         branch = "gh-pages-pdf",
         forcepush = true,
     )
-else
+elseif "linkcheck" ∉ ARGS
+    # The linkcheck job only checks links: the docs job deploys the same build, and the
+    # linkcheck job's token is not allowed to push.
     deploydocs(
         repo = "github.com/JuliaDocs/Documenter.jl.git",
         target = "build",
-        push_preview = "linkcheck" ∉ ARGS,
+        push_preview = true,
     )
 end
