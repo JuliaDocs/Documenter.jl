@@ -103,9 +103,12 @@ jobs:
       - name: "install pygments for tectonic"
         run: pip install pygments
         if: matrix.os == 'windows-latest'
+      # Only Windows compiles natively: it has no Docker, while Linux covers the
+      # container path below (see test/examples/tests_latex.jl).
       - uses: zauguin/install-texlive@v4
         with:
           package_file: docker/texlive-packages.txt
+        if: matrix.os == 'windows-latest'
       # A change to docker/ is tested against the image built from it, before
       # DockerImage.yml publishes that image. Every other change uses the published
       # one, so unrelated pull requests only pay a pull. Windows runners have no

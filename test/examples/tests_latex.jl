@@ -2,12 +2,17 @@ using Test
 
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl, and we need to set it to the relevant LaTeX builds.
-if Sys.iswindows() && get(ENV, "GITHUB_ACTIONS", nothing) == "true"
+#
+# On CI, Windows has no Docker, so it only compiles natively and with Tectonic. Linux
+# has no TeX Live installed, so it compiles in the container and with Tectonic instead.
+const on_ci = get(ENV, "GITHUB_ACTIONS", nothing) == "true"
+const test_native = !(on_ci && Sys.islinux())
+if on_ci && Sys.iswindows()
     ENV["DOCUMENTER_TEST_EXAMPLES"] = "latex_simple_nondocker latex_simple_tectonic"
 else
     ENV["DOCUMENTER_TEST_EXAMPLES"] =
-        "latex latex_simple latex_cover_page latex_toc_style latex_simple_nondocker latex_simple_tectonic " *
-        "latex_showcase"
+        "latex latex_simple latex_cover_page latex_toc_style latex_simple_tectonic latex_showcase" *
+        (test_native ? " latex_simple_nondocker" : "")
 end
 # When the file is run separately we need to include make.jl which actually builds
 # the docs and defines a few modules that are referred to in the docs. The make.jl
@@ -80,7 +85,7 @@ end
         end
     end
 
-    @testset "PDF/LaTeX: native" begin
+    test_native && @testset "PDF/LaTeX: native" begin
         doc = Main.examples_latex_simple_nondocker_doc
         @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple_nondocker")
