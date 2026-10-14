@@ -57,10 +57,13 @@ makedocs(
     ...)
 ```
 
-### Compiling in a container
+### Compiling using docker image
 
-Instead of installing a TeX toolchain, the `.tex` file can be compiled in a prebuilt
-container image that already contains everything listed above:
+It is also possible to use a prebuilt [docker image](https://hub.docker.com/r/juliadocs/documenter-latex/)
+to compile the `.tex` file. The image contains all of the required installs described in the section
+above. The only requirement for using the image is that `docker` is installed and available for
+the builder to call. You also need to tell Documenter to use the docker image, instead of natively
+installed tex which is the default. This is done with the `LaTeX` specifier:
 
 ```julia
 using Documenter
@@ -70,21 +73,14 @@ makedocs(
 )
 ```
 
-The only requirement is that `docker` is installed and available in `PATH`; the image
-itself is pulled on first use. GitHub Actions `ubuntu-*` runners ship with Docker, so
-no extra workflow step is needed.
+If you build the documentation on Travis you need to add
 
-The default image is [`ghcr.io/juliadocs/documenter-latex`](https://github.com/JuliaDocs/Documenter.jl/tree/master/docker),
-which is maintained alongside Documenter. A different one can be selected with the
-`image` keyword, for instance to add a LaTeX package that a custom preamble needs:
-
-```julia
-using Documenter
-makedocs(
-    format = Documenter.LaTeX(platform = "docker", image = "myorg/my-latex:1"),
-    ...
-)
+```yaml
+services:
+  - docker
 ```
+
+to your `.travis.yml` file.
 
 ### Compiling to LaTeX only
 

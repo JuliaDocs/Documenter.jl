@@ -8,11 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * The HTML output now sets a `no-referrer` referrer policy by default, so that the CDNs serving the fonts, stylesheets and scripts are no longer told which page the reader is on. It can be changed or disabled with the `referrerpolicy` keyword of `Documenter.HTML`. ([#2391], [#2401])
-* Added an `image` keyword to `Documenter.LaTeX` to select the container image used by `platform = "docker"`, overridable via the `DOCUMENTER_LATEX_DOCKER_IMAGE` environment variable. ([#2888])
-
-### Changed
-
-* `Documenter.LaTeX(platform = "docker")` now uses `ghcr.io/juliadocs/documenter-latex`, which is built from `docker/` in this repository and rebuilt weekly, instead of the unmaintained `juliadocs/documenter-latex:0.1` image on Docker Hub. ([#2888])
 
 ### Fixed
 
@@ -2327,7 +2322,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2874]: https://github.com/JuliaDocs/Documenter.jl/issues/2874
 [#2875]: https://github.com/JuliaDocs/Documenter.jl/issues/2875
 [#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
-[#2888]: https://github.com/JuliaDocs/Documenter.jl/issues/2888
 [#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
 [#2894]: https://github.com/JuliaDocs/Documenter.jl/issues/2894
 [#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
