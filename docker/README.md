@@ -75,6 +75,3 @@ To build it locally:
 ```bash
 docker build -t documenter-latex:test docker/
 ```
-
-The predecessor, `juliadocs/documenter-latex:0.1` on Docker Hub, is unmaintained;
-its Dockerfile lives in the archived `JuliaDocs/DocumenterLaTeX.jl` repository.
