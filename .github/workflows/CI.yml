@@ -119,11 +119,11 @@ jobs:
           else
             echo "rebuild=false" >> "$GITHUB_OUTPUT"
           fi
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
         if: steps.image.outputs.rebuild == 'true'
       - name: Build the LaTeX container image
         if: steps.image.outputs.rebuild == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: docker
           load: true
