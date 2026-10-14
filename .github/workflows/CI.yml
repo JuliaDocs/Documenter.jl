@@ -45,7 +45,7 @@ jobs:
             arch: default
           - os: ubuntu-latest
             version: 'lts'
-            arch: x64
+            arch: default
 
     steps:
       - uses: actions/checkout@v7
