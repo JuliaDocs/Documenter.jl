@@ -28,10 +28,11 @@ are, and why:
 
 | Package | Why |
 | --- | --- |
-| `scheme-medium` | `latexmk`, `lualatex`, `fontspec`, `polyglossia`, `amsmath`, `graphicx`, … |
-| `collection-latexextra` | The predecessor image was built on Debian's `texlive-latex-extra`; dropping it would silently break custom preambles that work today. Also supplies `mwe`, whose `example-image` the cover page test uses. |
-| `hyperref`, `minted`, `newunicodechar`, `tabulary`, `tcolorbox` | Requested explicitly by `assets/latex/documenter.sty` |
-| `transparent`, `upquote` | Pulled in by generated documents rather than by `documenter.sty` |
+| `scheme-medium` | `latexmk`, `lualatex`, `fontspec`, `polyglossia`, `amsmath`, `graphicx`, … Also supplies `hyperref`, `microtype`, `bookmark` and `selnolig`, which `assets/latex/documenter.sty` loads, and `transparent`, which generated documents load. |
+| `collection-latexextra` | Supplies `minted`, `newunicodechar`, `tabulary` and `tcolorbox`, which `documenter.sty` loads, and `upquote`, `ltablex` and `xltabular`, which generated documents load. The predecessor image was built on Debian's `texlive-latex-extra`, so it also keeps custom preambles that work today from silently breaking, and supplies `mwe`, whose `example-image` the cover page test uses. |
+
+A package that one of these two already includes is not listed separately. Add one
+only when neither provides it.
 
 ## Using it
 
