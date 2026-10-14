@@ -36,6 +36,8 @@ if get(ENV, "GITHUB_ACTIONS", nothing) == "true"
     push!(linkcheck_ignore, "https://www.chiark.greenend.org.uk/~sgtatham/putty/")
     # Codeberg answers 403 to Actions runners.
     push!(linkcheck_ignore, r"^https://codeberg.org")
+    # So does the W3C site.
+    push!(linkcheck_ignore, r"^https://www.w3.org")
 end
 
 makedocs(
