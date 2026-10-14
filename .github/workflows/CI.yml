@@ -101,7 +101,17 @@ jobs:
         if: matrix.os == 'windows-latest'
       - uses: zauguin/install-texlive@v4
         with:
-          package_file: docker/texlive-packages.txt
+          packages: |
+            scheme-medium
+            hyperref
+            minted
+            newunicodechar
+            transparent
+            upquote
+            tabulary
+            ltablex
+            xltabular
+            tcolorbox
       - uses: julia-actions/setup-julia@v3
         with:
           version: '1'
