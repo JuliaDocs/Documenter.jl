@@ -381,6 +381,8 @@ struct User
     draft::Bool
     meta::Dict{Symbol, Any} # default @meta block data for pages
     treat_markdown_warnings_as_error::Bool # option to treat markdown warnings as an error
+    timer::TimerOutputs.TimerOutput
+    timings_detail::Float64 # fraction of the build time the printed timings table lists individually
 end
 
 """
@@ -445,6 +447,8 @@ function Document(;
         draft::Bool = false,
         meta::Dict{Symbol} = Dict{Symbol, Any}(),
         treat_markdown_warnings_as_error::Bool = false,
+        timings::Bool = false,
+        timings_detail::Float64 = 0.8,
         others...
     )
 
@@ -512,6 +516,8 @@ function Document(;
         draft,
         meta,
         treat_markdown_warnings_as_error,
+        build_timer(timings),
+        check_timings_detail(timings_detail),
     )
     internal = Internal(
         assetsdir(),

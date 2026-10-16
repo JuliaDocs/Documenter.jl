@@ -237,6 +237,15 @@ dynamically by checking the relevant environment variables set by the CI system.
 **`treat_markdown_warnings_as_error`** can be used to control whether a build fails with an error, or
 simply prints a warning if it detects unintended julia values within the markdown.
 
+**`timings`** can be set to `true` to print a table after the build showing how long each
+build stage took, and which pages and blocks (`@example`, `@docs` etc.) account for most of
+the time.
+
+**`timings_detail`** controls how much of that table is listed individually (default: `0.8`).
+Code blocks are added to the table, slowest first, until the listed rows account for this
+fraction of the total build time. The remaining blocks and the pages without a listed block are
+summarized into "other" rows. `1.0` lists every code block.
+
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).
 
@@ -278,12 +287,23 @@ function makedocs(; debug = false, format = HTML(), kwargs...)
     # may have been added to the selector pipelines between makedocs calls.
     empty!(Selectors.selector_subtypes)
     original_pwd[] = pwd()
-    cd(document.user.root) do
-        withenv(NO_KEY_ENV...) do
-            Selectors.dispatch(Builder.DocumentPipeline, document)
+    try
+        cd(document.user.root) do
+            withenv(NO_KEY_ENV...) do
+                Selectors.dispatch(Builder.DocumentPipeline, document)
+            end
         end
+    finally
+        print_timings(document)
     end
     return debug ? document : nothing
+end
+
+function print_timings(document)
+    timer = document.user.timer
+    timer.enabled || return
+    print_build_timings(stdout, timer, document.user.timings_detail)
+    return
 end
 
 """
