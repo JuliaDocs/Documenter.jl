@@ -695,6 +695,9 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         modulemap = Documenter.precedence(modules)
         pagesmap = Documenter.precedence(pages)
         ordermap = Documenter.precedence(order)
+        # Stringifying an object can be expensive (e.g. printing signatures
+        # with Unions), so only do it once per object.
+        objnames = Dict{Any, String}(r => string(r[4]) for r in results)
         comparison = function (a, b)
             local t
             if (t = Documenter._compare(modulemap, 1, a, b)) != 0
@@ -708,7 +711,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                 return t < 0
             else
                 # name
-                return string(a[4]) < string(b[4])
+                return objnames[a] < objnames[b]
             end
         end
         sort!(results; lt = comparison)
@@ -936,7 +939,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
         for (ex, str) in Documenter.parseblock(
                 code, doc, page; keywords = false, linenumbernode, lines
             )
-            c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
+            c = Documenter.iocapture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
                     Core.eval(sandbox, ex)
                 end
@@ -1036,7 +1039,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
         # Use the REPL softscope for REPLBlocks,
         # see https://github.com/JuliaLang/julia/pull/33864
         ex = Documenter.softscope(ex)
-        c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
+        c = Documenter.iocapture(rethrow = InterruptException, color = ansicolor) do
             cd(page.workdir) do
                 Core.eval(sandbox, ex)
             end

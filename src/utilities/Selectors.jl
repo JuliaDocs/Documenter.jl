@@ -186,7 +186,8 @@ function leaf_subtypes(::Type{T}) where {T}
     leaves = Type[]
     while !isempty(stack)
         t = pop!(stack)
-        s = subtypes(t)
+        # `invokelatest` stops invalidations of `subtypes` from propagating to the callers.
+        s = Base.invokelatest(subtypes, t)::Vector{Any}
         if length(s) == 0
             push!(leaves, t)
         else

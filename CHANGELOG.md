@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The HTML output now sets a `no-referrer` referrer policy by default, so that the CDNs serving the fonts, stylesheets and scripts are no longer told which page the reader is on. It can be changed or disabled with the `referrerpolicy` keyword of `Documenter.HTML`. ([#2391], [#2401])
 * Support DocStringExtensions v0.10 ([#3012])
 
+### Changed
+
+* Improved the TTFX by avoiding specialization where possible and expanding the
+  precompileation workload ([#3013]).
+
 ### Fixed
 
 * An `@contents` or `@index` block whose body fails to parse is now left unexpanded instead of falling back to the defaults, which silently listed the whole document. ([#1140])

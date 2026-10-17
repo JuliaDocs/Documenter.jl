@@ -42,6 +42,7 @@ end
 
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
+    checkdocs_ignored_modules = [Documenter._PrecompileExample],
     format = if "pdf" in ARGS
         Documenter.LaTeX(platform = "docker")
     else
