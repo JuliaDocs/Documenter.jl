@@ -61,8 +61,11 @@ function missingbindings(doc::Document)
             signatures = bindings[binding]
             if object.signature ≡ Union{} || length(signatures) ≡ 1
                 delete!(bindings, binding)
-            elseif object.signature in signatures
-                delete!(signatures, object.signature)
+            else
+                idx = findfirst(isequal(object.signature), signatures)
+                if !isnothing(idx)
+                    deleteat!(signatures, idx)
+                end
             end
         end
     end
@@ -70,14 +73,14 @@ function missingbindings(doc::Document)
 end
 
 function allbindings(checkdocs::Symbol, mods)
-    out = Dict{Binding, Set{Type}}()
+    out = Dict{Binding, Vector{Type}}()
     for m in mods
         allbindings(checkdocs, m, out)
     end
     return out
 end
 
-function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Type}}())
+function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Vector{Type}}())
     for (binding, doc) in meta(mod)
         # The keys of the docs meta dictionary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
@@ -97,7 +100,7 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Typ
         if checkdocs === :all ||
                 (isexported && checkdocs === :exports) ||
                 (ispublic && checkdocs === :public)
-            out[binding] = Set(sigs(doc))
+            out[binding] = copy(sigs(doc))
         end
     end
     return out

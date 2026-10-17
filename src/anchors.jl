@@ -77,7 +77,9 @@ be provided to narrow the search for existence.
 """
 anchor_exists(m::AnchorMap, id, file, n) = anchor_exists(m, id, file) && 1 ≤ n ≤ length(m.map[id][file])
 anchor_exists(m::AnchorMap, id, file) = anchor_exists(m, id) && haskey(m.map[id], file)
-anchor_exists(m::AnchorMap, id) = haskey(m.map, id)
+# Converting `id` (often a `SubString`) to a `String` avoids `hash(::SubString)`, which
+# is poorly inferred and frequently invalidated.
+anchor_exists(m::AnchorMap, id) = haskey(m.map, String(id))
 
 # Anchor uniqueness.
 # ------------------

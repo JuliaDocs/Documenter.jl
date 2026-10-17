@@ -160,7 +160,7 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
 
         # Check if syntax versioning is supported (requires Julia 1.14+)
         if syntax_version !== nothing && !isdefined(Base, :VersionedParse)
-            if syntax_version >= v"1.14"
+            if syntax_version::VersionNumber >= v"1.14"
                 @warn "Skipping doctest in $(source): syntax version $syntax_version requires Julia 1.14 or later (running on Julia $VERSION)"
                 return true  # Skip this doctest but don't treat as error
             end
@@ -255,7 +255,7 @@ function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Docum
             # Use the REPL softscope for REPL jldoctests,
             # see https://github.com/JuliaLang/julia/pull/33864
             ex = Documenter.softscope(ex)
-            c = IOCapture.capture(rethrow = InterruptException) do
+            c = Documenter.iocapture(rethrow = InterruptException) do
                 Core.eval(sandbox, ex)
             end
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
@@ -283,7 +283,7 @@ function eval_script(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Doc
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
     for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false, syntax_version = syntax_version, mod = mod)
-        c = IOCapture.capture(rethrow = InterruptException) do
+        c = Documenter.iocapture(rethrow = InterruptException) do
             Core.eval(sandbox, ex)
         end
         result.value = c.value
