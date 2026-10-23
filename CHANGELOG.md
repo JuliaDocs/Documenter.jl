@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* `makedocs` now accepts `timings = true` to print a table of the build stages, pages and code blocks that take the most time. ([#2521])
 * The HTML output now sets a `no-referrer` referrer policy by default, so that the CDNs serving the fonts, stylesheets and scripts are no longer told which page the reader is on. It can be changed or disabled with the `referrerpolicy` keyword of `Documenter.HTML`. ([#2391], [#2401])
 * Support DocStringExtensions v0.10 ([#3012])
 
@@ -2226,6 +2227,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2512]: https://github.com/JuliaDocs/Documenter.jl/issues/2512
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
+[#2521]: https://github.com/JuliaDocs/Documenter.jl/issues/2521
 [#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
 [#2543]: https://github.com/JuliaDocs/Documenter.jl/issues/2543
 [#2549]: https://github.com/JuliaDocs/Documenter.jl/issues/2549
