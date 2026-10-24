@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added a `top_menu` option to `Documenter.HTML` for multi-section documentation with a top navigation bar. With `HTML(top_menu = true)`, each top-level entry of `pages` becomes a section in the top bar, with its own sidebar navigation tree and previous/next page links. ([#2904])
 * The HTML output now sets a `no-referrer` referrer policy by default, so that the CDNs serving the fonts, stylesheets and scripts are no longer told which page the reader is on. It can be changed or disabled with the `referrerpolicy` keyword of `Documenter.HTML`. ([#2391], [#2401])
 * Support DocStringExtensions v0.10 ([#3012])
 
@@ -2326,6 +2327,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2880]: https://github.com/JuliaDocs/Documenter.jl/issues/2880
 [#2889]: https://github.com/JuliaDocs/Documenter.jl/issues/2889
 [#2894]: https://github.com/JuliaDocs/Documenter.jl/issues/2894
+[#2904]: https://github.com/JuliaDocs/Documenter.jl/issues/2904
 [#2905]: https://github.com/JuliaDocs/Documenter.jl/issues/2905
 [#2912]: https://github.com/JuliaDocs/Documenter.jl/issues/2912
 [#2925]: https://github.com/JuliaDocs/Documenter.jl/issues/2925

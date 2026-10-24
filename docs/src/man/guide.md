@@ -446,6 +446,58 @@ Using the `pages` argument you can organize your pages into subsections and hide
 from the sidebar with the help of the [`hide`](@ref) function.
 
 
+## Top Menu for Multi-Section Documentation
+
+For larger documentation projects, you can create a top-level navigation bar by passing `top_menu = true` to [`Documenter.HTML`](@ref). This allows you to organize your documentation into multiple distinct sections, each with its own sidebar navigation.
+
+```julia
+makedocs(
+    ...,
+    format = Documenter.HTML(top_menu = true),
+    pages = [
+        "Getting Started" => [
+            "Home" => "index.md",
+            "Installation" => "getting-started/install.md",
+            "Quick Start" => "getting-started/quickstart.md",
+        ],
+        "User Guide" => [
+            "Overview" => "guide/index.md",
+            "Basic Usage" => "guide/basics.md",
+            "Advanced Topics" => [
+                "guide/advanced.md",
+                "guide/tips.md",
+            ],
+        ],
+        "API Reference" => [
+            "Public API" => "api/public.md",
+            "Internals" => "api/internals.md",
+        ],
+    ],
+)
+```
+
+With `top_menu = true`, the first layer of the `pages` argument is used as the top menu (each entry becomes a section), and the rest of `pages` is interpreted as usual for the sidebar navigation within each section:
+
+  * a horizontal navigation bar appears at the top of the page with the section titles, and hovering over a section title shows a dropdown with the top-level entries of that section;
+  * each section has its own sidebar navigation showing only the pages in that section;
+  * clicking a section title navigates to the first page of that section;
+  * the previous/next page links at the bottom of each page stay within its section;
+  * a section hidden with [`hide`](@ref) is not shown in the top menu, and neither are hidden entries in the dropdowns.
+
+Each entry in the first layer of `pages` must be a `"Section Title" => pages_array` pair, where `pages_array` follows the same format as the `pages` argument (supporting nested subsections, page titles, etc.). A `"Section Title" => "page.md"` pair creates a section with a single page. Entries without a title, such as a bare `"page.md"`, are an error.
+
+!!! note "Landing page"
+    As usual, `index.md` becomes the landing page, so the section containing it will be displayed first when the documentation is opened. Make sure to place your main entry point in the appropriate section.
+
+!!! warning "Unique pages across sections"
+    Each page should appear in only one section. Having the same page in multiple sections will cause navigation issues, as a single page can only belong to one section's navigation tree. Documenter warns if it detects this.
+
+!!! note "Small screens and other output formats"
+    On touch and small-screen devices, the dropdowns are not shown, and a section is reached through its title, which links to its first page. The `top_menu` option only affects the HTML output: other writers, such as the LaTeX/PDF one, ignore it and render `pages` as a regular hierarchy of sections.
+
+If `top_menu = false` (the default), Documenter uses the standard single-sidebar behavior controlled by the `pages` argument.
+
+
 ## Adding a logo or icon
 
 You can easily add a logo or icon to your documentation which
