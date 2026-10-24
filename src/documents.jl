@@ -773,7 +773,8 @@ function lt_remotepair(r1::RemoteRepository, r2::RemoteRepository)
 end
 
 function build_dep_info_dicts(doc::Document)
-    for (uuid, dep) in pairs(Pkg.dependencies())
+    # `invokelatest` stops invalidations of Pkg code from propagating to the callers.
+    for (uuid, dep) in pairs(Base.invokelatest(Pkg.dependencies)::Dict{Base.UUID, Pkg.API.PackageInfo})
         doc.internal.src_to_uuid[dep.source] = uuid
         if dep.version === nothing || dep.tree_hash === nothing
             continue
@@ -1128,7 +1129,7 @@ function _compare(col, ind, a, b)
 end
 _compare(a, b) = a < b ? -1 : a == b ? 0 : 1
 _isvalid(x, xs) = isempty(xs) || x in xs
-precedence(vec) = Dict(zip(vec, 1:length(vec)))
+precedence(vec) = Dict(zip(vec, 1:(length(vec)::Int)))
 
 ###########################################################################################
 # Conversion to MarkdownAST, for writers
