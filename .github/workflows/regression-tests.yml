@@ -113,7 +113,8 @@ jobs:
     name: "Julia Manual"
     needs: gate
     if: needs.gate.outputs.run-tests == 'true'
-    runs-on: ubuntu-latest
+    # The TeX Live in ubuntu-26.04 ships latexminted 0.6.0, which fails on Python 3.14.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - name: "Install LaTeX dependencies"
