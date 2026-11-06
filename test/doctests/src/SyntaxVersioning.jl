@@ -4,17 +4,7 @@
 module SyntaxVersioning
 
 # Set this module's syntax version to 1.14
-Base.Experimental.@set_syntax_version v"1.14"
-
-"""
-Verify that the syntax version is set correctly.
-
-```jldoctest
-julia> (Base.Experimental.@VERSION).syntax
-v"1.14.0"
-```
-"""
-function check_syntax_version end
+Base.set_syntax_version(@__MODULE__, v"1.14")
 
 """
 This doctest uses labeled break syntax which requires Julia 1.14.
