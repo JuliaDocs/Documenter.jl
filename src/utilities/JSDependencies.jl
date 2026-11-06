@@ -345,7 +345,10 @@ a string literal.
 """
 function json_jsescape(args...)
     escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
-    return reduce(replace, escapes, init = JSON.json(args...))
+    # `invokelatest` stops invalidations of the (dynamically typed) JSON code from
+    # propagating to the callers.
+    json = Base.invokelatest(JSON.json, args...)::String
+    return reduce(replace, escapes, init = json)
 end
 
 end

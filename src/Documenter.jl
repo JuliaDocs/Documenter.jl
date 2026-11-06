@@ -112,4 +112,10 @@ PrecompileTools.@compile_workload begin
     include("docs_precompile/make.jl")
 end
 
+# These blocks evaluate code so they can't be run in the workload (see docs_precompile/make.jl), so
+# we precompile() them explicitly instead.
+for T in (Expanders.EvalBlocks, Expanders.ExampleBlocks, Expanders.REPLBlocks, Expanders.SetupBlocks)
+    precompile(Selectors.runner, (Type{T}, MarkdownAST.Node{Nothing}, Page, Document))
+end
+
 end # module

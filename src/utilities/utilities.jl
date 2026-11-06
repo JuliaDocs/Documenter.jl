@@ -166,7 +166,8 @@ srcpath(source, root, file) = normpath(joinpath(relpath(root, source), file))
 Slugify a string into a suitable URL.
 """
 function slugify(s::AbstractString)
-    s = replace(s, r"\s+" => "-")
+    # `replace` is poorly inferred for abstract strings, which makes it prone to invalidation.
+    s = replace(String(s), r"\s+" => "-")
     s = replace(s, r"&" => "-and-")
     s = replace(s, r"[^\p{L}\p{P}\d\-]+" => "")
     s = strip(replace(s, r"\-\-+" => "-"), '-')
@@ -1062,9 +1063,15 @@ function is_draft(doc, page)::Bool
     return get(page.globals.meta, :Draft, get(page.globals.meta, :draft, is_draft(doc)))
 end
 
+# Helper function that just does `IOCapture.capture` with `invokelatest` to block invalidations
+function iocapture(f; kwargs...)
+    c = Base.invokelatest(IOCapture.capture, f; kwargs...)
+    return c::NamedTuple{(:value, :output, :error, :backtrace), <:Tuple{Any, String, Bool, Any}}
+end
+
 function git(; nothrow = false, kwargs...)
     # DOCUMENTER_KEY etc are never needed for git operations
-    cmd = addenv(Git.git(), NO_KEY_ENV)
+    cmd = addenv(Base.invokelatest(Git.git)::Cmd, NO_KEY_ENV)
     if Sys.iswindows()
         cmd = addenv(
             cmd,
