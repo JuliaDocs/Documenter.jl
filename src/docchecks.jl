@@ -47,6 +47,7 @@ function missingbindings(doc::Document)
     # A binding with a single docstring is covered by any reference to it. Decide this from
     # the original count, since the sets shrink as we go and the iteration order is not fixed.
     single = Set(b for (b, s) in bindings if length(s) == 1)
+    original = Dict(b => copy(s) for (b, s) in bindings)
     for object in keys(doc.internal.objects)
         if !is_canonical(object)
             continue
@@ -67,8 +68,11 @@ function missingbindings(doc::Document)
             signatures = bindings[binding]
             if object.signature ≡ Union{} || binding in single
                 delete!(bindings, binding)
-            elseif object.signature in signatures
+            elseif object.signature in original[binding]
                 delete!(signatures, object.signature)
+            else
+                # With no exact match, `@docs` includes the docstrings of all wider signatures.
+                filter!(s -> !(object.signature <: s), signatures)
             end
         end
     end
