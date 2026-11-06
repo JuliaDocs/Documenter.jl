@@ -50,7 +50,7 @@ function expand(doc::Documenter.Document)
     normal_pages = filter(src -> !(src in priority_pages), keys(doc.blueprint.pages))
     normal_pages = sort([src for src in normal_pages])
     @debug "pages" keys(doc.blueprint.pages) priority_pages normal_pages
-    for src in Iterators.flatten([priority_pages, normal_pages])
+    for src in progress_iter(collect(Iterators.flatten([priority_pages, normal_pages])))
         page = doc.blueprint.pages[src]
         @debug "Running ExpanderPipeline on $src"
         copy!(page.globals.meta, doc.user.meta)
