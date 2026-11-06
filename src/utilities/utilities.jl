@@ -213,16 +213,12 @@ can pass e.g. `parse_error_result = nothing`.
 The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
 and starting line number of the block (requires Julia 1.6 or higher).
 
-The `syntax_version` can be passed as a `VersionNumber` to parse the code using a specific
-Julia syntax version. This requires Julia 1.14 or higher.
-
-The `mod` can be passed as a `Module` to use that module's parser (via `Meta.parser_for_module`).
-If not specified, the default parser is used. When both `syntax_version` and `mod` are specified,
-`syntax_version` takes precedence.
+The `mod` can be passed as a `Module` to use that module's parser. If not specified, the
+default parser is used.
 """
 function parseblock(
         code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
-        linenumbernode = nothing, lines = nothing, syntax_version = nothing, mod = nothing,
+        linenumbernode = nothing, lines = nothing, mod = nothing,
         parse_error_result = []
     )
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
@@ -231,16 +227,8 @@ function parseblock(
     endofstr = lastindex(code)
     results = []
     cursor = 1
-    # Determine which parser to use:
-    # 1. If syntax_version is specified and VersionedParse exists, use versioned parser
-    # 2. Otherwise, use the module's parser via parser_for_module (defaults to Core._parse)
-    _parse = if syntax_version !== nothing && isdefined(Base, :VersionedParse)
-        Base.VersionedParse(syntax_version)
-    elseif isdefined(Meta, :parser_for_module)
-        Meta.parser_for_module(mod)
-    else
-        nothing
-    end
+    # `Meta.parse` and `Meta.parseall` only accept `mod` on Julia 1.14 and later
+    parse_kwargs = VERSION >= v"1.14-" ? (; mod) : (;)
     while cursor < endofstr
         # Check for keywords first since they will throw parse errors if we `parse` them.
         line = match(r"^(.*)\r?\n"m, SubString(code, cursor)).match
@@ -250,11 +238,7 @@ function parseblock(
             (QuoteNode(keyword), cursor + lastindex(line))
         else
             try
-                if _parse !== nothing
-                    Meta.parse(code, cursor; raise = raise, _parse = _parse)
-                else
-                    Meta.parse(code, cursor; raise = raise)
-                end
+                Meta.parse(code, cursor; raise = raise, parse_kwargs...)
             catch err
                 @docerror(doc, :parse_error, "failed to parse code block in $(locrepr(file, lines))", exception = err)
                 return parse_error_result
@@ -267,8 +251,7 @@ function parseblock(
         cursor = ncursor
     end
     if linenumbernode isa LineNumberNode
-        parseall_kwargs = _parse !== nothing ? (; filename = linenumbernode.file, _parse = _parse) : (; filename = linenumbernode.file)
-        exs = Meta.parseall(code; parseall_kwargs...).args
+        exs = Meta.parseall(code; filename = linenumbernode.file, parse_kwargs...).args
         if isempty(results) && length(exs) == 1 && exs[1] isa LineNumberNode
             # block was empty or consisted of just comments
             empty!(exs)
