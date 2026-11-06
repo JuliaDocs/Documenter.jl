@@ -23,6 +23,7 @@ import Unicode
 import Pkg
 import RegistryInstances
 import Git
+import TimerOutputs
 # Additional imported names
 using Test: @testset, @test
 using DocStringExtensions: SIGNATURES, EXPORTS
@@ -78,6 +79,7 @@ include("utilities/utilities.jl")
 include("DocMeta.jl")
 include("DocSystem.jl")
 include("anchors.jl")
+include("timings.jl")
 include("documents.jl")
 include("expander_pipeline.jl")
 include("doctests.jl")

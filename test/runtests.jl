@@ -118,6 +118,10 @@ end
     @info "Building default_meta/tests.jl"
     @quietly include("default_meta/tests.jl")
 
+    # A simple build verifying that build timings are collected
+    @info "Building timings/tests.jl"
+    @quietly include("timings/tests.jl")
+
     # Passing a writer positionally (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
     @test_throws MethodError makedocs(sitename = "", HTML())
 

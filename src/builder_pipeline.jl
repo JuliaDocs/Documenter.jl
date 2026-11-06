@@ -73,7 +73,11 @@ Selectors.strict(::Type{T}) where {T <: Builder.DocumentPipeline} = false
 
 function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.Document)
     @info "SetupBuildDirectory: setting up build directory."
+    TimerOutputs.@timeit doc.user.timer "SetupBuildDirectory" setup_build_directory(doc)
+    return
+end
 
+function setup_build_directory(doc::Documenter.Document)
     # Frequently used fields.
     build = doc.user.build
     source = doc.user.source
@@ -207,7 +211,7 @@ walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
     if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
-        _doctest(doc.blueprint, doc)
+        TimerOutputs.@timeit doc.user.timer "Doctest" _doctest(doc.blueprint, doc)
         num_errors = length(doc.internal.errors)
         if (doc.user.doctest === :only || is_strict(doc, :doctest)) && num_errors > 0
             error("`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build")
@@ -221,32 +225,36 @@ end
 function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    expand(doc)
+    TimerOutputs.@timeit doc.user.timer "ExpandTemplates" expand(doc)
     return
 end
 
 function Selectors.runner(::Type{Builder.CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
-    crossref(doc)
+    TimerOutputs.@timeit doc.user.timer "CrossReferences" crossref(doc)
     return
 end
 
 function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "CheckDocument") && return
     @info "CheckDocument: running document checks."
-    missingdocs(doc)
-    footnotes(doc)
-    linkcheck(doc)
-    githubcheck(doc)
+    TimerOutputs.@timeit doc.user.timer "CheckDocument" begin
+        missingdocs(doc)
+        footnotes(doc)
+        linkcheck(doc)
+        githubcheck(doc)
+    end
     return
 end
 
 function Selectors.runner(::Type{Builder.Populate}, doc::Documenter.Document)
     is_doctest_only(doc, "Populate") && return
     @info "Populate: populating indices."
-    doctest_replace!(doc)
-    populate!(doc)
+    TimerOutputs.@timeit doc.user.timer "Populate" begin
+        doctest_replace!(doc)
+        populate!(doc)
+    end
     return
 end
 
@@ -263,7 +271,7 @@ function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Docume
         )
     else
         @info "RenderDocument: rendering document."
-        Documenter.render(doc)
+        TimerOutputs.@timeit doc.user.timer "RenderDocument" Documenter.render(doc)
     end
     return
 end

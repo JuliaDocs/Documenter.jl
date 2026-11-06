@@ -53,20 +53,35 @@ function expand(doc::Documenter.Document)
     for src in Iterators.flatten([priority_pages, normal_pages])
         page = doc.blueprint.pages[src]
         @debug "Running ExpanderPipeline on $src"
-        copy!(page.globals.meta, doc.user.meta)
-        # We need to collect the child nodes here because we will end up changing the structure
-        # of the tree in some cases.
-        for node in collect(page.mdast.children)
-            Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
-            expand_recursively(node, page, doc)
-        end
-        # Register arbitrary `[content](@id name)` anchors. This runs after the per-node
-        # expansion above (so header `@id` links have already been consumed by TrackHeaders)
-        # and, crucially, before the CrossReferences pipeline stage, so that `@ref`s to these
-        # anchors — including forward references to later pages — can be resolved.
-        collect_named_anchors!(page, doc)
-        pagecheck(doc, page)
-        clear_modules!(page.globals.meta)
+        TimerOutputs.@timeit doc.user.timer src expand_page(page, doc)
+    end
+    return
+end
+
+function expand_page(page, doc)
+    copy!(page.globals.meta, doc.user.meta)
+    # We need to collect the child nodes here because we will end up changing the structure
+    # of the tree in some cases.
+    for node in collect(page.mdast.children)
+        dispatch_timed(Expanders.ExpanderPipeline, node, page, doc)
+        expand_recursively(node, page, doc)
+    end
+    # Register arbitrary `[content](@id name)` anchors. This runs after the per-node
+    # expansion above (so header `@id` links have already been consumed by TrackHeaders)
+    # and, crucially, before the CrossReferences pipeline stage, so that `@ref`s to these
+    # anchors — including forward references to later pages — can be resolved.
+    collect_named_anchors!(page, doc)
+    pagecheck(doc, page)
+    clear_modules!(page.globals.meta)
+    return
+end
+
+function dispatch_timed(pipeline, node, page, doc)
+    dispatch() = Selectors.dispatch(pipeline, node, page, doc)
+    if is_at_block(node.element)
+        TimerOutputs.@timeit doc.user.timer block_label(node.element, page) dispatch()
+    else
+        dispatch()
     end
     return
 end
@@ -83,7 +98,7 @@ function expand_recursively(node, page, doc)
             MarkdownAST.List,
         )
         for child in node.children
-            Selectors.dispatch(Expanders.NestedExpanderPipeline, child, page, doc)
+            dispatch_timed(Expanders.NestedExpanderPipeline, child, page, doc)
             expand_recursively(child, page, doc)
         end
     end
