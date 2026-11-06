@@ -1,0 +1,64 @@
+//Right side Table of Contents
+
+.docs-toc {
+  position: sticky;
+  top: 5rem;
+  width: $documenter-toc-width;
+
+  margin-left: 2rem;
+  padding: 1rem 0 1rem 1rem;
+  border-left: 1px solid $border;
+  font-size: 0.95rem;
+
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+
+
+  @include touch {
+    display: none;
+  }
+
+  @media screen and (max-width: 1350px) {
+    display: none;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    margin: 0.35rem 0;
+    line-height: 1.4;
+  }
+
+  a {
+    text-decoration: none;
+    color: $text;
+    display: block;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .docs-toc-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  li.toplevel {
+    font-weight: 600;
+  }
+
+  li:not(.toplevel) {
+    margin-left: 0.75rem;
+    font-size: 0.9rem;
+  }
+}
