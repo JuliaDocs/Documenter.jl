@@ -36,6 +36,8 @@ if get(ENV, "GITHUB_ACTIONS", nothing) == "true"
     push!(linkcheck_ignore, "https://www.chiark.greenend.org.uk/~sgtatham/putty/")
     # Codeberg answers 403 to Actions runners.
     push!(linkcheck_ignore, r"^https://codeberg.org")
+    # So does the W3C site.
+    push!(linkcheck_ignore, r"^https://www.w3.org")
 end
 
 makedocs(
@@ -111,10 +113,12 @@ if "pdf" in ARGS
         branch = "gh-pages-pdf",
         forcepush = true,
     )
-else
+elseif "linkcheck" ∉ ARGS
+    # The linkcheck job only checks links: the docs job deploys the same build, and the
+    # linkcheck job's token is not allowed to push.
     deploydocs(
         repo = "github.com/JuliaDocs/Documenter.jl.git",
         target = "build",
-        push_preview = "linkcheck" ∉ ARGS,
+        push_preview = true,
     )
 end
