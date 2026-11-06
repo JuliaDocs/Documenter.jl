@@ -25,13 +25,31 @@ end
 # `h` is public here, but the extra methods are documented in a submodule that does not
 # make it public, so only the first two docstrings are checked.
 module MissingDocsMethods
-    export h
+    export h, k, l, n
 
     "h(::Int)"
     h(x::Int) = x
 
     "h(::String)"
     h(x::String) = x
+
+    "k(::Any)"
+    k(x) = x
+
+    "k(::Any, ::Any)"
+    k(x, y) = x
+
+    "l(::Any)"
+    l(x) = x
+
+    "l(::Int)"
+    l(x::Int) = x
+
+    "n(::Int, ::Int)"
+    n(x::Int, y::Int = 1) = x
+
+    "n(::String)"
+    n(x::String) = x
 
     module Extra
         import ..h
@@ -116,8 +134,12 @@ end
         warnonly = true,
         debug = true,
     )
-    @test length(doc.internal.objects) == 4
-    @test @quietly(Documenter.missingdocs(doc)) == 1
+    @test length(doc.internal.objects) == 7
+    # `k(::Int)` has no exact docstring, so it includes `k(::Any)` and leaves `k(::Any, ::Any)`
+    # missing. `n(::Int, ::Int)` likewise includes the docstring with an optional argument.
+    # `l(::Int)` has an exact docstring, so `l(::Any)` stays missing, as do `h(::String)`
+    # and `n(::String)`.
+    @test @quietly(Documenter.missingdocs(doc)) == 4
 end
 
 end
