@@ -70,6 +70,8 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             )
             # Check what we have in gh-pages now:
             run(`$(git()) clone -q -b gh-pages $(full_repo_path) worktree`)
+            # the shallow fetch must not cut the history: initial commit + 4 deploys
+            @test readchomp(`$(git()) -C worktree rev-list --count HEAD`) == "5"
             @test isfile(joinpath("worktree", "index.html"))
             @test isfile(joinpath("worktree", "versions.js"))
             for d in ["dev", "v1.0.0", "v1.1.0", "v3.0.0"]
@@ -106,6 +108,33 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                     "v3", "v3.0", "v3.0.0", "versions.js",
                 ], readdir("worktree")
             )
+        end
+    end
+end
+
+@testset "deploydocs with forcepush" begin
+    mktempdir() do dir
+        cd(dir) do
+            mkdir("repo")
+            run(`$(git()) -C repo init -q --bare`)
+            full_repo_path = joinpath(pwd(), "repo")
+            mkdir("build")
+            write("build/page.html", "...")
+            # the first deploy leaves a history of two commits
+            for (version, forcepush) in [("1.0.0", false), ("1.1.0", true), ("1.2.0", true)]
+                @quietly deploydocs(
+                    root = pwd(),
+                    deploy_config = TestDeployConfig(full_repo_path, version),
+                    repo = full_repo_path,
+                    devbranch = "master",
+                    forcepush = forcepush,
+                )
+            end
+            run(`$(git()) clone -q -b gh-pages $(full_repo_path) worktree`)
+            @test readchomp(`$(git()) -C worktree rev-list --count HEAD`) == "1"
+            for d in ["v1.0.0", "v1.1.0", "v1.2.0"]
+                @test isfile(joinpath("worktree", d, "page.html"))
+            end
         end
     end
 end

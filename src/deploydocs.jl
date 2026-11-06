@@ -389,8 +389,16 @@ function git_push(
 
         # Fetch from remote and checkout the branch.
         run(`$(git()) remote add upstream $upstream`)
-        try
-            run(`$(git()) fetch upstream`)
+        branch_exists = try
+            # `--exit-code`: exit status 2 if the branch does not exist (see `git help ls-remote`)
+            ls_remote = `$(git()) ls-remote --exit-code upstream refs/heads/$branch`
+            exitcode = run(pipeline(ignorestatus(ls_remote); stdout = devnull)).exitcode
+            exitcode in (0, 2) || error("git ls-remote failed with exit code $exitcode")
+            if exitcode == 0
+                # Only the tip is needed, and the history of a deployment branch can be large.
+                run(`$(git()) fetch --depth=1 upstream +refs/heads/$branch:refs/remotes/upstream/$branch`)
+            end
+            exitcode == 0
         catch
             @error """
             Git failed to fetch $upstream
@@ -401,16 +409,13 @@ function git_push(
             rethrow()
         end
 
-        try
+        if branch_exists
             run(`$(git()) checkout -b $branch upstream/$branch`)
-        catch e
+        else
             @info """
-            Checking out $branch failed, creating a new orphaned branch.
-            This usually happens when deploying to a repository for the first time and
-            the $branch branch does not exist yet. The fatal error above is expected output
-            from Git in this situation.
+            The $branch branch does not exist yet, creating a new orphaned branch.
+            This usually happens when deploying to a repository for the first time.
             """
-            @debug "checking out $branch failed with error: $e"
             run(`$(git()) checkout --orphan $branch`)
             run(`$(git()) commit --allow-empty -m "Initial empty commit for docs"`)
         end
