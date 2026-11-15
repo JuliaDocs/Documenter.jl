@@ -1488,3 +1488,13 @@ end
         @test Documenter.verify_github_pull_repository("JuliaDocs/Documenter.jl", 1) === false
     end
 end
+
+@testset "post_github_status" begin
+    withenv("GITHUB_TOKEN" => nothing) do
+        @test Documenter.post_github_status("success", "JuliaDocs/Documenter.jl", "github.com/JuliaDocs/Documenter.jl.git", "abc1234") === nothing
+        @test Documenter.post_github_status("pending", "JuliaDocs/Documenter.jl", "github.com/JuliaDocs/Documenter.jl.git", "abc1234", "subfolder") === nothing
+        @test Documenter.post_github_status("error", "JuliaDocs/Documenter.jl", "github.com/JuliaDocs/Documenter.jl.git", "abc1234") === nothing
+        @test Documenter.post_github_status("failure", "JuliaDocs/Documenter.jl", "github.com/JuliaDocs/Documenter.jl.git", "abc1234") === nothing
+        @test Documenter.post_github_status("success", "JuliaDocs/Documenter.jl", "invalid_repo", "abc1234") === nothing
+    end
+end
