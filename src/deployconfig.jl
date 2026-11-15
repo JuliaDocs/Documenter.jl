@@ -499,7 +499,6 @@ end
 
 function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
     try
-        Sys.which("curl") === nothing && return
         ## Extract owner and repository names
         source_owner, source_repo = split(source, '/')
         m = match(r"^github.com\/(.+?)\/(.+?)(.git)?$", deploydocs_repo)
@@ -510,11 +509,7 @@ function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subf
         ## Need an access token for this
         auth = get(ENV, "GITHUB_TOKEN", nothing)
         auth === nothing && return
-        # construct the curl call
-        cmd = `curl -sX POST`
-        push!(cmd.exec, "-H", "Authorization: token $(auth)")
-        push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
-        push!(cmd.exec, "-H", "Content-Type: application/json")
+
         json = Dict{String, Any}("context" => "documenter/deploy", "state" => type)
         if type == "pending"
             json["description"] = "Documentation build in progress"
@@ -532,12 +527,23 @@ function post_github_status(type::S, source::S, deploydocs_repo::S, sha::S, subf
         else
             error("unsupported type: $type")
         end
-        push!(cmd.exec, "-d", JSON.json(json))
-        push!(cmd.exec, "https://api.github.com/repos/$(source_owner)/$(source_repo)/statuses/$(sha)")
-        # Run the command (silently)
-        io = IOBuffer()
-        res = run(pipeline(cmd; stdout = io, stderr = devnull))
-        @debug "Response of curl POST request" response = String(take!(io))
+
+        input = IOBuffer(JSON.json(json))
+        output = IOBuffer()
+        url = "https://api.github.com/repos/$(source_owner)/$(source_repo)/statuses/$(sha)"
+        resp = Downloads.request(
+            url;
+            method = "POST",
+            input = input,
+            output = output,
+            headers = Dict(
+                "Authorization" => "token $(auth)",
+                "User-Agent" => "Documenter.jl",
+                "Content-Type" => "application/json",
+                "Accept" => "application/vnd.github.v3+json",
+            )
+        )
+        @debug "Response of POST request" response = String(take!(output))
     catch
         @debug "Failed to post status"
     end
@@ -550,22 +556,29 @@ function verify_github_pull_repository(repo, prnr)
         @warn "GITHUB_TOKEN is missing, unable to verify if PR comes from destination repository -- assuming it doesn't."
         return false
     end
-    # Construct the curl call
-    cmd = `curl -s`
-    push!(cmd.exec, "-H", "Authorization: token $(github_token)")
-    push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
-    push!(cmd.exec, "--fail")
-    push!(cmd.exec, "https://api.github.com/repos/$(repo)/pulls/$(prnr)")
+    io = IOBuffer()
+    url = "https://api.github.com/repos/$(repo)/pulls/$(prnr)"
     try
-        # Run the command (silently)
-        response = run_and_capture(cmd)
-        response = JSON.parse(response.stdout)
+        resp = Downloads.request(
+            url;
+            output = io,
+            headers = Dict(
+                "Authorization" => "token $(github_token)",
+                "User-Agent" => "Documenter.jl",
+                "Accept" => "application/vnd.github.v3+json",
+            )
+        )
+        if resp.status != 200
+            @warn "Unable to verify if PR comes from destination repository -- assuming it doesn't."
+            return false
+        end
+        response = JSON.parse(String(take!(io)))
         pr_head_repo = response["head"]["repo"]["full_name"]
         @debug "pr_head_repo = '$pr_head_repo' vs repo = '$repo'"
         return pr_head_repo == repo
     catch e
         @warn "Unable to verify if PR comes from destination repository -- assuming it doesn't."
-        @debug "Running CURL led to an exception:" exception = (e, catch_backtrace())
+        @debug "Request led to an exception:" exception = (e, catch_backtrace())
         return false
     end
 end

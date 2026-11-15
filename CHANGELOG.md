@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+* Use standard library `Downloads.jl` instead of external `curl` process calls for downloading highlight.js files and GitHub status/PR verification. ([#2254], [#3022])
+
 ## Version [v1.20.0] - 2026-11-02
 
 ### Added
@@ -2152,6 +2158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2247]: https://github.com/JuliaDocs/Documenter.jl/issues/2247
 [#2249]: https://github.com/JuliaDocs/Documenter.jl/issues/2249
 [#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
+[#2254]: https://github.com/JuliaDocs/Documenter.jl/issues/2254
 [#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
 [#2260]: https://github.com/JuliaDocs/Documenter.jl/issues/2260
 [#2269]: https://github.com/JuliaDocs/Documenter.jl/issues/2269
@@ -2347,6 +2354,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2997]: https://github.com/JuliaDocs/Documenter.jl/issues/2997
 [#3003]: https://github.com/JuliaDocs/Documenter.jl/issues/3003
 [#3012]: https://github.com/JuliaDocs/Documenter.jl/issues/3012
+[#3022]: https://github.com/JuliaDocs/Documenter.jl/pull/3022
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

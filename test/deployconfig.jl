@@ -1484,13 +1484,17 @@ end
 end
 
 @testset "verify_github_pull_repository" begin
-    if Sys.which("curl") === nothing
-        @warn "'curl' binary not found, skipping related tests."
-    else
-        r = Documenter.run_and_capture(`curl --help`)
-        @test haskey(r, :stdout)
-        @test haskey(r, :stderr)
-        @test r.stdout isa String
-        @test length(r.stdout) > 0
+    withenv("GITHUB_TOKEN" => nothing) do
+        @test Documenter.verify_github_pull_repository("JuliaDocs/Documenter.jl", 1) === false
+    end
+end
+
+@testset "post_github_status" begin
+    withenv("GITHUB_TOKEN" => nothing) do
+        @test Documenter.post_github_status("success", "JuliaDocs/Documenter.jl", "github.com/JuliaDocs/Documenter.jl.git", "abc1234") === nothing
+        @test Documenter.post_github_status("pending", "JuliaDocs/Documenter.jl", "github.com/JuliaDocs/Documenter.jl.git", "abc1234", "subfolder") === nothing
+        @test Documenter.post_github_status("error", "JuliaDocs/Documenter.jl", "github.com/JuliaDocs/Documenter.jl.git", "abc1234") === nothing
+        @test Documenter.post_github_status("failure", "JuliaDocs/Documenter.jl", "github.com/JuliaDocs/Documenter.jl.git", "abc1234") === nothing
+        @test Documenter.post_github_status("success", "JuliaDocs/Documenter.jl", "invalid_repo", "abc1234") === nothing
     end
 end

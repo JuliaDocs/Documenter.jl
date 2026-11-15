@@ -74,6 +74,7 @@ using SHA: SHA
 using CodecZlib: ZlibCompressorStream
 using ANSIColoredPrinters: ANSIColoredPrinters
 using SimpleImageMetadata: SimpleImageMetadata
+using Downloads: Downloads
 
 using ..Documenter: Documenter, Default, Remotes, locrepr
 using ...JSDependencies: JSDependencies
@@ -664,12 +665,6 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
     end
     if highlightjs === nothing
         # Try to download
-        curl = Sys.which("curl")
-        if curl === nothing
-            @error "HTMLWriter: no highlight.js file given and no curl executable found " *
-                "on the system. Setting `prerender=false`."
-            return false, node, highlightjs
-        end
         @debug "HTMLWriter: downloading highlightjs"
         r = Documenter.JSDependencies.RequireJS([])
         RD.highlightjs!(r, highlights)
@@ -680,12 +675,15 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
             # The path will be used as module path to be loaded by Node.js,
             # so we always need `/`. But on Windows, `mktemp` will give `\`.
             path = replace(path, '\\' => '/')
-            for lib in libs
-                println(io, "// $(lib.first)")
-                run(pipeline(`$(curl) -fsSL $(lib.second.url)`; stdout = io))
-                println(io)
+            try
+                for lib in libs
+                    println(io, "// $(lib.first)")
+                    Downloads.download(lib.second.url, io)
+                    println(io)
+                end
+            finally
+                close(io)
             end
-            close(io)
             return path
         end
     end
