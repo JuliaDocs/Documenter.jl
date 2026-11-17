@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Other
+
+* Removed legacy `.prettierrc` and `.prettierignore` files following the migration to Biome. ([#2528])
+
 ## Version [v1.20.0] - 2026-11-02
 
 ### Added
@@ -2230,6 +2236,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
 [#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
+[#2528]: https://github.com/JuliaDocs/Documenter.jl/issues/2528
 [#2543]: https://github.com/JuliaDocs/Documenter.jl/issues/2543
 [#2549]: https://github.com/JuliaDocs/Documenter.jl/issues/2549
 [#2551]: https://github.com/JuliaDocs/Documenter.jl/issues/2551
