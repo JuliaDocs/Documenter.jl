@@ -117,19 +117,31 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
       list-style: none;
       margin: 0;
 
-      > li > .docs-top-dropdown-item {
-        display: block;
-        padding: 0.45rem 1rem;
-        color: $documenter-topmenu-color;
-        text-decoration: none;
-        font-size: 0.875rem;
-        white-space: nowrap;
-        transition: background-color 0.1s ease, color 0.1s ease;
+      // Multi-column layout for long menus
+      // Automatically splits into columns when menu exceeds max-height
+      max-height: calc(100vh - var(--topmenu-height, #{$documenter-topmenu-height}) - 2rem);
+      column-width: 14rem;
+      column-gap: 0;
+      column-fill: balance;
 
-        &:hover {
-          background-color: $documenter-topmenu-hover-background;
-          color: $documenter-topmenu-hover-color;
+      > li {
+        // Prevent items from breaking across columns
+        break-inside: avoid;
+
+        > .docs-top-dropdown-item {
+          display: block;
+          padding: 0.45rem 1rem;
+          color: $documenter-topmenu-color;
           text-decoration: none;
+          font-size: 0.875rem;
+          white-space: nowrap;
+          transition: background-color 0.1s ease, color 0.1s ease;
+
+          &:hover {
+            background-color: $documenter-topmenu-hover-background;
+            color: $documenter-topmenu-hover-color;
+            text-decoration: none;
+          }
         }
       }
     }
