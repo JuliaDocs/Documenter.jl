@@ -68,6 +68,57 @@ $(document).ready(function () {
   }
 });
 
+// Lays out long top-menu dropdowns in multiple columns so that they fit in the
+// viewport. The number of rows is computed from the available height when the
+// dropdown is opened; the grid then grows horizontally to hold all columns.
+$(document).ready(function () {
+  function layoutDropdown() {
+    var menu = $(this).children(".docs-top-dropdown-menu").get(0);
+    if (!menu || menu.children.length === 0) return;
+    // Reset to a single column to measure the natural layout.
+    menu.style.gridAutoFlow = "";
+    menu.style.gridTemplateRows = "";
+    menu.style.left = "";
+    $(menu.children).removeClass(
+      "docs-top-dropdown-sep is-col-top is-col-bottom",
+    );
+    var rect = menu.getBoundingClientRect();
+    if (rect.height === 0) return; // not displayed
+    var items = menu.children;
+    var n = items.length;
+    var itemHeight = items[0].getBoundingClientRect().height;
+    var style = window.getComputedStyle(menu);
+    var padding =
+      parseFloat(style.paddingTop) +
+      parseFloat(style.paddingBottom) +
+      parseFloat(style.borderTopWidth) +
+      parseFloat(style.borderBottomWidth);
+    var available = window.innerHeight - rect.top - 16 - padding;
+    var maxRows = Math.max(1, Math.floor(available / itemHeight));
+    if (n > maxRows) {
+      // Balance the items across the minimal number of columns.
+      var cols = Math.ceil(n / maxRows);
+      var rows = Math.ceil(n / cols);
+      menu.style.gridAutoFlow = "column";
+      menu.style.gridTemplateRows = "repeat(" + rows + ", auto)";
+      // Mark the items of every column but the last, so that CSS can draw a
+      // separator line on their right, inset at the top and bottom.
+      for (var i = 0; i < (cols - 1) * rows; i++) {
+        var item = $(items[i]).addClass("docs-top-dropdown-sep");
+        if (i % rows === 0) item.addClass("is-col-top");
+        if (i % rows === rows - 1) item.addClass("is-col-bottom");
+      }
+    }
+    // Shift the dropdown left if it would overflow the right edge of the viewport.
+    rect = menu.getBoundingClientRect();
+    var overflow = rect.right - document.documentElement.clientWidth;
+    if (overflow > 0) {
+      menu.style.left = -Math.min(overflow, rect.left) + "px";
+    }
+  }
+  $("#documenter .docs-top-dropdown").on("mouseenter focusin", layoutDropdown);
+});
+
 // Scroll the navigation bar to the currently selected menu item
 $(document).ready(function () {
   var sidebar = $("#documenter .docs-menu").get(0);

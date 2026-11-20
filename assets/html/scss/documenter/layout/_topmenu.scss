@@ -117,16 +117,44 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
       list-style: none;
       margin: 0;
 
-      // Multi-column layout for long menus
-      // Automatically splits into columns when menu exceeds max-height
-      max-height: calc(100vh - var(--topmenu-height, #{$documenter-topmenu-height}) - 2rem);
-      column-width: 14rem;
-      column-gap: 0;
-      column-fill: balance;
+      // Multi-column layout for long menus: items flow top-to-bottom and then into
+      // new columns. The number of rows is set by JS (see sidebar.js) based on the
+      // available viewport height; without JS everything stays in a single column.
+      // Unlike CSS multi-column, a column-flow grid grows the box to fit all of its
+      // columns, so the background covers every column, and each column is as wide
+      // as its widest item, so labels are never cut.
+      // JS sets `grid-auto-flow: column` and `grid-template-rows` inline.
+      grid-auto-columns: max-content;
+      // Never exceed the viewport: scroll instead of overflowing (e.g. if the rows
+      // could not be computed, or the columns are wider than the screen).
+      max-height: calc(100vh - var(--topmenu-height, #{$documenter-topmenu-height}) - 1rem);
+      max-width: calc(100vw - 1rem);
+      overflow: auto;
 
       > li {
-        // Prevent items from breaking across columns
-        break-inside: avoid;
+        // Vertical separator between columns (classes are set by JS). The line
+        // stops short of the top and bottom of the menu.
+        &.docs-top-dropdown-sep {
+          position: relative;
+
+          &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            border-right: 1px solid $border;
+            pointer-events: none;
+          }
+
+          &.is-col-top::after {
+            top: 0.5rem;
+          }
+
+          &.is-col-bottom::after {
+            bottom: 0.5rem;
+          }
+        }
 
         > .docs-top-dropdown-item {
           display: block;
@@ -149,7 +177,7 @@ $documenter-topmenu-active-color: $documenter-sidebar-menu-active-color !default
     // Show dropdown on hover (desktop) and when focus is inside (keyboard navigation)
     &:hover > .docs-top-dropdown-menu,
     &:focus-within > .docs-top-dropdown-menu {
-      display: block;
+      display: grid;
     }
   }
 }
