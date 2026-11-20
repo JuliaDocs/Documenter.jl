@@ -532,6 +532,86 @@ end
         @test examples_html_sizethreshold_ignore_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
     end
 
+    @testset "HTML: top_menu" begin
+        doc = Main.examples_html_topmenu_doc
+        @test isa(doc, Documenter.Documenter.Document)
+
+        # Verify top-level navtree has the four section entries
+        @test length(doc.internal.navtree) == 4
+        @test [nn.title_override for nn in doc.internal.navtree] ==
+            ["Getting Started", "User Guide", "Reference", "Hidden Section"]
+        @test [nn.visible for nn in doc.internal.navtree] == [true, true, true, false]
+
+        # Verify each section has its own pages (children of the section navnode)
+        @test length(doc.internal.navtree[1].children) == 2
+        @test length(doc.internal.navtree[2].children) == 2
+
+        # Verify first page of each section (use joinpath for cross-platform compatibility)
+        @test doc.internal.navtree[1].children[1].page == "index.md"
+        @test doc.internal.navtree[2].children[1].page == joinpath("guide", "index.md")
+
+        let build_dir = joinpath(examples_root, "builds", "html-topmenu")
+            # Extracts the <nav> element of the top menu from a page
+            top_menu_html(content) = match(r"<nav class=\"docs-top-menu\".*?</nav>"s, content).match
+            read_page(path...) = read(joinpath(build_dir, path..., "index.html"), String)
+
+            # Check that HTML files were generated
+            @test joinpath(build_dir, "index.html") |> isfile
+            @test joinpath(build_dir, "getting-started", "install", "index.html") |> isfile
+            @test joinpath(build_dir, "guide", "index.html") |> isfile
+            @test joinpath(build_dir, "guide", "advanced", "index.html") |> isfile
+            @test joinpath(build_dir, "reference", "index.html") |> isfile
+            @test joinpath(build_dir, "reference", "extra", "index.html") |> isfile
+            @test joinpath(build_dir, "hidden", "index.html") |> isfile
+
+            # Check that top menu is present in generated HTML
+            page_content = read_page()
+            @test occursin("has-top-menu", page_content)
+            top_menu = top_menu_html(page_content)
+            @test occursin("aria-label=\"Documentation sections\"", top_menu)
+            @test occursin("Getting Started", top_menu)
+            @test occursin("User Guide", top_menu)
+            @test occursin("Reference", top_menu)
+            # Sections hidden with hide() are not shown in the top menu, and neither are
+            # pages hidden with hide(root, children) in the dropdowns
+            @test !occursin("Hidden Section", top_menu)
+            @test !occursin("hidden/", top_menu)
+            @test !occursin("reference/extra/", top_menu)
+
+            # Check dropdown structure is present
+            @test occursin("docs-top-dropdown-menu", top_menu)
+            @test occursin("docs-top-dropdown-item", top_menu)
+            @test occursin("docs-top-dropdown-caret", top_menu)
+
+            # The dropdown items link to the section pages, and the section of the
+            # current page is the active one
+            @test occursin("href=\"getting-started/install/\"", top_menu)
+            @test occursin("href=\"guide/advanced/\"", top_menu)
+            @test occursin(r"<li class=\"docs-top-dropdown is-active\"><a class=\"docs-top-menu-link\" href[^>]*aria-current=\"true\">Getting Started", top_menu)
+
+            # Different sections show different sidebar content
+            guide_content = read_page("guide")
+            @test occursin(r"<li class=\"docs-top-dropdown is-active\"><a [^>]*>User Guide", top_menu_html(guide_content))
+            guide_sidebar = match(r"<ul class=\"docs-menu\">.*?</ul><div class=\"docs-version-selector"s, guide_content).match
+            @test occursin("Advanced", guide_sidebar)
+            @test !occursin("Installation", guide_sidebar)
+
+            # Previous/next links stay within each section
+            @test !occursin("docs-footer-prevpage", guide_content)
+            @test occursin("docs-footer-nextpage", guide_content)
+            @test !occursin("docs-footer-nextpage", read_page("getting-started", "install"))
+
+            # A section that is a page with sub-pages keeps its own page in the sidebar
+            reference_content = read_page("reference")
+            @test occursin(r"<a class=\"tocitem\" href[^>]*>Reference</a>", reference_content)
+            @test occursin("docs-footer-nextpage", reference_content)
+            @test !occursin("docs-footer-prevpage", reference_content)
+            @test occursin("docs-footer-prevpage", read_page("reference", "extra"))
+            # ... and the next page of the last page of a section is not in another section
+            @test !occursin("docs-footer-nextpage", read_page("reference", "extra"))
+        end
+    end
+
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
         @test isa(doc, Documenter.Documenter.Document)
