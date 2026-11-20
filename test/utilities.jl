@@ -879,6 +879,36 @@ end
         @test remove_common_backtrace([1, 2, 3], [0, 1, 2, 3]) == []
     end
 
+    @testset "softscope" begin
+        function toplevel_frame(ex)
+            try
+                Core.eval(Module(), ex)
+            catch
+                st = stacktrace(catch_backtrace())
+                return st[findfirst(f -> f.func === Symbol("top-level scope"), st)]
+            end
+        end
+        # The stack frame of an expression without line number information must still
+        # point to none:1, which Julia 1.14's REPL.softscope would turn into `:?`.
+        frame = toplevel_frame(Documenter.softscope(Meta.parse("error(\"x\")")))
+        @test frame.file === :none
+        @test frame.line == 1
+        # Existing line number information is left alone
+        ex = Expr(:toplevel, LineNumberNode(3, "REPL"), Meta.parse("error(\"x\")"))
+        frame = toplevel_frame(Documenter.softscope(ex))
+        @test frame.file === :REPL
+        @test frame.line == 3
+        # Only expressions get wrapped, as that would add a stack frame
+        @test Documenter.softscope(:x) === :x
+        @test Documenter.softscope(1) === 1
+        @test Documenter.softscope(Expr(:toplevel, LineNumberNode(1, :none), :x)) == Expr(:toplevel, LineNumberNode(1, :none), :x)
+        # .. and the expression does get the REPL's soft scope
+        m = Module()
+        Core.eval(m, :(s = 0))
+        Core.eval(m, Documenter.softscope(Meta.parse("for i in 1:3\n    s += i\nend")))
+        @test Core.eval(m, :s) == 6
+    end
+
     @testset "slugify" begin
         for (test, answer) in [
                 # Nonstrings get converted to strings

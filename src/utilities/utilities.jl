@@ -295,6 +295,35 @@ function parseblock(
 end
 isassign(x) = isexpr(x, :(=), 2) && isa(x.args[1], Symbol)
 
+"""
+    softscope(ex)
+
+Wraps `REPL.softscope`, which makes the parsed expression `ex` use the REPL's "soft"
+scoping rules for global syntax blocks.
+
+On Julia 1.14, `REPL.softscope` converts the expression to the new syntax tree
+representation and back, which changes the stack traces of the evaluated code in two
+ways. We undo both, so that the output of a doctest does not depend on the Julia version:
+
+* Anything that is not an `Expr`, such as the `Symbol` of an undefined variable, is now
+  wrapped in a block too, also when it is an argument of a `:toplevel` expression (as
+  `b;` is parsed). Its evaluation then gains a `top-level scope` stack frame, and with
+  that a stack trace. Soft scope makes no difference to such input, so we leave it as
+  is, like `REPL.softscope` does on earlier Julia versions.
+* `LineNumberNode`s that carry no location (`#= :0 =#`) are inserted in front of the
+  original expression. An expression that had no line number information of its own
+  would then be evaluated as if it came from an unknown file, and its stack frames
+  would print as `@ :?` instead of `@ none:1`. We drop those nodes again.
+"""
+function softscope(@nospecialize ex)
+    ex isa Expr || return ex
+    isexpr(ex, :toplevel) && return Expr(:toplevel, map(softscope, ex.args)...)
+    ex = REPL.softscope(ex)
+    isexpr(ex, :block) || return ex
+    return Expr(:block, filter(!is_empty_linenumbernode, ex.args)...)
+end
+is_empty_linenumbernode(@nospecialize x) = x isa LineNumberNode && x.line <= 0 && (x.file === nothing || isempty(String(x.file)))
+
 function update_linenumbernodes!(x::Expr, newfile, lineshift)
     for i in 1:length(x.args)
         x.args[i] = update_linenumbernodes!(x.args[i], newfile, lineshift)
