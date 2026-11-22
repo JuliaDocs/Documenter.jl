@@ -121,6 +121,31 @@ To write a system of equations, use the `aligned` environment:
 
 These are Maxwell's equations.
 
+## Equation Numbering
+
+When the HTML output uses MathJax (i.e. [`MathJax2`](@ref) or [`MathJax3`](@ref) is passed as the `mathengine`, see [below](@ref "Set math engine and define macros for LaTeX")), AMS-style automatic equation numbering is enabled by default. Equations written using a numbered environment, such as `equation` or `align`, get a number, and can be given a `\label` which can then be referred to with `\eqref` (or `\ref`):
+
+````markdown
+```math
+\begin{equation}
+\label{eq:mass-energy}
+E = mc^2
+\end{equation}
+```
+
+Equation ``\eqref{eq:mass-energy}`` relates mass and energy.
+````
+
+Note that equations are numbered separately on each page, and references only work within the same page.
+
+KaTeX, the default math engine, does not support automatic equation numbering or `\eqref`. However, an equation number can be added manually with `\tag`:
+
+````markdown
+```math
+E = mc^2 \tag{1}
+```
+````
+
 ## Printing LaTeX from Julia
 
 To pretty-print LaTeX from Julia, overload `Base.show` for the
