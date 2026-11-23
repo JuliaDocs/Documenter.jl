@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.20.0] - 2026-11-02
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * An `@contents` or `@index` block whose body fails to parse is now left unexpanded instead of falling back to the defaults, which silently listed the whole document. ([#1140])
 * `@contents` blocks without an explicit `Pages = [...]` now list the pages in the order given by the `pages` argument of `makedocs`, instead of alphabetically by source path. ([#936])
+* The number of missing docstrings reported by `checkdocs` no longer varies from run to run. A binding whose last unmatched docstring was reached by a reference to another of its methods, such as one documented in a module that does not make it public, was counted as covered or missing depending on the order the included docstrings were visited in. ([#2781])
+* `checkdocs_ignored_modules` now also applies to modules that are passed to `modules` directly, not only to their submodules. ([#2781])
 * A fenced code block whose language merely starts with the name of a Documenter block, such as ```` ```jldoctests ```` or ```` ```@examples ````, no longer aborts the build with an `internal error`. Documenter now dispatches on the whole language, so such a block is again passed through as an ordinary code block — and reported with a warning, since it is usually a typo. ([#2997], [#2912])
 * On Julia 1.14, the stack traces of `jldoctest` and `@repl` blocks no longer print the location of the evaluated code as `@ :?` instead of `@ none:1`, and an undefined variable such as `julia> b;` no longer gets a stack trace. ([#3003])
 * PNG and JPEG images from `@example` blocks are now displayed at the size implied by the pixel density stored in the file, instead of being blown up to their raw pixel dimensions. ([#2993])
@@ -1693,6 +1695,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.17.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.17.0
 [v1.18.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.18.0
 [v1.19.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.19.0
+[v1.20.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.20.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -2301,6 +2304,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2772]: https://github.com/JuliaDocs/Documenter.jl/issues/2772
 [#2773]: https://github.com/JuliaDocs/Documenter.jl/issues/2773
 [#2774]: https://github.com/JuliaDocs/Documenter.jl/issues/2774
+[#2781]: https://github.com/JuliaDocs/Documenter.jl/issues/2781
 [#2787]: https://github.com/JuliaDocs/Documenter.jl/issues/2787
 [#2792]: https://github.com/JuliaDocs/Documenter.jl/issues/2792
 [#2793]: https://github.com/JuliaDocs/Documenter.jl/issues/2793
@@ -2346,6 +2350,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2993]: https://github.com/JuliaDocs/Documenter.jl/issues/2993
 [#2997]: https://github.com/JuliaDocs/Documenter.jl/issues/2997
 [#3003]: https://github.com/JuliaDocs/Documenter.jl/issues/3003
+[#3012]: https://github.com/JuliaDocs/Documenter.jl/issues/3012
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
