@@ -1,7 +1,7 @@
 # Tests for syntax versioning support in doctests
 #
 # These tests verify that modules with syntax version set via
-# Base.Experimental.@set_syntax_version have their doctests parsed
+# Base.set_syntax_version have their doctests parsed
 # with the correct syntax version.
 
 module SyntaxVersioningTests
@@ -40,18 +40,18 @@ end
 
 # Only run these tests on Julia 1.14+ where syntax versioning is available
 @testset "Syntax Versioning" begin
-    if !isdefined(Base, :VersionedParse)
+    if VERSION < v"1.14-"
         @info "Skipping syntax versioning tests: requires Julia 1.14+"
         @test_skip false
     else
         include("src/SyntaxVersioning.jl")
         include("src/SyntaxVersioning13.jl")
 
-        @testset "Module with @set_syntax_version v\"1.14\"" begin
+        @testset "Module with syntax version 1.14" begin
             run_doctest(modules = [SyntaxVersioning])
         end
 
-        @testset "Module with @set_syntax_version v\"1.13\" (negative)" begin
+        @testset "Module with syntax version 1.13 (negative)" begin
             run_doctest(modules = [SyntaxVersioning13])
         end
 

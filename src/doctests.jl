@@ -140,6 +140,23 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
         for (k, v) in d
             d[k] = Core.eval(sandbox, v)
         end
+
+        # Extract syntax version: per-block syntax= takes precedence over global DocTestSyntax
+        syntax_version = get(d, :syntax, get(ctx.meta, :DocTestSyntax, nothing))
+
+        mod = ctx.mod
+        if syntax_version !== nothing
+            if (syntax_version.major, syntax_version.minor) > (VERSION.major, VERSION.minor)
+                @warn "Skipping doctest in $(source): syntax version $syntax_version requires a newer Julia (running on Julia $VERSION)"
+                return false
+            elseif VERSION >= v"1.14-"
+                # An explicit syntax version should be rare; just create a
+                # module for it to be parsed into
+                mod = Module()
+                Base.set_syntax_version(mod, syntax_version)
+            end
+        end
+
         ctx.meta[:LocalDocTestArguments] = d
 
         for expr in [get(ctx.meta, :DocTestSetup, []); get(d, :setup, [])]
@@ -155,23 +172,10 @@ function _doctest(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
                 return false
             end
         end
-        # Extract syntax version: per-block syntax= takes precedence over global DocTestSyntax
-        syntax_version = get(d, :syntax, get(ctx.meta, :DocTestSyntax, nothing))
-
-        # Check if syntax versioning is supported (requires Julia 1.14+)
-        if syntax_version !== nothing && !isdefined(Base, :VersionedParse)
-            if syntax_version >= v"1.14"
-                @warn "Skipping doctest in $(source): syntax version $syntax_version requires Julia 1.14 or later (running on Julia $VERSION)"
-                return true  # Skip this doctest but don't treat as error
-            end
-            # For syntax versions < 1.14, we can proceed normally since the syntax should be compatible
-            syntax_version = nothing
-        end
-
         if occursin(r"^julia> "m, block.code)
-            eval_repl(block, sandbox, ctx.meta, ctx.doc, ctx.file; syntax_version = syntax_version, mod = ctx.mod)
+            eval_repl(block, sandbox, ctx.meta, ctx.doc, ctx.file; mod = mod)
         elseif occursin(r"^# output$"m, block.code)
-            eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file; syntax_version = syntax_version, mod = ctx.mod)
+            eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file; mod = mod)
         elseif occursin(r"^# output\s+$"m, block.code)
             @docerror(
                 ctx.doc, :doctest,
@@ -240,7 +244,7 @@ mutable struct Result
 end
 
 
-function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page; syntax_version = nothing, mod = nothing)
+function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page; mod = nothing)
     file = meta[:CurrentFile]
     lines = Documenter.find_block_in_file(block.code, file)
     source = Documenter.locrepr(file, lines)
@@ -248,7 +252,7 @@ function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Docum
     (prefix, split) = repl_splitter(block.code, doc, file, lines)
     for (raw_input, input, output) in split
         result = Result(block, raw_input, input, output, file)
-        for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false, syntax_version = syntax_version, mod = mod)
+        for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false, mod = mod)
             # Input containing a semi-colon gets suppressed in the final output.
             @debug "Evaluating REPL line from doctest at $(source)" unparsed_string = str parsed_expression = ex
             result.hide = REPL.ends_with_semicolon(str)
@@ -272,7 +276,7 @@ function eval_repl(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Docum
     return
 end
 
-function eval_script(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page; syntax_version = nothing, mod = nothing)
+function eval_script(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Documenter.Document, page; mod = nothing)
     # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
     #       Maybe use double blank lines, i.e.
     #
@@ -282,7 +286,7 @@ function eval_script(block::MarkdownAST.CodeBlock, sandbox, meta::Dict, doc::Doc
     input = rstrip(input, '\n')
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
-    for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false, syntax_version = syntax_version, mod = mod)
+    for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false, mod = mod)
         c = IOCapture.capture(rethrow = InterruptException) do
             Core.eval(sandbox, ex)
         end

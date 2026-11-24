@@ -3,14 +3,17 @@
 
 module SyntaxVersioning13
 
-Base.Experimental.@set_syntax_version v"1.13"
+Base.set_syntax_version(@__MODULE__, v"1.13")
 
 """
-Verify that the syntax version is 1.13, not 1.14.
+Labeled break syntax requires Julia 1.14, so it must not parse with syntax version 1.13.
 
 ```jldoctest
-julia> (Base.Experimental.@VERSION).syntax == v"1.13"
-true
+julia> @label myblock begin
+           break myblock 1
+       end
+ERROR: ParseError:
+[...]
 ```
 """
 function check_syntax_version end
